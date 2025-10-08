@@ -80,10 +80,10 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
   return (
     <>
       <Button
-        className="fixed bottom-20 right-4 h-14 w-14 rounded-full shadow-lg z-50 md:bottom-6 md:right-6"
+        className="fixed bottom-20 right-4 h-12 w-12 rounded-full shadow-lg z-50 md:bottom-6 md:right-6"
         onClick={() => setIsOpen(true)}
       >
-        <Bot className="h-7 w-7" />
+        <Bot className="h-6 w-6" />
       </Button>
 
       <div
