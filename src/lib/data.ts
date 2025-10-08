@@ -1,5 +1,5 @@
 
-import type { User, Task, Notification, LocalizedString, LeaderboardEntry, DetailedReportEntry } from './types';
+import type { User, Task, LocalizedString, LeaderboardEntry, DetailedReportEntry } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getAvatarUrl = (seed: number) => `https://picsum.photos/seed/${seed}/100/100`;
@@ -156,12 +156,6 @@ export const tasks: Task[] = [
     comments: [],
     files: [],
   },
-];
-
-export const notifications: Notification[] = [
-  { id: 'notif-1', type: 'status-change', title: { en: 'Task Status Updated', id: 'Status Tugas Diperbarui' }, description: { en: 'Your task "Design new logo concept" was moved to In Review.', id: 'Tugas Anda "Rancang konsep logo baru" dipindahkan ke Dalam Tinjauan.' }, timestamp: '2024-07-25T10:00:00Z', isRead: false },
-  { id: 'notif-2', type: 'comment', title: { en: 'New Comment', id: 'Komentar Baru' }, description: { en: 'Lena commented on "Develop landing page animation".', id: 'Lena mengomentari "Kembangkan animasi halaman arahan".' }, timestamp: '2024-07-25T09:30:00Z', isRead: false },
-  { id: 'notif-3', type: 'task-assigned', title: { en: 'New Task Assigned', id: 'Tugas Baru Ditetapkan' }, description: { en: 'You have been assigned to "User Authentication Flow".', id: 'Anda telah ditugaskan untuk "Alur Otentikasi Pengguna".' }, timestamp: '2024-07-25T08:00:00Z', isRead: true },
 ];
 
 // Calculate scores for leaderboard

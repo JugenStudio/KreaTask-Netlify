@@ -63,15 +63,6 @@ export interface Task {
   totalPoints: number;
 }
 
-export interface Notification {
-  id: string;
-  type: 'task-assigned' | 'comment' | 'status-change';
-  title: LocalizedString;
-  description: LocalizedString;
-  timestamp: string;
-  isRead: boolean;
-}
-
 export interface LeaderboardEntry {
     id: string;
     rank: number;
