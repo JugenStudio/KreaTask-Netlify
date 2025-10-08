@@ -163,11 +163,7 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "Manage your team and application settings.",
-    "user_management": {
-      "title": "User Management",
-      "description": "Assign roles and manage team member permissions."
-    }
+    "description": "Manage your team and application settings."
   },
   "submit": {
     "title": "Submit a New Task",
@@ -175,6 +171,15 @@
   },
   "all_tasks": {
     "title": "All Tasks",
-    "description": "Browse and manage all tasks across the team."
+    "description": "Browse and manage all tasks across the team.",
+    "filter_placeholder": "Filter tasks...",
+    "all_statuses": "All Statuses",
+    "status": {
+      "todo": "To-do",
+      "in_progress": "In Progress",
+      "in_review": "In Review",
+      "completed": "Completed",
+      "blocked": "Blocked"
+    }
   }
 }

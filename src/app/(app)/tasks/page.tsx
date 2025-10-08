@@ -3,12 +3,11 @@
 
 import { useEffect, useState } from "react";
 import { TaskTable } from "@/components/dashboard/task-table";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { allTasks, users } from "@/lib/data";
-import { Filter, Search } from "lucide-react";
-import type { Task, User } from "@/lib/types";
+import { Search } from "lucide-react";
+import type { Task, TaskStatus, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,7 +15,9 @@ import { useLanguage } from "@/providers/language-provider";
 
 export default function AllTasksPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const { t } = useLanguage();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+  const { t, locale } = useLanguage();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -36,7 +37,6 @@ export default function AllTasksPage() {
                 <div className="flex gap-2">
                     <Skeleton className="h-10 w-48" />
                     <Skeleton className="h-10 w-40" />
-                    <Skeleton className="h-10 w-24" />
                 </div>
             </div>
             <Skeleton className="h-96 w-full" />
@@ -47,6 +47,12 @@ export default function AllTasksPage() {
   const visibleTasks: Task[] = isEmployee(currentUser.role)
     ? allTasks.filter(task => task.assignees.some(assignee => assignee.id === currentUser.id))
     : allTasks;
+
+  const filteredTasks = visibleTasks.filter(task => {
+    const matchesSearch = task.title[locale].toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
 
   return (
     <div className="space-y-6">
@@ -60,29 +66,30 @@ export default function AllTasksPage() {
         <div className="flex gap-2 items-center w-full md:w-auto">
             <div className="relative flex-1 md:flex-initial">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Filter tasks..." className="w-full md:w-48 pl-8" />
+                <Input 
+                  placeholder={t('all_tasks.filter_placeholder')} 
+                  className="w-full md:w-48 pl-8"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                />
             </div>
-            <Select>
-                <SelectTrigger className="w-40 hidden md:flex">
-                    <SelectValue placeholder="All Statuses" />
+            <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
+                <SelectTrigger className="w-40">
+                    <SelectValue placeholder={t('all_tasks.all_statuses')} />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="todo">To-do</SelectItem>
-                    <SelectItem value="in-progress">In Progress</SelectItem>
-                    <SelectItem value="in-review">In Review</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
+                    <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
+                    <SelectItem value="To-do">{t('all_tasks.status.todo')}</SelectItem>
+                    <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
+                    <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
+                    <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
+                    <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
                 </SelectContent>
             </Select>
-            <Button variant="outline" className="hidden md:inline-flex">
-                <Filter className="h-4 w-4 mr-2" />
-                Filter
-            </Button>
         </div>
       </div>
       <div className="w-full overflow-x-auto">
-        <TaskTable tasks={visibleTasks} />
+        <TaskTable tasks={filteredTasks} />
       </div>
     </div>
   );

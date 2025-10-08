@@ -163,11 +163,7 @@
   },
   "settings": {
     "title": "Pengaturan",
-    "description": "Kelola tim dan pengaturan aplikasi Anda.",
-    "user_management": {
-      "title": "Manajemen Pengguna",
-      "description": "Tetapkan peran dan kelola izin anggota tim."
-    }
+    "description": "Kelola tim dan pengaturan aplikasi Anda."
   },
   "submit": {
     "title": "Kirim Tugas Baru",
@@ -175,6 +171,15 @@
   },
   "all_tasks": {
     "title": "Semua Tugas",
-    "description": "Telusuri dan kelola semua tugas di seluruh tim."
+    "description": "Telusuri dan kelola semua tugas di seluruh tim.",
+    "filter_placeholder": "Filter tugas...",
+    "all_statuses": "Semua Status",
+    "status": {
+      "todo": "To-do",
+      "in_progress": "Dikerjakan",
+      "in_review": "Ditinjau",
+      "completed": "Selesai",
+      "blocked": "Diblokir"
+    }
   }
 }
