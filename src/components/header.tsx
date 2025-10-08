@@ -25,7 +25,7 @@ import { useLanguage } from "@/providers/language-provider";
 import { ThemeSwitcher } from "./theme-switcher";
 
 export function Header() {
-  const currentUser = users[0]; // Assuming Admin Ali is logged in
+  const currentUser = users[0];
   const { locale, t } = useLanguage();
 
   return (
@@ -74,16 +74,17 @@ export function Header() {
           </PopoverContent>
         </Popover>
 
+        {/* This Dropdown is now for the avatar in all views, not just mobile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full md:hidden">
+            <Button variant="ghost" size="icon" className="rounded-full">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
                 <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{currentUser.name}</p>
