@@ -15,6 +15,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { EditValueModal } from "@/components/performance-report/edit-value-modal";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -22,6 +23,7 @@ export default function PerformanceReportPage() {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -40,8 +42,8 @@ export default function PerformanceReportPage() {
       )
     );
     toast({
-      title: "Nilai Disetujui",
-      description: "Nilai tugas telah divalidasi dan masuk ke riwayat.",
+      title: t('report.toast.approved.title'),
+      description: t('report.toast.approved.description'),
     });
   };
 
@@ -57,8 +59,8 @@ export default function PerformanceReportPage() {
       )
     );
     toast({
-      title: "Nilai Diperbarui & Disetujui",
-      description: `Nilai tugas telah diubah menjadi ${newValue} dan divalidasi.`,
+      title: t('report.toast.updated.title'),
+      description: t('report.toast.updated.description', { value: newValue.toString() }),
     });
     setIsModalOpen(false);
     setSelectedTask(null);
@@ -85,8 +87,8 @@ export default function PerformanceReportPage() {
   const handleExportCSV = () => {
     if (completedTasks.length === 0) {
       toast({
-        title: "No Data to Export",
-        description: "There are no completed tasks to export.",
+        title: t('report.toast.export_failed.title'),
+        description: t('report.toast.export_failed.description'),
         variant: "destructive",
       });
       return;
@@ -126,8 +128,8 @@ export default function PerformanceReportPage() {
     document.body.removeChild(link);
     
     toast({
-      title: "Export Successful",
-      description: "Task history has been downloaded as CSV.",
+      title: t('report.toast.export_success.title'),
+      description: t('report.toast.export_success.description'),
     });
   };
 
@@ -150,15 +152,15 @@ export default function PerformanceReportPage() {
           <div>
             <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
               <History className="h-8 w-8" />
-              Riwayat Tugas Selesai
+              {t('report.employee_view.title')}
             </h1>
             <p className="text-muted-foreground">
-              Berikut adalah daftar semua tugas yang telah Anda selesaikan dan nilainya.
+              {t('report.employee_view.description')}
             </p>
           </div>
            <Button onClick={handleExportCSV}>
             <FileDown className="h-4 w-4 mr-2" />
-            Export to CSV
+            {t('report.export_csv')}
           </Button>
         </div>
         <Card>
@@ -178,30 +180,30 @@ export default function PerformanceReportPage() {
       <div className="space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 className="text-3xl font-bold font-headline">Laporan & Validasi Kinerja</h1>
-                <p className="text-muted-foreground">Setujui nilai tugas dan lihat riwayat kinerja tim.</p>
+                <h1 className="text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
+                <p className="text-muted-foreground">{t('report.director_view.description')}</p>
             </div>
             <Button onClick={handleExportCSV}>
               <FileDown className="h-4 w-4 mr-2" />
-              Export to CSV
+              {t('report.export_csv')}
             </Button>
           </div>
 
           {/* Validation Panel */}
           <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><ThumbsUp className="h-6 w-6 text-primary"/> Menunggu Validasi Anda</CardTitle>
-                  <CardDescription>Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.</CardDescription>
+                  <CardTitle className="flex items-center gap-2"><ThumbsUp className="h-6 w-6 text-primary"/> {t('report.validation_panel.title')}</CardTitle>
+                  <CardDescription>{t('report.validation_panel.description')}</CardDescription>
               </CardHeader>
               <CardContent>
                   <div className="w-full overflow-x-auto">
                       <Table>
                           <TableHeader>
                               <TableRow>
-                                  <TableHead>Tugas</TableHead>
-                                  <TableHead>Karyawan</TableHead>
-                                  <TableHead>Nilai Diajukan</TableHead>
-                                  <TableHead className="text-right">Aksi</TableHead>
+                                  <TableHead>{t('report.validation_panel.table.task')}</TableHead>
+                                  <TableHead>{t('report.validation_panel.table.employee')}</TableHead>
+                                  <TableHead>{t('report.validation_panel.table.value')}</TableHead>
+                                  <TableHead className="text-right">{t('report.validation_panel.table.actions')}</TableHead>
                               </TableRow>
                           </TableHeader>
                           <TableBody>
@@ -213,13 +215,13 @@ export default function PerformanceReportPage() {
                                           <Badge variant="outline">{task.value} Poin</Badge>
                                       </TableCell>
                                       <TableCell className="text-right space-x-2 whitespace-nowrap">
-                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(task)}><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
-                                          <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
+                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(task)}><Edit className="h-4 w-4 mr-2" /> {t('report.validation_panel.buttons.edit')}</Button>
+                                          <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> {t('report.validation_panel.buttons.approve')}</Button>
                                       </TableCell>
                                   </TableRow>
                               )) : (
                                   <TableRow>
-                                      <TableCell colSpan={4} className="h-24 text-center">Tidak ada tugas yang memerlukan validasi saat ini.</TableCell>
+                                      <TableCell colSpan={4} className="h-24 text-center">{t('report.validation_panel.empty')}</TableCell>
                                   </TableRow>
                               )}
                           </TableBody>
@@ -234,10 +236,10 @@ export default function PerformanceReportPage() {
                   <div>
                       <h2 className="text-2xl font-bold font-headline flex items-center gap-3">
                           <History className="h-7 w-7" />
-                          Riwayat Semua Tugas Selesai
+                          {t('report.history_panel.title')}
                       </h2>
                       <p className="text-muted-foreground">
-                          Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim, termasuk yang sudah dan belum divalidasi.
+                          {t('report.history_panel.description')}
                       </p>
                   </div>
               </div>

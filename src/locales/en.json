@@ -75,7 +75,7 @@
   "report": {
     "title": "Detailed Performance Report",
     "description": "A detailed breakdown of all assessed tasks for the period.",
-    "export_csv": "Export CSV",
+    "export_csv": "Export to CSV",
     "table": {
       "employee": "Employee Name",
       "task_title": "Task Title",
@@ -89,6 +89,67 @@
       "ai_justification": "AI Justification",
       "reviewer": "Reviewer",
       "assessment_date": "Assessment Date"
+    },
+    "employee_view": {
+      "title": "Completed Task History",
+      "description": "Here is a list of all the tasks you have completed and their values."
+    },
+    "director_view": {
+      "title": "Performance Report & Validation",
+      "description": "Approve task scores and view team performance history."
+    },
+    "validation_panel": {
+      "title": "Awaiting Your Validation",
+      "description": "List of tasks whose scores need to be approved by you as the Main Director.",
+      "table": {
+        "task": "Task",
+        "employee": "Employee",
+        "value": "Submitted Value",
+        "actions": "Actions"
+      },
+      "buttons": {
+        "edit": "Edit",
+        "approve": "Approve"
+      },
+      "empty": "No tasks require validation at this time."
+    },
+    "history_panel": {
+      "title": "All Completed Task History",
+      "description": "Here is a list of all tasks completed by the team, including those that have been validated and those that have not."
+    },
+    "toast": {
+      "approved": {
+        "title": "Value Approved",
+        "description": "The task value has been validated and entered into the history."
+      },
+      "updated": {
+        "title": "Value Updated & Approved",
+        "description": "The task value has been changed to {{value}} and validated."
+      },
+      "export_success": {
+        "title": "Export Successful",
+        "description": "Task history has been downloaded as CSV."
+      },
+      "export_failed": {
+        "title": "No Data to Export",
+        "description": "There are no completed tasks to export."
+      }
     }
+  },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your team and application settings.",
+    "user_management": {
+      "title": "User Management",
+      "description": "Assign roles and manage team member permissions."
+    }
+  },
+  "submit": {
+    "title": "Submit a New Task",
+    "description": "Fill out the details below to create a new task."
+  },
+  "all_tasks": {
+    "title": "All Tasks",
+    "description": "Browse and manage all tasks across the team."
   }
 }

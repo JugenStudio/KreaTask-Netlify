@@ -12,9 +12,11 @@ import type { Task, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function AllTasksPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -50,9 +52,9 @@ export default function AllTasksPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">All Tasks</h1>
+          <h1 className="text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
           <p className="text-muted-foreground">
-            Browse and manage all tasks across the team.
+            {t('all_tasks.description')}
           </p>
         </div>
         <div className="flex gap-2 items-center w-full md:w-auto">

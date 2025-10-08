@@ -8,9 +8,11 @@ import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function SettingsPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { t } = useLanguage();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -42,14 +44,14 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-headline">Settings</h1>
-        <p className="text-muted-foreground">Manage your team and application settings.</p>
+        <h1 className="text-3xl font-bold font-headline">{t('settings.title')}</h1>
+        <p className="text-muted-foreground">{t('settings.description')}</p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">User Management</CardTitle>
+          <CardTitle className="font-headline">{t('settings.user_management.title')}</CardTitle>
           <CardDescription>
-            Assign roles and manage team member permissions.
+            {t('settings.user_management.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>

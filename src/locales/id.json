@@ -75,7 +75,7 @@
   "report": {
     "title": "Laporan Kinerja Rinci",
     "description": "Rincian detail dari semua tugas yang dinilai untuk periode ini.",
-    "export_csv": "Ekspor CSV",
+    "export_csv": "Ekspor ke CSV",
     "table": {
       "employee": "Nama Karyawan",
       "task_title": "Judul Tugas",
@@ -89,6 +89,67 @@
       "ai_justification": "Justifikasi AI",
       "reviewer": "Peninjau",
       "assessment_date": "Tanggal Penilaian"
+    },
+    "employee_view": {
+      "title": "Riwayat Tugas Selesai",
+      "description": "Berikut adalah daftar semua tugas yang telah Anda selesaikan dan nilainya."
+    },
+    "director_view": {
+      "title": "Laporan & Validasi Kinerja",
+      "description": "Setujui nilai tugas dan lihat riwayat kinerja tim."
+    },
+    "validation_panel": {
+      "title": "Menunggu Validasi Anda",
+      "description": "Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.",
+      "table": {
+        "task": "Tugas",
+        "employee": "Karyawan",
+        "value": "Nilai Diajukan",
+        "actions": "Aksi"
+      },
+      "buttons": {
+        "edit": "Ubah",
+        "approve": "Setujui"
+      },
+      "empty": "Tidak ada tugas yang memerlukan validasi saat ini."
+    },
+    "history_panel": {
+      "title": "Riwayat Semua Tugas Selesai",
+      "description": "Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim, termasuk yang sudah dan belum divalidasi."
+    },
+    "toast": {
+      "approved": {
+        "title": "Nilai Disetujui",
+        "description": "Nilai tugas telah divalidasi dan masuk ke riwayat."
+      },
+      "updated": {
+        "title": "Nilai Diperbarui & Disetujui",
+        "description": "Nilai tugas telah diubah menjadi {{value}} dan divalidasi."
+      },
+      "export_success": {
+        "title": "Ekspor Berhasil",
+        "description": "Riwayat tugas telah diunduh sebagai CSV."
+      },
+      "export_failed": {
+        "title": "Tidak Ada Data untuk Diekspor",
+        "description": "Tidak ada tugas yang selesai untuk diekspor."
+      }
     }
+  },
+  "settings": {
+    "title": "Pengaturan",
+    "description": "Kelola tim dan pengaturan aplikasi Anda.",
+    "user_management": {
+      "title": "Manajemen Pengguna",
+      "description": "Tetapkan peran dan kelola izin anggota tim."
+    }
+  },
+  "submit": {
+    "title": "Kirim Tugas Baru",
+    "description": "Isi detail di bawah ini untuk membuat tugas baru."
+  },
+  "all_tasks": {
+    "title": "Semua Tugas",
+    "description": "Telusuri dan kelola semua tugas di seluruh tim."
   }
 }
