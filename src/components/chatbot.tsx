@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
@@ -13,7 +14,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { Task, User, LeaderboardEntry } from '@/lib/types';
+import type { Task, User, LeaderboardEntry, UserRole } from '@/lib/types';
 import { getKreaBotResponse } from '@/app/actions';
 import { useLanguage } from '@/providers/language-provider';
 

@@ -3,26 +3,41 @@
 
 import { TaskCard } from "@/components/dashboard/task-card";
 import { TopPerformerCard } from "@/components/dashboard/top-performer-card";
-import { tasks, users, leaderboardData } from "@/lib/data";
+import { allTasks, users, leaderboardData } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { BookOpen, Trophy, Clock, Users } from "lucide-react";
+import { BookOpen, Trophy, Clock, Users as UsersIcon } from "lucide-react";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { Chatbot } from "@/components/chatbot";
+import type { Task, User, UserRole } from "@/lib/types";
+
+const EMPLOYEE_ROLES: UserRole[] = ['Jurnalis', 'Social Media Officer', 'Desain Grafis', 'Marketing', 'Finance'];
 
 export default function DashboardPage() {
-  const currentUser = users[0];
+  const currentUser = users[0]; // Simulating logged in user
   const { t } = useLanguage();
+
+  let visibleTasks: Task[];
+
+  if (EMPLOYEE_ROLES.includes(currentUser.role)) {
+    // Karyawan (Level 1) sees only their own tasks
+    visibleTasks = allTasks.filter(task => 
+      task.assignees.some(assignee => assignee.id === currentUser.id)
+    );
+  } else {
+    // Direktur & Super User (Level 2 & 3) see all tasks
+    visibleTasks = allTasks;
+  }
 
   const topThree = leaderboardData.slice(0, 3);
   const topPerformer = leaderboardData[0];
 
-  const inProgressTasks = tasks
+  const inProgressTasks = visibleTasks
     .filter((t) => t.status === "In Progress")
     .slice(0, 2);
-  const inReviewTasks = tasks
+  const inReviewTasks = visibleTasks
     .filter((t) => t.status === "In Review")
     .slice(0, 2);
 
@@ -38,7 +53,7 @@ export default function DashboardPage() {
             leaderboardData.length
         )
       : 0;
-  const overdueTasks = tasks.filter(
+  const overdueTasks = allTasks.filter(
     (t) => new Date(t.dueDate) < new Date() && t.status !== "Completed"
   ).length;
 
@@ -65,7 +80,7 @@ export default function DashboardPage() {
         <StatsCard
           title="Total Team Members"
           value={totalTeamMembers}
-          icon={Users}
+          icon={UsersIcon}
           href="/settings"
         />
         <StatsCard
@@ -128,7 +143,7 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
-      <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
+      <Chatbot tasks={visibleTasks} users={users} leaderboardData={leaderboardData} />
     </div>
   );
 }

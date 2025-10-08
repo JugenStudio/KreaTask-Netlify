@@ -1,5 +1,6 @@
 
-export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member' | 'Journalist' | 'Social Media Officer' | 'Graphic Designer' | 'Marketing' | 'Finance';
+
+export type UserRole = 'Direktur Utama' | 'Direktur Operasional' | 'Jurnalis' | 'Social Media Officer' | 'Desain Grafis' | 'Marketing' | 'Finance';
 
 export enum TaskCategory {
   Low = 'Low',

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -20,7 +21,7 @@ import {
 import type { User, UserRole } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
-const roles: UserRole[] = ["Administrator", "Team Leader", "Journalist", "Social Media Officer", "Graphic Designer", "Marketing", "Finance", "Team Member"];
+const roles: UserRole[] = ["Direktur Utama", "Direktur Operasional", "Jurnalis", "Social Media Officer", "Desain Grafis", "Marketing", "Finance"];
 
 export function UserTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers);
