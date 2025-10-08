@@ -100,7 +100,7 @@ export function DetailedReportDialog({
                 {t('report.export_csv')}
             </Button>
         </div>
-        <ScrollArea className="h-full">
+        <div className="h-full relative">
           <Table>
             <TableHeader>
               <TableRow>
@@ -137,7 +137,7 @@ export function DetailedReportDialog({
               ))}
             </TableBody>
           </Table>
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
