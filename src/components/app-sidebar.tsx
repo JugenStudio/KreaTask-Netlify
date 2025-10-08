@@ -30,10 +30,10 @@ export function AppSidebar({ user }: { user: User }) {
   ];
 
   return (
-    <aside className="w-64 flex-col border-r border-border/20 bg-black/10 p-4 hidden md:flex backdrop-blur-lg">
+    <aside className="w-64 flex-col border-r border-border bg-card p-4 hidden md:flex">
       <div className="flex items-center gap-2 px-2 py-4">
         <Flame className="h-8 w-8 text-primary" />
-        <h1 className="text-2xl font-headline font-bold text-white">KreaTask</h1>
+        <h1 className="text-2xl font-headline font-bold text-foreground">KreaTask</h1>
       </div>
       <nav className="mt-8 flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
