@@ -1,7 +1,6 @@
-
 "use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, LineChart, BookOpen } from "lucide-react";
 import { leaderboardData } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
@@ -13,23 +12,21 @@ export default function LeaderboardPage() {
   const { t } = useLanguage();
 
   const totalTasks = leaderboardData.reduce((sum, user) => sum + user.tasksCompleted, 0);
-  const avgScore = Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length);
+  const avgScore = leaderboardData.length > 0 ? Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length) : 0;
 
   return (
     <div className="space-y-8">
-      <div className="flex justify-between items-start">
-        <div className="text-left">
-          <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
-            <LineChart className="h-8 w-8 md:h-10 md:w-10 text-primary" />
-            {t('leaderboard.title')}
-          </h1>
-          <p className="text-muted-foreground text-base md:text-lg">{t('leaderboard.description')}</p>
-        </div>
+      <div>
+        <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
+          <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
+          {t('leaderboard.title')}
+        </h1>
+        <p className="text-muted-foreground text-base md:text-lg">{t('leaderboard.description')}</p>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        <StatsCard title="Total Tasks Completed" value={totalTasks} icon={BookOpen} color="yellow" />
-        <StatsCard title="Average Score" value={avgScore} icon={Trophy} color="green" />
+        <StatsCard title="Total Tasks Completed" value={totalTasks} icon={BookOpen} />
+        <StatsCard title="Average Score" value={avgScore} icon={Trophy} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
