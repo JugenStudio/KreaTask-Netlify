@@ -21,7 +21,7 @@ import {
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
-import { isEmployee } from "@/lib/roles";
+import { isEmployee, isDirector } from "@/lib/roles";
 
 const roles: UserRole[] = Object.values(UserRole);
 
@@ -33,12 +33,8 @@ interface UserTableProps {
 export function UserTable({ initialUsers, currentUser }: UserTableProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const { toast } = useToast();
-
-  const canEditRoles = !isEmployee(currentUser.role);
-
+  
   const handleRoleChange = (userId: string, newRole: UserRole) => {
-    if (!canEditRoles) return;
-
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
         user.id === userId ? { ...user, role: newRole } : user
@@ -49,6 +45,23 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
       title: "User Role Updated",
       description: `${user?.name}'s role has been changed to ${newRole}.`,
     });
+  };
+
+  const canEditTargetUser = (targetUser: User): boolean => {
+    // Cannot edit yourself
+    if (currentUser.id === targetUser.id) {
+      return false;
+    }
+    // Level 3 (Direktur Utama) can edit anyone
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
+      return true;
+    }
+    // Level 2 (other Directors) can only edit employees
+    if (isDirector(currentUser.role) && isEmployee(targetUser.role)) {
+      return true;
+    }
+    // Employees (Level 1) and all other cases cannot edit
+    return false;
   };
 
   return (
@@ -79,7 +92,7 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
                 onValueChange={(value: UserRole) =>
                   handleRoleChange(user.id, value)
                 }
-                disabled={!canEditRoles}
+                disabled={!canEditTargetUser(user)}
               >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Select role" />
