@@ -1,6 +1,9 @@
+"use client";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ArrowRight } from "lucide-react";
 
 interface StatsCardProps {
   title: string;
@@ -34,7 +37,7 @@ export function StatsCard({ title, value, icon: Icon, color = "default" }: Stats
         <div className="flex justify-between items-end">
             <p className="text-3xl font-bold text-card-foreground">{value}</p>
             <div className={cn("p-2 rounded-full bg-card/50 cursor-pointer", arrowColorClasses[color])}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="h-5 w-5"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                <ArrowRight className="h-5 w-5" />
             </div>
         </div>
       </CardContent>
