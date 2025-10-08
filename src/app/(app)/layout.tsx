@@ -13,10 +13,8 @@ export default function AppLayout({
   return (
     <LanguageProvider>
       <div className="flex min-h-screen w-full">
-        {/* The sidebar no longer needs the user prop */}
         <AppSidebar user={currentUser} />
         <div className="flex flex-1 flex-col">
-          {/* Header now manages the user menu */}
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             {children}

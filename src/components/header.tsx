@@ -1,7 +1,8 @@
 "use client";
 
+import React from "react";
 import Link from "next/link";
-import { Bell, Search, User as UserIcon, Settings, LogOut } from "lucide-react";
+import { Bell, Search, User as UserIcon, Settings, LogOut, Sun, Moon, Laptop, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -11,6 +12,10 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import {
   Popover,
@@ -20,13 +25,27 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users, notifications } from "@/lib/data";
 import { Separator } from "./ui/separator";
-import { LanguageSwitcher } from "./language-switcher";
 import { useLanguage } from "@/providers/language-provider";
-import { ThemeSwitcher } from "./theme-switcher";
 
 export function Header() {
   const currentUser = users[0];
-  const { locale, t } = useLanguage();
+  const { locale, t, setLocale } = useLanguage();
+  const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("dark")
+
+  React.useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains("dark")
+    setThemeState(isDarkMode ? "dark" : "theme-light")
+  }, [])
+
+  React.useEffect(() => {
+    const isDark =
+      theme === "dark" ||
+      (theme === "system" &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches)
+    document.documentElement.classList[isDark ? "add" : "remove"]("dark")
+    document.documentElement.classList[isDark ? "remove" : "add"]("light")
+  }, [theme])
+
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 w-full">
@@ -39,8 +58,6 @@ export function Header() {
         />
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <ThemeSwitcher />
-        <LanguageSwitcher />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">
@@ -74,7 +91,6 @@ export function Header() {
           </PopoverContent>
         </Popover>
 
-        {/* This Dropdown is now for the avatar in all views, not just mobile */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full">
@@ -104,6 +120,33 @@ export function Header() {
                 <span>{t('header.settings')}</span>
               </Link>
             </DropdownMenuItem>
+            <DropdownMenuSeparator />
+             <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <Languages className="mr-2 h-4 w-4" />
+                <span>Language</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setLocale("id")}>Bahasa Indonesia</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                 <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+                 <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+                <span>Theme</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem onClick={() => setThemeState("theme-light")}>Light</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setThemeState("dark")}>Dark</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setThemeState("system")}>System</DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <LogOut className="mr-2 h-4 w-4" />
