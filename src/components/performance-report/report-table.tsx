@@ -10,16 +10,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { DetailedReportEntry } from "@/lib/types";
+import type { Task } from "@/lib/types";
 import { Badge } from "../ui/badge";
 import { useLanguage } from "@/providers/language-provider";
 import { Button } from "../ui/button";
 
 interface ReportTableProps {
-  reportData: DetailedReportEntry[];
+  tasks: Task[];
 }
 
-export function ReportTable({ reportData }: ReportTableProps) {
+export function ReportTable({ tasks }: ReportTableProps) {
   const { locale } = useLanguage();
 
   return (
@@ -27,42 +27,40 @@ export function ReportTable({ reportData }: ReportTableProps) {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Employee</TableHead>
             <TableHead>Task Title</TableHead>
-            <TableHead>Jabatan</TableHead>
+            <TableHead>Category</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>Completed On</TableHead>
             <TableHead className="text-right">Score</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {reportData.length > 0 ? (
-            reportData.map((row) => (
-              <TableRow key={row.id}>
+          {tasks.length > 0 ? (
+            tasks.map((task) => (
+              <TableRow key={task.id}>
                 <TableCell className="font-medium whitespace-nowrap">
-                  {row.employeeName}
-                </TableCell>
-                <TableCell className="whitespace-normal break-words max-w-xs">
-                  {row.taskTitle[locale]}
+                  {task.title[locale]}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{row.role}</Badge>
+                  <Badge variant="outline">{task.category}</Badge>
                 </TableCell>
                 <TableCell>
                   <Badge
-                    variant={
-                      row.status === "Terlambat" ? "destructive" : "secondary"
-                    }
+                    variant={"secondary"}
                   >
-                    {row.status}
+                    {task.status}
                   </Badge>
                 </TableCell>
+                <TableCell>
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </TableCell>
                 <TableCell className="font-bold text-right">
-                  {row.taskScore}
+                  {task.totalPoints}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/tasks/${row.taskId}`}>View</Link>
+                    <Link href={`/tasks/${task.id}`}>View</Link>
                   </Button>
                 </TableCell>
               </TableRow>
@@ -73,7 +71,7 @@ export function ReportTable({ reportData }: ReportTableProps) {
                 colSpan={6}
                 className="h-24 text-center text-muted-foreground"
               >
-                No results found.
+                No completed tasks found.
               </TableCell>
             </TableRow>
           )}

@@ -11,22 +11,30 @@ import {
   User as UserIcon,
   LogOut,
   FileText,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import type { User } from "@/lib/types";
 import Image from "next/image";
+import { isEmployee } from "@/lib/roles";
 
 export function AppSidebar({ user }: { user: User }) {
   const pathname = usePathname();
   const { t } = useLanguage();
+
+  const isLvl1 = isEmployee(user.role);
 
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
-    { href: "/profile", icon: UserIcon, label: t('sidebar.profile') },
+    { 
+      href: isLvl1 ? "/performance-report" : "/profile", 
+      icon: isLvl1 ? History : UserIcon, 
+      label: isLvl1 ? "Riwayat Kinerja" : t('sidebar.profile')
+    },
   ];
 
   return (

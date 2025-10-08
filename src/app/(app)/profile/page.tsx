@@ -8,10 +8,60 @@ import { Label } from "@/components/ui/label";
 import { users } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
 import { Camera } from "lucide-react";
+import { useEffect, useState } from "react";
+import type { User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ProfilePage() {
-  const currentUser = users[0];
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+    if (selectedRole) {
+      const user = users.find(u => u.role === selectedRole);
+      setCurrentUser(user || users[0]);
+    } else {
+      setCurrentUser(users[0]);
+    }
+  }, []);
+
+  if (!currentUser) {
+    return (
+        <div className="space-y-6 max-w-4xl mx-auto">
+            <div>
+                <Skeleton className="h-10 w-1/3" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+            </div>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-4 w-1/2 mt-2" />
+                </CardHeader>
+                <CardContent className="flex items-center gap-6">
+                    <Skeleton className="h-24 w-24 rounded-full" />
+                    <div className="space-y-2">
+                        <Skeleton className="h-6 w-32" />
+                        <Skeleton className="h-4 w-48" />
+                        <Skeleton className="h-4 w-24" />
+                    </div>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/4" />
+                    <Skeleton className="h-4 w-1/2 mt-2" />
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-full" />
+                    <Skeleton className="h-10 w-24 self-end" />
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
 
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
