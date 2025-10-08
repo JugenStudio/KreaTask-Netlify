@@ -30,7 +30,7 @@ export function AppSidebar({ user }: { user: User }) {
   ];
 
   return (
-    <aside className="w-64 flex-col border-r border-border bg-card p-4 hidden md:flex">
+    <aside className="w-64 flex-col border-r border-border bg-card p-4">
       <div className="flex items-center gap-2 px-2 py-4">
         <Flame className="h-8 w-8 text-primary" />
         <h1 className="text-2xl font-headline font-bold text-foreground">KreaTask</h1>

@@ -6,6 +6,8 @@ import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
 import { tasks, users, leaderboardData } from "@/lib/data";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { BottomNav } from "@/components/bottom-nav";
 
 export default function AppLayout({
   children,
@@ -13,19 +15,22 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const currentUser = users[0];
+  const isMobile = useIsMobile();
+
   return (
     <LanguageProvider>
       <div className={cn("min-h-screen w-full bg-background")}>
         <div className="flex min-h-screen w-full">
-          <AppSidebar user={currentUser} />
+          {!isMobile && <AppSidebar user={currentUser} />}
           <div className="flex flex-1 flex-col bg-transparent">
             <Header />
-            <main className="flex-1 p-4 md:p-6 lg:p-8">
+            <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-8">
               {children}
             </main>
           </div>
           <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
         </div>
+        {isMobile && <BottomNav />}
       </div>
     </LanguageProvider>
   );
