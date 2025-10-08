@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   Tabs,
   TabsContent,
@@ -16,7 +17,9 @@ import { useLanguage } from "@/providers/language-provider";
 export default function TaskDetailPage() {
   const params = useParams();
   const id = params.id as string;
-  const task = tasks.find((t) => t.id === id);
+  
+  const task = useMemo(() => tasks.find((t) => t.id === id), [id]);
+  
   const currentUser = users[0]; // Assume logged in user
   const { t } = useLanguage();
 
