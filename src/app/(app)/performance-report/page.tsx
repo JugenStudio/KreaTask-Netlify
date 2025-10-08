@@ -1,21 +1,24 @@
 
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState }from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { allTasks, users } from "@/lib/data";
+import { allTasks as initialTasks, users } from "@/lib/data";
 import type { Task, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History, CheckCircle, Edit } from "lucide-react";
+import { History, CheckCircle, Edit, ThumbsUp } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { toast } = useToast();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -27,22 +30,42 @@ export default function PerformanceReportPage() {
     }
   }, []);
 
+  const handleApprove = (taskId: string) => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        task.id === taskId ? { ...task, approvedBy: "Direktur Utama" } : task
+      )
+    );
+    toast({
+      title: "Nilai Disetujui",
+      description: "Nilai tugas telah divalidasi dan masuk ke riwayat.",
+    });
+  };
+
+  const handleEdit = () => {
+    toast({
+      title: "Fitur Dalam Pengembangan",
+      description: "Modal untuk mengubah nilai tugas sedang disiapkan.",
+    });
+  };
+
   const completedTasks = useMemo(() => {
     if (!currentUser) return [];
     if (isEmployee(currentUser.role)) {
-      return allTasks.filter(task => 
+      return tasks.filter(task => 
         task.status === "Completed" && 
         task.assignees.some(assignee => assignee.id === currentUser.id)
       );
     }
     // Directors see all completed tasks in the main report
-    return allTasks.filter(task => task.status === "Completed");
-  }, [currentUser]);
+    return tasks.filter(task => task.status === "Completed");
+  }, [currentUser, tasks]);
 
   const tasksToValidate = useMemo(() => {
+      if (isEmployee(currentUser?.role || UserRole.JURNALIS)) return [];
       // For directors, show tasks that are completed but not yet approved by Direktur Utama
-      return allTasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
-  }, []);
+      return tasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
+  }, [tasks, currentUser]);
 
 
   if (!currentUser) {
@@ -91,8 +114,8 @@ export default function PerformanceReportPage() {
         {/* Validation Panel */}
         <Card>
             <CardHeader>
-                <CardTitle>Menunggu Validasi</CardTitle>
-                <CardDescription>Daftar tugas yang nilainya perlu disetujui oleh Direktur Utama.</CardDescription>
+                <CardTitle className="flex items-center gap-2"><ThumbsUp className="h-6 w-6 text-primary"/> Menunggu Validasi Anda</CardTitle>
+                <CardDescription>Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.</CardDescription>
             </CardHeader>
             <CardContent>
                 <div className="w-full overflow-x-auto rounded-lg border">
@@ -118,8 +141,8 @@ export default function PerformanceReportPage() {
                                          <Badge variant="secondary">{task.evaluator}</Badge>
                                     </TableCell>
                                     <TableCell className="text-right space-x-2">
-                                        <Button variant="ghost" size="sm"><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
-                                        <Button variant="default" size="sm"><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
+                                        <Button variant="ghost" size="sm" onClick={handleEdit}><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
+                                        <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
                                     </TableCell>
                                 </TableRow>
                             )) : (
@@ -142,7 +165,7 @@ export default function PerformanceReportPage() {
                         Riwayat Semua Tugas Selesai
                     </h2>
                     <p className="text-muted-foreground">
-                        Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim.
+                        Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim, termasuk yang sudah dan belum divalidasi.
                     </p>
                 </div>
             </div>
