@@ -16,15 +16,15 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon: Icon, color = "default", href = "#" }: StatsCardProps) {
   const colorClasses = {
-    default: "bg-secondary",
-    yellow: "bg-yellow-900/40",
-    green: "bg-green-900/40",
+    default: "bg-card",
+    yellow: "bg-yellow-400/10 dark:bg-yellow-900/40",
+    green: "bg-green-400/10 dark:bg-green-900/40",
   }
 
   const iconColorClasses = {
     default: "text-foreground",
-    yellow: "text-yellow-300",
-    green: "text-green-300",
+    yellow: "text-yellow-500 dark:text-yellow-300",
+    green: "text-green-500 dark:text-green-300",
   }
 
   return (
@@ -34,14 +34,14 @@ export function StatsCard({ title, value, icon: Icon, color = "default", href = 
         <div>
             <div className="flex justify-between items-center mb-4">
                 <div className="p-3 rounded-full bg-background/30">
-                    <Icon className={cn("h-6 w-6", iconColorClasses[color])} />
+                    <Icon className={cn("h-6 w-6 text-muted-foreground", iconColorClasses[color])} />
                 </div>
             </div>
             <p className="text-sm text-muted-foreground mb-1">{title}</p>
         </div>
         <div className="flex justify-between items-end">
-            <p className="text-3xl font-bold text-card-foreground">{value}</p>
-            <div className={cn("p-2 rounded-full bg-background/30", iconColorClasses[color])}>
+            <p className="text-3xl font-bold text-foreground">{value}</p>
+            <div className={cn("p-2 rounded-full bg-background/30 text-muted-foreground", iconColorClasses[color])}>
                 <ArrowRight className="h-5 w-5" />
             </div>
         </div>
