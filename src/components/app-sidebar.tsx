@@ -9,6 +9,7 @@ import {
   Settings,
   Flame,
   Trophy,
+  User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
@@ -22,6 +23,7 @@ export function AppSidebar() {
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
+    { href: "/profile", icon: User, label: t('sidebar.profile') },
     { href: "/settings", icon: Settings, label: t('sidebar.settings') },
   ];
 

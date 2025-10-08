@@ -4,6 +4,7 @@
     "all_tasks": "Semua Tugas",
     "submit_task": "Kirim Tugas",
     "leaderboard": "Papan Peringkat",
+    "profile": "Profil",
     "settings": "Pengaturan"
   },
   "dashboard": {
@@ -17,6 +18,22 @@
     "profile": "Profil",
     "settings": "Pengaturan",
     "logout": "Keluar"
+  },
+  "profile": {
+    "title": "Profil Saya",
+    "description": "Kelola informasi pribadi dan pengaturan akun Anda.",
+    "photo": {
+      "title": "Foto Profil",
+      "description": "Ini adalah avatar publik Anda."
+    },
+    "details": {
+      "title": "Detail Pribadi",
+      "description": "Perbarui informasi Anda di sini.",
+      "name": "Nama Lengkap",
+      "email": "Alamat Email",
+      "role": "Peran",
+      "save_button": "Simpan Perubahan"
+    }
   },
   "task": {
     "created_on": "Dibuat pada {{date}}",

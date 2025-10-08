@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Bell, Search } from "lucide-react";
+import { Bell, Search, User as UserIcon, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -90,13 +90,22 @@ export function Header() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
-              <Link href="/settings">{t('header.profile')}</Link>
+              <Link href="/profile">
+                <UserIcon />
+                {t('header.profile')}
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <Link href="/settings">{t('header.settings')}</Link>
+              <Link href="/settings">
+                <Settings />
+                {t('header.settings')}
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>{t('header.logout')}</DropdownMenuItem>
+            <DropdownMenuItem>
+              <LogOut />
+              {t('header.logout')}
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

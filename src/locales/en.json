@@ -4,6 +4,7 @@
     "all_tasks": "All Tasks",
     "submit_task": "Submit Task",
     "leaderboard": "Leaderboard",
+    "profile": "Profile",
     "settings": "Settings"
   },
   "dashboard": {
@@ -17,6 +18,22 @@
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Log out"
+  },
+  "profile": {
+    "title": "My Profile",
+    "description": "Manage your personal information and account settings.",
+    "photo": {
+      "title": "Profile Photo",
+      "description": "This is your public avatar."
+    },
+    "details": {
+      "title": "Personal Details",
+      "description": "Update your information here.",
+      "name": "Full Name",
+      "email": "Email Address",
+      "role": "Role",
+      "save_button": "Save Changes"
+    }
   },
   "task": {
     "created_on": "Created on {{date}}",
