@@ -1,3 +1,4 @@
+
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
@@ -7,6 +8,7 @@ import { users } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/bottom-nav";
+import { usePathname } from 'next/navigation';
 
 export default function AppLayout({
   children,
@@ -15,6 +17,12 @@ export default function AppLayout({
 }) {
   const currentUser = users[0];
   const isMobile = useIsMobile();
+  const pathname = usePathname();
+
+  // This layout is for the main app, not auth pages
+  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
+      return <>{children}</>
+  }
 
   return (
     <LanguageProvider>
