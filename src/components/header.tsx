@@ -111,7 +111,7 @@ export function Header() {
       <div className="flex items-center gap-2 ml-auto">
         
         {/* Notification Center */}
-        <NotificationCenter />
+        <NotificationCenter currentUser={currentUser} />
         
         {/* User menu */}
         <DropdownMenu>

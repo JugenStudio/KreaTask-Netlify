@@ -10,16 +10,27 @@ import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/language-provider";
 import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import type { Notification } from "@/lib/types";
+import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-export function NotificationCenter() {
-  const [notifications, setNotifications] = useState(mockNotifications);
+interface NotificationCenterProps {
+    currentUser: User | null;
+}
+
+export function NotificationCenter({ currentUser }: NotificationCenterProps) {
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isSilent, setIsSilent] = useState(false);
   const router = useRouter();
   const { locale, t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (currentUser) {
+      const userNotifications = mockNotifications.filter(n => n.userId === currentUser.id);
+      setNotifications(userNotifications);
+    }
+  }, [currentUser]);
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
