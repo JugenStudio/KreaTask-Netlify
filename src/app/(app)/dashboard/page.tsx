@@ -24,7 +24,6 @@ export default function DashboardPage() {
   const avgScore = Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length);
   const overdueTasks = tasks.filter(t => new Date(t.dueDate) < new Date() && t.status !== 'Completed').length;
 
-
   return (
     <div className="space-y-8">
       <div>
