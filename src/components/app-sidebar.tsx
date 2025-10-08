@@ -36,6 +36,7 @@ export function AppSidebar({ user }: { user: User }) {
       icon: isLvl1 ? History : UserIcon, 
       label: isLvl1 ? "Riwayat Kinerja" : t('sidebar.profile')
     },
+    { href: "/settings", icon: Settings, label: t('sidebar.settings') },
   ];
 
   return (
@@ -47,6 +48,10 @@ export function AppSidebar({ user }: { user: User }) {
       <nav className="mt-8 flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
+          // For level 2 and 3, hide the settings link from the sidebar
+          if (!isLvl1 && item.href === "/settings") {
+            return null;
+          }
           return (
             <Link
               key={item.href}
