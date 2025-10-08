@@ -1,4 +1,5 @@
 
+
 import type { User, Task, LeaderboardEntry, DetailedReportEntry } from './types';
 import { TaskCategory, UserRole } from './types';
 
@@ -15,81 +16,81 @@ export const users: User[] = [
 ];
 
 export const allTasks: Task[] = [
-  // Jurnalis Tasks
+  // Completed Tasks
   {
     id: 'task-1',
-    title: { en: 'Write article about Q3 tech trends', id: 'Tulis artikel tentang tren teknologi Q3' },
+    title: { en: 'Design Promotional Banner', id: 'Desain Banner Promosi' },
+    description: { en: 'Create a promotional banner for the upcoming event.', id: 'Membuat desain banner untuk event promo bulan ini.' },
+    assignees: [users.find(u => u.name === "Ariya")!],
+    status: 'Completed',
+    category: TaskCategory.Medium,
+    dueDate: '2024-08-12',
+    createdAt: '2024-08-01',
+    valueCategory: "Menengah",
+    value: 20,
+    evaluator: "Direktur Operasional",
+    approvedBy: "Direktur Utama",
+    revisions: [], comments: [], files: [],
+  },
+  {
+    id: 'task-2',
+    title: { en: 'Revise Weekly Article', id: 'Revisi Artikel Mingguan' },
+    description: { en: 'Perform revisions on the weekly article for the company blog.', id: 'Melakukan revisi artikel mingguan untuk blog perusahaan.' },
+    assignees: [users.find(u => u.name === "Agus")!],
+    status: 'Completed',
+    category: TaskCategory.Low,
+    dueDate: '2024-08-10',
+    createdAt: '2024-08-02',
+    valueCategory: "Rendah",
+    value: 10,
+    evaluator: "AI",
+    approvedBy: null, // Pending approval
+    revisions: [], comments: [], files: [],
+  },
+  {
+    id: 'task-3',
+    title: { en: 'Write Q3 Tech Trends Article', id: 'Tulis Artikel Tren Teknologi Q3' },
     description: { en: 'Draft a 2000-word article on the major technology trends of the third quarter.', id: 'Buat draf artikel 2000 kata tentang tren teknologi utama kuartal ketiga.' },
     status: 'Completed',
     assignees: [users.find(u => u.role === UserRole.JURNALIS)!],
     dueDate: '2024-08-15',
     createdAt: '2024-07-20',
     category: TaskCategory.High,
-    basePoints: 40, bonusPoints: 5, penaltyPoints: 0, totalPoints: 45,
+    valueCategory: "Tinggi",
+    value: 40,
+    evaluator: "Direktur Utama",
+    approvedBy: "Direktur Utama",
     revisions: [], comments: [], files: [],
   },
-  {
-    id: 'task-6',
-    title: { en: 'Research competitors for news feature', id: 'Riset kompetitor untuk fitur berita' },
-    description: { en: 'Conduct research on three main competitors for an upcoming feature story.', id: 'Lakukan riset terhadap tiga kompetitor utama untuk sebuah fitur berita.' },
-    status: 'In Progress',
-    assignees: [users.find(u => u.role === UserRole.JURNALIS)!],
-    dueDate: '2024-09-18',
-    createdAt: '2024-09-10',
-    category: TaskCategory.Low,
-    basePoints: 10, bonusPoints: 0, penaltyPoints: 0, totalPoints: 10,
-    revisions: [], comments: [], files: [],
-  },
-  // Social Media Officer Tasks
-  {
-    id: 'task-2',
-    title: { en: 'Create Instagram content for product launch', id: 'Buat konten Instagram untuk peluncuran produk' },
-    description: { en: 'Design a 3-post Instagram carousel and 5 Instagram Stories for the new product launch.', id: 'Rancang 3 post carousel Instagram dan 5 Instagram Stories untuk peluncuran produk baru.' },
-    status: 'Completed',
-    assignees: [users.find(u => u.role === UserRole.SOCIAL_MEDIA_OFFICER)!],
-    dueDate: '2024-08-10',
-    createdAt: '2024-07-18',
-    category: TaskCategory.Medium,
-    basePoints: 20, bonusPoints: 5, penaltyPoints: 0, totalPoints: 25,
-    revisions: [], comments: [], files: [],
-  },
-  // Desain Grafis Tasks
-  {
-    id: 'task-3',
-    title: { en: 'Design promotional banner for webinar', id: 'Desain spanduk promosi untuk webinar' },
-    description: { en: 'Create a set of digital banners (for website, social media, and email).', id: 'Buat satu set spanduk digital (untuk situs web, media sosial, dan email).' },
-    status: 'Completed',
-    assignees: [users.find(u => u.role === UserRole.DESAIN_GRAFIS)!],
-    dueDate: '2024-08-05',
-    createdAt: '2024-07-15',
-    category: TaskCategory.Medium,
-    basePoints: 20, bonusPoints: 5, penaltyPoints: 0, totalPoints: 25,
-    revisions: [], comments: [], files: [],
-  },
-  // Marketing Tasks
+  // In-Progress / To-do Tasks
   {
     id: 'task-4',
-    title: { en: 'Develop Q4 marketing strategy', id: 'Kembangkan strategi pemasaran Q4' },
-    description: { en: 'Outline the marketing strategy for the fourth quarter, including campaign ideas and budget.', id: 'Gariskan strategi pemasaran untuk kuartal keempat, termasuk ide kampanye dan anggaran.' },
-    status: 'In Review',
-    assignees: [users.find(u => u.role === UserRole.MARKETING)!],
-    dueDate: '2024-08-25',
-    createdAt: '2024-07-25',
+    title: { en: 'Produce Client Presentation Video', id: 'Produksi Video Presentasi Klien' },
+    description: { en: 'Produce a short video for a marketing client presentation.', id: 'Produksi video pendek untuk presentasi client marketing.' },
+    assignees: [users.find(u => u.name === "Citra")!],
+    status: 'In Progress',
     category: TaskCategory.High,
-    basePoints: 40, bonusPoints: 0, penaltyPoints: 0, totalPoints: 40,
+    dueDate: '2024-09-20',
+    createdAt: '2024-09-01',
+    valueCategory: "Tinggi",
+    value: 40,
+    evaluator: "Direktur Utama", // Placeholder, as it's not completed
+    approvedBy: null,
     revisions: [], comments: [], files: [],
   },
-  // Finance Tasks
   {
     id: 'task-5',
-    title: { en: 'Prepare monthly budget report', id: 'Siapkan laporan anggaran bulanan' },
-    description: { en: 'Compile all departmental expenses and prepare the comprehensive budget report for July 2024.', id: 'Kompilasi semua pengeluaran departemen dan siapkan laporan anggaran komprehensif untuk Juli 2024.' },
+    title: { en: 'Prepare Monthly Budget Report', id: 'Siapkan Laporan Anggaran Bulanan' },
+    description: { en: 'Compile all departmental expenses and prepare the comprehensive budget report for August 2024.', id: 'Kompilasi semua pengeluaran departemen dan siapkan laporan anggaran komprehensif untuk Agustus 2024.' },
     status: 'To-do',
     assignees: [users.find(u => u.role === UserRole.FINANCE)!],
-    dueDate: '2024-09-20',
+    dueDate: '2024-09-25',
     createdAt: '2024-09-15',
     category: TaskCategory.Critical,
-    basePoints: 50, bonusPoints: 0, penaltyPoints: 0, totalPoints: 50,
+    valueCategory: "Tinggi",
+    value: 50, // Critical tasks can have higher value
+    evaluator: "Direktur Utama",
+    approvedBy: null,
     revisions: [], comments: [], files: [],
   },
 ];
@@ -98,7 +99,7 @@ export const allTasks: Task[] = [
 // --- Duplicated data for other pages that might use it ---
 export const tasks: Task[] = allTasks;
 
-// Calculate scores for leaderboard
+// Calculate scores for leaderboard based on the new 'value' system
 const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: UserRole; } } = {};
 
 users.forEach(user => {
@@ -106,10 +107,11 @@ users.forEach(user => {
 });
 
 tasks.forEach(task => {
+  // Only count completed tasks for the score
   if (task.status === 'Completed') {
     task.assignees.forEach(assignee => {
       if (assignee && userScores[assignee.id]) {
-        userScores[assignee.id].score += task.totalPoints;
+        userScores[assignee.id].score += task.value; // Use 'value' instead of 'totalPoints'
         userScores[assignee.id].tasksCompleted += 1;
       }
     });
@@ -128,7 +130,7 @@ export const leaderboardData: LeaderboardEntry[] = sortedUsers.map(([id, data], 
   role: data.role,
 }));
 
-
+// This data is now legacy and might be removed or refactored.
 export const detailedReportData: DetailedReportEntry[] = allTasks
   .filter(task => task.status === 'Completed' || new Date(task.dueDate) < new Date())
   .map((task, index): DetailedReportEntry | null => {
@@ -149,9 +151,9 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
       completedOn: task.createdAt, // Simplified, assuming createdAt is completion date for completed tasks
       status: status,
       revisions: task.revisions.length,
-      taskScore: task.totalPoints,
+      taskScore: task.value,
       aiJustification: { en: 'Justification placeholder', id: 'Placeholder justifikasi' },
-      reviewer: 'Deva', // Direktur Operasional
+      reviewer: task.evaluator,
       assessmentDate: new Date().toISOString().split('T')[0],
     };
   })

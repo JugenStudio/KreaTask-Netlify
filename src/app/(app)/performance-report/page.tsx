@@ -10,8 +10,9 @@ import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History } from "lucide-react";
-
+import { History, CheckCircle, Edit } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -28,16 +29,18 @@ export default function PerformanceReportPage() {
 
   const completedTasks = useMemo(() => {
     if (!currentUser) return [];
-    // For employees, show only their completed tasks.
     if (isEmployee(currentUser.role)) {
       return allTasks.filter(task => 
         task.status === "Completed" && 
         task.assignees.some(assignee => assignee.id === currentUser.id)
       );
     }
-    // For directors, show all completed tasks.
     return allTasks.filter(task => task.status === "Completed");
   }, [currentUser]);
+
+  const tasksToValidate = useMemo(() => {
+      return completedTasks.filter(task => task.approvedBy === null);
+  }, [completedTasks]);
 
 
   if (!currentUser) {
@@ -62,7 +65,7 @@ export default function PerformanceReportPage() {
               Riwayat Tugas Selesai
             </h1>
             <p className="text-muted-foreground">
-              Berikut adalah daftar semua tugas yang telah Anda selesaikan.
+              Berikut adalah daftar semua tugas yang telah Anda selesaikan dan nilainya.
             </p>
           </div>
         </div>
@@ -75,19 +78,54 @@ export default function PerformanceReportPage() {
     );
   }
 
-  // Director/Super User View: Explain the page's purpose for them
+  // Director/Super User View: Validation Panel
   return (
-    <div className="flex flex-col items-center justify-center h-full text-center">
-        <Card className="max-w-md">
+    <div className="space-y-8">
+        <div>
+            <h1 className="text-3xl font-bold font-headline">Panel Validasi Nilai Tugas</h1>
+            <p className="text-muted-foreground">Setujui atau ubah nilai tugas yang telah diselesaikan oleh tim.</p>
+        </div>
+        <Card>
             <CardHeader>
-                <CardTitle>Performance Report</CardTitle>
-                <CardDescription>This page is intended for an employee's personal task history.</CardDescription>
+                <CardTitle>Menunggu Validasi</CardTitle>
+                <CardDescription>Daftar tugas yang nilainya perlu disetujui oleh Direktur Utama.</CardDescription>
             </CardHeader>
             <CardContent>
-                <p>As a director, you can view a comprehensive list of all team tasks on the "All Tasks" page.</p>
-                <Button asChild className="mt-4">
-                    <a href="/tasks">Go to All Tasks</a>
-                </Button>
+                <div className="w-full overflow-x-auto rounded-lg border">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Tugas</TableHead>
+                                <TableHead>Karyawan</TableHead>
+                                <TableHead>Nilai Diajukan</TableHead>
+                                <TableHead>Dievaluasi Oleh</TableHead>
+                                <TableHead className="text-right">Aksi</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {tasksToValidate.length > 0 ? tasksToValidate.map(task => (
+                                <TableRow key={task.id}>
+                                    <TableCell className="font-medium">{task.title.id}</TableCell>
+                                    <TableCell>{task.assignees[0]?.name || 'N/A'}</TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline">{task.value} Poin</Badge>
+                                    </TableCell>
+                                    <TableCell>
+                                         <Badge variant="secondary">{task.evaluator}</Badge>
+                                    </TableCell>
+                                    <TableCell className="text-right space-x-2">
+                                        <Button variant="ghost" size="sm"><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
+                                        <Button variant="default" size="sm"><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
+                                    </TableCell>
+                                </TableRow>
+                            )) : (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="h-24 text-center">Tidak ada tugas yang memerlukan validasi saat ini.</TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
             </CardContent>
         </Card>
     </div>

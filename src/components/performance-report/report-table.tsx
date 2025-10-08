@@ -14,6 +14,7 @@ import type { Task } from "@/lib/types";
 import { Badge } from "../ui/badge";
 import { useLanguage } from "@/providers/language-provider";
 import { Button } from "../ui/button";
+import { CheckCircle, Clock } from "lucide-react";
 
 interface ReportTableProps {
   tasks: Task[];
@@ -29,9 +30,9 @@ export function ReportTable({ tasks }: ReportTableProps) {
           <TableRow>
             <TableHead>Task Title</TableHead>
             <TableHead>Category</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead>Completed On</TableHead>
-            <TableHead className="text-right">Score</TableHead>
+            <TableHead>Nilai</TableHead>
+            <TableHead>Status Validasi</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -43,20 +44,26 @@ export function ReportTable({ tasks }: ReportTableProps) {
                   {task.title[locale]}
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline">{task.category}</Badge>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant={"secondary"}
-                  >
-                    {task.status}
-                  </Badge>
+                  <Badge variant="outline">{task.valueCategory}</Badge>
                 </TableCell>
                 <TableCell>
                   {new Date(task.dueDate).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="font-bold text-right">
-                  {task.totalPoints}
+                <TableCell className="font-bold">
+                  {task.value} Poin
+                </TableCell>
+                <TableCell>
+                  {task.approvedBy ? (
+                     <Badge className="bg-green-500 text-white">
+                        <CheckCircle className="h-3 w-3 mr-1" />
+                        Disetujui
+                    </Badge>
+                  ) : (
+                    <Badge variant="secondary">
+                        <Clock className="h-3 w-3 mr-1" />
+                        Menunggu
+                    </Badge>
+                  )}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button asChild variant="outline" size="sm">

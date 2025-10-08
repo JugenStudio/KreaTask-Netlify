@@ -1,4 +1,5 @@
 
+
 export enum UserRole {
   DIREKTUR_UTAMA = "Direktur Utama",
   DIREKTUR_OPERASIONAL = "Direktur Operasional",
@@ -53,6 +54,8 @@ export interface Revision {
   change: LocalizedString;
 }
 
+export type Evaluator = "AI" | "Direktur Operasional" | "Direktur Bisnis" | "Direktur Utama";
+
 export interface Task {
   id: string;
   title: LocalizedString;
@@ -64,11 +67,13 @@ export interface Task {
   comments: Comment[];
   files: File[];
   createdAt: string;
-  category: TaskCategory;
-  basePoints: number;
-  bonusPoints: number;
-  penaltyPoints: number;
-  totalPoints: number;
+  category: TaskCategory; // Priority: low, medium, high
+  
+  // New performance value system
+  valueCategory: "Rendah" | "Menengah" | "Tinggi";
+  value: number; // 10, 20, 40
+  evaluator: Evaluator;
+  approvedBy: "Direktur Utama" | null;
 }
 
 export interface LeaderboardEntry {
