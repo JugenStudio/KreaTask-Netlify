@@ -1,8 +1,9 @@
+
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Bell, Search, User as UserIcon, Settings, LogOut, Sun, Moon, Laptop, Languages } from "lucide-react";
+import { Bell, Search, User as UserIcon, Settings, LogOut, Sun, Moon, Laptop, Languages, Check, BellOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -23,40 +24,53 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { users, notifications } from "@/lib/data";
+import { users, notifications as initialNotifications } from "@/lib/data";
+import type { Notification } from "@/lib/types";
 import { Separator } from "./ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { Badge } from "./ui/badge";
+import { cn } from "@/lib/utils";
 
 export function Header() {
   const currentUser = users[0];
   const { locale, t, setLocale } = useLanguage();
-  const [theme, setThemeState] = React.useState<"light" | "dark" | "system">("dark")
-  
+  const [theme, setThemeState] = useState<"light" | "dark" | "system">("dark");
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [isSilent, setIsSilent] = useState(false);
+
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
-  React.useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark")
-    setThemeState(isDarkMode ? "dark" : "light")
-  }, [])
+  const handleMarkAsRead = (id: string) => {
+    setNotifications(prev =>
+      prev.map(n => (n.id === id ? { ...n, isRead: true } : n))
+    );
+  };
 
-  React.useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
+  const handleMarkAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  useEffect(() => {
+    const isDarkMode = document.documentElement.classList.contains("dark");
+    setThemeState(isDarkMode ? "dark" : "light");
+  }, []);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    root.classList.remove("light", "dark");
 
     if (theme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
         .matches
         ? "dark"
-        : "light"
+        : "light";
 
-      root.classList.add(systemTheme)
-      return
+      root.classList.add(systemTheme);
+      return;
     }
 
-    root.classList.add(theme)
-  }, [theme])
-
+    root.classList.add(theme);
+  }, [theme]);
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 w-full backdrop-blur-lg">
@@ -72,8 +86,8 @@ export function Header() {
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-white/10 rounded-full">
-              <Bell className="h-5 w-5" />
-              {unreadCount > 0 && (
+              {isSilent ? <BellOff className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+              {!isSilent && unreadCount > 0 && (
                 <Badge 
                   variant="destructive" 
                   className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center rounded-full p-0 text-xs"
@@ -86,14 +100,30 @@ export function Header() {
           <PopoverContent className="w-80 border-border bg-popover backdrop-blur-xl" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium leading-none font-headline text-foreground">{t('header.notifications')}</h4>
-                <p className="text-sm text-muted-foreground">{t('header.unread_count', { count: unreadCount.toString() })}</p>
+                 <div>
+                    <h4 className="font-medium leading-none font-headline text-foreground">{t('header.notifications')}</h4>
+                    <p className="text-sm text-muted-foreground">{t('header.unread_count', { count: unreadCount.toString() })}</p>
+                 </div>
+                 <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" onClick={() => setIsSilent(!isSilent)} className="h-7 w-7 text-muted-foreground">
+                       <BellOff className="h-4 w-4" />
+                       <span className="sr-only">Toggle Silent Notifications</span>
+                    </Button>
+                    <Button variant="ghost" size="icon" onClick={handleMarkAllAsRead} className="h-7 w-7 text-muted-foreground">
+                        <Check className="h-4 w-4" />
+                        <span className="sr-only">Mark all as read</span>
+                    </Button>
+                 </div>
               </div>
               <Separator />
-              <div className="grid gap-4 max-h-96 overflow-y-auto">
+              <div className="grid gap-1 max-h-96 overflow-y-auto">
                 {notifications.map(notif => (
-                  <div key={notif.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:pb-0">
-                    <span className={`flex h-2 w-2 translate-y-1 rounded-full ${!notif.isRead ? 'bg-primary' : 'bg-muted-foreground'}`} />
+                  <div 
+                    key={notif.id} 
+                    onClick={() => handleMarkAsRead(notif.id)}
+                    className="grid grid-cols-[25px_1fr] items-start p-2 rounded-md hover:bg-accent cursor-pointer"
+                  >
+                    <span className={cn("flex h-2 w-2 translate-y-1 rounded-full", !notif.isRead ? 'bg-primary' : 'bg-transparent')} />
                     <div className="grid gap-1">
                       <p className="font-medium text-popover-foreground">{notif.title[locale]}</p>
                       <p className="text-sm text-muted-foreground">{notif.description[locale]}</p>
