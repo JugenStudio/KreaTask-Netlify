@@ -16,7 +16,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { DetailedReportEntry } from "@/lib/types";
 import { Badge } from "../ui/badge";
 import { Download } from "lucide-react";
@@ -37,7 +36,7 @@ export function DetailedReportDialog({
 
   const handleExport = () => {
     // Basic CSV export functionality
-    let csvContent = "data:text/csv;charset=utf-8,";
+    let csvContent = "data:text/csv;charset=utf-t,";
     
     // Header
     const headers = [
@@ -68,7 +67,7 @@ export function DetailedReportDialog({
         `"${row.status}"`,
         `"${row.revisions}"`,
         `"${row.taskScore}"`,
-        `"${row.aiJustification[locale]}"`,
+        `"${row.aiJustification[locale].replace(/"/g, '""')}"`, // Escape double quotes
         `"${row.reviewer}"`,
         `"${row.assessmentDate}"`
       ].join(",");
@@ -100,20 +99,20 @@ export function DetailedReportDialog({
                 {t('report.export_csv')}
             </Button>
         </div>
-        <div className="h-full relative">
+        <div className="relative h-[calc(100%-120px)]">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>{t('report.table.employee')}</TableHead>
-                <TableHead>{t('report.table.task_title')}</TableHead>
+                <TableHead className="min-w-[200px]">{t('report.table.task_title')}</TableHead>
                 <TableHead>{t('report.table.category')}</TableHead>
                 <TableHead>{t('report.table.priority')}</TableHead>
                 <TableHead>{t('report.table.deadline')}</TableHead>
                 <TableHead>{t('report.table.completed_on')}</TableHead>
                 <TableHead>{t('report.table.status')}</TableHead>
-                <TableHead>{t('report.table.revisions')}</TableHead>
-                <TableHead>{t('report.table.score')}</TableHead>
-                <TableHead className="min-w-[200px]">{t('report.table.ai_justification')}</TableHead>
+                <TableHead className="text-center">{t('report.table.revisions')}</TableHead>
+                <TableHead className="text-right">{t('report.table.score')}</TableHead>
+                <TableHead className="min-w-[300px]">{t('report.table.ai_justification')}</TableHead>
                 <TableHead>{t('report.table.reviewer')}</TableHead>
                 <TableHead>{t('report.table.assessment_date')}</TableHead>
               </TableRow>
@@ -121,18 +120,18 @@ export function DetailedReportDialog({
             <TableBody>
               {reportData.map((row) => (
                 <TableRow key={row.id}>
-                  <TableCell className="font-medium">{row.employeeName}</TableCell>
+                  <TableCell className="font-medium whitespace-nowrap">{row.employeeName}</TableCell>
                   <TableCell>{row.taskTitle[locale]}</TableCell>
                   <TableCell><Badge variant="outline">{row.category}</Badge></TableCell>
                   <TableCell>{row.priority}</TableCell>
-                  <TableCell>{new Date(row.deadline).toLocaleDateString()}</TableCell>
-                  <TableCell>{new Date(row.completedOn).toLocaleDateString()}</TableCell>
+                  <TableCell className="whitespace-nowrap">{new Date(row.deadline).toLocaleDateString()}</TableCell>
+                  <TableCell className="whitespace-nowrap">{new Date(row.completedOn).toLocaleDateString()}</TableCell>
                   <TableCell>{row.status}</TableCell>
-                  <TableCell>{row.revisions}</TableCell>
-                  <TableCell className="font-bold">{row.taskScore}</TableCell>
+                  <TableCell className="text-center">{row.revisions}</TableCell>
+                  <TableCell className="font-bold text-right">{row.taskScore}</TableCell>
                   <TableCell>{row.aiJustification[locale]}</TableCell>
-                  <TableCell>{row.reviewer}</TableCell>
-                  <TableCell>{new Date(row.assessmentDate).toLocaleDateString()}</TableCell>
+                  <TableCell className="whitespace-nowrap">{row.reviewer}</TableCell>
+                  <TableCell className="whitespace-nowrap">{new Date(row.assessmentDate).toLocaleDateString()}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
