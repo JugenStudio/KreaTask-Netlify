@@ -54,7 +54,7 @@ export function LeaderboardTable({
               <div className="flex items-center gap-3">
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={entry.avatarUrl} alt={entry.name} />
-                  <AvatarFallback>{entry.name.slice(0, 2)}</AvatarFallback>
+                  <AvatarFallback>{entry.name ? entry.name.slice(0, 2) : '??'}</AvatarFallback>
                 </Avatar>
                 <div className="font-medium">{entry.name}</div>
               </div>
