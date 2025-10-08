@@ -24,7 +24,7 @@ export function ReportTable({ tasks }: ReportTableProps) {
   const { locale } = useLanguage();
 
   return (
-    <div className="w-full overflow-x-auto rounded-lg border">
+    <div className="w-full overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
@@ -46,7 +46,7 @@ export function ReportTable({ tasks }: ReportTableProps) {
                 <TableCell>
                   <Badge variant="outline">{task.valueCategory}</Badge>
                 </TableCell>
-                <TableCell>
+                <TableCell className="whitespace-nowrap">
                   {new Date(task.dueDate).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="font-bold">

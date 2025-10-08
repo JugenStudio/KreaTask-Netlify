@@ -163,7 +163,9 @@ export default function PerformanceReportPage() {
         </div>
         <Card>
           <CardContent className="pt-6">
+            <div className="w-full overflow-x-auto">
               <ReportTable tasks={completedTasks} />
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -192,7 +194,7 @@ export default function PerformanceReportPage() {
                   <CardDescription>Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.</CardDescription>
               </CardHeader>
               <CardContent>
-                  <div className="w-full overflow-x-auto rounded-lg border">
+                  <div className="w-full overflow-x-auto">
                       <Table>
                           <TableHeader>
                               <TableRow>
@@ -205,12 +207,12 @@ export default function PerformanceReportPage() {
                           <TableBody>
                               {tasksToValidate.length > 0 ? tasksToValidate.map(task => (
                                   <TableRow key={task.id}>
-                                      <TableCell className="font-medium">{task.title.id}</TableCell>
-                                      <TableCell>{task.assignees[0]?.name || 'N/A'}</TableCell>
+                                      <TableCell className="font-medium whitespace-nowrap">{task.title.id}</TableCell>
+                                      <TableCell className="whitespace-nowrap">{task.assignees[0]?.name || 'N/A'}</TableCell>
                                       <TableCell>
                                           <Badge variant="outline">{task.value} Poin</Badge>
                                       </TableCell>
-                                      <TableCell className="text-right space-x-2">
+                                      <TableCell className="text-right space-x-2 whitespace-nowrap">
                                           <Button variant="ghost" size="sm" onClick={() => handleEdit(task)}><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
                                           <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
                                       </TableCell>
@@ -241,7 +243,9 @@ export default function PerformanceReportPage() {
               </div>
               <Card>
                   <CardContent className="pt-6">
+                    <div className="w-full overflow-x-auto">
                       <ReportTable tasks={completedTasks} />
+                    </div>
                   </CardContent>
               </Card>
           </div>
