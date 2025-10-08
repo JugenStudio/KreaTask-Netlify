@@ -28,23 +28,14 @@ export function StatsCard({ title, value, icon: Icon, color = "default", href = 
   }
 
   return (
-    <Link href={href}>
-    <Card className={cn("rounded-2xl shadow-none border-none h-full transition-all hover:scale-[1.02] hover:shadow-lg", colorClasses[color])}>
-      <CardContent className="p-6 h-full flex flex-col justify-between">
-        <div>
-            <div className="flex justify-between items-center mb-4">
-                <div className="p-3 rounded-full bg-background/30">
-                    <Icon className={cn("h-6 w-6 text-muted-foreground", iconColorClasses[color])} />
-                </div>
-            </div>
-            <p className="text-sm text-muted-foreground mb-1">{title}</p>
+    <Link href={href} className="flex">
+    <Card className={cn("rounded-2xl shadow-none border-none h-full w-full transition-all hover:scale-[1.02] hover:shadow-lg", colorClasses[color])}>
+      <CardContent className="p-6 h-full flex flex-col justify-center items-center text-center">
+        <div className="p-3 rounded-full bg-background/30 mb-3">
+            <Icon className={cn("h-6 w-6 text-muted-foreground", iconColorClasses[color])} />
         </div>
-        <div className="flex justify-between items-end">
-            <p className="text-3xl font-bold text-foreground">{value}</p>
-            <div className={cn("p-2 rounded-full bg-background/30 text-muted-foreground", iconColorClasses[color])}>
-                <ArrowRight className="h-5 w-5" />
-            </div>
-        </div>
+        <p className="text-sm text-muted-foreground mb-1">{title}</p>
+        <p className="text-3xl font-bold text-foreground">{value}</p>
       </CardContent>
     </Card>
     </Link>

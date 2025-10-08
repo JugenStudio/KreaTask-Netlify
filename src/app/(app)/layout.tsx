@@ -1,10 +1,9 @@
 "use client";
 
 import { AppSidebar } from "@/components/app-sidebar";
-import { Chatbot } from "@/components/chatbot";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
-import { tasks, users, leaderboardData } from "@/lib/data";
+import { users } from "@/lib/data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/bottom-nav";
@@ -28,7 +27,6 @@ export default function AppLayout({
               {children}
             </main>
           </div>
-          <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
         </div>
         {isMobile && <BottomNav />}
       </div>

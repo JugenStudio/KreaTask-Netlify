@@ -10,6 +10,7 @@ import { BookOpen, Trophy, Clock, Users } from "lucide-react";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
+import { Chatbot } from "@/components/chatbot";
 
 export default function DashboardPage() {
   const currentUser = users[0];
@@ -127,6 +128,7 @@ export default function DashboardPage() {
           </Card>
         </div>
       </div>
+      <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
     </div>
   );
 }
