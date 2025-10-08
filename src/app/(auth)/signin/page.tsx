@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Mail } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 function GoogleIcon() {
   return (
@@ -20,6 +21,13 @@ function GoogleIcon() {
 }
 
 export default function SignInPage() {
+  const router = useRouter();
+
+  const handleSignIn = (e: React.FormEvent) => {
+    e.preventDefault();
+    router.push('/dashboard');
+  };
+
   return (
     <div className="w-full max-w-md mx-auto rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden">
       <div className="p-8 space-y-6">
@@ -37,7 +45,7 @@ export default function SignInPage() {
           <p className="text-muted-foreground">Enter your credentials to access your account.</p>
         </div>
 
-        <form className="space-y-4">
+        <form className="space-y-4" onSubmit={handleSignIn}>
           <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <div className="relative">
