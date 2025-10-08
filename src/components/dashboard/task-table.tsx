@@ -35,67 +35,69 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
   const { locale } = useLanguage();
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Task</TableHead>
-          <TableHead>Status</TableHead>
-          <TableHead>Team</TableHead>
-          <TableHead>Due Date</TableHead>
-          <TableHead>
-            <span className="sr-only">Actions</span>
-          </TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {tasks.map((task) => (
-          <TableRow key={task.id}>
-            <TableCell className="font-medium">
-              <Link href={`/tasks/${task.id}`} className="hover:underline">
-                {task.title[locale]}
-              </Link>
-            </TableCell>
-            <TableCell>
-              <Badge
-                className={cn(
-                  "text-white",
-                  statusColors[task.status]
-                )}
-              >
-                {task.status}
-              </Badge>
-            </TableCell>
-            <TableCell>
-              <div className="flex -space-x-2">
-                {task.assignees.map((user) => (
-                  <Avatar key={user.id} className="h-8 w-8 border-2 border-background">
-                    <AvatarImage src={user.avatarUrl} alt={user.name} />
-                    <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                ))}
-              </div>
-            </TableCell>
-            <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
-            <TableCell>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button aria-haspopup="true" size="icon" variant="ghost">
-                    <MoreHorizontal className="h-4 w-4" />
-                    <span className="sr-only">Toggle menu</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem asChild>
-                    <Link href={`/tasks/${task.id}`}>View Task</Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
-                  <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </TableCell>
-          </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+    <div className="w-full overflow-x-auto">
+        <Table className="table-fixed w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[40%]">Task</TableHead>
+              <TableHead className="w-[15%]">Status</TableHead>
+              <TableHead className="w-[25%]">Team</TableHead>
+              <TableHead className="w-[15%]">Due Date</TableHead>
+              <TableHead className="w-[5%]">
+                <span className="sr-only">Actions</span>
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {tasks.map((task) => (
+              <TableRow key={task.id}>
+                <TableCell className="font-medium">
+                  <Link href={`/tasks/${task.id}`} className="hover:underline break-words">
+                    {task.title[locale]}
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    className={cn(
+                      "text-white",
+                      statusColors[task.status]
+                    )}
+                  >
+                    {task.status}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  <div className="flex -space-x-2">
+                    {task.assignees.map((user) => (
+                      <Avatar key={user.id} className="h-8 w-8 border-2 border-background">
+                        <AvatarImage src={user.avatarUrl} alt={user.name} />
+                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                    ))}
+                  </div>
+                </TableCell>
+                <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button aria-haspopup="true" size="icon" variant="ghost">
+                        <MoreHorizontal className="h-4 w-4" />
+                        <span className="sr-only">Toggle menu</span>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem asChild>
+                        <Link href={`/tasks/${task.id}`}>View Task</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem>Edit</DropdownMenuItem>
+                      <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+    </div>
   );
 }

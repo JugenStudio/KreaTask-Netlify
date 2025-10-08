@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { tasks } from "@/lib/data";
-import { Filter } from "lucide-react";
+import { Filter, Search } from "lucide-react";
 
 export default function AllTasksPage() {
   return (
@@ -17,7 +17,10 @@ export default function AllTasksPage() {
           </p>
         </div>
         <div className="flex gap-2 items-center">
-            <Input placeholder="Filter tasks..." className="w-48" />
+            <div className="relative">
+                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input placeholder="Filter tasks..." className="w-48 pl-8" />
+            </div>
             <Select>
                 <SelectTrigger className="w-40">
                     <SelectValue placeholder="All Statuses" />
@@ -37,7 +40,7 @@ export default function AllTasksPage() {
             </Button>
         </div>
       </div>
-      <Card>
+      <Card className="rounded-2xl shadow-none border-none">
         <CardContent className="pt-6">
           <TaskTable tasks={tasks} />
         </CardContent>
