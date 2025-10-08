@@ -34,7 +34,7 @@ export function AppSidebar({ user }: { user: User }) {
     { 
       href: "/performance-report", 
       icon: isLvl1 ? History : FileText, 
-      label: isLvl1 ? "Riwayat Kinerja" : t('sidebar.performance_report') 
+      label: t('sidebar.performance_report') 
     },
   ];
 

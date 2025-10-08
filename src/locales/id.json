@@ -1,10 +1,11 @@
+
 {
   "sidebar": {
     "dashboard": "Dasbor",
     "all_tasks": "Semua Tugas",
     "submit_task": "Kirim Tugas",
     "leaderboard": "Papan Peringkat",
-    "performance_report": "Laporan Kinerja",
+    "performance_report": "Laporan",
     "profile": "Profil",
     "settings": "Pengaturan"
   },
@@ -91,5 +92,3 @@
     }
   }
 }
-
-    
