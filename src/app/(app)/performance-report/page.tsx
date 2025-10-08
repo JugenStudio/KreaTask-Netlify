@@ -39,8 +39,9 @@ export default function PerformanceReportPage() {
   }, [currentUser]);
 
   const tasksToValidate = useMemo(() => {
-      return completedTasks.filter(task => task.approvedBy === null);
-  }, [completedTasks]);
+      // For directors, show tasks that are completed but not yet approved by Direktur Utama
+      return allTasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
+  }, []);
 
 
   if (!currentUser) {
