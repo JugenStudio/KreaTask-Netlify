@@ -18,10 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { User, UserRole } from "@/lib/types";
+import type { User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 
-const roles: UserRole[] = ["Direktur Utama", "Direktur Operasional", "Jurnalis", "Social Media Officer", "Desain Grafis", "Marketing", "Finance"];
+const roles: UserRole[] = Object.values(UserRole);
 
 export function UserTable({ initialUsers }: { initialUsers: User[] }) {
   const [users, setUsers] = useState<User[]>(initialUsers);

@@ -9,12 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Mail, Lock, User } from 'lucide-react';
 import { useState } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import type { UserRole } from '@/lib/types';
+import { UserRole } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 
 export default function SignInPage() {
   const router = useRouter();
-  const [role, setRole] = useState<UserRole>('Direktur Utama');
+  const [role, setRole] = useState<UserRole>(UserRole.DIREKTUR_UTAMA);
 
   const handleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -54,9 +54,9 @@ export default function SignInPage() {
                         <SelectValue placeholder="Pilih peran untuk simulasi" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Jurnalis">Level 1: Jurnalis (Karyawan)</SelectItem>
-                        <SelectItem value="Direktur Operasional">Level 2: Direktur Operasional</SelectItem>
-                        <SelectItem value="Direktur Utama">Level 3: Direktur Utama (Super User)</SelectItem>
+                        <SelectItem value={UserRole.JURNALIS}>Level 1: Jurnalis (Karyawan)</SelectItem>
+                        <SelectItem value={UserRole.DIREKTUR_OPERASIONAL}>Level 2: Direktur Operasional</SelectItem>
+                        <SelectItem value={UserRole.DIREKTUR_UTAMA}>Level 3: Direktur Utama (Super User)</SelectItem>
                     </SelectContent>
                 </Select>
             </div>
@@ -74,10 +74,13 @@ export default function SignInPage() {
               <CardTitle className="text-sm text-center">Informasi Akun Simulasi</CardTitle>
             </CardHeader>
             <CardContent className='p-4 pt-0 text-xs text-muted-foreground space-y-2'>
-                <p><span className='font-bold'>Level 3:</span> Direktur Utama (naufal@kreatask.com)</p>
-                <p><span className='font-bold'>Level 2:</span> Direktur Operasional (deva@kreatask.com)</p>
-                <p><span className='font-bold'>Level 1:</span> Jurnalis (agus@kreatask.com)</p>
-                <p className='pt-2'>*Gunakan dropdown di atas untuk memilih peran.</p>
+                <p><span className='font-bold'>Level 3 (Super User):</span> Direktur Utama</p>
+                <p><span className='font-bold'>Email:</span> naufal@kreatask.com</p>
+                <p><span className='font-bold'>Level 2 (Direktur):</span> Direktur Operasional</p>
+                 <p><span className='font-bold'>Email:</span> deva@kreatask.com</p>
+                <p><span className='font-bold'>Level 1 (Karyawan):</span> Jurnalis</p>
+                <p><span className='font-bold'>Email:</span> agus@kreatask.com</p>
+                <p className='pt-2'>*Gunakan dropdown di atas untuk memilih peran. Email & password tidak diperlukan untuk simulasi ini.</p>
             </CardContent>
            </Card>
 

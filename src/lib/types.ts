@@ -1,6 +1,13 @@
 
-
-export type UserRole = 'Direktur Utama' | 'Direktur Operasional' | 'Jurnalis' | 'Social Media Officer' | 'Desain Grafis' | 'Marketing' | 'Finance';
+export enum UserRole {
+  DIREKTUR_UTAMA = "Direktur Utama",
+  DIREKTUR_OPERASIONAL = "Direktur Operasional",
+  JURNALIS = "Jurnalis",
+  SOCIAL_MEDIA_OFFICER = "Social Media Officer",
+  DESAIN_GRAFIS = "Desain Grafis",
+  MARKETING = "Marketing",
+  FINANCE = "Finance",
+}
 
 export enum TaskCategory {
   Low = 'Low',

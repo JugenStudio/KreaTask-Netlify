@@ -30,13 +30,27 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
+import { Badge } from "@/components/ui/badge";
+import type { User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Theme = "light" | "dark" | "system";
 
 export function Header() {
-  const currentUser = users[0];
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { locale, t, setLocale } = useLanguage();
   const [theme, setTheme] = useState<Theme>("system");
+
+  useEffect(() => {
+    const selectedRole = sessionStorage.getItem("selectedRole") as UserRole | null;
+    if (selectedRole) {
+      const user = users.find((u) => u.role === selectedRole);
+      setCurrentUser(user || users[0]);
+    } else {
+      setCurrentUser(users[0]); // Default to Direktur Utama
+    }
+  }, []);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") as Theme | null;
@@ -68,6 +82,17 @@ export function Header() {
   const handleThemeChange = (newTheme: Theme) => {
     setTheme(newTheme);
   };
+
+  if (!currentUser) {
+    return (
+       <header className="sticky top-0 z-40 flex h-16 w-full items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-lg">
+        <Skeleton className="h-8 w-48" />
+        <div className="ml-auto">
+            <Skeleton className="h-8 w-8 rounded-full" />
+        </div>
+      </header>
+    )
+  }
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-lg">
@@ -103,9 +128,12 @@ export function Header() {
           >
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">
-                  {currentUser.name}
-                </p>
+                <div className="flex items-center gap-2">
+                    <p className="text-sm font-medium leading-none">
+                    {currentUser.name}
+                    </p>
+                    <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">{currentUser.role}</Badge>
+                </div>
                 <p className="text-xs leading-none text-muted-foreground">
                   {currentUser.email}
                 </p>

@@ -1,17 +1,17 @@
 
-import type { User, Task, LeaderboardEntry, DetailedReportEntry, UserRole } from './types';
-import { TaskCategory } from './types';
+import type { User, Task, LeaderboardEntry, DetailedReportEntry } from './types';
+import { TaskCategory, UserRole } from './types';
 
 const getAvatarUrl = (seed: number) => `https://picsum.photos/seed/${seed}/100/100`;
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Naufal', email: 'naufal@kreatask.com', avatarUrl: getAvatarUrl(1), role: 'Direktur Utama' },
-  { id: 'user-2', name: 'Deva', email: 'deva@kreatask.com', avatarUrl: getAvatarUrl(2), role: 'Direktur Operasional' },
-  { id: 'user-3', name: 'Agus', email: 'agus@kreatask.com', avatarUrl: getAvatarUrl(3), role: 'Jurnalis' },
-  { id: 'user-4', name: 'Sasi', email: 'sasi@kreatask.com', avatarUrl: getAvatarUrl(4), role: 'Social Media Officer' },
-  { id: 'user-5', name: 'Ariya', email: 'ariya@kreatask.com', avatarUrl: getAvatarUrl(5), role: 'Desain Grafis' },
-  { id: 'user-9', name: 'Citra', email: 'citra@kreatask.com', avatarUrl: getAvatarUrl(9), role: 'Marketing' },
-  { id: 'user-10', name: 'Doni', email: 'doni@kreatask.com', avatarUrl: getAvatarUrl(10), role: 'Finance' },
+  { id: 'user-1', name: 'Naufal', email: 'naufal@kreatask.com', avatarUrl: getAvatarUrl(1), role: UserRole.DIREKTUR_UTAMA },
+  { id: 'user-2', name: 'Deva', email: 'deva@kreatask.com', avatarUrl: getAvatarUrl(2), role: UserRole.DIREKTUR_OPERASIONAL },
+  { id: 'user-3', name: 'Agus', email: 'agus@kreatask.com', avatarUrl: getAvatarUrl(3), role: UserRole.JURNALIS },
+  { id: 'user-4', name: 'Sasi', email: 'sasi@kreatask.com', avatarUrl: getAvatarUrl(4), role: UserRole.SOCIAL_MEDIA_OFFICER },
+  { id: 'user-5', name: 'Ariya', email: 'ariya@kreatask.com', avatarUrl: getAvatarUrl(5), role: UserRole.DESAIN_GRAFIS },
+  { id: 'user-9', name: 'Citra', email: 'citra@kreatask.com', avatarUrl: getAvatarUrl(9), role: UserRole.MARKETING },
+  { id: 'user-10', name: 'Doni', email: 'doni@kreatask.com', avatarUrl: getAvatarUrl(10), role: UserRole.FINANCE },
 ];
 
 export const allTasks: Task[] = [
@@ -21,7 +21,7 @@ export const allTasks: Task[] = [
     title: { en: 'Write article about Q3 tech trends', id: 'Tulis artikel tentang tren teknologi Q3' },
     description: { en: 'Draft a 2000-word article on the major technology trends of the third quarter.', id: 'Buat draf artikel 2000 kata tentang tren teknologi utama kuartal ketiga.' },
     status: 'Completed',
-    assignees: [users.find(u => u.role === 'Jurnalis')!],
+    assignees: [users.find(u => u.role === UserRole.JURNALIS)!],
     dueDate: '2024-08-15',
     createdAt: '2024-07-20',
     category: TaskCategory.High,
@@ -33,7 +33,7 @@ export const allTasks: Task[] = [
     title: { en: 'Research competitors for news feature', id: 'Riset kompetitor untuk fitur berita' },
     description: { en: 'Conduct research on three main competitors for an upcoming feature story.', id: 'Lakukan riset terhadap tiga kompetitor utama untuk sebuah fitur berita.' },
     status: 'In Progress',
-    assignees: [users.find(u => u.role === 'Jurnalis')!],
+    assignees: [users.find(u => u.role === UserRole.JURNALIS)!],
     dueDate: '2024-09-18',
     createdAt: '2024-09-10',
     category: TaskCategory.Low,
@@ -46,7 +46,7 @@ export const allTasks: Task[] = [
     title: { en: 'Create Instagram content for product launch', id: 'Buat konten Instagram untuk peluncuran produk' },
     description: { en: 'Design a 3-post Instagram carousel and 5 Instagram Stories for the new product launch.', id: 'Rancang 3 post carousel Instagram dan 5 Instagram Stories untuk peluncuran produk baru.' },
     status: 'Completed',
-    assignees: [users.find(u => u.role === 'Social Media Officer')!],
+    assignees: [users.find(u => u.role === UserRole.SOCIAL_MEDIA_OFFICER)!],
     dueDate: '2024-08-10',
     createdAt: '2024-07-18',
     category: TaskCategory.Medium,
@@ -59,7 +59,7 @@ export const allTasks: Task[] = [
     title: { en: 'Design promotional banner for webinar', id: 'Desain spanduk promosi untuk webinar' },
     description: { en: 'Create a set of digital banners (for website, social media, and email).', id: 'Buat satu set spanduk digital (untuk situs web, media sosial, dan email).' },
     status: 'Completed',
-    assignees: [users.find(u => u.role === 'Desain Grafis')!],
+    assignees: [users.find(u => u.role === UserRole.DESAIN_GRAFIS)!],
     dueDate: '2024-08-05',
     createdAt: '2024-07-15',
     category: TaskCategory.Medium,
@@ -72,7 +72,7 @@ export const allTasks: Task[] = [
     title: { en: 'Develop Q4 marketing strategy', id: 'Kembangkan strategi pemasaran Q4' },
     description: { en: 'Outline the marketing strategy for the fourth quarter, including campaign ideas and budget.', id: 'Gariskan strategi pemasaran untuk kuartal keempat, termasuk ide kampanye dan anggaran.' },
     status: 'In Review',
-    assignees: [users.find(u => u.role === 'Marketing')!],
+    assignees: [users.find(u => u.role === UserRole.MARKETING)!],
     dueDate: '2024-08-25',
     createdAt: '2024-07-25',
     category: TaskCategory.High,
@@ -85,7 +85,7 @@ export const allTasks: Task[] = [
     title: { en: 'Prepare monthly budget report', id: 'Siapkan laporan anggaran bulanan' },
     description: { en: 'Compile all departmental expenses and prepare the comprehensive budget report for July 2024.', id: 'Kompilasi semua pengeluaran departemen dan siapkan laporan anggaran komprehensif untuk Juli 2024.' },
     status: 'To-do',
-    assignees: [users.find(u => u.role === 'Finance')!],
+    assignees: [users.find(u => u.role === UserRole.FINANCE)!],
     dueDate: '2024-09-20',
     createdAt: '2024-09-15',
     category: TaskCategory.Critical,

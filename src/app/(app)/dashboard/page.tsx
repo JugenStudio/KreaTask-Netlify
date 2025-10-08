@@ -12,17 +12,18 @@ import { ProgressChart } from "@/components/leaderboard/progress-chart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { Chatbot } from "@/components/chatbot";
-import type { Task, User, UserRole } from "@/lib/types";
+import type { Task, User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { isEmployee } from "@/lib/roles";
 
-const EMPLOYEE_ROLES: UserRole[] = ['Jurnalis', 'Social Media Officer', 'Desain Grafis', 'Marketing', 'Finance'];
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole;
+    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
     if (selectedRole) {
       const user = users.find(u => u.role === selectedRole);
       setCurrentUser(user || users[0]);
@@ -48,7 +49,7 @@ export default function DashboardPage() {
 
   let visibleTasks: Task[];
 
-  if (EMPLOYEE_ROLES.includes(currentUser.role)) {
+  if (isEmployee(currentUser.role)) {
     // Level 1: Karyawan sees only their own tasks
     visibleTasks = allTasks.filter(task => 
       task.assignees.some(assignee => assignee.id === currentUser.id)
