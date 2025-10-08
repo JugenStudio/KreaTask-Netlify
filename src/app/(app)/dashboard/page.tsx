@@ -1,3 +1,4 @@
+
 "use client";
 
 import { TaskCard } from "@/components/dashboard/task-card";
@@ -53,7 +54,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         <StatsCard
           title="Total Tasks Completed"
           value={totalTasksCompleted}
@@ -90,7 +91,9 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <LeaderboardTable leaderboardData={topThree} />
+                <div className="w-full overflow-x-auto">
+                    <LeaderboardTable leaderboardData={topThree} />
+                </div>
             </CardContent>
           </Card>
         </div>

@@ -17,13 +17,13 @@ export default function AllTasksPage() {
             Browse and manage all tasks across the team.
           </p>
         </div>
-        <div className="flex gap-2 items-center">
-            <div className="relative">
+        <div className="flex gap-2 items-center w-full md:w-auto">
+            <div className="relative flex-1 md:flex-initial">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Filter tasks..." className="w-48 pl-8" />
+                <Input placeholder="Filter tasks..." className="w-full md:w-48 pl-8" />
             </div>
             <Select>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-40 hidden md:flex">
                     <SelectValue placeholder="All Statuses" />
                 </SelectTrigger>
                 <SelectContent>
@@ -35,7 +35,7 @@ export default function AllTasksPage() {
                     <SelectItem value="blocked">Blocked</SelectItem>
                 </SelectContent>
             </Select>
-            <Button variant="outline">
+            <Button variant="outline" className="hidden md:inline-flex">
                 <Filter className="h-4 w-4 mr-2" />
                 Filter
             </Button>
@@ -43,10 +43,11 @@ export default function AllTasksPage() {
       </div>
       <Card className="rounded-2xl shadow-none border-none">
         <CardContent className="pt-6">
-          <TaskTable tasks={tasks} />
+          <div className="w-full overflow-x-auto">
+            <TaskTable tasks={tasks} />
+          </div>
         </CardContent>
       </Card>
     </div>
   );
 }
-

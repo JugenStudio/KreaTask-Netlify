@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -35,14 +36,14 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
   const { locale } = useLanguage();
 
   return (
-    <div className="w-full overflow-x-auto">
-        <Table className="table-fixed w-full">
+    <div className="w-full overflow-x-auto rounded-lg border">
+        <Table className="min-w-[640px]">
           <TableHeader>
             <TableRow>
               <TableHead className="w-[40%]">Task</TableHead>
               <TableHead className="w-[15%]">Status</TableHead>
               <TableHead className="w-[25%]">Team</TableHead>
-              <TableHead className="w-[15%]">Due Date</TableHead>
+              <TableHead className="w-[15%] hidden sm:table-cell">Due Date</TableHead>
               <TableHead className="w-[5%]">
                 <span className="sr-only">Actions</span>
               </TableHead>
@@ -76,7 +77,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
                     ))}
                   </div>
                 </TableCell>
-                <TableCell>{new Date(task.dueDate).toLocaleDateString()}</TableCell>
+                <TableCell className="hidden sm:table-cell">{new Date(task.dueDate).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>

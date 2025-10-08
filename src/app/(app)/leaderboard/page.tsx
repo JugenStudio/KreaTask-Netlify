@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,15 +19,15 @@ export default function LeaderboardPage() {
     <div className="space-y-8">
       <div className="flex justify-between items-start">
         <div className="text-left">
-          <h1 className="text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
-            <LineChart className="h-10 w-10 text-primary" />
+          <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
+            <LineChart className="h-8 w-8 md:h-10 md:w-10 text-primary" />
             {t('leaderboard.title')}
           </h1>
-          <p className="text-muted-foreground text-lg">{t('leaderboard.description')}</p>
+          <p className="text-muted-foreground text-base md:text-lg">{t('leaderboard.description')}</p>
         </div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         <StatsCard title="Total Tasks Completed" value={totalTasks} icon={BookOpen} color="yellow" />
         <StatsCard title="Average Score" value={avgScore} icon={Trophy} color="green" />
       </div>
@@ -38,7 +39,9 @@ export default function LeaderboardPage() {
                     <CardTitle className="font-headline">{t('leaderboard.top_performers')}</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <LeaderboardTable leaderboardData={leaderboardData} />
+                    <div className="w-full overflow-x-auto">
+                        <LeaderboardTable leaderboardData={leaderboardData} />
+                    </div>
                 </CardContent>
             </Card>
         </div>

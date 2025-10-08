@@ -75,7 +75,9 @@ export default function PerformanceReportPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <ReportTable reportData={filteredData} />
+            <div className="w-full overflow-x-auto">
+                <ReportTable reportData={filteredData} />
+            </div>
         </CardContent>
       </Card>
     </div>

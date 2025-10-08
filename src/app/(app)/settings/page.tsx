@@ -1,3 +1,4 @@
+
 import { UserTable } from "@/components/settings/user-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { users } from "@/lib/data";
@@ -17,7 +18,9 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <UserTable initialUsers={users} />
+            <div className="w-full overflow-x-auto">
+                <UserTable initialUsers={users} />
+            </div>
         </CardContent>
       </Card>
     </div>
