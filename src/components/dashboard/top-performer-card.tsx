@@ -11,7 +11,7 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-headline text-white">Top Performer</CardTitle>
+        <CardTitle className="font-headline text-card-foreground">Top Performer</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center text-center">
         <div className="relative mb-4">
