@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -160,9 +161,11 @@ export function Header() {
 
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem>
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>{t("header.logout")}</span>
+            <DropdownMenuItem asChild>
+              <Link href="/signin">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>{t("header.logout")}</span>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
