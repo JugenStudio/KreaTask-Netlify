@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -33,9 +34,10 @@ import { users } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card } from "../ui/card";
-import { useState } from "react";
-import { TaskCategory } from "@/lib/types";
+import { useState, useMemo } from "react";
+import { TaskCategory, UserRole, type User } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
+import { isDirector, isEmployee } from "@/lib/roles";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -43,23 +45,47 @@ const taskFormSchema = z.object({
   dueDate: z.date({
     required_error: "A due date is required.",
   }),
+  assignees: z.array(z.string()).min(1, "At least one assignee is required."),
   description: z.string().optional(),
 });
 
-export function TaskForm() {
+type TaskFormValues = z.infer<typeof taskFormSchema>;
+
+interface TaskFormProps {
+    currentUser: User;
+}
+
+export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
   const [files, setFiles] = useState<File[]>([]);
 
-  const form = useForm<z.infer<typeof taskFormSchema>>({
-    resolver: zodResolver(taskFormSchema),
-    defaultValues: {
+  const defaultValues: Partial<TaskFormValues> = {
       title: "",
       description: "",
       category: TaskCategory.Medium,
-    },
+      assignees: [],
+  };
+
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
+    defaultValues,
   });
 
-  function onSubmit(values: z.infer<typeof taskFormSchema>) {
+  const assignableUsers = useMemo(() => {
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
+      // Level 3 can assign to anyone except themselves
+      return users.filter(u => u.id !== currentUser.id);
+    }
+    if (isDirector(currentUser.role)) {
+      // Level 2 can assign to employees
+      return users.filter(u => isEmployee(u.role));
+    }
+    // Level 1 can't assign to others
+    return [];
+  }, [currentUser]);
+
+
+  function onSubmit(values: TaskFormValues) {
     console.log(values);
     toast({
       title: "Task Submitted",
@@ -84,6 +110,8 @@ export function TaskForm() {
   function removeFile(fileName: string) {
     setFiles(prev => prev.filter(file => file.name !== fileName));
   }
+  
+  const canAssignTasks = !isEmployee(currentUser.role);
 
   return (
     <Form {...form}>
@@ -129,7 +157,7 @@ export function TaskForm() {
             />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-8">
+          <div className={cn("grid grid-cols-1 md:grid-cols-1 gap-8", canAssignTasks && "md:grid-cols-2")}>
             <FormField
               control={form.control}
               name="dueDate"
@@ -169,6 +197,35 @@ export function TaskForm() {
                 </FormItem>
               )}
             />
+             {canAssignTasks && (
+              <FormField
+                control={form.control}
+                name="assignees"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Assign To</FormLabel>
+                    <Select onValueChange={(value) => field.onChange([value])} >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select an employee or director" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {assignableUsers.map(user => (
+                          <SelectItem key={user.id} value={user.id}>
+                            <div className="flex items-center gap-2">
+                                <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
+                                <span>{user.name} ({user.role})</span>
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
           </div>
         
           <FormField
