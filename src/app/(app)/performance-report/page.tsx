@@ -2,13 +2,14 @@ import { ReportTable } from "@/components/performance-report/report-table";
 import {
   Card,
 } from "@/components/ui/card";
-import { detailedReportData } from "@/lib/data";
+import { detailedReportData, users } from "@/lib/data";
 import { FileText, Filter, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export default function PerformanceReportPage() {
+  const roles = [...new Set(users.map(user => user.role))];
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -42,14 +43,13 @@ export default function PerformanceReportPage() {
                       </Select>
                       <Select>
                           <SelectTrigger className="w-full md:w-40">
-                              <SelectValue placeholder="Semua Kategori" />
+                              <SelectValue placeholder="Semua Jabatan" />
                           </SelectTrigger>
                           <SelectContent>
-                              <SelectItem value="all">Semua Kategori</SelectItem>
-                              <SelectItem value="High">High</SelectItem>
-                              <SelectItem value="Medium">Medium</SelectItem>
-                              <SelectItem value="Low">Low</SelectItem>
-                              <SelectItem value="Critical">Critical</SelectItem>
+                              <SelectItem value="all">Semua Jabatan</SelectItem>
+                              {roles.map(role => (
+                                <SelectItem key={role} value={role}>{role}</SelectItem>
+                              ))}
                           </SelectContent>
                       </Select>
                       <Button variant="outline" className="hidden md:flex">
@@ -64,3 +64,5 @@ export default function PerformanceReportPage() {
     </div>
   );
 }
+
+    

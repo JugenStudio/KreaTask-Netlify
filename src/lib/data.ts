@@ -197,8 +197,8 @@ export const detailedReportData: DetailedReportEntry[] = [
   {
     id: 'report-1',
     employeeName: 'Agus',
+    role: users.find(u => u.name === 'Agus')?.role || 'Team Member',
     taskTitle: tasks[0].title,
-    category: 'High',
     priority: 'High',
     deadline: '2024-08-15',
     completedOn: '2024-08-14',
@@ -212,8 +212,8 @@ export const detailedReportData: DetailedReportEntry[] = [
   {
     id: 'report-2',
     employeeName: 'Sasi',
+    role: users.find(u => u.name === 'Sasi')?.role || 'Team Member',
     taskTitle: tasks[1].title,
-    category: 'Medium',
     priority: 'Medium',
     deadline: '2024-08-10',
     completedOn: '2024-08-10',
@@ -227,8 +227,8 @@ export const detailedReportData: DetailedReportEntry[] = [
   {
     id: 'report-3',
     employeeName: 'Ariya',
+    role: users.find(u => u.name === 'Ariya')?.role || 'Team Member',
     taskTitle: tasks[2].title,
-    category: 'Medium',
     priority: 'Medium',
     deadline: '2024-08-05',
     completedOn: '2024-08-06',
@@ -240,3 +240,5 @@ export const detailedReportData: DetailedReportEntry[] = [
     assessmentDate: '2024-08-07',
   },
 ];
+
+    

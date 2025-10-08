@@ -33,8 +33,8 @@ export function ReportTable({
 
   return (
     <div className="relative w-full overflow-auto border-t" style={{ height: 'calc(100vh - 350px)' }}>
-      <Table className="table-fixed">
-        <TableHeader className="bg-muted/50">
+      <Table className="table-auto">
+        <TableHeader className="bg-muted/50 sticky top-0">
           <TableRow>
             <TableHead className="p-4 w-12 hidden md:table-cell">
               <Checkbox />
@@ -45,7 +45,7 @@ export function ReportTable({
                 </div>
             </TableHead>
             <TableHead className="min-w-[300px]">{t('report.table.task_title')}</TableHead>
-            <TableHead className="min-w-[150px]">{t('report.table.category')}</TableHead>
+            <TableHead className="min-w-[150px]">Jabatan</TableHead>
             <TableHead className="min-w-[150px]">{t('report.table.priority')}</TableHead>
             <TableHead className="min-w-[150px]">{t('report.table.deadline')}</TableHead>
             <TableHead className="min-w-[150px]">{t('report.table.completed_on')}</TableHead>
@@ -72,7 +72,7 @@ export function ReportTable({
                 </TableCell>
               <TableCell className="font-medium whitespace-nowrap">{row.employeeName}</TableCell>
               <TableCell className="whitespace-normal break-words">{row.taskTitle[locale]}</TableCell>
-              <TableCell><Badge variant="outline">{row.category}</Badge></TableCell>
+              <TableCell><Badge variant="outline">{row.role}</Badge></TableCell>
               <TableCell>{row.priority}</TableCell>
               <TableCell className="whitespace-nowrap">{new Date(row.deadline).toLocaleDateString()}</TableCell>
               <TableCell className="whitespace-nowrap">{new Date(row.completedOn).toLocaleDateString()}</TableCell>
@@ -112,3 +112,5 @@ export function ReportTable({
     </div>
   );
 }
+
+    

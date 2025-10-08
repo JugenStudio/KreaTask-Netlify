@@ -84,7 +84,7 @@ export interface DetailedReportEntry {
     id: string;
     employeeName: string;
     taskTitle: LocalizedString;
-    category: string;
+    role: UserRole;
     priority: string;
     deadline: string;
     completedOn: string;
@@ -95,3 +95,5 @@ export interface DetailedReportEntry {
     reviewer: string;
     assessmentDate: string;
 }
+
+    
