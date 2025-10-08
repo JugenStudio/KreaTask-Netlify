@@ -1,3 +1,4 @@
+
 import { TaskTable } from "@/components/dashboard/task-table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,7 +41,7 @@ export default function AllTasksPage() {
             </Button>
         </div>
       </div>
-      <Card className="rounded-2xl shadow-none border-none bg-card/80 dark:bg-card/80">
+      <Card className="rounded-2xl shadow-none border-none">
         <CardContent className="pt-6">
           <TaskTable tasks={tasks} />
         </CardContent>
