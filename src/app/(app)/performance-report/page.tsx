@@ -35,6 +35,7 @@ export default function PerformanceReportPage() {
         task.assignees.some(assignee => assignee.id === currentUser.id)
       );
     }
+    // Directors see all completed tasks in the main report
     return allTasks.filter(task => task.status === "Completed");
   }, [currentUser]);
 
@@ -79,13 +80,15 @@ export default function PerformanceReportPage() {
     );
   }
 
-  // Director/Super User View: Validation Panel
+  // Director/Super User View: Validation Panel + Full Report
   return (
     <div className="space-y-8">
         <div>
-            <h1 className="text-3xl font-bold font-headline">Panel Validasi Nilai Tugas</h1>
-            <p className="text-muted-foreground">Setujui atau ubah nilai tugas yang telah diselesaikan oleh tim.</p>
+            <h1 className="text-3xl font-bold font-headline">Laporan & Validasi Kinerja</h1>
+            <p className="text-muted-foreground">Setujui nilai tugas dan lihat riwayat kinerja tim.</p>
         </div>
+
+        {/* Validation Panel */}
         <Card>
             <CardHeader>
                 <CardTitle>Menunggu Validasi</CardTitle>
@@ -129,6 +132,26 @@ export default function PerformanceReportPage() {
                 </div>
             </CardContent>
         </Card>
+
+        {/* Full Performance History */}
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h2 className="text-2xl font-bold font-headline flex items-center gap-3">
+                        <History className="h-7 w-7" />
+                        Riwayat Semua Tugas Selesai
+                    </h2>
+                    <p className="text-muted-foreground">
+                        Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim.
+                    </p>
+                </div>
+            </div>
+            <Card>
+                <CardContent className="pt-6">
+                    <ReportTable tasks={completedTasks} />
+                </CardContent>
+            </Card>
+        </div>
     </div>
   )
 }
