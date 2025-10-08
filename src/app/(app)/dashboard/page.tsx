@@ -16,8 +16,6 @@ import type { Task, User, LeaderboardEntry } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
-import { MyRankCard } from "@/components/dashboard/my-rank-card";
-
 
 export default function DashboardPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -131,19 +129,25 @@ export default function DashboardPage() {
         )}
       </div>
 
-      {/* Leaderboard Section (Director) or My Rank (Employee) */}
+      {/* Main Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {isLvl1 ? (
             <>
+                {/* Employee View */}
                 <div className="lg:col-span-2 space-y-8">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                        {todoTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {inProgressTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
+                       {/* If no tasks, show a placeholder */}
+                       {todoTasks.length === 0 && inProgressTasks.length === 0 && completedTasks.length === 0 && (
+                          <Card className="md:col-span-2 flex items-center justify-center h-64">
+                            <p className="text-muted-foreground">You have no active tasks.</p>
+                          </Card>
+                       )}
                     </div>
                 </div>
                 <div className="lg:col-span-1 space-y-8">
-                    <MyRankCard entry={currentUserLeaderboard} />
                     <Card>
                         <CardHeader><CardTitle className="font-headline text-foreground">Progres Bulanan Saya</CardTitle></CardHeader>
                         <CardContent><ProgressChart currentUser={currentUser} /></CardContent>
@@ -152,6 +156,7 @@ export default function DashboardPage() {
             </>
         ) : (
             <>
+                {/* Director View */}
                 <div className="lg:col-span-2 space-y-8">
                     <Card>
                     <CardHeader>
@@ -172,7 +177,7 @@ export default function DashboardPage() {
       </div>
 
 
-      {/* Tasks & Progress Section */}
+      {/* Additional Tasks for Director */}
       {!isLvl1 && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 space-y-8">
