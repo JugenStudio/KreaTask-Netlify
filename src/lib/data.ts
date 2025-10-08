@@ -6,29 +6,29 @@ const getAvatarUrl = (seed: number) => `https://picsum.photos/seed/${seed}/100/1
 export const users: User[] = [
   { id: 'user-1', name: 'Admin Ali', email: 'ali@kreatask.com', avatarUrl: getAvatarUrl(1), role: 'Administrator' },
   { id: 'user-2', name: 'Leader Lena', email: 'lena@kreatask.com', avatarUrl: getAvatarUrl(2), role: 'Team Leader' },
-  { id: 'user-3', name: 'Member Mo', email: 'mo@kreatask.com', avatarUrl: getAvatarUrl(3), role: 'Team Member' },
-  { id: 'user-4', name: 'Member Mia', email: 'mia@kreatask.com', avatarUrl: getAvatarUrl(4), role: 'Team Member' },
-  { id: 'user-5', name: 'Charlie Day', email: 'charlie@kreatask.com', avatarUrl: getAvatarUrl(5), role: 'Team Member' },
+  { id: 'user-3', name: 'Agus', email: 'agus@kreatask.com', avatarUrl: getAvatarUrl(3), role: 'Journalist' },
+  { id: 'user-4', name: 'Sasi', email: 'sasi@kreatask.com', avatarUrl: getAvatarUrl(4), role: 'Social Media Officer' },
+  { id: 'user-5', name: 'Ariya', email: 'ariya@kreatask.com', avatarUrl: getAvatarUrl(5), role: 'Graphic Designer' },
   { id: 'user-6', name: 'Rina', email: 'rina@kreatask.com', avatarUrl: getAvatarUrl(6), role: 'Team Member' },
   { id: 'user-7', name: 'Fadil', email: 'fadil@kreatask.com', avatarUrl: getAvatarUrl(7), role: 'Team Member' },
   { id: 'user-8', name: 'Andika', email: 'andika@kreatask.com', avatarUrl: getAvatarUrl(8), role: 'Team Member' },
-  { id: 'user-9', name: 'Budi', email: 'budi@kreatask.com', avatarUrl: getAvatarUrl(9), role: 'Team Member' },
-  { id: 'user-10', name: 'Siti', email: 'siti@kreatask.com', avatarUrl: getAvatarUrl(10), role: 'Team Member' },
+  { id: 'user-9', name: 'Citra', email: 'citra@kreatask.com', avatarUrl: getAvatarUrl(9), role: 'Marketing' },
+  { id: 'user-10', name: 'Doni', email: 'doni@kreatask.com', avatarUrl: getAvatarUrl(10), role: 'Finance' },
 ];
 
 export const tasks: Task[] = [
   {
     id: 'task-1',
     title: {
-      en: 'Design new logo concept',
-      id: 'Rancang konsep logo baru'
+      en: 'Write article about Q3 tech trends',
+      id: 'Tulis artikel tentang tren teknologi Q3'
     },
     description: {
-      en: 'Create three new logo concepts for the rebranding project. Focus on modern and minimalist designs.',
-      id: 'Buat tiga konsep logo baru untuk proyek rebranding. Fokus pada desain modern dan minimalis.'
+      en: 'Draft a 2000-word article on the major technology trends of the third quarter. Include interviews with at least two industry experts.',
+      id: 'Buat draf artikel 2000 kata tentang tren teknologi utama kuartal ketiga. Sertakan wawancara dengan setidaknya dua pakar industri.'
     },
     status: 'Completed',
-    assignees: [users[5]], // Rina
+    assignees: [users[2]], // Agus
     dueDate: '2024-08-15',
     createdAt: '2024-07-20',
     category: 'High',
@@ -43,15 +43,15 @@ export const tasks: Task[] = [
   {
     id: 'task-2',
     title: {
-      en: 'Develop landing page animation',
-      id: 'Kembangkan animasi halaman arahan'
+      en: 'Create Instagram content for product launch',
+      id: 'Buat konten Instagram untuk peluncuran produk'
     },
     description: {
-      en: 'Code the hero section animation using Framer Motion. The animation should be smooth and engaging.',
-      id: 'Buat kode animasi bagian hero menggunakan Framer Motion. Animasinya harus mulus dan menarik.'
+      en: 'Design a 3-post Instagram carousel and 5 Instagram Stories for the new product launch. Must match brand guidelines.',
+      id: 'Rancang 3 post carousel Instagram dan 5 Instagram Stories untuk peluncuran produk baru. Harus sesuai dengan pedoman merek.'
     },
     status: 'Completed',
-    assignees: [users[5]], // Rina
+    assignees: [users[3]], // Sasi
     dueDate: '2024-08-10',
     createdAt: '2024-07-18',
     category: 'Medium',
@@ -66,15 +66,15 @@ export const tasks: Task[] = [
   {
     id: 'task-3',
     title: {
-      en: 'Write blog post on "The Future of AI"',
-      id: 'Tulis postingan blog tentang "Masa Depan AI"'
+      en: 'Design promotional banner for webinar',
+      id: 'Desain spanduk promosi untuk webinar'
     },
     description: {
-      en: 'Draft a 1500-word blog post. Include insights from recent industry reports.',
-      id: 'Tulis draf postingan blog 1500 kata. Sertakan wawasan dari laporan industri terbaru.'
+      en: 'Create a set of digital banners (for website, social media, and email) to promote the upcoming webinar.',
+      id: 'Buat satu set spanduk digital (untuk situs web, media sosial, dan email) untuk mempromosikan webinar yang akan datang.'
     },
     status: 'Completed',
-    assignees: [users[6]], // Fadil
+    assignees: [users[4]], // Ariya
     dueDate: '2024-08-05',
     createdAt: '2024-07-15',
     category: 'Medium',
@@ -89,22 +89,22 @@ export const tasks: Task[] = [
   {
     id: 'task-4',
     title: {
-      en: 'User Authentication Flow',
-      id: 'Alur Otentikasi Pengguna'
+      en: 'Develop Q4 marketing strategy',
+      id: 'Kembangkan strategi pemasaran Q4'
     },
     description: {
-      en: 'Set up Firebase Authentication and create the login/signup pages.',
-      id: 'Siapkan Otentikasi Firebase dan buat halaman login/daftar.'
+      en: 'Outline the marketing strategy for the fourth quarter, including campaign ideas, budget allocation, and target KPIs.',
+      id: 'Gariskan strategi pemasaran untuk kuartal keempat, termasuk ide kampanye, alokasi anggaran, dan target KPI.'
     },
-    status: 'Completed',
-    assignees: [users[7]], // Andika
+    status: 'In Progress',
+    assignees: [users[8]], // Citra
     dueDate: '2024-08-25',
     createdAt: '2024-07-25',
     category: 'High',
     basePoints: 40,
     bonusPoints: 0,
-    penaltyPoints: 5, // Late
-    totalPoints: 35,
+    penaltyPoints: 0, 
+    totalPoints: 40,
     revisions: [],
     comments: [],
     files: [],
@@ -112,15 +112,15 @@ export const tasks: Task[] = [
    {
     id: 'task-5',
     title: {
-      en: 'API Integration for Payment Gateway',
-      id: 'Integrasi API untuk Gerbang Pembayaran'
+      en: 'Prepare monthly budget report',
+      id: 'Siapkan laporan anggaran bulanan'
     },
     description: {
-      en: 'Integrate Stripe API for handling subscription payments.',
-      id: 'Integrasikan API Stripe untuk menangani pembayaran langganan.'
+      en: 'Compile all departmental expenses and prepare the comprehensive budget report for July 2024.',
+      id: 'Kompilasi semua pengeluaran departemen dan siapkan laporan anggaran komprehensif untuk Juli 2024.'
     },
-    status: 'In Progress',
-    assignees: [users[8]], // Budi
+    status: 'In Review',
+    assignees: [users[9]], // Doni
     dueDate: '2024-08-20',
     createdAt: '2024-07-22',
     category: 'Critical',
@@ -135,15 +135,15 @@ export const tasks: Task[] = [
   {
     id: 'task-6',
     title: {
-      en: 'Update documentation',
-      id: 'Perbarui dokumentasi'
+      en: 'Research competitors for news feature',
+      id: 'Riset kompetitor untuk fitur berita'
     },
     description: {
-      en: 'Update the user guide with the new features.',
-      id: 'Perbarui panduan pengguna dengan fitur-fitur baru.'
+      en: 'Conduct research on three main competitors for an upcoming feature story on market disruption.',
+      id: 'Lakukan riset terhadap tiga kompetitor utama untuk sebuah fitur berita yang akan datang tentang disrupsi pasar.'
     },
     status: 'Completed',
-    assignees: [users[9]], // Siti
+    assignees: [users[2]], // Agus
     dueDate: '2024-08-18',
     createdAt: '2024-08-10',
     category: 'Low',
@@ -196,7 +196,7 @@ export const leaderboardData: LeaderboardEntry[] = sortedUsers.map(([id, data], 
 export const detailedReportData: DetailedReportEntry[] = [
   {
     id: 'report-1',
-    employeeName: 'Rina',
+    employeeName: 'Agus',
     taskTitle: tasks[0].title,
     category: 'High',
     priority: 'High',
@@ -211,32 +211,32 @@ export const detailedReportData: DetailedReportEntry[] = [
   },
   {
     id: 'report-2',
-    employeeName: 'Fadil',
-    taskTitle: tasks[2].title,
+    employeeName: 'Sasi',
+    taskTitle: tasks[1].title,
     category: 'Medium',
     priority: 'Medium',
-    deadline: '2024-08-05',
-    completedOn: '2024-08-05',
+    deadline: '2024-08-10',
+    completedOn: '2024-08-10',
     status: 'Selesai Tepat Waktu',
     revisions: 0,
     taskScore: 25,
     aiJustification: { en: 'Task completed on the due date. Standard points awarded.', id: 'Tugas selesai pada tanggal jatuh tempo. Poin standar diberikan.' },
     reviewer: 'Leader Lena',
-    assessmentDate: '2024-08-06',
+    assessmentDate: '2024-08-11',
   },
   {
     id: 'report-3',
-    employeeName: 'Andika',
-    taskTitle: tasks[3].title,
-    category: 'High',
-    priority: 'High',
-    deadline: '2024-08-25',
-    completedOn: '2024-08-26',
+    employeeName: 'Ariya',
+    taskTitle: tasks[2].title,
+    category: 'Medium',
+    priority: 'Medium',
+    deadline: '2024-08-05',
+    completedOn: '2024-08-06',
     status: 'Terlambat',
-    revisions: 0,
-    taskScore: 35,
-    aiJustification: { en: 'Task was completed one day late, resulting in a penalty. No revisions were required.', id: 'Tugas selesai terlambat satu hari, mengakibatkan penalti. Tidak ada revisi yang diperlukan.' },
+    revisions: 1,
+    taskScore: 15,
+    aiJustification: { en: 'Task was completed one day late, resulting in a penalty. One revision was required.', id: 'Tugas selesai terlambat satu hari, mengakibatkan penalti. Diperlukan satu revisi.' },
     reviewer: 'Leader Lena',
-    assessmentDate: '2024-08-27',
+    assessmentDate: '2024-08-07',
   },
 ];

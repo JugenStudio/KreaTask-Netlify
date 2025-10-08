@@ -1,4 +1,4 @@
-export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member';
+export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member' | 'Journalist' | 'Social Media Officer' | 'Graphic Designer' | 'Marketing' | 'Finance';
 
 export type TaskStatus = 'To-do' | 'In Progress' | 'In Review' | 'Completed' | 'Blocked';
 
