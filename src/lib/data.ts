@@ -62,6 +62,22 @@ export const allTasks: Task[] = [
     approvedBy: "Direktur Utama",
     revisions: [], comments: [], files: [],
   },
+  // New task waiting for approval
+  {
+    id: 'task-6',
+    title: { en: 'Create Social Media Content Plan', id: 'Buat Rencana Konten Media Sosial' },
+    description: { en: 'Develop a content plan for all social media channels for the next month.', id: 'Mengembangkan rencana konten untuk semua saluran media sosial untuk bulan depan.' },
+    assignees: [users.find(u => u.role === UserRole.SOCIAL_MEDIA_OFFICER)!],
+    status: 'Completed',
+    category: TaskCategory.Medium,
+    dueDate: '2024-09-18',
+    createdAt: '2024-09-10',
+    valueCategory: "Menengah",
+    value: 20,
+    evaluator: "Direktur Operasional",
+    approvedBy: null, // This task needs validation
+    revisions: [], comments: [], files: [],
+  },
   // In-Progress / To-do Tasks
   {
     id: 'task-4',
