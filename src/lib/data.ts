@@ -1,3 +1,4 @@
+
 import type { User, Task, Notification, LocalizedString, LeaderboardEntry, DetailedReportEntry } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
@@ -196,6 +197,7 @@ export const leaderboardData: LeaderboardEntry[] = sortedUsers.map(([id, data], 
 export const detailedReportData: DetailedReportEntry[] = [
   {
     id: 'report-1',
+    taskId: 'task-1',
     employeeName: 'Agus',
     role: users.find(u => u.name === 'Agus')?.role || 'Team Member',
     taskTitle: tasks[0].title,
@@ -211,6 +213,7 @@ export const detailedReportData: DetailedReportEntry[] = [
   },
   {
     id: 'report-2',
+    taskId: 'task-2',
     employeeName: 'Sasi',
     role: users.find(u => u.name === 'Sasi')?.role || 'Team Member',
     taskTitle: tasks[1].title,
@@ -226,6 +229,7 @@ export const detailedReportData: DetailedReportEntry[] = [
   },
   {
     id: 'report-3',
+    taskId: 'task-3',
     employeeName: 'Ariya',
     role: users.find(u => u.name === 'Ariya')?.role || 'Team Member',
     taskTitle: tasks[2].title,
@@ -240,5 +244,3 @@ export const detailedReportData: DetailedReportEntry[] = [
     assessmentDate: '2024-08-07',
   },
 ];
-
-    

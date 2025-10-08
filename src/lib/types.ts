@@ -1,3 +1,4 @@
+
 export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member' | 'Journalist' | 'Social Media Officer' | 'Graphic Designer' | 'Marketing' | 'Finance';
 
 export enum TaskCategory {
@@ -82,6 +83,7 @@ export interface LeaderboardEntry {
 
 export interface DetailedReportEntry {
     id: string;
+    taskId: string;
     employeeName: string;
     taskTitle: LocalizedString;
     role: UserRole;
@@ -95,5 +97,3 @@ export interface DetailedReportEntry {
     reviewer: string;
     assessmentDate: string;
 }
-
-    
