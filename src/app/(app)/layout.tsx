@@ -1,6 +1,8 @@
 import { AppSidebar } from "@/components/app-sidebar";
+import { Chatbot } from "@/components/chatbot";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
+import { tasks, users } from "@/lib/data";
 
 export default function AppLayout({
   children,
@@ -17,6 +19,7 @@ export default function AppLayout({
             {children}
           </main>
         </div>
+        <Chatbot tasks={tasks} users={users} />
       </div>
     </LanguageProvider>
   );

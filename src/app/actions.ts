@@ -1,7 +1,9 @@
 "use server";
 
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
+import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
 import { z } from "zod";
+import type { Task, User } from "@/lib/types";
 
 const SummarizeSchema = z.object({
   commentThread: z.string(),
@@ -26,5 +28,33 @@ export async function getSummary(formData: FormData) {
       return { summary: null, error: "Invalid input." };
     }
     return { summary: null, error: "Failed to generate summary." };
+  }
+}
+
+const KreaBotSchema = z.object({
+  query: z.string(),
+  tasks: z.string(),
+  users: z.string(),
+  leaderboard: z.string(),
+});
+
+export async function getKreaBotResponse(
+  query: string,
+  tasks: Task[],
+  users: User[],
+  leaderboard: any[]
+) {
+  try {
+    const result = await askKreaBot({
+      query,
+      tasks,
+      users,
+      leaderboard,
+    });
+    
+    return { response: result.response, error: null };
+  } catch (error) {
+    console.error("KreaBot action error:", error);
+    return { response: null, error: "Sorry, I encountered an error. Please try again." };
   }
 }
