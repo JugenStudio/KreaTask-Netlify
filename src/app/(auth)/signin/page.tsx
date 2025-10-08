@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { Mail } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 function GoogleIcon() {
   return (
@@ -29,60 +30,66 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden">
-      <div className="p-8 space-y-6">
-        <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
-          <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-            <Link href="/signup">Sign up</Link>
-          </Button>
-          <Button variant="secondary" asChild className="rounded-full px-6 bg-background shadow-md">
-            <Link href="/signin">Sign in</Link>
-          </Button>
+    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+        <div className="flex items-center gap-3 mb-6">
+            <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={40} height={40} />
+            <h1 className="text-3xl font-headline font-bold text-foreground">KreaTask</h1>
         </div>
+        <div className="w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden">
+            <div className="p-8 space-y-6">
+                <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
+                <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
+                    <Link href="/signup">Sign up</Link>
+                </Button>
+                <Button variant="secondary" asChild className="rounded-full px-6 bg-background shadow-md">
+                    <Link href="/signin">Sign in</Link>
+                </Button>
+                </div>
 
-        <div className="text-left space-y-2">
-          <h1 className="text-2xl font-bold font-headline">Welcome Back</h1>
-          <p className="text-muted-foreground">Enter your credentials to access your account.</p>
-        </div>
+                <div className="text-left space-y-2">
+                <h1 className="text-2xl font-bold font-headline">Welcome Back</h1>
+                <p className="text-muted-foreground">Enter your credentials to access your account.</p>
+                </div>
 
-        <form className="space-y-4" onSubmit={handleSignIn}>
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="you@example.com" required className="bg-secondary/50 border-none pl-10" />
+                <form className="space-y-4" onSubmit={handleSignIn}>
+                <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <div className="relative">
+                        <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                        <Input id="email" type="email" placeholder="you@example.com" required className="bg-secondary/50 border-none pl-10" />
+                    </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input id="password" type="password" required className="bg-secondary/50 border-none" />
+                </div>
+                <Button type="submit" className="w-full !mt-6 h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
+                    Sign In
+                </Button>
+                </form>
+
+                <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <Separator />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">Or sign in with</span>
+                </div>
+                </div>
+
+                <Button variant="outline" className="w-full h-12 text-md font-semibold bg-secondary/50 hover:bg-secondary border-none flex items-center justify-center gap-3 rounded-lg">
+                <GoogleIcon />
+                Continue with Google
+                </Button>
+
+                <p className="text-center text-sm text-muted-foreground !mt-8">
+                    Don&apos;t have an account?{' '}
+                    <Link href="/signup" className="font-semibold text-primary hover:underline">
+                    Create one
+                    </Link>
+                </p>
             </div>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" required className="bg-secondary/50 border-none" />
-          </div>
-          <Button type="submit" className="w-full !mt-6 h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
-            Sign In
-          </Button>
-        </form>
-
-        <div className="relative">
-          <div className="absolute inset-0 flex items-center">
-            <Separator />
-          </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">Or sign in with</span>
-          </div>
         </div>
-
-        <Button variant="outline" className="w-full h-12 text-md font-semibold bg-secondary/50 hover:bg-secondary border-none flex items-center justify-center gap-3 rounded-lg">
-          <GoogleIcon />
-          Continue with Google
-        </Button>
-
-        <p className="text-center text-sm text-muted-foreground !mt-8">
-            Don&apos;t have an account?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
-            Create one
-            </Link>
-        </p>
-      </div>
     </div>
   );
 }
