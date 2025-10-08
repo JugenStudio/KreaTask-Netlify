@@ -1,9 +1,10 @@
+"use client";
+
 import { AppSidebar } from "@/components/app-sidebar";
 import { Chatbot } from "@/components/chatbot";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
 import { tasks, users, leaderboardData } from "@/lib/data";
-import Image from "next/image";
 
 export default function AppLayout({
   children,
@@ -13,16 +14,7 @@ export default function AppLayout({
   const currentUser = users[0];
   return (
     <LanguageProvider>
-      <div className="relative min-h-screen w-full">
-        <Image
-          src="https://picsum.photos/seed/kreatask/1920/1080"
-          alt="Abstract background"
-          fill
-          className="object-cover -z-20"
-          data-ai-hint="abstract workspace"
-        />
-        <div className="absolute inset-0 bg-black/50 -z-10" />
-
+      <div className="min-h-screen w-full bg-gradient-to-b from-background to-background-end">
         <div className="flex min-h-screen w-full">
           <AppSidebar user={currentUser} />
           <div className="flex flex-1 flex-col bg-transparent">
