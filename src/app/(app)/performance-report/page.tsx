@@ -141,7 +141,6 @@ export default function PerformanceReportPage() {
                                   <TableHead>Tugas</TableHead>
                                   <TableHead>Karyawan</TableHead>
                                   <TableHead>Nilai Diajukan</TableHead>
-                                  <TableHead>Dievaluasi Oleh</TableHead>
                                   <TableHead className="text-right">Aksi</TableHead>
                               </TableRow>
                           </TableHeader>
@@ -153,9 +152,6 @@ export default function PerformanceReportPage() {
                                       <TableCell>
                                           <Badge variant="outline">{task.value} Poin</Badge>
                                       </TableCell>
-                                      <TableCell>
-                                          <Badge variant="secondary">{task.evaluator}</Badge>
-                                      </TableCell>
                                       <TableCell className="text-right space-x-2">
                                           <Button variant="ghost" size="sm" onClick={() => handleEdit(task)}><Edit className="h-4 w-4 mr-2" /> Ubah</Button>
                                           <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> Setujui</Button>
@@ -163,7 +159,7 @@ export default function PerformanceReportPage() {
                                   </TableRow>
                               )) : (
                                   <TableRow>
-                                      <TableCell colSpan={5} className="h-24 text-center">Tidak ada tugas yang memerlukan validasi saat ini.</TableCell>
+                                      <TableCell colSpan={4} className="h-24 text-center">Tidak ada tugas yang memerlukan validasi saat ini.</TableCell>
                                   </TableRow>
                               )}
                           </TableBody>
