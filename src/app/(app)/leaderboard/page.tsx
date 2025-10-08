@@ -20,12 +20,18 @@ export default function LeaderboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="text-left">
-        <h1 className="text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
-          <LineChart className="h-10 w-10 text-primary" />
-          {t('leaderboard.title')}
-        </h1>
-        <p className="text-muted-foreground text-lg">{t('leaderboard.description')}</p>
+      <div className="flex justify-between items-start">
+        <div className="text-left">
+          <h1 className="text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
+            <LineChart className="h-10 w-10 text-primary" />
+            {t('leaderboard.title')}
+          </h1>
+          <p className="text-muted-foreground text-lg">{t('leaderboard.description')}</p>
+        </div>
+         <Button onClick={() => setIsReportOpen(true)}>
+            <Download className="mr-2 h-4 w-4" />
+            {t('leaderboard.view_report_button')}
+          </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
