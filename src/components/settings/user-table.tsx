@@ -21,14 +21,24 @@ import {
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
+import { isEmployee } from "@/lib/roles";
 
 const roles: UserRole[] = Object.values(UserRole);
 
-export function UserTable({ initialUsers }: { initialUsers: User[] }) {
+interface UserTableProps {
+  initialUsers: User[];
+  currentUser: User;
+}
+
+export function UserTable({ initialUsers, currentUser }: UserTableProps) {
   const [users, setUsers] = useState<User[]>(initialUsers);
   const { toast } = useToast();
 
+  const canEditRoles = !isEmployee(currentUser.role);
+
   const handleRoleChange = (userId: string, newRole: UserRole) => {
+    if (!canEditRoles) return;
+
     setUsers((prevUsers) =>
       prevUsers.map((user) =>
         user.id === userId ? { ...user, role: newRole } : user
@@ -69,6 +79,7 @@ export function UserTable({ initialUsers }: { initialUsers: User[] }) {
                 onValueChange={(value: UserRole) =>
                   handleRoleChange(user.id, value)
                 }
+                disabled={!canEditRoles}
               >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Select role" />

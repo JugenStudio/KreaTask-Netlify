@@ -78,6 +78,7 @@ export interface LeaderboardEntry {
     score: number;
     tasksCompleted: number;
     avatarUrl: string;
+    role: UserRole;
 }
 
 export interface DetailedReportEntry {

@@ -1,13 +1,51 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import { TaskTable } from "@/components/dashboard/task-table";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { tasks } from "@/lib/data";
+import { allTasks, users } from "@/lib/data";
 import { Filter, Search } from "lucide-react";
+import type { Task, User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
+import { isEmployee } from "@/lib/roles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function AllTasksPage() {
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+    if (selectedRole) {
+      const user = users.find(u => u.role === selectedRole);
+      setCurrentUser(user || users[0]);
+    } else {
+      setCurrentUser(users[0]);
+    }
+  }, []);
+
+  if (!currentUser) {
+    return (
+        <div className="space-y-6">
+            <div className="flex justify-between items-center">
+                <Skeleton className="h-12 w-1/3" />
+                <div className="flex gap-2">
+                    <Skeleton className="h-10 w-48" />
+                    <Skeleton className="h-10 w-40" />
+                    <Skeleton className="h-10 w-24" />
+                </div>
+            </div>
+            <Skeleton className="h-96 w-full" />
+        </div>
+    );
+  }
+
+  const visibleTasks: Task[] = isEmployee(currentUser.role)
+    ? allTasks.filter(task => task.assignees.some(assignee => assignee.id === currentUser.id))
+    : allTasks;
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -41,13 +79,9 @@ export default function AllTasksPage() {
             </Button>
         </div>
       </div>
-      <Card className="rounded-2xl shadow-none border-none">
-        <CardContent className="pt-6">
-          <div className="w-full overflow-x-auto">
-            <TaskTable tasks={tasks} />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="w-full overflow-x-auto">
+        <TaskTable tasks={visibleTasks} />
+      </div>
     </div>
   );
 }

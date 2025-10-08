@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -10,9 +11,8 @@ import {
 } from "@/components/ui/table";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { LeaderboardEntry } from "@/lib/types";
-import { Crown, Medal, ArrowUpCircle, ArrowDownCircle } from "lucide-react";
+import { Crown, Medal } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
-import { cn } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -66,26 +66,13 @@ export function LeaderboardTable({
                   </Avatar>
                   <div>
                       <div className="font-bold text-card-foreground">{entry.name}</div>
-                      <div className="text-sm text-muted-foreground">Score: {entry.score}</div>
+                      <div className="text-sm text-muted-foreground">{entry.role}</div>
                   </div>
                 </div>
               </TableCell>
               <TableCell className="text-center font-semibold text-card-foreground">{entry.tasksCompleted}</TableCell>
-              <TableCell className="text-right">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className={cn(
-                        "flex items-center justify-end gap-1 font-semibold cursor-help",
-                        entry.rank < 4 ? "text-green-500" : "text-red-500"
-                    )}>
-                        {entry.rank < 4 ? <ArrowUpCircle /> : <ArrowDownCircle />}
-                        <span>{entry.score / 10}%</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Performance trend based on recent activity.</p>
-                  </TooltipContent>
-                </Tooltip>
+              <TableCell className="text-right font-bold text-lg text-card-foreground">
+                {entry.score}
               </TableCell>
             </TableRow>
           ))}

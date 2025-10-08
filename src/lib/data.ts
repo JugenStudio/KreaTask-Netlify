@@ -99,10 +99,10 @@ export const allTasks: Task[] = [
 export const tasks: Task[] = allTasks;
 
 // Calculate scores for leaderboard
-const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string } } = {};
+const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: UserRole; } } = {};
 
 users.forEach(user => {
-  userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl };
+  userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role };
 });
 
 tasks.forEach(task => {
@@ -124,7 +124,8 @@ export const leaderboardData: LeaderboardEntry[] = sortedUsers.map(([id, data], 
   name: data.name,
   score: data.score,
   tasksCompleted: data.tasksCompleted,
-  avatarUrl: data.avatarUrl
+  avatarUrl: data.avatarUrl,
+  role: data.role,
 }));
 
 
