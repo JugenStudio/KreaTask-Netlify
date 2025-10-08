@@ -9,10 +9,11 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const currentUser = users[0];
   return (
     <LanguageProvider>
       <div className="flex min-h-screen w-full">
-        <AppSidebar />
+        <AppSidebar user={currentUser} />
         <div className="flex flex-1 flex-col">
           <Header />
           <main className="flex-1 p-4 md:p-6 lg:p-8">
