@@ -49,9 +49,9 @@ export function DetailedReportDialog({
       t('report.table.completed_on'),
       t('report.table.status'),
       t('report.table.revisions'),
-      t('report S.table.score'),
+      t('report.table.score'),
       t('report.table.ai_justification'),
-      t 'report.table.reviewer'),
+      t('report.table.reviewer'),
       t('report.table.assessment_date')
     ];
     csvContent += headers.join(",") + "\r\n";
