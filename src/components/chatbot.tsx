@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { Task, User } from '@/lib/types';
+import type { Task, User, LeaderboardEntry } from '@/lib/types';
 import { getKreaBotResponse } from '@/app/actions';
 import { useLanguage } from '@/providers/language-provider';
 
@@ -25,6 +25,7 @@ interface Message {
 interface ChatbotProps {
   tasks: Task[];
   users: User[];
+  leaderboardData: LeaderboardEntry[];
 }
 
 export function Chatbot({ tasks, users }: ChatbotProps) {

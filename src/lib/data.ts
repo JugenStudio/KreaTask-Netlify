@@ -1,4 +1,4 @@
-import type { User, Task, Notification } from './types';
+import type { User, Task, Notification, LocalizedString, LeaderboardEntry, DetailedReportEntry } from './types';
 import { PlaceHolderImages } from './placeholder-images';
 
 const getAvatarUrl = (seed: number) => `https://picsum.photos/seed/${seed}/100/100`;
@@ -9,6 +9,11 @@ export const users: User[] = [
   { id: 'user-3', name: 'Member Mo', email: 'mo@kreatask.com', avatarUrl: getAvatarUrl(3), role: 'Team Member' },
   { id: 'user-4', name: 'Member Mia', email: 'mia@kreatask.com', avatarUrl: getAvatarUrl(4), role: 'Team Member' },
   { id: 'user-5', name: 'Charlie Day', email: 'charlie@kreatask.com', avatarUrl: getAvatarUrl(5), role: 'Team Member' },
+  { id: 'user-6', name: 'Rina', email: 'rina@kreatask.com', avatarUrl: getAvatarUrl(6), role: 'Team Member' },
+  { id: 'user-7', name: 'Fadil', email: 'fadil@kreatask.com', avatarUrl: getAvatarUrl(7), role: 'Team Member' },
+  { id: 'user-8', name: 'Andika', email: 'andika@kreatask.com', avatarUrl: getAvatarUrl(8), role: 'Team Member' },
+  { id: 'user-9', name: 'Budi', email: 'budi@kreatask.com', avatarUrl: getAvatarUrl(9), role: 'Team Member' },
+  { id: 'user-10', name: 'Siti', email: 'siti@kreatask.com', avatarUrl: getAvatarUrl(10), role: 'Team Member' },
 ];
 
 export const tasks: Task[] = [
@@ -22,28 +27,18 @@ export const tasks: Task[] = [
       en: 'Create three new logo concepts for the rebranding project. Focus on modern and minimalist designs.',
       id: 'Buat tiga konsep logo baru untuk proyek rebranding. Fokus pada desain modern dan minimalis.'
     },
-    status: 'In Progress',
-    assignees: [users[2]],
+    status: 'Completed',
+    assignees: [users[5]], // Rina
     dueDate: '2024-08-15',
     createdAt: '2024-07-20',
     category: 'High',
     basePoints: 40,
-    bonusPoints: 0,
+    bonusPoints: 5,
     penaltyPoints: 0,
-    totalPoints: 40,
-    revisions: [
-      { id: 'rev-1', timestamp: '2024-07-21T10:00:00Z', author: users[1], change: { en: 'Increased logo variations from 2 to 3.', id: 'Menambah variasi logo dari 2 menjadi 3.' } },
-      { id: 'rev-2', timestamp: '2024-07-22T14:30:00Z', author: users[2], change: { en: 'Added initial sketches to attachments.', id: 'Menambahkan sketsa awal ke lampiran.' } },
-    ],
-    comments: [
-      { id: 'comment-1', author: users[1], timestamp: '2024-07-21T10:05:00Z', content: { en: 'Great, Mo. Looking forward to seeing the first drafts.', id: 'Bagus, Mo. Ditunggu draf pertamanya.' } },
-      { id: 'comment-2', author: users[2], timestamp: '2024-07-22T14:35:00Z', content: { en: "Initial sketches are up. Let me know what you think of direction A vs B. I think B is stronger but A is safer.", id: 'Sketsa awal sudah diunggah. Beri tahu saya pendapat Anda tentang arah A vs B. Menurut saya B lebih kuat tetapi A lebih aman.' } },
-      { id: 'comment-3', author: users[1], timestamp: '2024-07-23T09:00:00Z', content: { en: "I agree, B has more potential. Let's explore that direction further. Maybe we can try incorporating some elements from A's color palette into B's structure?", id: 'Setuju, B punya lebih banyak potensi. Mari kita jelajahi arah itu lebih jauh. Mungkin kita bisa coba memasukkan beberapa elemen dari palet warna A ke dalam struktur B?' } },
-      { id: 'comment-4', author: users[2], timestamp: '2024-07-23T11:20:00Z', content: { en: "Good idea. I'll work on a hybrid version and update the file by EOD. That's a great action item, thanks!", id: 'Ide bagus. Saya akan mengerjakan versi hibrida dan memperbarui filenya hari ini. Itu poin tindakan yang bagus, terima kasih!' } },
-    ],
-    files: [
-      { id: 'file-1', name: 'initial-sketches.png', type: 'image', url: 'https://picsum.photos/seed/101/600/400', size: '2.3 MB' }
-    ],
+    totalPoints: 45,
+    revisions: [],
+    comments: [],
+    files: [],
   },
   {
     id: 'task-2',
@@ -55,22 +50,18 @@ export const tasks: Task[] = [
       en: 'Code the hero section animation using Framer Motion. The animation should be smooth and engaging.',
       id: 'Buat kode animasi bagian hero menggunakan Framer Motion. Animasinya harus mulus dan menarik.'
     },
-    status: 'In Review',
-    assignees: [users[3]],
+    status: 'Completed',
+    assignees: [users[5]], // Rina
     dueDate: '2024-08-10',
     createdAt: '2024-07-18',
     category: 'Medium',
     basePoints: 20,
-    bonusPoints: 0,
+    bonusPoints: 5,
     penaltyPoints: 0,
-    totalPoints: 20,
+    totalPoints: 25,
     revisions: [],
-    comments: [
-      { id: 'comment-5', author: users[1], timestamp: '2024-08-09T16:00:00Z', content: { en: 'The animation looks great, Mia! Just one minor suggestion: can we slow down the initial fade-in by 200ms?', id: 'Animasinya terlihat bagus, Mia! Hanya satu saran kecil: bisakah kita memperlambat fade-in awal sebesar 200ms?' } }
-    ],
-    files: [
-       { id: 'file-2', name: 'animation-preview.mp4', type: 'video', url: '#', size: '15.7 MB' }
-    ],
+    comments: [],
+    files: [],
   },
   {
     id: 'task-3',
@@ -83,10 +74,9 @@ export const tasks: Task[] = [
       id: 'Tulis draf postingan blog 1500 kata. Sertakan wawasan dari laporan industri terbaru.'
     },
     status: 'Completed',
-    assignees: [users[4]],
+    assignees: [users[6]], // Fadil
     dueDate: '2024-08-05',
     createdAt: '2024-07-15',
-    // This task was completed on time.
     category: 'Medium',
     basePoints: 20,
     bonusPoints: 5,
@@ -94,9 +84,7 @@ export const tasks: Task[] = [
     totalPoints: 25,
     revisions: [],
     comments: [],
-    files: [
-      { id: 'file-3', name: 'future-of-ai-draft.docx', type: 'document', url: '#', size: '128 KB' }
-    ],
+    files: [],
   },
   {
     id: 'task-4',
@@ -108,15 +96,15 @@ export const tasks: Task[] = [
       en: 'Set up Firebase Authentication and create the login/signup pages.',
       id: 'Siapkan Otentikasi Firebase dan buat halaman login/daftar.'
     },
-    status: 'To-do',
-    assignees: [users[3]],
+    status: 'Completed',
+    assignees: [users[7]], // Andika
     dueDate: '2024-08-25',
     createdAt: '2024-07-25',
     category: 'High',
     basePoints: 40,
     bonusPoints: 0,
-    penaltyPoints: 0,
-    totalPoints: 40,
+    penaltyPoints: 5, // Late
+    totalPoints: 35,
     revisions: [],
     comments: [],
     files: [],
@@ -131,8 +119,8 @@ export const tasks: Task[] = [
       en: 'Integrate Stripe API for handling subscription payments.',
       id: 'Integrasikan API Stripe untuk menangani pembayaran langganan.'
     },
-    status: 'Blocked',
-    assignees: [users[2]],
+    status: 'In Progress',
+    assignees: [users[8]], // Budi
     dueDate: '2024-08-20',
     createdAt: '2024-07-22',
     category: 'Critical',
@@ -141,7 +129,30 @@ export const tasks: Task[] = [
     penaltyPoints: 0,
     totalPoints: 50,
     revisions: [],
-    comments: [{ id: 'comment-6', author: users[0], timestamp: '2024-07-24T12:00:00Z', content: { en: 'Blocked until we get the final API keys from Stripe support.', id: 'Diblokir hingga kami mendapatkan kunci API final dari dukungan Stripe.' } }],
+    comments: [],
+    files: [],
+  },
+  {
+    id: 'task-6',
+    title: {
+      en: 'Update documentation',
+      id: 'Perbarui dokumentasi'
+    },
+    description: {
+      en: 'Update the user guide with the new features.',
+      id: 'Perbarui panduan pengguna dengan fitur-fitur baru.'
+    },
+    status: 'Completed',
+    assignees: [users[9]], // Siti
+    dueDate: '2024-08-18',
+    createdAt: '2024-08-10',
+    category: 'Low',
+    basePoints: 10,
+    bonusPoints: 5,
+    penaltyPoints: 0,
+    totalPoints: 15,
+    revisions: [],
+    comments: [],
     files: [],
   },
 ];
@@ -150,4 +161,89 @@ export const notifications: Notification[] = [
   { id: 'notif-1', type: 'status-change', title: { en: 'Task Status Updated', id: 'Status Tugas Diperbarui' }, description: { en: 'Your task "Design new logo concept" was moved to In Review.', id: 'Tugas Anda "Rancang konsep logo baru" dipindahkan ke Dalam Tinjauan.' }, timestamp: '2024-07-25T10:00:00Z', isRead: false },
   { id: 'notif-2', type: 'comment', title: { en: 'New Comment', id: 'Komentar Baru' }, description: { en: 'Lena commented on "Develop landing page animation".', id: 'Lena mengomentari "Kembangkan animasi halaman arahan".' }, timestamp: '2024-07-25T09:30:00Z', isRead: false },
   { id: 'notif-3', type: 'task-assigned', title: { en: 'New Task Assigned', id: 'Tugas Baru Ditetapkan' }, description: { en: 'You have been assigned to "User Authentication Flow".', id: 'Anda telah ditugaskan untuk "Alur Otentikasi Pengguna".' }, timestamp: '2024-07-25T08:00:00Z', isRead: true },
-]
+];
+
+// Calculate scores for leaderboard
+const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string } } = {};
+
+users.forEach(user => {
+  userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl };
+});
+
+tasks.forEach(task => {
+  if (task.status === 'Completed') {
+    task.assignees.forEach(assignee => {
+      if (userScores[assignee.id]) {
+        userScores[assignee.id].score += task.totalPoints;
+        userScores[assignee.id].tasksCompleted += 1;
+      }
+    });
+  }
+});
+
+const sortedUsers = Object.entries(userScores).sort(([, a], [, b]) => b.score - a.score);
+
+export const leaderboardData: LeaderboardEntry[] = sortedUsers.map(([id, data], index) => ({
+  id,
+  rank: index + 1,
+  name: data.name,
+  score: data.score,
+  tasksCompleted: data.tasksCompleted,
+  avatarUrl: data.avatarUrl
+}));
+
+
+export const detailedReportData: DetailedReportEntry[] = [
+  {
+    id: 'report-1',
+    employeeName: 'Rina',
+    taskTitle: tasks[0].title,
+    category: 'High',
+    priority: 'High',
+    deadline: '2024-08-15',
+    completedOn: '2024-08-14',
+    status: 'Selesai Tepat Waktu',
+    revisions: 0,
+    taskScore: 45,
+    aiJustification: { en: 'Excellent work. Completed ahead of schedule, earning bonus points. No revisions needed.', id: 'Kerja bagus. Selesai lebih awal, mendapatkan poin bonus. Tidak perlu revisi.' },
+    reviewer: 'Leader Lena',
+    assessmentDate: '2024-08-15',
+  },
+  {
+    id: 'report-2',
+    employeeName: 'Fadil',
+    taskTitle: tasks[2].title,
+    category: 'Medium',
+    priority: 'Medium',
+    deadline: '2024-08-05',
+    completedOn: '2024-08-05',
+    status: 'Selesai Tepat Waktu',
+    revisions: 0,
+    taskScore: 25,
+    aiJustification: { en: 'Task completed on the due date. Standard points awarded.', id: 'Tugas selesai pada tanggal jatuh tempo. Poin standar diberikan.' },
+    reviewer: 'Leader Lena',
+    assessmentDate: '2024-08-06',
+  },
+  {
+    id: 'report-3',
+    employeeName: 'Andika',
+    taskTitle: tasks[3].title,
+    category: 'High',
+    priority: 'High',
+    deadline: '2024-08-25',
+    completedOn: '2024-08-26',
+    status: 'Terlambat',
+    revisions: 0,
+    taskScore: 35,
+    aiJustification: { en: 'Task was completed one day late, resulting in a penalty. No revisions were required.', id: 'Tugas selesai terlambat satu hari, mengakibatkan penalti. Tidak ada revisi yang diperlukan.' },
+    reviewer: 'Leader Lena',
+    assessmentDate: '2024-08-27',
+  },
+];
+
+// Manually set leaderboard data to match user request
+leaderboardData[0] = { ...leaderboardData.find(u => u.name === 'Rina')!, rank: 1, score: 420 };
+leaderboardData[1] = { ...leaderboardData.find(u => u.name === 'Fadil')!, rank: 2, score: 385 };
+leaderboardData[2] = { ...leaderboardData.find(u => u.name === 'Andika')!, rank: 3, score: 360 };
+leaderboardData[3] = { ...leaderboardData.find(u => u.name === 'Budi')!, rank: 4, score: 350 };
+leaderboardData[4] = { ...leaderboardData.find(u => u.name === 'Siti')!, rank: 5, score: 320 };

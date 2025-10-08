@@ -3,6 +3,7 @@
     "dashboard": "Dasbor",
     "all_tasks": "Semua Tugas",
     "submit_task": "Kirim Tugas",
+    "leaderboard": "Papan Peringkat",
     "settings": "Pengaturan"
   },
   "dashboard": {
@@ -38,5 +39,37 @@
     "title": "Komentar",
     "add_comment_placeholder": "Tambahkan komentar...",
     "post_button": "Kirim Komentar"
+  },
+  "leaderboard": {
+    "title": "Papan Peringkat Kinerja Karyawan",
+    "description": "Lihat bagaimana kinerja anggota tim bulan ini.",
+    "view_report_button": "Lihat Laporan & Ekspor CSV",
+    "top_performers": "3 Performer Teratas Bulan Ini",
+    "top_performers_desc": "Berdasarkan poin yang terkumpul dari tugas yang diselesaikan.",
+    "table": {
+      "rank": "Peringkat",
+      "employee": "Karyawan",
+      "tasks_completed": "Tugas Selesai",
+      "total_score": "Total Skor"
+    }
+  },
+  "report": {
+    "title": "Laporan Kinerja Rinci",
+    "description": "Rincian detail dari semua tugas yang dinilai untuk periode ini.",
+    "export_csv": "Ekspor CSV",
+    "table": {
+      "employee": "Nama Karyawan",
+      "task_title": "Judul Tugas",
+      "category": "Kategori",
+      "priority": "Prioritas",
+      "deadline": "Batas Waktu",
+      "completed_on": "Selesai Pada",
+      "status": "Status",
+      "revisions": "Revisi",
+      "score": "Skor Tugas",
+      "ai_justification": "Justifikasi AI",
+      "reviewer": "Peninjau",
+      "assessment_date": "Tanggal Penilaian"
+    }
   }
 }

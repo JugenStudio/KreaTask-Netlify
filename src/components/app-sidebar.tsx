@@ -8,6 +8,7 @@ import {
   PenSquare, 
   Settings,
   Flame,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
@@ -20,6 +21,7 @@ export function AppSidebar() {
     { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
+    { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/settings", icon: Settings, label: t('sidebar.settings') },
   ];
 

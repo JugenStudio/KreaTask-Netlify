@@ -3,6 +3,7 @@
     "dashboard": "Dashboard",
     "all_tasks": "All Tasks",
     "submit_task": "Submit Task",
+    "leaderboard": "Leaderboard",
     "settings": "Settings"
   },
   "dashboard": {
@@ -38,5 +39,37 @@
     "title": "Comments",
     "add_comment_placeholder": "Add a comment...",
     "post_button": "Post Comment"
+  },
+  "leaderboard": {
+    "title": "Employee Performance Leaderboard",
+    "description": "See how team members are performing this month.",
+    "view_report_button": "View Full Report & Export CSV",
+    "top_performers": "Top 3 Performers of the Month",
+    "top_performers_desc": "Based on points accumulated from completed tasks.",
+    "table": {
+      "rank": "Rank",
+      "employee": "Employee",
+      "tasks_completed": "Tasks Completed",
+      "total_score": "Total Score"
+    }
+  },
+  "report": {
+    "title": "Detailed Performance Report",
+    "description": "A detailed breakdown of all assessed tasks for the period.",
+    "export_csv": "Export CSV",
+    "table": {
+      "employee": "Employee Name",
+      "task_title": "Task Title",
+      "category": "Category",
+      "priority": "Priority",
+      "deadline": "Deadline",
+      "completed_on": "Completed On",
+      "status": "Status",
+      "revisions": "Revisions",
+      "score": "Task Score",
+      "ai_justification": "AI Justification",
+      "reviewer": "Reviewer",
+      "assessment_date": "Assessment Date"
+    }
   }
 }

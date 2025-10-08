@@ -65,3 +65,28 @@ export interface Notification {
   timestamp: string;
   isRead: boolean;
 }
+
+export interface LeaderboardEntry {
+    id: string;
+    rank: number;
+    name: string;
+    score: number;
+    tasksCompleted: number;
+    avatarUrl: string;
+}
+
+export interface DetailedReportEntry {
+    id: string;
+    employeeName: string;
+    taskTitle: LocalizedString;
+    category: string;
+    priority: string;
+    deadline: string;
+    completedOn: string;
+    status: string;
+    revisions: number;
+    taskScore: number;
+    aiJustification: LocalizedString;
+    reviewer: string;
+    assessmentDate: string;
+}
