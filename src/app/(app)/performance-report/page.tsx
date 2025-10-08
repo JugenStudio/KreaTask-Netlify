@@ -1,7 +1,6 @@
 import { ReportTable } from "@/components/performance-report/report-table";
 import {
   Card,
-  CardContent,
 } from "@/components/ui/card";
 import { detailedReportData } from "@/lib/data";
 import { FileText, Filter, Search } from "lucide-react";
@@ -23,8 +22,7 @@ export default function PerformanceReportPage() {
         </div>
       </div>
 
-       <Card className="rounded-2xl shadow-none border-none">
-        <CardContent className="pt-6">
+       <Card className="rounded-2xl shadow-none border-none p-6">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
                 <div className="flex gap-2 items-center w-full md:w-auto">
                     <div className="relative flex-1 md:flex-initial">
@@ -60,7 +58,6 @@ export default function PerformanceReportPage() {
                 </div>
             </div>
           <ReportTable reportData={detailedReportData} />
-        </CardContent>
       </Card>
     </div>
   );
