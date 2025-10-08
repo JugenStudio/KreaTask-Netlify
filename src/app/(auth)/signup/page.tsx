@@ -2,10 +2,7 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
-import { Mail } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
 function GoogleIcon() {
@@ -21,6 +18,15 @@ function GoogleIcon() {
 }
 
 export default function SignUpPage() {
+    const router = useRouter();
+
+    const handleSignUp = (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        // Later, this will trigger the Google sign-up flow.
+        // For now, we'll just navigate to the dashboard.
+        router.push('/dashboard');
+    };
+
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
         <div className="flex items-center gap-3 mb-6">
@@ -38,52 +44,17 @@ export default function SignUpPage() {
                     </Button>
                 </div>
 
-                <div className="text-left space-y-2">
+                <div className="text-center space-y-2">
                     <h1 className="text-2xl font-bold font-headline">Create an account</h1>
                     <p className="text-muted-foreground">Let&apos;s get you started!</p>
                 </div>
 
-                <form className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="first-name">First name</Label>
-                            <Input id="first-name" type="text" placeholder="John" required className="bg-secondary/50 border-none"/>
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="last-name">Last name</Label>
-                            <Input id="last-name" type="text" placeholder="Doe" required className="bg-secondary/50 border-none"/>
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="email">Email</Label>
-                        <div className="relative">
-                            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input id="email" type="email" placeholder="you@example.com" required className="bg-secondary/50 border-none pl-10" />
-                        </div>
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input id="password" type="password" required className="bg-secondary/50 border-none"/>
-                    </div>
-                    
-                    <Button type="submit" className="w-full !mt-6 h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg">
-                        Create Account
-                    </Button>
-                </form>
-
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                    <Separator />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-card px-2 text-muted-foreground">Or sign up with</span>
-                    </div>
-                </div>
-
-                <Button variant="outline" className="w-full h-12 text-md font-semibold bg-secondary/50 hover:bg-secondary border-none flex items-center justify-center gap-3 rounded-lg">
+                <div className="!mt-8">
+                  <Button variant="outline" className="w-full h-12 text-md font-semibold bg-secondary/50 hover:bg-secondary border-none flex items-center justify-center gap-3 rounded-lg" onClick={handleSignUp}>
                     <GoogleIcon />
                     Continue with Google
-                </Button>
+                  </Button>
+                </div>
                 
                 <p className="text-center text-xs text-muted-foreground !mt-8">
                     By creating an account, you agree to our Terms & Service
