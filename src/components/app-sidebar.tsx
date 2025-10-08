@@ -32,9 +32,9 @@ export function AppSidebar({ user }: { user: User }) {
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { 
-      href: isLvl1 ? "/performance-report" : "/profile", 
-      icon: isLvl1 ? History : UserIcon, 
-      label: isLvl1 ? "Riwayat Kinerja" : t('sidebar.profile')
+      href: "/performance-report", 
+      icon: isLvl1 ? History : FileText, 
+      label: isLvl1 ? "Riwayat Kinerja" : t('sidebar.performance_report') 
     },
     { href: "/settings", icon: Settings, label: t('sidebar.settings') },
   ];
@@ -48,8 +48,8 @@ export function AppSidebar({ user }: { user: User }) {
       <nav className="mt-8 flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
           const isActive = pathname.startsWith(item.href);
-          // For level 2 and 3, hide the settings link from the sidebar
-          if (!isLvl1 && item.href === "/settings") {
+          // For level 1, hide settings link
+          if (isLvl1 && item.href === "/settings") {
             return null;
           }
           return (
