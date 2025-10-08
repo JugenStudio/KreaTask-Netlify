@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { MoreHorizontal } from "lucide-react";
 import type { Task, TaskStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/providers/language-provider";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -29,6 +30,8 @@ const statusColors: Record<TaskStatus, string> = {
 };
 
 export function TaskTable({ tasks }: { tasks: Task[] }) {
+  const { locale } = useLanguage();
+
   return (
     <Table>
       <TableHeader>
@@ -47,7 +50,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
           <TableRow key={task.id}>
             <TableCell className="font-medium">
               <Link href={`/tasks/${task.id}`} className="hover:underline">
-                {task.title}
+                {task.title[locale]}
               </Link>
             </TableCell>
             <TableCell>

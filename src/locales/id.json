@@ -8,5 +8,35 @@
   "dashboard": {
     "welcome": "Selamat datang kembali, {{name}}!",
     "description": "Berikut adalah progres tim Anda."
+  },
+  "header": {
+    "search_placeholder": "Cari tugas...",
+    "notifications": "Notifikasi",
+    "unread_count": "Anda memiliki {{count}} pesan belum dibaca.",
+    "profile": "Profil",
+    "settings": "Pengaturan",
+    "logout": "Keluar"
+  },
+  "task": {
+    "created_on": "Dibuat pada {{date}}",
+    "description": "Deskripsi",
+    "assignees": "Penerima Tugas",
+    "due_date": "Batas Waktu",
+    "attachments": "Lampiran",
+    "no_attachments": "Tidak ada file terlampir.",
+    "tabs": {
+      "comments": "Komentar",
+      "history": "Riwayat"
+    }
+  },
+  "history": {
+    "title": "Riwayat Revisi",
+    "no_revisions": "Belum ada revisi.",
+    "no_revisions_desc": "Perubahan pada tugas akan muncul di sini."
+  },
+  "comments": {
+    "title": "Komentar",
+    "add_comment_placeholder": "Tambahkan komentar...",
+    "post_button": "Kirim Komentar"
   }
 }

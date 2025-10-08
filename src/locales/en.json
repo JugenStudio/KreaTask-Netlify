@@ -8,5 +8,35 @@
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
     "description": "Here's a look at your team's progress."
+  },
+  "header": {
+    "search_placeholder": "Search tasks...",
+    "notifications": "Notifications",
+    "unread_count": "You have {{count}} unread messages.",
+    "profile": "Profile",
+    "settings": "Settings",
+    "logout": "Log out"
+  },
+  "task": {
+    "created_on": "Created on {{date}}",
+    "description": "Description",
+    "assignees": "Assignees",
+    "due_date": "Due Date",
+    "attachments": "Attachments",
+    "no_attachments": "No files attached.",
+    "tabs": {
+      "comments": "Comments",
+      "history": "History"
+    }
+  },
+  "history": {
+    "title": "Revision History",
+    "no_revisions": "No revisions yet.",
+    "no_revisions_desc": "Changes to the task will appear here."
+  },
+  "comments": {
+    "title": "Comments",
+    "add_comment_placeholder": "Add a comment...",
+    "post_button": "Post Comment"
   }
 }

@@ -2,6 +2,11 @@ export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member';
 
 export type TaskStatus = 'To-do' | 'In Progress' | 'In Review' | 'Completed' | 'Blocked';
 
+export type LocalizedString = {
+  en: string;
+  id: string;
+}
+
 export interface User {
   id: string;
   name: string;
@@ -22,20 +27,20 @@ export interface Comment {
   id: string;
   author: User;
   timestamp: string;
-  content: string;
+  content: LocalizedString;
 }
 
 export interface Revision {
   id: string;
   timestamp: string;
   author: User;
-  change: string;
+  change: LocalizedString;
 }
 
 export interface Task {
   id: string;
-  title: string;
-  description: string;
+  title: LocalizedString;
+  description: LocalizedString;
   status: TaskStatus;
   assignees: User[];
   dueDate: string;
@@ -48,8 +53,8 @@ export interface Task {
 export interface Notification {
   id: string;
   type: 'task-assigned' | 'comment' | 'status-change';
-  title: string;
-  description: string;
+  title: LocalizedString;
+  description: LocalizedString;
   timestamp: string;
   isRead: boolean;
 }

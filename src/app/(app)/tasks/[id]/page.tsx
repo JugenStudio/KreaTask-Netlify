@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Tabs,
   TabsContent,
@@ -8,11 +10,15 @@ import { CommentSection } from "@/components/tasks/comment-section";
 import { RevisionHistory } from "@/components/tasks/revision-history";
 import { TaskDetails } from "@/components/tasks/task-details";
 import { tasks, users } from "@/lib/data";
-import { notFound } from "next/navigation";
+import { notFound, useParams } from "next/navigation";
+import { useLanguage } from "@/providers/language-provider";
 
-export default function TaskDetailPage({ params }: { params: { id: string } }) {
-  const task = tasks.find((t) => t.id === params.id);
+export default function TaskDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const task = tasks.find((t) => t.id === id);
   const currentUser = users[0]; // Assume logged in user
+  const { t } = useLanguage();
 
   if (!task) {
     notFound();
@@ -26,8 +32,8 @@ export default function TaskDetailPage({ params }: { params: { id: string } }) {
       <div className="md:col-span-1">
         <Tabs defaultValue="comments" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="comments">Comments</TabsTrigger>
-            <TabsTrigger value="revisions">History</TabsTrigger>
+            <TabsTrigger value="comments">{t('task.tabs.comments')}</TabsTrigger>
+            <TabsTrigger value="revisions">{t('task.tabs.history')}</TabsTrigger>
           </TabsList>
           <TabsContent value="comments" className="mt-4">
             <CommentSection comments={task.comments} currentUser={currentUser} />

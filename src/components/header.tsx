@@ -18,9 +18,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users, notifications } from "@/lib/data";
 import { Separator } from "./ui/separator";
 import { LanguageSwitcher } from "./language-switcher";
+import { useLanguage } from "@/providers/language-provider";
 
 export function Header() {
   const currentUser = users[0]; // Assuming Admin Ali is logged in
+  const { locale, t } = useLanguage();
 
   return (
     <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 w-full">
@@ -28,7 +30,7 @@ export function Header() {
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
-          placeholder="Search tasks..."
+          placeholder={t('header.search_placeholder')}
           className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
@@ -47,8 +49,8 @@ export function Header() {
           <PopoverContent className="w-80" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium leading-none font-headline">Notifications</h4>
-                <p className="text-sm text-muted-foreground">You have {notifications.filter(n => !n.isRead).length} unread messages.</p>
+                <h4 className="font-medium leading-none font-headline">{t('header.notifications')}</h4>
+                <p className="text-sm text-muted-foreground">{t('header.unread_count', { count: notifications.filter(n => !n.isRead).length.toString() })}</p>
               </div>
               <Separator />
               <div className="grid gap-4 max-h-96 overflow-y-auto">
@@ -56,8 +58,8 @@ export function Header() {
                   <div key={notif.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:pb-0">
                     <span className={`flex h-2 w-2 translate-y-1 rounded-full ${!notif.isRead ? 'bg-primary' : 'bg-muted-foreground'}`} />
                     <div className="grid gap-1">
-                      <p className="font-medium">{notif.title}</p>
-                      <p className="text-sm text-muted-foreground">{notif.description}</p>
+                      <p className="font-medium">{notif.title[locale]}</p>
+                      <p className="text-sm text-muted-foreground">{notif.description[locale]}</p>
                       <p className="text-xs text-muted-foreground">{new Date(notif.timestamp).toLocaleString()}</p>
                     </div>
                   </div>
@@ -84,10 +86,10 @@ export function Header() {
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
+            <DropdownMenuItem>{t('header.profile')}</DropdownMenuItem>
+            <DropdownMenuItem>{t('header.settings')}</DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Log out</DropdownMenuItem>
+            <DropdownMenuItem>{t('header.logout')}</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -10,6 +10,7 @@ import { Bot, Loader2 } from "lucide-react";
 import type { Comment as CommentType, User } from "@/lib/types";
 import { getSummary } from "@/app/actions";
 import { Separator } from "../ui/separator";
+import { useLanguage } from "@/providers/language-provider";
 
 interface CommentSectionProps {
   comments: CommentType[];
@@ -44,6 +45,7 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
   const [commentList, setCommentList] = useState(comments);
   const [state, formAction] = useActionState(getSummary, initialState);
+  const { locale, t } = useLanguage();
 
   const handlePostComment = () => {
     if (newComment.trim()) {
@@ -51,7 +53,10 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
         id: `comment-${Date.now()}`,
         author: currentUser,
         timestamp: new Date().toISOString(),
-        content: newComment,
+        content: {
+          en: newComment,
+          id: newComment,
+        },
       };
       setCommentList([comment, ...commentList]);
       setNewComment("");
@@ -62,14 +67,14 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
     return commentList
       .slice()
       .reverse()
-      .map(c => `${c.author.name}: "${c.content}"`)
+      .map(c => `${c.author.name}: "${c.content[locale]}"`)
       .join("\n");
   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-headline font-semibold">Comments</h3>
+        <h3 className="text-lg font-headline font-semibold">{t('comments.title')}</h3>
         <form action={formAction}>
            <input type="hidden" name="commentThread" value={formatCommentThread()} />
            <SummarizeButton />
@@ -97,12 +102,12 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
           </Avatar>
           <div className="w-full space-y-2">
             <Textarea
-              placeholder="Add a comment..."
+              placeholder={t('comments.add_comment_placeholder')}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
             />
             <div className="flex justify-end">
-              <Button onClick={handlePostComment} disabled={!newComment.trim()}>Post Comment</Button>
+              <Button onClick={handlePostComment} disabled={!newComment.trim()}>{t('comments.post_button')}</Button>
             </div>
           </div>
         </div>
@@ -123,7 +128,7 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
                 </p>
               </div>
               <p className="mt-2 text-sm text-muted-foreground">
-                {comment.content}
+                {comment.content[locale]}
               </p>
             </div>
           </div>

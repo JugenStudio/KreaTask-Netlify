@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
+import { useLanguage } from "@/providers/language-provider";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -41,13 +42,15 @@ const fileTypeIcons = {
 };
 
 export function TaskDetails({ task }: { task: Task }) {
+  const { locale, t } = useLanguage();
+
   return (
     <Card className="h-full">
       <CardHeader>
         <div className="flex justify-between items-start">
             <div>
-                <CardTitle className="font-headline text-2xl">{task.title}</CardTitle>
-                <CardDescription>Created on {new Date(task.createdAt).toLocaleDateString()}</CardDescription>
+                <CardTitle className="font-headline text-2xl">{task.title[locale]}</CardTitle>
+                <CardDescription>{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
             </div>
             <Badge className={cn("text-white", statusColors[task.status])}>
                 {task.status}
@@ -56,13 +59,13 @@ export function TaskDetails({ task }: { task: Task }) {
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="space-y-2">
-            <h4 className="font-semibold">Description</h4>
-            <p className="text-sm text-muted-foreground">{task.description}</p>
+            <h4 className="font-semibold">{t('task.description')}</h4>
+            <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
         </div>
         <Separator />
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <h4 className="font-semibold">Assignees</h4>
+            <h4 className="font-semibold">{t('task.assignees')}</h4>
             <div className="flex items-center space-x-2">
               {task.assignees.map((user) => (
                 <Avatar key={user.id} className="h-8 w-8">
@@ -76,7 +79,7 @@ export function TaskDetails({ task }: { task: Task }) {
             </div>
           </div>
           <div className="space-y-2">
-            <h4 className="font-semibold">Due Date</h4>
+            <h4 className="font-semibold">{t('task.due_date')}</h4>
             <div className="flex items-center gap-2">
               <CalendarDays className="h-4 w-4 text-muted-foreground" />
               <p className="text-sm font-medium">
@@ -87,7 +90,7 @@ export function TaskDetails({ task }: { task: Task }) {
         </div>
         <Separator />
         <div className="space-y-4">
-          <h4 className="font-semibold">Attachments</h4>
+          <h4 className="font-semibold">{t('task.attachments')}</h4>
           {task.files.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {task.files.map((file) => (
@@ -116,7 +119,7 @@ export function TaskDetails({ task }: { task: Task }) {
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">No files attached.</p>
+            <p className="text-sm text-muted-foreground">{t('task.no_attachments')}</p>
           )}
         </div>
       </CardContent>
