@@ -3,6 +3,7 @@ import { Chatbot } from "@/components/chatbot";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
 import { tasks, users, leaderboardData } from "@/lib/data";
+import Image from "next/image";
 
 export default function AppLayout({
   children,
@@ -12,15 +13,26 @@ export default function AppLayout({
   const currentUser = users[0];
   return (
     <LanguageProvider>
-      <div className="flex min-h-screen w-full">
-        <AppSidebar user={currentUser} />
-        <div className="flex flex-1 flex-col">
-          <Header />
-          <main className="flex-1 p-4 md:p-6 lg:p-8">
-            {children}
-          </main>
+      <div className="relative min-h-screen w-full">
+        <Image
+          src="https://picsum.photos/seed/kreatask/1920/1080"
+          alt="Abstract background"
+          fill
+          className="object-cover -z-20"
+          data-ai-hint="abstract workspace"
+        />
+        <div className="absolute inset-0 bg-black/50 -z-10" />
+
+        <div className="flex min-h-screen w-full">
+          <AppSidebar user={currentUser} />
+          <div className="flex flex-1 flex-col bg-transparent">
+            <Header />
+            <main className="flex-1 p-4 md:p-6 lg:p-8">
+              {children}
+            </main>
+          </div>
+          <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
         </div>
-        <Chatbot tasks={tasks} users={users} leaderboardData={leaderboardData} />
       </div>
     </LanguageProvider>
   );

@@ -48,19 +48,19 @@ export function Header() {
 
 
   return (
-    <header className="flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 w-full">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border/20 bg-transparent px-4 md:px-6 w-full backdrop-blur-lg">
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder={t('header.search_placeholder')}
-          className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
+          className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px] text-white placeholder:text-muted-foreground border-none"
         />
       </div>
       <div className="flex items-center gap-2 ml-auto">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative">
+            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -68,7 +68,7 @@ export function Header() {
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80" align="end">
+          <PopoverContent className="w-80 border-border/20 bg-background/80 backdrop-blur-xl" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium leading-none font-headline">{t('header.notifications')}</h4>
@@ -100,7 +100,7 @@ export function Header() {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
+          <DropdownMenuContent align="end" className="w-56 border-border/20 bg-background/80 backdrop-blur-xl">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{currentUser.name}</p>
@@ -127,7 +127,7 @@ export function Header() {
                 <span>Language</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent>
+                <DropdownMenuSubContent className="border-border/20 bg-background/80 backdrop-blur-xl">
                   <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocale("id")}>Bahasa Indonesia</DropdownMenuItem>
                 </DropdownMenuSubContent>
@@ -140,7 +140,7 @@ export function Header() {
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent>
+                <DropdownMenuSubContent className="border-border/20 bg-background/80 backdrop-blur-xl">
                   <DropdownMenuItem onClick={() => setThemeState("theme-light")}>Light</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("dark")}>Dark</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("system")}>System</DropdownMenuItem>

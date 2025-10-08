@@ -28,7 +28,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-4xl font-bold font-headline text-card-foreground">
+        <h1 className="text-4xl font-bold font-headline text-white">
           {t('dashboard.welcome', { name: currentUser.name.split(' ')[0] })}
         </h1>
         <p className="text-muted-foreground text-lg">{t('dashboard.description')}</p>
@@ -43,9 +43,9 @@ export default function DashboardPage() {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-8">
-             <Card className="rounded-2xl shadow-none border-none">
+             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Team Leaderboard</CardTitle>
+                    <CardTitle className="font-headline text-white">Team Leaderboard</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <LeaderboardTable leaderboardData={topThree} />
@@ -69,9 +69,9 @@ export default function DashboardPage() {
             </div>
         </div>
         <div className="lg:col-span-1">
-             <Card className="rounded-2xl shadow-none border-none h-full">
+             <Card>
                 <CardHeader>
-                    <CardTitle className="font-headline">Monthly Progress</CardTitle>
+                    <CardTitle className="font-headline text-white">Monthly Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
                    <ProgressChart />
