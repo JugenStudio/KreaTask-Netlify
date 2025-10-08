@@ -35,6 +35,7 @@ import Image from "next/image";
 import { Card } from "../ui/card";
 import { useState } from "react";
 import { TaskCategory } from "@/lib/types";
+import { Calendar } from "@/components/ui/calendar";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
