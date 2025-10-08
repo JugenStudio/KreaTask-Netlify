@@ -32,14 +32,14 @@ export function ReportTable({
   const { locale, t } = useLanguage();
 
   return (
-    <div className="relative w-full overflow-auto rounded-lg border">
-      <Table>
+    <div className="relative w-full overflow-auto border-t" style={{ height: 'calc(100vh - 350px)' }}>
+      <Table className="table-fixed">
         <TableHeader className="bg-muted/50">
           <TableRow>
-            <TableHead className="p-4 hidden md:table-cell">
+            <TableHead className="p-4 w-12 hidden md:table-cell">
               <Checkbox />
             </TableHead>
-            <TableHead className="cursor-pointer hover:bg-muted min-w-[200px]">
+            <TableHead className="min-w-[200px] cursor-pointer hover:bg-muted">
                 <div className="flex items-center gap-1">
                     {t('report.table.employee')} <ArrowUpDown className="h-3 w-3" />
                 </div>
@@ -71,7 +71,7 @@ export function ReportTable({
                     <Checkbox />
                 </TableCell>
               <TableCell className="font-medium whitespace-nowrap">{row.employeeName}</TableCell>
-              <TableCell>{row.taskTitle[locale]}</TableCell>
+              <TableCell className="whitespace-normal break-words">{row.taskTitle[locale]}</TableCell>
               <TableCell><Badge variant="outline">{row.category}</Badge></TableCell>
               <TableCell>{row.priority}</TableCell>
               <TableCell className="whitespace-nowrap">{new Date(row.deadline).toLocaleDateString()}</TableCell>
@@ -87,7 +87,7 @@ export function ReportTable({
               </TableCell>
               <TableCell className="text-center">{row.revisions}</TableCell>
               <TableCell className="font-bold text-right">{row.taskScore}</TableCell>
-              <TableCell>{row.aiJustification[locale]}</TableCell>
+              <TableCell className="whitespace-normal break-words">{row.aiJustification[locale]}</TableCell>
               <TableCell className="whitespace-nowrap">{row.reviewer}</TableCell>
               <TableCell className="whitespace-nowrap">{new Date(row.assessmentDate).toLocaleDateString()}</TableCell>
                <TableCell>

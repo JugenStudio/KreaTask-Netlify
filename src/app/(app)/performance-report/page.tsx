@@ -22,40 +22,42 @@ export default function PerformanceReportPage() {
         </div>
       </div>
 
-       <Card className="rounded-2xl shadow-none border-none p-6">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-                <div className="flex gap-2 items-center w-full md:w-auto">
-                    <div className="relative flex-1 md:flex-initial">
-                        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="Cari berdasarkan nama..." className="w-full md:w-48 pl-8" />
-                    </div>
-                    <Select>
-                        <SelectTrigger className="w-full md:w-40">
-                            <SelectValue placeholder="Semua Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Semua Status</SelectItem>
-                            <SelectItem value="Selesai Tepat Waktu">Selesai Tepat Waktu</SelectItem>
-                            <SelectItem value="Terlambat">Terlambat</SelectItem>
-                        </SelectContent>
-                    </Select>
-                     <Select>
-                        <SelectTrigger className="w-full md:w-40">
-                            <SelectValue placeholder="Semua Kategori" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Semua Kategori</SelectItem>
-                            <SelectItem value="High">High</SelectItem>
-                            <SelectItem value="Medium">Medium</SelectItem>
-                            <SelectItem value="Low">Low</SelectItem>
-                            <SelectItem value="Critical">Critical</SelectItem>
-                        </SelectContent>
-                    </Select>
-                    <Button variant="outline" className="hidden md:flex">
-                        <Filter className="h-4 w-4 mr-2" />
-                        Filter
-                    </Button>
-                </div>
+       <Card className="rounded-2xl shadow-none border-none p-0">
+            <div className="p-6">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div className="flex gap-2 items-center w-full md:w-auto">
+                      <div className="relative flex-1 md:flex-initial">
+                          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input placeholder="Cari berdasarkan nama..." className="w-full md:w-48 pl-8" />
+                      </div>
+                      <Select>
+                          <SelectTrigger className="w-full md:w-40">
+                              <SelectValue placeholder="Semua Status" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all">Semua Status</SelectItem>
+                              <SelectItem value="Selesai Tepat Waktu">Selesai Tepat Waktu</SelectItem>
+                              <SelectItem value="Terlambat">Terlambat</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <Select>
+                          <SelectTrigger className="w-full md:w-40">
+                              <SelectValue placeholder="Semua Kategori" />
+                          </SelectTrigger>
+                          <SelectContent>
+                              <SelectItem value="all">Semua Kategori</SelectItem>
+                              <SelectItem value="High">High</SelectItem>
+                              <SelectItem value="Medium">Medium</SelectItem>
+                              <SelectItem value="Low">Low</SelectItem>
+                              <SelectItem value="Critical">Critical</SelectItem>
+                          </SelectContent>
+                      </Select>
+                      <Button variant="outline" className="hidden md:flex">
+                          <Filter className="h-4 w-4 mr-2" />
+                          Filter
+                      </Button>
+                  </div>
+              </div>
             </div>
           <ReportTable reportData={detailedReportData} />
       </Card>
