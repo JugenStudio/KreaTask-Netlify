@@ -10,16 +10,18 @@ import {
   Flame,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const navItems = [
-  { href: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/tasks", icon: ListTodo, label: "All Tasks" },
-  { href: "/submit", icon: PenSquare, label: "Submit Task" },
-  { href: "/settings", icon: Settings, label: "Settings" },
-];
+import { useLanguage } from "@/providers/language-provider";
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const { t } = useLanguage();
+
+  const navItems = [
+    { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
+    { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
+    { href: "/settings", icon: Settings, label: t('sidebar.settings') },
+  ];
 
   return (
     <aside className="w-64 flex-col border-r border-border bg-background p-4 hidden md:flex">

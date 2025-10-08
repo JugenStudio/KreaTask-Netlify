@@ -17,6 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users, notifications } from "@/lib/data";
 import { Separator } from "./ui/separator";
+import { LanguageSwitcher } from "./language-switcher";
 
 export function Header() {
   const currentUser = users[0]; // Assuming Admin Ali is logged in
@@ -32,6 +33,7 @@ export function Header() {
         />
       </div>
       <div className="flex items-center gap-4 ml-auto">
+        <LanguageSwitcher />
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative">

@@ -1,0 +1,12 @@
+{
+  "sidebar": {
+    "dashboard": "Dasbor",
+    "all_tasks": "Semua Tugas",
+    "submit_task": "Kirim Tugas",
+    "settings": "Pengaturan"
+  },
+  "dashboard": {
+    "welcome": "Selamat datang kembali, {{name}}!",
+    "description": "Berikut adalah progres tim Anda."
+  }
+}

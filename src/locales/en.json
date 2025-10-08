@@ -1,0 +1,12 @@
+{
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "all_tasks": "All Tasks",
+    "submit_task": "Submit Task",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "welcome": "Welcome back, {{name}}!",
+    "description": "Here's a look at your team's progress."
+  }
+}
