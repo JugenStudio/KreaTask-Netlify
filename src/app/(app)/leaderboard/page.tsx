@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, LineChart, BookOpen } from "lucide-react";
+import { Trophy, BookOpen } from "lucide-react";
 import { leaderboardData } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { useLanguage } from "@/providers/language-provider";
@@ -11,8 +11,17 @@ import { ProgressChart } from "@/components/leaderboard/progress-chart";
 export default function LeaderboardPage() {
   const { t } = useLanguage();
 
-  const totalTasks = leaderboardData.reduce((sum, user) => sum + user.tasksCompleted, 0);
-  const avgScore = leaderboardData.length > 0 ? Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length) : 0;
+  const totalTasks = leaderboardData.reduce(
+    (sum, user) => sum + user.tasksCompleted,
+    0
+  );
+  const avgScore =
+    leaderboardData.length > 0
+      ? Math.round(
+          leaderboardData.reduce((sum, user) => sum + user.score, 0) /
+            leaderboardData.length
+        )
+      : 0;
 
   return (
     <div className="space-y-8">
@@ -21,36 +30,44 @@ export default function LeaderboardPage() {
           <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
           {t('leaderboard.title')}
         </h1>
-        <p className="text-muted-foreground text-base md:text-lg">{t('leaderboard.description')}</p>
+        <p className="text-muted-foreground text-base md:text-lg">
+          {t('leaderboard.description')}
+        </p>
       </div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-        <StatsCard title="Total Tasks Completed" value={totalTasks} icon={BookOpen} />
+        <StatsCard
+          title="Total Tasks Completed"
+          value={totalTasks}
+          icon={BookOpen}
+        />
         <StatsCard title="Average Score" value={avgScore} icon={Trophy} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">{t('leaderboard.top_performers')}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="w-full overflow-x-auto">
-                        <LeaderboardTable leaderboardData={leaderboardData} />
-                    </div>
-                </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">
+                {t('leaderboard.top_performers')}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="w-full overflow-x-auto">
+                <LeaderboardTable leaderboardData={leaderboardData} />
+              </div>
+            </CardContent>
+          </Card>
         </div>
         <div className="lg:col-span-1">
-             <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline">Monthly Progress</CardTitle>
-                </Header>
-                <CardContent>
-                   <ProgressChart />
-                </CardContent>
-            </Card>
+          <Card>
+            <CardHeader>
+              <CardTitle className="font-headline">Monthly Progress</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ProgressChart />
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
