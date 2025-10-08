@@ -3,41 +3,56 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Download } from "lucide-react";
+import { Trophy, Download, Clock, BookOpen, LineChart } from "lucide-react";
 import { leaderboardData, detailedReportData } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { DetailedReportDialog } from "@/components/leaderboard/detailed-report-dialog";
 import { useLanguage } from "@/providers/language-provider";
+import { StatsCard } from "@/components/dashboard/stats-card";
+import { ProgressChart } from "@/components/leaderboard/progress-chart";
 
 export default function LeaderboardPage() {
   const [isReportOpen, setIsReportOpen] = useState(false);
   const { t } = useLanguage();
 
+  const totalTasks = leaderboardData.reduce((sum, user) => sum + user.tasksCompleted, 0);
+  const avgScore = Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length);
+
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h1 className="text-3xl font-bold font-headline flex items-center justify-center gap-2">
-          <Trophy className="h-8 w-8 text-yellow-400" />
+    <div className="space-y-8">
+      <div className="text-left">
+        <h1 className="text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
+          <LineChart className="h-10 w-10 text-primary" />
           {t('leaderboard.title')}
         </h1>
-        <p className="text-muted-foreground">{t('leaderboard.description')}</p>
+        <p className="text-muted-foreground text-lg">{t('leaderboard.description')}</p>
+      </div>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <StatsCard title="Total Tasks Completed" value={totalTasks} icon={BookOpen} color="yellow" />
+        <StatsCard title="Average Score" value={avgScore} icon={Trophy} color="green" />
       </div>
 
-      <div className="max-w-4xl mx-auto">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline text-center">{t('leaderboard.top_performers')}</CardTitle>
-            <CardDescription className="text-center">{t('leaderboard.top_performers_desc')}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <LeaderboardTable leaderboardData={leaderboardData} />
-          </CardContent>
-        </Card>
-        <div className="flex justify-center mt-6">
-          <Button size="lg" onClick={() => setIsReportOpen(true)}>
-            <Download className="mr-2 h-5 w-5" />
-            {t('leaderboard.view_report_button')}
-          </Button>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+            <Card className="rounded-2xl shadow-none border-none">
+                <CardHeader>
+                    <CardTitle className="font-headline">{t('leaderboard.top_performers')}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <LeaderboardTable leaderboardData={leaderboardData} />
+                </CardContent>
+            </Card>
+        </div>
+        <div className="lg:col-span-1">
+             <Card className="rounded-2xl shadow-none border-none h-full">
+                <CardHeader>
+                    <CardTitle className="font-headline">Monthly Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                   <ProgressChart />
+                </CardContent>
+            </Card>
         </div>
       </div>
       
