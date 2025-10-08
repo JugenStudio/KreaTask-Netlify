@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useFormStatus, useFormState } from "react-dom";
+import { useState, useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -43,7 +43,7 @@ function SummarizeButton() {
 export function CommentSection({ comments, currentUser }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
   const [commentList, setCommentList] = useState(comments);
-  const [state, formAction] = useFormState(getSummary, initialState);
+  const [state, formAction] = useActionState(getSummary, initialState);
 
   const handlePostComment = () => {
     if (newComment.trim()) {
