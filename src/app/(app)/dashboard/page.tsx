@@ -15,7 +15,7 @@ import { Chatbot } from "@/components/chatbot";
 import type { Task, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { isEmployee } from "@/lib/roles";
+import { isEmployee, isDirector } from "@/lib/roles";
 
 
 export default function DashboardPage() {
@@ -126,25 +126,28 @@ export default function DashboardPage() {
       </div>
 
       {/* Leaderboard Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline text-foreground">
-                Team Leaderboard
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="w-full overflow-x-auto">
-                    <LeaderboardTable leaderboardData={topThree} />
-                </div>
-            </CardContent>
-          </Card>
+      {isDirector(currentUser.role) && (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline text-foreground">
+                  Team Leaderboard
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <div className="w-full overflow-x-auto">
+                      <LeaderboardTable leaderboardData={topThree} />
+                  </div>
+              </CardContent>
+            </Card>
+          </div>
+          <div className="lg:col-span-1">
+            <TopPerformerCard performer={topPerformer} />
+          </div>
         </div>
-        <div className="lg:col-span-1">
-          <TopPerformerCard performer={topPerformer} />
-        </div>
-      </div>
+      )}
+
 
       {/* Tasks & Progress Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -166,7 +169,7 @@ export default function DashboardPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ProgressChart />
+              <ProgressChart currentUser={currentUser} />
             </CardContent>
           </Card>
         </div>

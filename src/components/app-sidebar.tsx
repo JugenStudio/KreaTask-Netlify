@@ -26,7 +26,7 @@ export function AppSidebar({ user }: { user: User }) {
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
-    { href: "/performance-report", icon: FileText, label: t('sidebar.performance_report') },
+    { href: "/profile", icon: UserIcon, label: t('sidebar.profile') },
   ];
 
   return (
