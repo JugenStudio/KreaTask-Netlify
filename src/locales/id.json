@@ -28,8 +28,8 @@
   "header": {
     "search_placeholder": "Cari tugas...",
     "notifications": "Notifikasi",
-    "unread_count": "{{count}} belum dibaca",
     "no_notifications": "Tidak ada notifikasi baru",
+    "unread_count": "{{count}} belum dibaca",
     "profile": "Profil",
     "settings": "Pengaturan",
     "logout": "Keluar"
@@ -166,7 +166,25 @@
     "description": "Kelola tim dan pengaturan aplikasi Anda.",
     "user_management": {
       "title": "Manajemen Pengguna",
-      "description": "Kelola peran dan izin pengguna di dalam tim."
+      "description": "Kelola peran, izin pengguna, dan hapus pengguna dari tim.",
+      "table": {
+        "user": "Pengguna",
+        "email": "Email",
+        "role": "Peran",
+        "actions": "Aksi"
+      },
+      "toast": {
+        "role_updated_title": "Peran Pengguna Diperbarui",
+        "role_updated_desc": "Peran {{name}} telah diubah menjadi {{role}}.",
+        "user_deleted_title": "Pengguna Dihapus",
+        "user_deleted_desc": "{{name}} telah dihapus dari tim."
+      },
+      "delete_dialog": {
+        "title": "Apakah Anda yakin ingin menghapus {{name}}?",
+        "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus pengguna secara permanen dan data terkait dari sistem.",
+        "cancel": "Batal",
+        "confirm": "Hapus Pengguna"
+      }
     }
   },
   "submit": {

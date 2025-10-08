@@ -28,8 +28,8 @@
   "header": {
     "search_placeholder": "Search tasks...",
     "notifications": "Notifications",
-    "unread_count": "{{count}} unread",
     "no_notifications": "No new notifications",
+    "unread_count": "{{count}} unread",
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Log out"
@@ -166,7 +166,25 @@
     "description": "Manage your team and application settings.",
     "user_management": {
       "title": "User Management",
-      "description": "Manage user roles and permissions within the team."
+      "description": "Manage user roles, permissions, and remove users from the team.",
+      "table": {
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "actions": "Actions"
+      },
+      "toast": {
+        "role_updated_title": "User Role Updated",
+        "role_updated_desc": "{{name}}'s role has been changed to {{role}}.",
+        "user_deleted_title": "User Removed",
+        "user_deleted_desc": "{{name}} has been removed from the team."
+      },
+      "delete_dialog": {
+        "title": "Are you sure you want to remove {{name}}?",
+        "description": "This action cannot be undone. This will permanently remove the user and their associated data from the system.",
+        "cancel": "Cancel",
+        "confirm": "Delete User"
+      }
     }
   },
   "submit": {
