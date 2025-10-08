@@ -35,14 +35,16 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card } from "../ui/card";
 import { useState } from "react";
+import { TaskCategory } from "@/lib/types";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
-  description: z.string().optional(),
+  category: z.nativeEnum(TaskCategory),
   assignee: z.string().min(1, "Assignee is required."),
   dueDate: z.date({
     required_error: "A due date is required.",
   }),
+  description: z.string().optional(),
 });
 
 export function TaskForm() {
@@ -54,6 +56,7 @@ export function TaskForm() {
     defaultValues: {
       title: "",
       description: "",
+      category: TaskCategory.Medium,
     },
   });
 
@@ -86,37 +89,44 @@ export function TaskForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Task Title</FormLabel>
-              <FormControl>
-                <Input placeholder="e.g., Animate new hero section" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Add a detailed description for the task..."
-                  className="resize-none"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <FormField
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Task Title</FormLabel>
+                <FormControl>
+                  <Input placeholder="e.g., Animate new hero section" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="category"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Category</FormLabel>
+                 <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {Object.values(TaskCategory).map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="assignee"
@@ -183,6 +193,25 @@ export function TaskForm() {
               </FormItem>
             )}
           />
+           <div className="md:col-span-2">
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
+                  <FormControl>
+                    <Textarea
+                      placeholder="Add a detailed description for the task..."
+                      className="resize-none h-24"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+           </div>
         </div>
         
         <FormItem>

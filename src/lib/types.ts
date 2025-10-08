@@ -1,8 +1,13 @@
 export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member' | 'Journalist' | 'Social Media Officer' | 'Graphic Designer' | 'Marketing' | 'Finance';
 
-export type TaskStatus = 'To-do' | 'In Progress' | 'In Review' | 'Completed' | 'Blocked';
+export enum TaskCategory {
+  Low = 'Low',
+  Medium = 'Medium',
+  High = 'High',
+  Critical = 'Critical',
+}
 
-export type TaskCategory = 'Low' | 'Medium' | 'High' | 'Critical';
+export type TaskStatus = 'To-do' | 'In Progress' | 'In Review' | 'Completed' | 'Blocked';
 
 export type LocalizedString = {
   en: string;
