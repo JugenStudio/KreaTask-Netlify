@@ -7,7 +7,6 @@ import {
   ListTodo, 
   PenSquare, 
   Settings,
-  Flame,
   Trophy,
   User as UserIcon,
   LogOut,
@@ -16,6 +15,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import type { User } from "@/lib/types";
+import Image from "next/image";
 
 export function AppSidebar({ user }: { user: User }) {
   const pathname = usePathname();
@@ -32,7 +32,7 @@ export function AppSidebar({ user }: { user: User }) {
   return (
     <aside className="w-64 flex-col border-r border-border bg-card p-4">
       <div className="flex items-center gap-2 px-2 py-4">
-        <Flame className="h-8 w-8 text-primary" />
+        <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={32} height={32} />
         <h1 className="text-2xl font-headline font-bold text-foreground">KreaTask</h1>
       </div>
       <nav className="mt-8 flex flex-col gap-2 flex-1">
