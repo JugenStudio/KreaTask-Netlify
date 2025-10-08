@@ -1,4 +1,3 @@
-
 "use client";
 
 import { TaskCard } from "@/components/dashboard/task-card";
@@ -22,7 +21,7 @@ export default function DashboardPage() {
 
   const totalTasksCompleted = leaderboardData.reduce((sum, user) => sum + user.tasksCompleted, 0);
   const totalTeamMembers = users.length;
-  const avgScore = Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length);
+  const avgScore = leaderboardData.length > 0 ? Math.round(leaderboardData.reduce((sum, user) => sum + user.score, 0) / leaderboardData.length) : 0;
   const overdueTasks = tasks.filter(t => new Date(t.dueDate) < new Date() && t.status !== 'Completed').length;
 
   return (
