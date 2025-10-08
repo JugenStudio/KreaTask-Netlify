@@ -11,12 +11,25 @@
   },
   "dashboard": {
     "welcome": "Selamat datang kembali, {{name}}!",
-    "description": "Berikut adalah progres tim Anda."
+    "description": "Berikut adalah progres tim Anda.",
+    "my_tasks_completed": "Tugas Saya Selesai",
+    "my_score": "Skor Saya",
+    "my_rank": "Peringkat Saya",
+    "overdue_tasks": "Tugas Terlambat",
+    "total_tasks_completed": "Total Tugas Selesai",
+    "total_team_members": "Total Anggota Tim",
+    "average_score": "Skor Rata-rata",
+    "tasks_overdue": "Tugas Terlambat",
+    "no_active_tasks": "Anda tidak memiliki tugas aktif.",
+    "my_monthly_progress": "Progres Bulanan Saya",
+    "team_leaderboard": "Papan Peringkat Tim",
+    "monthly_progress": "Progres Bulanan"
   },
   "header": {
     "search_placeholder": "Cari tugas...",
     "notifications": "Notifikasi",
     "unread_count": "{{count}} belum dibaca",
+    "no_notifications": "Tidak ada notifikasi baru",
     "profile": "Profil",
     "settings": "Pengaturan",
     "logout": "Keluar"
@@ -62,8 +75,11 @@
   "leaderboard": {
     "title": "Papan Peringkat Kinerja Karyawan",
     "description": "Lihat bagaimana kinerja anggota tim bulan ini.",
+    "total_tasks_completed": "Total Tugas Selesai",
+    "average_score": "Skor Rata-rata",
+    "top_performers": "Performer Teratas",
+    "monthly_progress": "Progres Bulanan",
     "view_report_button": "Lihat Laporan & Ekspor CSV",
-    "top_performers": "3 Performer Teratas Bulan Ini",
     "top_performers_desc": "Berdasarkan poin yang terkumpul dari tugas yang diselesaikan.",
     "table": {
       "rank": "Peringkat",
@@ -134,6 +150,15 @@
         "title": "Tidak Ada Data untuk Diekspor",
         "description": "Tidak ada tugas yang selesai untuk diekspor."
       }
+    },
+    "edit_modal": {
+      "title": "Ubah Nilai Tugas",
+      "description": "Sesuaikan nilai untuk tugas \"{{taskTitle}}\" sebelum menyetujuinya.",
+      "value_label": "Nilai",
+      "select_placeholder": "Pilih nilai baru",
+      "points": "Poin",
+      "cancel_button": "Batal",
+      "save_button": "Simpan & Setujui"
     }
   },
   "settings": {

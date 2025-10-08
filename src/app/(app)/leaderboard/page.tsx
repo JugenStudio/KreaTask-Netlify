@@ -73,11 +73,11 @@ export default function LeaderboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
         <StatsCard
-          title="Total Tasks Completed"
+          title={t('leaderboard.total_tasks_completed')}
           value={totalTasks}
           icon={BookOpen}
         />
-        <StatsCard title="Average Score" value={avgScore} icon={Trophy} />
+        <StatsCard title={t('leaderboard.average_score')} value={avgScore} icon={Trophy} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -98,7 +98,7 @@ export default function LeaderboardPage() {
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">Monthly Progress</CardTitle>
+              <CardTitle className="font-headline">{t('leaderboard.monthly_progress')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ProgressChart currentUser={currentUser} />

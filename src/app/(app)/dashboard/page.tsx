@@ -114,17 +114,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         {isLvl1 ? (
           <>
-            <StatsCard title="Tugas Saya Selesai" value={myTasksCompleted} icon={BookOpen} href="/tasks" />
-            <StatsCard title="Skor Saya" value={myScore} icon={Star} href="/leaderboard" />
-            <StatsCard title="Peringkat Saya" value={`#${currentUserLeaderboard.rank}`} icon={Trophy} href="/leaderboard" />
-            <StatsCard title="Tugas Terlambat" value={myOverdueTasks} icon={Clock} href="/tasks" />
+            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={BookOpen} href="/tasks" />
+            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} href="/leaderboard" />
+            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} href="/leaderboard" />
+            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} href="/tasks" />
           </>
         ) : (
           <>
-            <StatsCard title="Total Tasks Completed" value={totalTasksCompletedTeam} icon={BookOpen} href="/tasks" />
-            <StatsCard title="Total Team Members" value={totalTeamMembers} icon={TrendingUp} href="/settings" />
-            <StatsCard title="Average Score" value={avgScoreTeam} icon={Trophy} href="/leaderboard" />
-            <StatsCard title="Tasks Overdue" value={overdueTasksTeam} icon={Clock} href="/tasks" />
+            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={BookOpen} href="/tasks" />
+            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} href="/settings" />
+            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Trophy} href="/leaderboard" />
+            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} href="/tasks" />
           </>
         )}
       </div>
@@ -142,14 +142,14 @@ export default function DashboardPage() {
                        {/* If no tasks, show a placeholder */}
                        {todoTasks.length === 0 && inProgressTasks.length === 0 && completedTasks.length === 0 && (
                           <Card className="md:col-span-2 flex items-center justify-center h-64">
-                            <p className="text-muted-foreground">You have no active tasks.</p>
+                            <p className="text-muted-foreground">{t('dashboard.no_active_tasks')}</p>
                           </Card>
                        )}
                     </div>
                 </div>
                 <div className="lg:col-span-1 space-y-8">
                     <Card>
-                        <CardHeader><CardTitle className="font-headline text-foreground">Progres Bulanan Saya</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="font-headline text-foreground">{t('dashboard.my_monthly_progress')}</CardTitle></CardHeader>
                         <CardContent><ProgressChart currentUser={currentUser} /></CardContent>
                     </Card>
                 </div>
@@ -160,7 +160,7 @@ export default function DashboardPage() {
                 <div className="lg:col-span-2 space-y-8">
                     <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline text-foreground">Team Leaderboard</CardTitle>
+                        <CardTitle className="font-headline text-foreground">{t('dashboard.team_leaderboard')}</CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="w-full overflow-x-auto">
@@ -194,7 +194,7 @@ export default function DashboardPage() {
             <Card>
                 <CardHeader>
                 <CardTitle className="font-headline text-foreground">
-                    Monthly Progress
+                    {t('dashboard.monthly_progress')}
                 </CardTitle>
                 </CardHeader>
                 <CardContent>

@@ -11,12 +11,25 @@
   },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
-    "description": "Here's a look at your team's progress."
+    "description": "Here's a look at your team's progress.",
+    "my_tasks_completed": "My Tasks Completed",
+    "my_score": "My Score",
+    "my_rank": "My Rank",
+    "overdue_tasks": "Overdue Tasks",
+    "total_tasks_completed": "Total Tasks Completed",
+    "total_team_members": "Total Team Members",
+    "average_score": "Average Score",
+    "tasks_overdue": "Tasks Overdue",
+    "no_active_tasks": "You have no active tasks.",
+    "my_monthly_progress": "My Monthly Progress",
+    "team_leaderboard": "Team Leaderboard",
+    "monthly_progress": "Monthly Progress"
   },
   "header": {
     "search_placeholder": "Search tasks...",
     "notifications": "Notifications",
     "unread_count": "{{count}} unread",
+    "no_notifications": "No new notifications",
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Log out"
@@ -62,8 +75,11 @@
   "leaderboard": {
     "title": "Employee Performance Leaderboard",
     "description": "See how team members are performing this month.",
+    "total_tasks_completed": "Total Tasks Completed",
+    "average_score": "Average Score",
+    "top_performers": "Top Performers",
+    "monthly_progress": "Monthly Progress",
     "view_report_button": "View Full Report & Export CSV",
-    "top_performers": "Top 3 Performers of the Month",
     "top_performers_desc": "Based on points accumulated from completed tasks.",
     "table": {
       "rank": "Rank",
@@ -134,6 +150,15 @@
         "title": "No Data to Export",
         "description": "There are no completed tasks to export."
       }
+    },
+    "edit_modal": {
+      "title": "Edit Task Value",
+      "description": "Adjust the value for the task \"{{taskTitle}}\" before approving it.",
+      "value_label": "Value",
+      "select_placeholder": "Select a new value",
+      "points": "Points",
+      "cancel_button": "Cancel",
+      "save_button": "Save & Approve"
     }
   },
   "settings": {

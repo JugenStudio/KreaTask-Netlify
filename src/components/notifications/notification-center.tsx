@@ -106,7 +106,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
 
           {notifications.length === 0 ? (
             <p className="text-muted-foreground text-sm text-center py-10">
-              Tidak ada notifikasi baru
+              {t('header.no_notifications')}
             </p>
           ) : (
             <ul className="space-y-1 max-h-80 overflow-y-auto p-2">
