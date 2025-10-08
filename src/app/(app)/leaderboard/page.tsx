@@ -46,7 +46,7 @@ export default function LeaderboardPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline">Monthly Progress</CardTitle>
-                </CardHeader>
+                </Header>
                 <CardContent>
                    <ProgressChart />
                 </CardContent>

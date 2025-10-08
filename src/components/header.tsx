@@ -31,26 +31,35 @@ import { Badge } from "./ui/badge";
 export function Header() {
   const currentUser = users[0];
   const { locale, t, setLocale } = useLanguage();
-  const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("dark")
+  const [theme, setThemeState] = React.useState<"light" | "dark" | "system">("dark")
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   React.useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains("dark")
-    setThemeState(isDarkMode ? "dark" : "theme-light")
+    setThemeState(isDarkMode ? "dark" : "light")
   }, [])
 
   React.useEffect(() => {
-    const isDark =
-      theme === "dark" ||
-      (theme === "system" &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches)
-    document.documentElement.classList[isDark ? "add" : "remove"]("dark")
+    const root = window.document.documentElement
+    root.classList.remove("light", "dark")
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light"
+
+      root.classList.add(systemTheme)
+      return
+    }
+
+    root.classList.add(theme)
   }, [theme])
 
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/80 px-4 md:px-6 w-full backdrop-blur-lg">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 w-full backdrop-blur-lg">
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
@@ -74,7 +83,7 @@ export function Header() {
               )}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 border-border/20 bg-popover backdrop-blur-xl" align="end">
+          <PopoverContent className="w-80 border-border bg-popover backdrop-blur-xl" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium leading-none font-headline text-foreground">{t('header.notifications')}</h4>
@@ -106,7 +115,7 @@ export function Header() {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 border-border/20 bg-popover backdrop-blur-xl">
+          <DropdownMenuContent align="end" className="w-56 border-border bg-popover backdrop-blur-xl">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{currentUser.name}</p>
@@ -133,7 +142,7 @@ export function Header() {
                 <span>Language</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border/20 bg-popover backdrop-blur-xl">
+                <DropdownMenuSubContent className="border-border bg-popover backdrop-blur-xl">
                   <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocale("id")}>Bahasa Indonesia</DropdownMenuItem>
                 </DropdownMenuSubContent>
@@ -146,8 +155,8 @@ export function Header() {
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border/20 bg-popover backdrop-blur-xl">
-                  <DropdownMenuItem onClick={() => setThemeState("theme-light")}>Light</DropdownMenuItem>
+                <DropdownMenuSubContent className="border-border bg-popover backdrop-blur-xl">
+                  <DropdownMenuItem onClick={() => setThemeState("light")}>Light</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("dark")}>Dark</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("system")}>System</DropdownMenuItem>
                 </DropdownMenuSubContent>

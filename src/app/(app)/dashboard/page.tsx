@@ -72,7 +72,7 @@ export default function DashboardPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="font-headline text-card-foreground">Monthly Progress</CardTitle>
-                </CardHeader>
+                </Header>
                 <CardContent>
                    <ProgressChart />
                 </CardContent>
