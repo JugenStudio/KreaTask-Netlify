@@ -40,7 +40,7 @@ export default function AllTasksPage() {
             </Button>
         </div>
       </div>
-      <Card className="rounded-2xl shadow-none border-none">
+      <Card className="rounded-2xl shadow-none border-none bg-card/80 dark:bg-card/80">
         <CardContent className="pt-6">
           <TaskTable tasks={tasks} />
         </CardContent>
