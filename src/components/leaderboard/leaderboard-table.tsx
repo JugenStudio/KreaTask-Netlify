@@ -36,10 +36,10 @@ export function LeaderboardTable({
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="w-16">{t('leaderboard.table.rank')}</TableHead>
+          <TableHead className="w-16 text-center">{t('leaderboard.table.rank')}</TableHead>
           <TableHead>{t('leaderboard.table.employee')}</TableHead>
-          <TableHead>{t('leaderboard.table.tasks_completed')}</TableHead>
-          <TableHead className="text-right">{t('leaderboard.table.total_score')}</TableHead>
+          <TableHead className="text-center">{t('leaderboard.table.tasks_completed')}</TableHead>
+          <TableHead className="text-center">{t('leaderboard.table.total_score')}</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -59,8 +59,8 @@ export function LeaderboardTable({
                 <div className="font-medium">{entry.name}</div>
               </div>
             </TableCell>
-            <TableCell>{entry.tasksCompleted}</TableCell>
-            <TableCell className="text-right text-lg font-bold text-primary">
+            <TableCell className="text-center">{entry.tasksCompleted}</TableCell>
+            <TableCell className="text-center text-lg font-bold text-primary">
               {entry.score}
             </TableCell>
           </TableRow>
