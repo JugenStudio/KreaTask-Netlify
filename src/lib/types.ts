@@ -102,3 +102,24 @@ export interface DetailedReportEntry {
     reviewer: string;
     assessmentDate: string;
 }
+
+export type NotificationType =
+  | "TASK_ASSIGN"
+  | "TASK_REVIEW"
+  | "TASK_APPROVED"
+  | "AI_SUGGESTION"
+  | "VALIDATION_REQUEST"
+  | "PERFORMANCE_ALERT"
+  | "SYSTEM_UPDATE"
+  | "SECURITY_ALERT";
+
+export interface Notification {
+  id: string;
+  userId: string;       // siapa yang menerima notif
+  message: string;
+  type: NotificationType;
+  read: boolean;
+  link?: string;        // tautan menuju halaman terkait
+  taskId?: string;      // ID tugas jika terkait
+  createdAt: string;
+}

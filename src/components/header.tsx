@@ -34,6 +34,7 @@ import { Badge } from "@/components/ui/badge";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { NotificationCenter } from "@/components/notifications/notification-center";
 
 type Theme = "light" | "dark" | "system";
 
@@ -108,6 +109,10 @@ export function Header() {
 
       {/* Right section */}
       <div className="flex items-center gap-2 ml-auto">
+        
+        {/* Notification Center */}
+        <NotificationCenter />
+        
         {/* User menu */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
