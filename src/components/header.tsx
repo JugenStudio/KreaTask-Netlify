@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useRef, useEffect } from "react";
 import Link from "next/link";
 import { Bell, Search, User as UserIcon, Settings, LogOut, Sun, Moon, Laptop, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -26,11 +26,22 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users, notifications } from "@/lib/data";
 import { Separator } from "./ui/separator";
 import { useLanguage } from "@/providers/language-provider";
+import { Badge } from "./ui/badge";
 
 export function Header() {
   const currentUser = users[0];
   const { locale, t, setLocale } = useLanguage();
   const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("dark")
+  const audioRef = useRef<HTMLAudioElement>(null);
+  
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const playNotificationSound = () => {
+    if (audioRef.current && unreadCount > 0) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(e => console.error("Audio playback failed", e));
+    }
+  };
 
   React.useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains("dark")
@@ -43,36 +54,39 @@ export function Header() {
       (theme === "system" &&
         window.matchMedia("(prefers-color-scheme: dark)").matches)
     document.documentElement.classList[isDark ? "add" : "remove"]("dark")
-    document.documentElement.classList[isDark ? "remove" : "add"]("light")
   }, [theme])
 
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b border-border/20 bg-transparent px-4 md:px-6 w-full backdrop-blur-lg">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background/80 px-4 md:px-6 w-full backdrop-blur-lg">
       <div className="relative flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder={t('header.search_placeholder')}
-          className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px] text-foreground placeholder:text-muted-foreground border-none"
+          className="w-full rounded-lg bg-secondary/50 pl-8 md:w-[200px] lg:w-[320px] text-foreground placeholder:text-muted-foreground border-none"
         />
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <Popover>
+        <Popover onOpenChange={(open) => { if (open) playNotificationSound(); }}>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-white/10 rounded-full">
               <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
-              </span>
+              {unreadCount > 0 && (
+                <Badge 
+                  variant="destructive" 
+                  className="absolute top-0 right-0 h-5 w-5 flex items-center justify-center rounded-full p-0 text-xs"
+                >
+                  {unreadCount}
+                </Badge>
+              )}
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-80 border-border/20 bg-popover backdrop-blur-xl" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
-                <h4 className="font-medium leading-none font-headline">{t('header.notifications')}</h4>
-                <p className="text-sm text-muted-foreground">{t('header.unread_count', { count: notifications.filter(n => !n.isRead).length.toString() })}</p>
+                <h4 className="font-medium leading-none font-headline text-foreground">{t('header.notifications')}</h4>
+                <p className="text-sm text-muted-foreground">{t('header.unread_count', { count: unreadCount.toString() })}</p>
               </div>
               <Separator />
               <div className="grid gap-4 max-h-96 overflow-y-auto">
@@ -154,7 +168,10 @@ export function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <audio ref={audioRef} src="/sounds/notification.mp3" preload="auto"></audio>
       </div>
     </header>
   );
 }
+
+    

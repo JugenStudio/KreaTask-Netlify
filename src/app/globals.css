@@ -38,8 +38,8 @@
 
   /* Professional Light Theme */
   .light {
-    --background: 240 10% 98%; /* Lighter, cleaner background */
-    --background-end: 240 10% 92%;
+    --background-start-rgb: 240 10% 98%;
+    --background-end-rgb: 240 10% 92%;
     --foreground: 220 15% 25%; /* Darker text for readability */
 
     --card: 240 10% 100% / 0.6; /* Semi-transparent white for frosted glass */
@@ -72,8 +72,8 @@
 
   /* Frosted Glass Dark Theme */
   .dark {
-    --background: 225 21% 12%; /* Dark Slate Blue */
-    --background-end: 220 15% 20%; /* Charcoal */
+    --background-start-rgb: 225 21% 12%; /* Dark Slate Blue */
+    --background-end-rgb: 220 15% 20%; /* Charcoal */
     --foreground: 0 0% 98%;
 
     --card: 210 40% 98% / 0.1;
@@ -111,5 +111,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    background-image: linear-gradient(to bottom, hsl(var(--background-start-rgb)), hsl(var(--background-end-rgb)));
   }
 }
+
+    

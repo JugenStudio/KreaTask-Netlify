@@ -5,6 +5,7 @@ import { Chatbot } from "@/components/chatbot";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
 import { tasks, users, leaderboardData } from "@/lib/data";
+import { cn } from "@/lib/utils";
 
 export default function AppLayout({
   children,
@@ -14,7 +15,7 @@ export default function AppLayout({
   const currentUser = users[0];
   return (
     <LanguageProvider>
-      <div className="min-h-screen w-full bg-gradient-to-b from-[hsl(var(--background))] to-[hsl(var(--background-end))]">
+      <div className={cn("min-h-screen w-full bg-gradient-to-br from-[--background-start-rgb] to-[--background-end-rgb]")}>
         <div className="flex min-h-screen w-full">
           <AppSidebar user={currentUser} />
           <div className="flex flex-1 flex-col bg-transparent">
@@ -29,3 +30,5 @@ export default function AppLayout({
     </LanguageProvider>
   );
 }
+
+    

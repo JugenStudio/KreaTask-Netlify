@@ -15,7 +15,7 @@
   "header": {
     "search_placeholder": "Search tasks...",
     "notifications": "Notifications",
-    "unread_count": "You have {{count}} unread messages.",
+    "unread_count": "{{count}} unread",
     "profile": "Profile",
     "settings": "Settings",
     "logout": "Log out"
@@ -91,3 +91,5 @@
     }
   }
 }
+
+    

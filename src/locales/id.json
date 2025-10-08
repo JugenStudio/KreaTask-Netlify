@@ -15,7 +15,7 @@
   "header": {
     "search_placeholder": "Cari tugas...",
     "notifications": "Notifikasi",
-    "unread_count": "Anda memiliki {{count}} pesan belum dibaca.",
+    "unread_count": "{{count}} belum dibaca",
     "profile": "Profil",
     "settings": "Pengaturan",
     "logout": "Keluar"
@@ -91,3 +91,5 @@
     }
   }
 }
+
+    
