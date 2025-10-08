@@ -54,13 +54,13 @@ export function Header() {
         <Input
           type="search"
           placeholder={t('header.search_placeholder')}
-          className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px] text-white placeholder:text-muted-foreground border-none"
+          className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px] text-foreground placeholder:text-muted-foreground border-none"
         />
       </div>
       <div className="flex items-center gap-2 ml-auto">
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon" className="relative text-white hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-white/10">
               <Bell className="h-5 w-5" />
               <span className="absolute top-1 right-1 flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
@@ -68,7 +68,7 @@ export function Header() {
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 border-border/20 bg-background/80 backdrop-blur-xl" align="end">
+          <PopoverContent className="w-80 border-border/20 bg-popover backdrop-blur-xl" align="end">
              <div className="grid gap-2">
               <div className="flex items-center justify-between">
                 <h4 className="font-medium leading-none font-headline">{t('header.notifications')}</h4>
@@ -80,7 +80,7 @@ export function Header() {
                   <div key={notif.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:pb-0">
                     <span className={`flex h-2 w-2 translate-y-1 rounded-full ${!notif.isRead ? 'bg-primary' : 'bg-muted-foreground'}`} />
                     <div className="grid gap-1">
-                      <p className="font-medium">{notif.title[locale]}</p>
+                      <p className="font-medium text-popover-foreground">{notif.title[locale]}</p>
                       <p className="text-sm text-muted-foreground">{notif.description[locale]}</p>
                       <p className="text-xs text-muted-foreground">{new Date(notif.timestamp).toLocaleString()}</p>
                     </div>
@@ -100,7 +100,7 @@ export function Header() {
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56 border-border/20 bg-background/80 backdrop-blur-xl">
+          <DropdownMenuContent align="end" className="w-56 border-border/20 bg-popover backdrop-blur-xl">
             <DropdownMenuLabel>
               <div className="flex flex-col space-y-1">
                 <p className="text-sm font-medium leading-none">{currentUser.name}</p>
@@ -127,7 +127,7 @@ export function Header() {
                 <span>Language</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border/20 bg-background/80 backdrop-blur-xl">
+                <DropdownMenuSubContent className="border-border/20 bg-popover backdrop-blur-xl">
                   <DropdownMenuItem onClick={() => setLocale("en")}>English</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocale("id")}>Bahasa Indonesia</DropdownMenuItem>
                 </DropdownMenuSubContent>
@@ -140,7 +140,7 @@ export function Header() {
                 <span>Theme</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border/20 bg-background/80 backdrop-blur-xl">
+                <DropdownMenuSubContent className="border-border/20 bg-popover backdrop-blur-xl">
                   <DropdownMenuItem onClick={() => setThemeState("theme-light")}>Light</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("dark")}>Dark</DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setThemeState("system")}>System</DropdownMenuItem>
