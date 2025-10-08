@@ -15,9 +15,11 @@ const DIRECTOR_ROLES = [
 ];
 
 export const isEmployee = (role: UserRole): boolean => {
+  if (role === UserRole.UNASSIGNED) return false;
   return EMPLOYEE_ROLES.includes(role);
 };
 
 export const isDirector = (role: UserRole): boolean => {
+  if (role === UserRole.UNASSIGNED) return false;
   return DIRECTOR_ROLES.includes(role);
 };

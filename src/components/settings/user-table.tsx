@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState } from "react";
@@ -83,16 +84,22 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
   };
 
   const canEditRole = (targetUser: User): boolean => {
-    if (currentUser.id === targetUser.id) return false;
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA) return true;
-    if (isDirector(currentUser.role) && isEmployee(targetUser.role)) return true;
+    if (currentUser.id === targetUser.id) return false; // Cannot edit self
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA) return true; // Superuser can edit anyone
+    if (isDirector(currentUser.role)) {
+      // Directors can edit employees or unassigned users
+      return isEmployee(targetUser.role) || targetUser.role === UserRole.UNASSIGNED;
+    }
     return false;
   };
 
   const canDeleteUser = (targetUser: User): boolean => {
      if (currentUser.id === targetUser.id) return false;
      if (currentUser.role === UserRole.DIREKTUR_UTAMA) return true;
-     if (isDirector(currentUser.role) && isEmployee(targetUser.role)) return true;
+     if (isDirector(currentUser.role)) {
+       // Directors can only delete employees or unassigned users
+       return isEmployee(targetUser.role) || targetUser.role === UserRole.UNASSIGNED;
+     }
      return false;
   }
 
@@ -129,12 +136,12 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
                   disabled={!canEditRole(user)}
                 >
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Select role" />
+                    <SelectValue placeholder={t("settings.user_management.table.select_role")} />
                   </SelectTrigger>
                   <SelectContent>
                     {roles.map((role) => (
                       <SelectItem key={role} value={role}>
-                        {role}
+                        {t(`roles.${role}`, { defaultValue: role })}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -8,6 +8,7 @@ export enum UserRole {
   DESAIN_GRAFIS = "Desain Grafis",
   MARKETING = "Marketing",
   FINANCE = "Finance",
+  UNASSIGNED = "Unassigned",
 }
 
 export enum TaskCategory {

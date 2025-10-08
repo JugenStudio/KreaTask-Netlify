@@ -9,6 +9,16 @@
     "profile": "Profile",
     "settings": "Settings"
   },
+  "roles": {
+    "Direktur Utama": "Main Director",
+    "Direktur Operasional": "Operational Director",
+    "Jurnalis": "Journalist",
+    "Social Media Officer": "Social Media Officer",
+    "Desain Grafis": "Graphic Designer",
+    "Marketing": "Marketing",
+    "Finance": "Finance",
+    "Unassigned": "Unassigned"
+  },
   "dashboard": {
     "welcome": "Welcome back, {{name}}!",
     "description": "Here's a look at your team's progress.",
@@ -171,7 +181,8 @@
         "user": "User",
         "email": "Email",
         "role": "Role",
-        "actions": "Actions"
+        "actions": "Actions",
+        "select_role": "Select a role"
       },
       "toast": {
         "role_updated_title": "User Role Updated",

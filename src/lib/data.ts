@@ -13,6 +13,7 @@ export const users: User[] = [
   { id: 'user-5', name: 'Ariya', email: 'ariya@kreatask.com', avatarUrl: getAvatarUrl(5), role: UserRole.DESAIN_GRAFIS },
   { id: 'user-9', name: 'Citra', email: 'citra@kreatask.com', avatarUrl: getAvatarUrl(9), role: UserRole.MARKETING },
   { id: 'user-10', name: 'Doni', email: 'doni@kreatask.com', avatarUrl: getAvatarUrl(10), role: UserRole.FINANCE },
+  { id: 'user-11', name: 'Budi', email: 'budi@kreatask.com', avatarUrl: getAvatarUrl(11), role: UserRole.UNASSIGNED },
 ];
 
 export const allTasks: Task[] = [
@@ -294,5 +295,3 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
-
-

@@ -9,6 +9,16 @@
     "profile": "Profil",
     "settings": "Pengaturan"
   },
+  "roles": {
+    "Direktur Utama": "Direktur Utama",
+    "Direktur Operasional": "Direktur Operasional",
+    "Jurnalis": "Jurnalis",
+    "Social Media Officer": "Social Media Officer",
+    "Desain Grafis": "Desain Grafis",
+    "Marketing": "Marketing",
+    "Finance": "Finance",
+    "Unassigned": "Belum Ditugaskan"
+  },
   "dashboard": {
     "welcome": "Selamat datang kembali, {{name}}!",
     "description": "Berikut adalah progres tim Anda.",
@@ -171,7 +181,8 @@
         "user": "Pengguna",
         "email": "Email",
         "role": "Peran",
-        "actions": "Aksi"
+        "actions": "Aksi",
+        "select_role": "Pilih peran"
       },
       "toast": {
         "role_updated_title": "Peran Pengguna Diperbarui",
