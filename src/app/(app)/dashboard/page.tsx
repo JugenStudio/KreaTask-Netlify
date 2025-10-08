@@ -34,10 +34,10 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-        <StatsCard title="Total Tasks Completed" value={totalTasksCompleted} icon={BookOpen} color="default" href="/tasks" />
-        <StatsCard title="Total Team Members" value={totalTeamMembers} icon={Users} color="default" href="/settings" />
-        <StatsCard title="Average Score" value={avgScore} icon={Trophy} color="green" href="/leaderboard" />
-        <StatsCard title="Tasks Overdue" value={overdueTasks} icon={Clock} color="yellow" href="/tasks" />
+        <StatsCard title="Total Tasks Completed" value={totalTasksCompleted} icon={BookOpen} href="/tasks" />
+        <StatsCard title="Total Team Members" value={totalTeamMembers} icon={Users} href="/settings" />
+        <StatsCard title="Average Score" value={avgScore} icon={Trophy} href="/leaderboard" />
+        <StatsCard title="Tasks Overdue" value={overdueTasks} icon={Clock} href="/tasks" />
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
