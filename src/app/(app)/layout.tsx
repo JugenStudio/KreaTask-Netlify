@@ -14,7 +14,7 @@ export default function AppLayout({
   const currentUser = users[0];
   return (
     <LanguageProvider>
-      <div className="min-h-screen w-full bg-gradient-to-b from-background to-background-end">
+      <div className="min-h-screen w-full bg-gradient-to-b from-[hsl(var(--background))] to-[hsl(var(--background-end))]">
         <div className="flex min-h-screen w-full">
           <AppSidebar user={currentUser} />
           <div className="flex flex-1 flex-col bg-transparent">
