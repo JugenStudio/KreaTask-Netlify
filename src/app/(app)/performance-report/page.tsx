@@ -10,7 +10,7 @@ import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History, CheckCircle, Edit, ThumbsUp } from "lucide-react";
+import { History, CheckCircle, Edit, ThumbsUp, FileDown } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -63,7 +63,7 @@ export default function PerformanceReportPage() {
     setIsModalOpen(false);
     setSelectedTask(null);
   };
-
+  
   const completedTasks = useMemo(() => {
     if (!currentUser) return [];
     if (isEmployee(currentUser.role)) {
@@ -82,6 +82,54 @@ export default function PerformanceReportPage() {
       return tasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
   }, [tasks, currentUser]);
 
+  const handleExportCSV = () => {
+    if (completedTasks.length === 0) {
+      toast({
+        title: "No Data to Export",
+        description: "There are no completed tasks to export.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const headers = [
+      "ID Tugas",
+      "Judul Tugas",
+      "Karyawan",
+      "Kategori Nilai",
+      "Nilai",
+      "Tanggal Selesai",
+      "Status Validasi",
+      "Disetujui Oleh",
+    ];
+
+    const rows = completedTasks.map(task => [
+      task.id,
+      `"${task.title.id.replace(/"/g, '""')}"`, // Handle quotes in title
+      `"${task.assignees.map(a => a.name).join(', ')}"`,
+      task.valueCategory,
+      task.value,
+      new Date(task.dueDate).toLocaleDateString('id-ID'),
+      task.approvedBy ? "Disetujui" : "Menunggu Validasi",
+      task.approvedBy || "N/A"
+    ].join(','));
+
+    const csvContent = "data:text/csv;charset=utf-8," 
+      + [headers.join(','), ...rows].join('\n');
+      
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "riwayat_tugas_selesai.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    toast({
+      title: "Export Successful",
+      description: "Task history has been downloaded as CSV.",
+    });
+  };
 
   if (!currentUser) {
     return (
@@ -108,6 +156,10 @@ export default function PerformanceReportPage() {
               Berikut adalah daftar semua tugas yang telah Anda selesaikan dan nilainya.
             </p>
           </div>
+           <Button onClick={handleExportCSV}>
+            <FileDown className="h-4 w-4 mr-2" />
+            Export to CSV
+          </Button>
         </div>
         <Card>
           <CardContent className="pt-6">
@@ -122,9 +174,15 @@ export default function PerformanceReportPage() {
   return (
     <>
       <div className="space-y-8">
-          <div>
-              <h1 className="text-3xl font-bold font-headline">Laporan & Validasi Kinerja</h1>
-              <p className="text-muted-foreground">Setujui nilai tugas dan lihat riwayat kinerja tim.</p>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div>
+                <h1 className="text-3xl font-bold font-headline">Laporan & Validasi Kinerja</h1>
+                <p className="text-muted-foreground">Setujui nilai tugas dan lihat riwayat kinerja tim.</p>
+            </div>
+            <Button onClick={handleExportCSV}>
+              <FileDown className="h-4 w-4 mr-2" />
+              Export to CSV
+            </Button>
           </div>
 
           {/* Validation Panel */}
