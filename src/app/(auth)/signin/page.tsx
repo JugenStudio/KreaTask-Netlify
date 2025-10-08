@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Separator } from '@/components/ui/separator';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 
@@ -23,8 +22,6 @@ export default function SignInPage() {
 
   const handleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // Later, this will trigger the Google sign-in flow.
-    // For now, we'll just navigate to the dashboard.
     router.push('/dashboard');
   };
 
@@ -57,7 +54,6 @@ export default function SignInPage() {
                   </Button>
                 </div>
                 
-
                 <p className="text-center text-sm text-muted-foreground !mt-8">
                     Don&apos;t have an account?{' '}
                     <Link href="/signup" className="font-semibold text-primary hover:underline">
