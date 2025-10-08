@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useEffect, useState } from "react";
 import { TaskCard } from "@/components/dashboard/task-card";
 import { TopPerformerCard } from "@/components/dashboard/top-performer-card";
 import { allTasks, users, leaderboardData } from "@/lib/data";
@@ -12,22 +13,48 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { Chatbot } from "@/components/chatbot";
 import type { Task, User, UserRole } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const EMPLOYEE_ROLES: UserRole[] = ['Jurnalis', 'Social Media Officer', 'Desain Grafis', 'Marketing', 'Finance'];
 
 export default function DashboardPage() {
-  const currentUser = users[0]; // Simulating logged in user
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { t } = useLanguage();
+
+  useEffect(() => {
+    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole;
+    if (selectedRole) {
+      const user = users.find(u => u.role === selectedRole);
+      setCurrentUser(user || users[0]);
+    } else {
+      setCurrentUser(users[0]); // Default to Direktur Utama if no role is selected
+    }
+  }, []);
+
+  if (!currentUser) {
+    return (
+        <div className="space-y-8">
+            <Skeleton className="h-12 w-1/2" />
+            <Skeleton className="h-8 w-3/4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                <Skeleton className="h-32 rounded-2xl" />
+                <Skeleton className="h-32 rounded-2xl" />
+                <Skeleton className="h-32 rounded-2xl" />
+                <Skeleton className="h-32 rounded-2xl" />
+            </div>
+        </div>
+    );
+  }
 
   let visibleTasks: Task[];
 
   if (EMPLOYEE_ROLES.includes(currentUser.role)) {
-    // Karyawan (Level 1) sees only their own tasks
+    // Level 1: Karyawan sees only their own tasks
     visibleTasks = allTasks.filter(task => 
       task.assignees.some(assignee => assignee.id === currentUser.id)
     );
   } else {
-    // Direktur & Super User (Level 2 & 3) see all tasks
+    // Level 2 & 3: Direktur & Super User see all tasks
     visibleTasks = allTasks;
   }
 
@@ -65,7 +92,7 @@ export default function DashboardPage() {
           {t("dashboard.welcome", { name: currentUser.name.split(" ")[0] })}
         </h1>
         <p className="text-muted-foreground text-lg">
-          {t("dashboard.description")}
+          {t("dashboard.description")} (Viewing as: {currentUser.role})
         </p>
       </div>
 
