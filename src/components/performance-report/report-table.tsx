@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import type { DetailedReportEntry } from "@/lib/types";
 import { Badge } from "../ui/badge";
-import { Download, ArrowUpDown, MoreHorizontal } from "lucide-react";
+import { Download, ArrowUpDown, MoreHorizontal, CheckCircle2, XCircle } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,6 +20,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Card, CardContent } from "../ui/card";
+import { cn } from "@/lib/utils";
 
 interface ReportTableProps {
   reportData: DetailedReportEntry[];
@@ -30,65 +32,52 @@ export function ReportTable({
 }: ReportTableProps) {
   const { locale, t } = useLanguage();
 
-  const handleExport = () => {
-    // Basic CSV export functionality
-    let csvContent = "data:text/csv;charset=utf-8,";
-    
-    // Header
-    const headers = [
-      t('report.table.employee'),
-      t('report.table.task_title'),
-      t('report.table.category'),
-      t('report.table.priority'),
-      t('report.table.deadline'),
-      t('report.table.completed_on'),
-      t('report.table.status'),
-      t('report.table.revisions'),
-      t('report.table.score'),
-      t('report.table.ai_justification'),
-      t('report.table.reviewer'),
-      t('report.table.assessment_date')
-    ];
-    csvContent += headers.join(",") + "\r\n";
-
-    // Rows
-    reportData.forEach(row => {
-      const rowData = [
-        `"${row.employeeName}"`,
-        `"${row.taskTitle[locale]}"`,
-        `"${row.category}"`,
-        `"${row.priority}"`,
-        `"${row.deadline}"`,
-        `"${row.completedOn}"`,
-        `"${row.status}"`,
-        `"${row.revisions}"`,
-        `"${row.taskScore}"`,
-        `"${row.aiJustification[locale].replace(/"/g, '""')}"`, // Escape double quotes
-        `"${row.reviewer}"`,
-        `"${row.assessmentDate}"`
-      ].join(",");
-      csvContent += rowData + "\r\n";
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "detailed_performance_report.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-
   return (
     <div>
-        <div className="flex justify-end mb-4">
-            <Button onClick={handleExport}>
-                <Download className="mr-2 h-4 w-4" />
-                {t('report.export_csv')}
-            </Button>
+        {/* Mobile View: Card List */}
+        <div className="md:hidden space-y-4">
+            {reportData.map((row) => (
+                <Card key={row.id} className="w-full">
+                    <CardContent className="p-4">
+                        <div className="flex justify-between items-start">
+                            <div className="flex-1 space-y-1">
+                                <p className="font-semibold text-card-foreground">{row.employeeName}</p>
+                                <p className="text-sm text-muted-foreground line-clamp-2">{row.taskTitle[locale]}</p>
+                            </div>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button aria-haspopup="true" size="icon" variant="ghost">
+                                    <MoreHorizontal className="h-4 w-4" />
+                                    <span className="sr-only">Toggle menu</span>
+                                    </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    <DropdownMenuItem>View Details</DropdownMenuItem>
+                                    <DropdownMenuItem>Edit Entry</DropdownMenuItem>
+                                    <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        </div>
+                        <div className="mt-4 flex justify-between items-center">
+                             <Badge variant={row.status === "Terlambat" ? "destructive" : "secondary"}>
+                                {row.status === "Terlambat" ? 
+                                    <XCircle className="mr-1.5 h-3 w-3" /> : 
+                                    <CheckCircle2 className="mr-1.5 h-3 w-3" />
+                                }
+                                {row.status}
+                            </Badge>
+                            <div className="text-right">
+                                <p className="text-sm text-muted-foreground">Score</p>
+                                <p className="font-bold text-lg text-card-foreground">{row.taskScore}</p>
+                            </div>
+                        </div>
+                    </CardContent>
+                </Card>
+            ))}
         </div>
-        <div className="relative w-full overflow-auto rounded-lg border">
+
+        {/* Desktop View: Table */}
+        <div className="relative hidden md:block w-full overflow-auto rounded-lg border">
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
