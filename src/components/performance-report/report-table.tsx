@@ -1,13 +1,6 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import {
   Table,
   TableBody,
   TableCell,
@@ -21,22 +14,18 @@ import { Badge } from "../ui/badge";
 import { Download } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
 
-interface DetailedReportDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
+interface ReportTableProps {
   reportData: DetailedReportEntry[];
 }
 
-export function DetailedReportDialog({
-  isOpen,
-  onClose,
+export function ReportTable({
   reportData,
-}: DetailedReportDialogProps) {
+}: ReportTableProps) {
   const { locale, t } = useLanguage();
 
   const handleExport = () => {
     // Basic CSV export functionality
-    let csvContent = "data:text/csv;charset=utf-t,";
+    let csvContent = "data:text/csv;charset=utf-8,";
     
     // Header
     const headers = [
@@ -85,21 +74,14 @@ export function DetailedReportDialog({
 
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl h-[90vh]">
-        <DialogHeader>
-          <DialogTitle className="font-headline text-2xl">{t('report.title')}</DialogTitle>
-          <DialogDescription>
-          {t('report.description')}
-          </DialogDescription>
-        </DialogHeader>
-        <div className="flex justify-end">
+    <div>
+        <div className="flex justify-end mb-4">
             <Button onClick={handleExport}>
                 <Download className="mr-2 h-4 w-4" />
                 {t('report.export_csv')}
             </Button>
         </div>
-        <div className="relative h-[calc(100%-120px)]">
+        <div className="relative w-full overflow-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -137,7 +119,6 @@ export function DetailedReportDialog({
             </TableBody>
           </Table>
         </div>
-      </DialogContent>
-    </Dialog>
+    </div>
   );
 }

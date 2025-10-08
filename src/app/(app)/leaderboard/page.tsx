@@ -1,18 +1,14 @@
 "use client";
 
-import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Trophy, Download, Clock, BookOpen, LineChart } from "lucide-react";
-import { leaderboardData, detailedReportData } from "@/lib/data";
+import { Trophy, LineChart, BookOpen } from "lucide-react";
+import { leaderboardData } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
-import { DetailedReportDialog } from "@/components/leaderboard/detailed-report-dialog";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
 
 export default function LeaderboardPage() {
-  const [isReportOpen, setIsReportOpen] = useState(false);
   const { t } = useLanguage();
 
   const totalTasks = leaderboardData.reduce((sum, user) => sum + user.tasksCompleted, 0);
@@ -28,10 +24,6 @@ export default function LeaderboardPage() {
           </h1>
           <p className="text-muted-foreground text-lg">{t('leaderboard.description')}</p>
         </div>
-         <Button onClick={() => setIsReportOpen(true)}>
-            <Download className="mr-2 h-4 w-4" />
-            {t('leaderboard.view_report_button')}
-          </Button>
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -61,12 +53,6 @@ export default function LeaderboardPage() {
             </Card>
         </div>
       </div>
-      
-      <DetailedReportDialog 
-        isOpen={isReportOpen} 
-        onClose={() => setIsReportOpen(false)}
-        reportData={detailedReportData}
-      />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   Trophy,
   User as UserIcon,
   LogOut,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
@@ -35,6 +36,7 @@ export function AppSidebar({ user }: { user: User }) {
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
+    { href: "/performance-report", icon: FileText, label: t('sidebar.performance_report') },
   ];
 
   return (
