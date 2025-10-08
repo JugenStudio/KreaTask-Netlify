@@ -32,16 +32,8 @@ export function Header() {
   const currentUser = users[0];
   const { locale, t, setLocale } = useLanguage();
   const [theme, setThemeState] = React.useState<"theme-light" | "dark" | "system">("dark")
-  const audioRef = useRef<HTMLAudioElement>(null);
   
   const unreadCount = notifications.filter(n => !n.isRead).length;
-
-  const playNotificationSound = () => {
-    if (audioRef.current && unreadCount > 0) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(e => console.error("Audio playback failed", e));
-    }
-  };
 
   React.useEffect(() => {
     const isDarkMode = document.documentElement.classList.contains("dark")
@@ -68,7 +60,7 @@ export function Header() {
         />
       </div>
       <div className="flex items-center gap-2 ml-auto">
-        <Popover onOpenChange={(open) => { if (open) playNotificationSound(); }}>
+        <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="icon" className="relative text-foreground hover:bg-white/10 rounded-full">
               <Bell className="h-5 w-5" />
@@ -168,10 +160,7 @@ export function Header() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <audio ref={audioRef} src="/sounds/notification.mp3" preload="auto"></audio>
       </div>
     </header>
   );
 }
-
-    
