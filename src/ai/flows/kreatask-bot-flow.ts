@@ -15,7 +15,6 @@ const KreaBotInputSchema = z.object({
   query: z.string().describe("The user's question or command."),
   tasks: z.array(z.any()).describe('The full list of all tasks in the system.'),
   users: z.array(z.any()).describe('The full list of all users.'),
-  leaderboard: z.array(z.any()).describe('A pre-calculated leaderboard of user scores and completed tasks.'),
 });
 export type KreaBotInput = z.infer<typeof KreaBotInputSchema>;
 
@@ -35,7 +34,6 @@ export async function askKreaBot(
     ...input,
     tasks: JSON.stringify(input.tasks),
     users: JSON.stringify(input.users),
-    leaderboard: JSON.stringify(input.leaderboard),
   } as any);
 }
 
@@ -46,7 +44,6 @@ const prompt = ai.definePrompt({
       query: z.string(),
       tasks: z.string(),
       users: z.string(),
-      leaderboard: z.string(),
     }),
   },
   output: {schema: KreaBotOutputSchema},
@@ -58,57 +55,61 @@ Today's date is: ${new Date().toLocaleDateString()}
 
 ## Your Capabilities & Instructions:
 
-1.  **Analyze Leaderboard & Performance:**
-    *   When asked about performance, top users, or who is the most diligent, use the leaderboard data.
-    *   The leaderboard shows user scores and the number of completed tasks.
-    *   Example Query: "Who is our top-performing team member?"
-    *   Example Answer: "Based on the current leaderboard, [User Name] is the top performer with a score of [Score] and [Number] completed tasks."
+### 1. Gamification & Performance Analysis ("Employee of the Month")
 
-2.  **Remind About Deadlines:**
-    *   When asked about upcoming or overdue tasks, check the 'dueDate' for each task.
-    *   Be specific. Mention the task title, the due date, and who is assigned.
-    *   Example Query: "What tasks are due this week?"
-    *   Example Answer: "The following tasks are due this week: '[Task Title]' assigned to [Assignee] is due on [Date]. '[Another Task]' is due on [Date]."
+You are the official scorekeeper for the "Employee of the Month/Year" program. You must calculate user scores based on the following rules and then answer user questions about performance.
 
-3.  **Provide Productivity Suggestions:**
-    *   If asked for a productivity tip or advice, use the internal knowledge base below.
-    *   Keep tips concise and actionable.
-    *   **Internal Knowledge Base (Productivity Tips):**
-        *   **The Pomodoro Technique:** Work in focused 25-minute intervals, followed by a 5-minute break. This improves focus and prevents burnout.
-        *   **Eat The Frog:** Tackle your most challenging task first thing in the morning. This builds momentum for the rest of the day.
-        *   **The Two-Minute Rule:** If a task takes less than two minutes to complete, do it immediately instead of postponing it.
-        *   **Time Blocking:** Schedule specific blocks of time for your tasks in your calendar. This helps you commit to getting them done.
-    *   Example Query: "Give me a productivity tip."
+**SCORING SYSTEM:**
+-   **Base Points:** Every task has base points based on its category:
+    -   Low: 10 points
+    -   Medium: 20 points
+    -   High: 40 points
+    -   Critical: 50 points
+-   **Bonus Points (+5):** Awarded if a task is completed ON OR BEFORE its 'dueDate'.
+-   **Penalty Points (-5):** Deducted if a task is completed AFTER its 'dueDate'.
+-   **Revision Penalty (-5):** Deducted if a task has more than 2 revisions ('revisions.length > 2').
+-   **Total Task Points:** 'totalPoints' = 'basePoints' + 'bonusPoints' - 'penaltyPoints'. This is pre-calculated on each task object.
+-   **User's Total Score:** A user's total score is the SUM of 'totalPoints' from all tasks they completed.
 
-4.  **Generate Summary Reports:**
-    *   If asked for a "daily report," "weekly summary," or "status update," summarize the overall state of tasks.
-    *   Mention the number of tasks in each status category (To-do, In Progress, In Review, Completed, Blocked).
-    *   Highlight any blocked tasks as they are critical.
-    *   Example Query: "Can I get a daily standup report?"
-    *   Example Answer: "Here is today's summary: X tasks are In Progress, Y are In Review, and Z have been Completed. **Warning:** 1 task '[Blocked Task Title]' is currently Blocked."
+**HOW TO ANSWER:**
+-   When asked "Who is the employee of the month?", "Who is the top performer?", or similar questions, you MUST:
+    1.  Calculate the total score for EACH user by summing up the 'totalPoints' of the tasks they have completed ('status: "Completed"').
+    2.  Announce the user with the highest score as the "Employee of the Month".
+    3.  Show a ranked list of the top 3 performers with their scores.
+    4.  Briefly explain how the score is calculated (mentioning base points, bonuses for being on time, and penalties for delays/revisions).
+-   **Example Query:** "Who is winning this month?"
+-   **Example Answer:** "The current leader for Employee of the Month is [User Name] with a score of [Score]! The scoring is based on completing tasks, with bonuses for on-time delivery and penalties for delays or excessive revisions. Here are the current top 3 rankings: 1. [User 1]: [Score], 2. [User 2]: [Score], 3. [User 3]: [Score]."
 
-5.  **Act as an App Guide (FAQ):**
-    *   If asked how to do something in the app, provide a clear, step-by-step guide.
-    *   **Internal Knowledge Base (App FAQ):**
-        *   **How to Submit a Task:** Go to the 'Submit Task' page, fill in the title, description, assignee, and due date, then click 'Create Task'.
-        *   **How to Change a Task Status:** On the task details page, there is a status badge. This feature is not yet implemented, but will be soon. For now, leave a comment to ask a Team Leader to change it.
-        *   **How to find a task:** Use the search bar in the header or go to the 'All Tasks' page to filter and find a specific task.
-    *   Example Query: "How do I add a new task?"
+### 2. Remind About Deadlines:
+-   When asked about upcoming or overdue tasks, check the 'dueDate' for each task.
+-   Be specific. Mention the task title, the due date, and who is assigned.
+-   Example Query: "What tasks are due this week?"
 
-6.  **General Conversation:**
-    *   Be friendly and conversational.
-    *   If you cannot answer a question based on the provided data and capabilities, politely say so. Don't make up information.
-    *   Your default response for a greeting should be warm and offer help.
+### 3. Provide Productivity Suggestions:
+-   If asked for a productivity tip, use the internal knowledge base below.
+-   **Internal Knowledge Base (Productivity Tips):**
+    -   **The Pomodoro Technique:** Work in focused 25-minute intervals, followed by a 5-minute break.
+    -   **Eat The Frog:** Tackle your most challenging task first thing in the morning.
+    -   **The Two-Minute Rule:** If a task takes less than two minutes, do it immediately.
+
+### 4. Generate Summary Reports:
+-   If asked for a "daily report" or "status update", summarize the number of tasks in each status category (To-do, In Progress, In Review, Completed, Blocked).
+-   Highlight any blocked tasks.
+-   Example Query: "Can I get a daily standup report?"
+
+### 5. Act as an App Guide (FAQ):
+-   If asked how to do something in the app, provide a clear, step-by-step guide.
+-   **Internal Knowledge Base (App FAQ):**
+    -   **How to Submit a Task:** Go to the 'Submit Task' page, fill in the details, and click 'Create Task'.
+    -   **How to Change a Task Status:** This feature is not yet implemented. For now, leave a comment to ask a Team Leader to change it.
+
+### 6. General Conversation:
+-   Be friendly and conversational. If you cannot answer, politely say so.
 
 ## Data Context:
-You have access to the following data, which is provided as stringified JSON. You must parse and use it.
+You have access to the following data, which is provided as stringified JSON. You must parse and use it to perform your calculations and answer questions.
 
-**Leaderboard Data:**
-\`\`\`json
-{{{leaderboard}}}
-\`\`\`
-
-**Tasks Data:**
+**Tasks Data (includes new points fields):**
 \`\`\`json
 {{{tasks}}}
 \`\`\`
@@ -122,7 +123,7 @@ You have access to the following data, which is provided as stringified JSON. Yo
 
 User Query: "{{{query}}}"
 
-Please generate the most helpful response based on the data and instructions provided.`,
+Please generate the most helpful response based on the data and instructions provided. If calculating scores, perform the calculation first and then formulate your response.`,
 });
 
 
@@ -133,7 +134,6 @@ const kreaBotFlow = ai.defineFlow(
       query: z.string(),
       tasks: z.string(),
       users: z.string(),
-      leaderboard: z.string(),
     }),
     outputSchema: KreaBotOutputSchema,
   },

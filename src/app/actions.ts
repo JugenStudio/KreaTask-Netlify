@@ -35,21 +35,18 @@ const KreaBotSchema = z.object({
   query: z.string(),
   tasks: z.string(),
   users: z.string(),
-  leaderboard: z.string(),
 });
 
 export async function getKreaBotResponse(
   query: string,
   tasks: Task[],
-  users: User[],
-  leaderboard: any[]
+  users: User[]
 ) {
   try {
     const result = await askKreaBot({
       query,
       tasks,
       users,
-      leaderboard,
     });
     
     return { response: result.response, error: null };

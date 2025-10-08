@@ -2,6 +2,8 @@ export type UserRole = 'Administrator' | 'Team Leader' | 'Team Member';
 
 export type TaskStatus = 'To-do' | 'In Progress' | 'In Review' | 'Completed' | 'Blocked';
 
+export type TaskCategory = 'Low' | 'Medium' | 'High' | 'Critical';
+
 export type LocalizedString = {
   en: string;
   id: string;
@@ -48,6 +50,11 @@ export interface Task {
   comments: Comment[];
   files: File[];
   createdAt: string;
+  category: TaskCategory;
+  basePoints: number;
+  bonusPoints: number;
+  penaltyPoints: number;
+  totalPoints: number;
 }
 
 export interface Notification {

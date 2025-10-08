@@ -45,23 +45,7 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
     setInputValue('');
     setIsLoading(true);
 
-    // Leaderboard data calculation
-    const userScores = users.map(user => {
-      const completedTasks = tasks.filter(task => 
-        task.status === 'Completed' && task.assignees.some(a => a.id === user.id)
-      ).length;
-      // Simple scoring: 10 points per completed task
-      const score = completedTasks * 10;
-      return {
-        userId: user.id,
-        name: user.name,
-        score,
-        completedTasks,
-      };
-    }).sort((a, b) => b.score - a.score);
-
-
-    const { response, error } = await getKreaBotResponse(inputValue, tasks, users, userScores);
+    const { response, error } = await getKreaBotResponse(inputValue, tasks, users);
     
     const botMessage: Message = {
       sender: 'bot',
@@ -83,7 +67,7 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
 
   const initialBotMessage: Message = {
     sender: 'bot',
-    text: "Hello! I'm KreaBot, your project assistant. How can I help you today? You can ask me about task statuses, deadlines, or even for a productivity tip!",
+    text: "Hello! I'm KreaBot, your project assistant. How can I help you today? You can ask me about task statuses, deadlines, or who is the employee of the month!",
   };
 
   useEffect(() => {
