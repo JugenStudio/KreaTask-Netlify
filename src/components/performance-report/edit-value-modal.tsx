@@ -20,6 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import type { Task } from "@/lib/types";
+import { useLanguage } from "@/providers/language-provider";
 
 interface EditValueModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const possibleValues = [10, 20, 40, 50];
 
 export function EditValueModal({ isOpen, onOpenChange, task, onSave }: EditValueModalProps) {
   const [selectedValue, setSelectedValue] = useState(task.value.toString());
+  const { locale } = useLanguage();
 
   const handleSave = () => {
     onSave(task.id, parseInt(selectedValue, 10));
@@ -43,7 +45,7 @@ export function EditValueModal({ isOpen, onOpenChange, task, onSave }: EditValue
         <DialogHeader>
           <DialogTitle>Ubah Nilai Tugas</DialogTitle>
           <DialogDescription>
-            Sesuaikan nilai untuk tugas &quot;{task.title.id}&quot; sebelum menyetujuinya.
+            Sesuaikan nilai untuk tugas &quot;{task.title[locale]}&quot; sebelum menyetujuinya.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -73,3 +75,5 @@ export function EditValueModal({ isOpen, onOpenChange, task, onSave }: EditValue
     </Dialog>
   );
 }
+
+    

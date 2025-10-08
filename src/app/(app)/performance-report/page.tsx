@@ -23,7 +23,7 @@ export default function PerformanceReportPage() {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -107,7 +107,7 @@ export default function PerformanceReportPage() {
 
     const rows = completedTasks.map(task => [
       task.id,
-      `"${task.title.id.replace(/"/g, '""')}"`, // Handle quotes in title
+      `"${task.title[locale].replace(/"/g, '""')}"`, // Handle quotes in title
       `"${task.assignees.map(a => a.name).join(', ')}"`,
       task.valueCategory,
       task.value,
@@ -209,7 +209,7 @@ export default function PerformanceReportPage() {
                           <TableBody>
                               {tasksToValidate.length > 0 ? tasksToValidate.map(task => (
                                   <TableRow key={task.id}>
-                                      <TableCell className="font-medium whitespace-nowrap">{task.title.id}</TableCell>
+                                      <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
                                       <TableCell className="whitespace-nowrap">{task.assignees[0]?.name || 'N/A'}</TableCell>
                                       <TableCell>
                                           <Badge variant="outline">{task.value} Poin</Badge>
@@ -264,3 +264,5 @@ export default function PerformanceReportPage() {
     </>
   )
 }
+
+    
