@@ -31,32 +31,43 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { users } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
 
+type Theme = "light" | "dark" | "system";
+
 export function Header() {
   const currentUser = users[0];
   const { locale, t, setLocale } = useLanguage();
+  const [theme, setTheme] = useState<Theme>("system");
 
-  const [theme, setThemeState] = useState<"light" | "dark" | "system">("dark");
-
-  // initialize theme on mount
   useEffect(() => {
-    const isDarkMode = document.documentElement.classList.contains("dark");
-    setThemeState(isDarkMode ? "dark" : "light");
+    const storedTheme = localStorage.getItem("theme") as Theme | null;
+    if (storedTheme) {
+      setTheme(storedTheme);
+    } else {
+      setTheme("system");
+    }
   }, []);
 
-  // update theme dynamically
   useEffect(() => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
+    let effectiveTheme: "light" | "dark";
     if (theme === "system") {
-      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches;
-      root.classList.add(prefersDark ? "dark" : "light");
-      return;
+      effectiveTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
+    } else {
+      effectiveTheme = theme;
     }
-
-    root.classList.add(theme);
+    
+    root.classList.add(effectiveTheme);
+    root.style.colorScheme = effectiveTheme;
+    localStorage.setItem("theme", theme);
   }, [theme]);
+
+  const handleThemeChange = (newTheme: Theme) => {
+    setTheme(newTheme);
+  };
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-lg">
@@ -146,13 +157,13 @@ export function Header() {
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent className="border-border bg-popover backdrop-blur-xl">
-                  <DropdownMenuItem onClick={() => setThemeState("light")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("light")}>
                     Light
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setThemeState("dark")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
                     Dark
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setThemeState("system")}>
+                  <DropdownMenuItem onClick={() => handleThemeChange("system")}>
                     System
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
