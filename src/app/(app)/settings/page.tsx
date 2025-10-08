@@ -49,9 +49,9 @@ export default function SettingsPage() {
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">{t('settings.user_management.title')}</CardTitle>
+          <CardTitle className="font-headline">{t("settings.user_management.title")}</CardTitle>
           <CardDescription>
-            {t('settings.user_management.description')}
+            {t("settings.user_management.description")}
           </CardDescription>
         </CardHeader>
         <CardContent>

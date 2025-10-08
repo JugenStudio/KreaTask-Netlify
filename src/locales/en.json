@@ -163,7 +163,11 @@
   },
   "settings": {
     "title": "Settings",
-    "description": "Manage your team and application settings."
+    "description": "Manage your team and application settings.",
+    "user_management": {
+      "title": "User Management",
+      "description": "Manage user roles and permissions within the team."
+    }
   },
   "submit": {
     "title": "Submit a New Task",

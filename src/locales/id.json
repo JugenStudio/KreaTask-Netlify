@@ -163,7 +163,11 @@
   },
   "settings": {
     "title": "Pengaturan",
-    "description": "Kelola tim dan pengaturan aplikasi Anda."
+    "description": "Kelola tim dan pengaturan aplikasi Anda.",
+    "user_management": {
+      "title": "Manajemen Pengguna",
+      "description": "Kelola peran dan izin pengguna di dalam tim."
+    }
   },
   "submit": {
     "title": "Kirim Tugas Baru",
