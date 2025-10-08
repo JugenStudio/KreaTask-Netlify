@@ -22,6 +22,7 @@ import { users, notifications } from "@/lib/data";
 import { Separator } from "./ui/separator";
 import { LanguageSwitcher } from "./language-switcher";
 import { useLanguage } from "@/providers/language-provider";
+import { ThemeSwitcher } from "./theme-switcher";
 
 export function Header() {
   const currentUser = users[0]; // Assuming Admin Ali is logged in
@@ -37,7 +38,8 @@ export function Header() {
           className="w-full rounded-lg bg-secondary pl-8 md:w-[200px] lg:w-[320px]"
         />
       </div>
-      <div className="flex items-center gap-4 ml-auto">
+      <div className="flex items-center gap-2 ml-auto">
+        <ThemeSwitcher />
         <LanguageSwitcher />
         <Popover>
           <PopoverTrigger asChild>
@@ -74,7 +76,7 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full">
+            <Button variant="ghost" size="icon" className="rounded-full md:hidden">
               <Avatar className="h-8 w-8">
                 <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
                 <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
@@ -91,20 +93,20 @@ export function Header() {
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild>
               <Link href="/profile">
-                <UserIcon />
-                {t('header.profile')}
+                <UserIcon className="mr-2 h-4 w-4" />
+                <span>{t('header.profile')}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings">
-                <Settings />
-                {t('header.settings')}
+                <Settings className="mr-2 h-4 w-4" />
+                <span>{t('header.settings')}</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <LogOut />
-              {t('header.logout')}
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t('header.logout')}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
