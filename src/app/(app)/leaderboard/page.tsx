@@ -2,14 +2,29 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, BookOpen } from "lucide-react";
-import { leaderboardData } from "@/lib/data";
+import { leaderboardData, users } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
+import { useEffect, useState } from "react";
+import type { User } from "@/lib/types";
+import { UserRole } from "@/lib/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function LeaderboardPage() {
   const { t } = useLanguage();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+    if (selectedRole) {
+      const user = users.find(u => u.role === selectedRole);
+      setCurrentUser(user || users[0]);
+    } else {
+      setCurrentUser(users[0]);
+    }
+  }, []);
 
   const totalTasks = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
@@ -22,6 +37,27 @@ export default function LeaderboardPage() {
             leaderboardData.length
         )
       : 0;
+  
+  if (!currentUser) {
+    return (
+      <div className="space-y-8">
+        <Skeleton className="h-12 w-1/2" />
+        <Skeleton className="h-6 w-3/4" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+          <Skeleton className="h-32 rounded-2xl" />
+          <Skeleton className="h-32 rounded-2xl" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <Skeleton className="h-64 rounded-2xl" />
+          </div>
+          <div className="lg:col-span-1">
+            <Skeleton className="h-64 rounded-2xl" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -65,7 +101,7 @@ export default function LeaderboardPage() {
               <CardTitle className="font-headline">Monthly Progress</CardTitle>
             </CardHeader>
             <CardContent>
-              <ProgressChart />
+              <ProgressChart currentUser={currentUser} />
             </CardContent>
           </Card>
         </div>

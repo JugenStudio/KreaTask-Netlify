@@ -6,17 +6,11 @@ import type { User } from "@/lib/types"
 import { isEmployee } from "@/lib/roles"
 
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
+import { Skeleton } from "../ui/skeleton"
 
 const allMonthsData = {
     May: { lessons: 23 },
@@ -40,7 +34,11 @@ const chartConfig = {
   },
 }
 
-export function ProgressChart({ currentUser }: { currentUser: User }) {
+export function ProgressChart({ currentUser }: { currentUser?: User | null }) {
+  if (!currentUser) {
+    return <Skeleton className="h-[200px] w-full" />
+  }
+
   const dataToShow = isEmployee(currentUser.role) ? employeeMonthsData : allMonthsData;
   const chartData = Object.entries(dataToShow).map(([month, values]) => ({
       month: month.slice(0, 3),
