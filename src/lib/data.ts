@@ -240,10 +240,3 @@ export const detailedReportData: DetailedReportEntry[] = [
     assessmentDate: '2024-08-27',
   },
 ];
-
-// Manually set leaderboard data to match user request
-leaderboardData[0] = { ...leaderboardData.find(u => u.name === 'Rina')!, rank: 1, score: 420 };
-leaderboardData[1] = { ...leaderboardData.find(u => u.name === 'Fadil')!, rank: 2, score: 385 };
-leaderboardData[2] = { ...leaderboardData.find(u => u.name === 'Andika')!, rank: 3, score: 360 };
-leaderboardData[3] = { ...leaderboardData.find(u => u.name === 'Budi')!, rank: 4, score: 350 };
-leaderboardData[4] = { ...leaderboardData.find(u => u.name === 'Siti')!, rank: 5, score: 320 };
