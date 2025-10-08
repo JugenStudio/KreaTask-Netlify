@@ -1,3 +1,40 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "avatar1",
+      "description": "User avatar 1",
+      "imageUrl": "https://picsum.photos/seed/1/100/100",
+      "imageHint": "person face"
+    },
+    {
+      "id": "avatar2",
+      "description": "User avatar 2",
+      "imageUrl": "https://picsum.photos/seed/2/100/100",
+      "imageHint": "woman face"
+    },
+    {
+      "id": "avatar3",
+      "description": "User avatar 3",
+      "imageUrl": "https://picsum.photos/seed/3/100/100",
+      "imageHint": "man face"
+    },
+    {
+      "id": "avatar4",
+      "description": "User avatar 4",
+      "imageUrl": "https://picsum.photos/seed/4/100/100",
+      "imageHint": "person glasses"
+    },
+    {
+      "id": "filePreview1",
+      "description": "Illustration file preview",
+      "imageUrl": "https://picsum.photos/seed/5/600/400",
+      "imageHint": "abstract art"
+    },
+    {
+      "id": "filePreview2",
+      "description": "Video file preview",
+      "imageUrl": "https://picsum.photos/seed/6/600/400",
+      "imageHint": "nature landscape"
+    }
+  ]
 }
