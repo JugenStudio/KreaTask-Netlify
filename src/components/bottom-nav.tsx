@@ -12,11 +12,11 @@ export function BottomNav() {
   const { t } = useLanguage();
 
   // We can't use isEmployee here as user is not passed. 
-  // Let's just use a generic icon for now.
+  // The "Home" item is placed in the middle for better ergonomics on mobile.
   const navItems = [
-    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: "Submit" }, // Shortened label
+    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/performance-report", icon: FileText, label: t('sidebar.performance_report') },
   ];
@@ -28,6 +28,30 @@ export function BottomNav() {
           const isActive = item.href === "/dashboard" 
             ? pathname === "/" || pathname.startsWith(item.href)
             : pathname.startsWith(item.href);
+          
+          // Special styling for the middle button to make it stand out
+          if (item.href === "/dashboard") {
+            return (
+               <Link
+                key={item.href}
+                href={item.href}
+                prefetch
+                className="group flex flex-col items-center justify-center p-1 rounded-lg text-muted-foreground transition-all active:scale-95"
+              >
+                <div className={cn(
+                  "flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 transform -translate-y-4 shadow-lg",
+                  isActive ? "bg-primary text-primary-foreground" : "bg-card border-4 border-background text-foreground group-hover:bg-muted"
+                )}>
+                  <item.icon className="h-6 w-6" />
+                </div>
+                <span className={cn(
+                  "text-xs font-medium -mt-3 w-full text-center truncate",
+                  isActive ? "text-primary font-bold" : "text-muted-foreground"
+                )}>{item.label}</span>
+              </Link>
+            )
+          }
+            
           return (
             <Link
               key={item.href}
