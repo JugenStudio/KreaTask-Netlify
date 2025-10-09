@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { EditValueModal } from "@/components/performance-report/edit-value-modal";
 import { useLanguage } from "@/providers/language-provider";
+import { Separator } from "@/components/ui/separator";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -194,37 +195,65 @@ export default function PerformanceReportPage() {
                   <CardDescription>{t('report.validation_panel.description')}</CardDescription>
               </CardHeader>
               <CardContent className="p-4 md:p-6">
-                  <div className="w-full overflow-x-auto">
-                      <Table>
-                          <TableHeader>
-                              <TableRow>
-                                  <TableHead>{t('report.validation_panel.table.task')}</TableHead>
-                                  <TableHead className="hidden sm:table-cell">{t('report.validation_panel.table.employee')}</TableHead>
-                                  <TableHead>{t('report.validation_panel.table.value')}</TableHead>
-                                  <TableHead className="text-right">{t('report.validation_panel.table.actions')}</TableHead>
-                              </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                              {tasksToValidate.length > 0 ? tasksToValidate.map(task => (
-                                  <TableRow key={task.id}>
-                                      <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
-                                      <TableCell className="whitespace-nowrap hidden sm:table-cell">{task.assignees[0]?.name || 'N/A'}</TableCell>
-                                      <TableCell>
-                                          <Badge variant="outline">{task.value} Poin</Badge>
-                                      </TableCell>
-                                      <TableCell className="text-right space-x-2 whitespace-nowrap">
-                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} className="transition-all active:scale-95"><Edit className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.edit')}</span></Button>
-                                          <Button variant="default" size="sm" onClick={() => handleApprove(task.id)} className="transition-all active:scale-95"><CheckCircle className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.approve')}</span></Button>
-                                      </TableCell>
-                                  </TableRow>
-                              )) : (
+                {tasksToValidate.length === 0 ? (
+                   <div className="h-24 text-center flex flex-col justify-center items-center">
+                       <p className="text-sm font-semibold">{t('report.validation_panel.empty')}</p>
+                       <p className="text-xs text-muted-foreground">{t('report.validation_panel.empty_desc')}</p>
+                   </div>
+                ) : (
+                  <>
+                      {/* Desktop Table View */}
+                      <div className="hidden md:block w-full overflow-x-auto">
+                          <Table>
+                              <TableHeader>
                                   <TableRow>
-                                      <TableCell colSpan={4} className="h-24 text-center">{t('report.validation_panel.empty')}</TableCell>
+                                      <TableHead>{t('report.validation_panel.table.task')}</TableHead>
+                                      <TableHead className="hidden sm:table-cell">{t('report.validation_panel.table.employee')}</TableHead>
+                                      <TableHead>{t('report.validation_panel.table.value')}</TableHead>
+                                      <TableHead className="text-right">{t('report.validation_panel.table.actions')}</TableHead>
                                   </TableRow>
-                              )}
-                          </TableBody>
-                      </Table>
-                  </div>
+                              </TableHeader>
+                              <TableBody>
+                                  {tasksToValidate.map(task => (
+                                      <TableRow key={task.id}>
+                                          <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
+                                          <TableCell className="whitespace-nowrap hidden sm:table-cell">{task.assignees[0]?.name || 'N/A'}</TableCell>
+                                          <TableCell>
+                                              <Badge variant="outline">{task.value} Poin</Badge>
+                                          </TableCell>
+                                          <TableCell className="text-right space-x-2 whitespace-nowrap">
+                                              <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} className="transition-all active:scale-95"><Edit className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.edit')}</span></Button>
+                                              <Button variant="default" size="sm" onClick={() => handleApprove(task.id)} className="transition-all active:scale-95"><CheckCircle className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.approve')}</span></Button>
+                                          </TableCell>
+                                      </TableRow>
+                                  ))}
+                              </TableBody>
+                          </Table>
+                      </div>
+
+                      {/* Mobile Card View */}
+                      <div className="block md:hidden space-y-3">
+                          {tasksToValidate.map(task => (
+                              <Card key={task.id} className="rounded-xl p-3">
+                                <div className="space-y-3">
+                                  <div className="flex justify-between items-start gap-3">
+                                    <div className="flex-1">
+                                      <p className="font-semibold text-sm leading-tight">{task.title[locale]}</p>
+                                      <p className="text-xs text-muted-foreground">{task.assignees[0]?.name || 'N/A'}</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-xs whitespace-nowrap">{task.value} {t('report.edit_modal.points')}</Badge>
+                                  </div>
+                                  <Separator />
+                                  <div className="flex justify-end gap-2">
+                                      <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} className="transition-all active:scale-95"><Edit className="h-4 w-4 mr-2" />{t('report.validation_panel.buttons.edit')}</Button>
+                                      <Button variant="default" size="sm" onClick={() => handleApprove(task.id)} className="transition-all active:scale-95"><CheckCircle className="h-4 w-4 mr-2" />{t('report.validation_panel.buttons.approve')}</Button>
+                                  </div>
+                                </div>
+                              </Card>
+                          ))}
+                      </div>
+                  </>
+                )}
               </CardContent>
           </Card>
 
@@ -260,3 +289,5 @@ export default function PerformanceReportPage() {
     </>
   )
 }
+
+    

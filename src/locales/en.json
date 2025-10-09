@@ -141,7 +141,8 @@
         "edit": "Edit",
         "approve": "Approve"
       },
-      "empty": "No tasks require validation at this time."
+      "empty": "No tasks require validation.",
+      "empty_desc": "All submitted tasks have been validated."
     },
     "history_panel": {
       "title": "All Completed Task History",
@@ -236,3 +237,5 @@
     "no_tasks_desc": "Try adjusting your search or filter."
   }
 }
+
+    

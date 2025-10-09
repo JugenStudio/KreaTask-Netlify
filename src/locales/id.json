@@ -92,7 +92,7 @@
     "view_report_button": "Lihat Laporan & Ekspor CSV",
     "top_performers_desc": "Berdasarkan poin yang terkumpul dari tugas yang diselesaikan.",
     "table": {
-      "rank": "Peringkat",
+      "rank": "Rank",
       "employee": "Karyawan",
       "tasks_completed": "Tugas Selesai",
       "total_score": "Total Skor"
@@ -141,7 +141,8 @@
         "edit": "Ubah",
         "approve": "Setujui"
       },
-      "empty": "Tidak ada tugas yang memerlukan validasi saat ini."
+      "empty": "Tidak ada tugas memerlukan validasi.",
+      "empty_desc": "Semua tugas yang diajukan telah divalidasi."
     },
     "history_panel": {
       "title": "Riwayat Semua Tugas Selesai",
@@ -236,3 +237,5 @@
     "no_tasks_desc": "Coba sesuaikan pencarian atau filter Anda."
   }
 }
+
+    
