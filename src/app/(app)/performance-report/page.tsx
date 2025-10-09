@@ -42,12 +42,19 @@ export default function PerformanceReportPage() {
 
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-    if (selectedRole) {
-      const user = users.find(u => u.role === selectedRole);
-      setCurrentUser(user || users[0]);
+    // Try to get user from sessionStorage first
+    const storedUser = sessionStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
     } else {
-      setCurrentUser(users[0]);
+      // Fallback to role-based selection if not in session
+      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+      if (selectedRole) {
+        const user = users.find(u => u.role === selectedRole);
+        setCurrentUser(user || users[0]);
+      } else {
+        setCurrentUser(users[0]);
+      }
     }
   }, []);
 
@@ -268,7 +275,7 @@ export default function PerformanceReportPage() {
                   <>
                       {selectedForApproval.size > 0 && (
                           <div className="mb-4 flex items-center justify-between bg-secondary p-2 rounded-lg">
-                              <p className="text-sm font-medium text-secondary-foreground">{t('report.validation_panel.tasks_selected', {count: selectedForApproval.size})}</p>
+                              <p className="text-sm font-medium text-secondary-foreground">{t('report.validation_panel.selected', {count: selectedForApproval.size})}</p>
                               <Button size="sm" onClick={handleBulkApprove}>
                                   <CheckCircle className="h-4 w-4 mr-2" />
                                   {t('report.validation_panel.buttons.approve_selected')}

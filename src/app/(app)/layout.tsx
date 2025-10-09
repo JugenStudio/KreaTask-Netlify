@@ -19,17 +19,30 @@ export default function AppLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(() => {
+    // Try to get user from sessionStorage on initial load
+    if (typeof window !== 'undefined') {
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            return JSON.parse(storedUser);
+        }
+    }
+    return null;
+  });
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+    let userToSet: User | null = null;
     if (selectedRole) {
-      const user = users.find(u => u.role === selectedRole);
-      setCurrentUser(user || users[0]);
+      userToSet = users.find(u => u.role === selectedRole) || users[0];
     } else {
-      setCurrentUser(users[0]);
+      userToSet = users[0];
+    }
+    setCurrentUser(userToSet);
+    if (userToSet) {
+        sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
     }
   }, [pathname]); // Re-run on path change to keep user consistent
 

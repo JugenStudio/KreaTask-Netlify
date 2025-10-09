@@ -18,12 +18,19 @@ export default function LeaderboardPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-    if (selectedRole) {
-      const user = users.find(u => u.role === selectedRole);
-      setCurrentUser(user || users[0]);
+    // Try to get user from sessionStorage first
+    const storedUser = sessionStorage.getItem('currentUser');
+    if (storedUser) {
+      setCurrentUser(JSON.parse(storedUser));
     } else {
-      setCurrentUser(users[0]);
+      // Fallback to role-based selection if not in session
+      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+      if (selectedRole) {
+        const user = users.find(u => u.role === selectedRole);
+        setCurrentUser(user || users[0]);
+      } else {
+        setCurrentUser(users[0]);
+      }
     }
   }, []);
 
