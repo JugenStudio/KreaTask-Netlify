@@ -23,7 +23,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
-  const { allTasks, isLoading } = useTaskData();
+  const { allTasks, users, isLoading } = useTaskData();
   const searchParams = useSearchParams();
   const { t, locale } = useLanguage();
   const query = searchParams.get('q') || '';
@@ -31,6 +31,7 @@ export default function AllTasksPage() {
   
   const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+  const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "board">("board");
 
   useEffect(() => {
@@ -59,14 +60,16 @@ export default function AllTasksPage() {
     );
   }
 
-  const visibleTasks: Task[] = isEmployee(currentUser.role)
+  const isUserEmployee = isEmployee(currentUser.role);
+  const visibleTasks: Task[] = isUserEmployee
     ? allTasks.filter(task => task.assignees.some(assignee => assignee.id === currentUser.id))
     : allTasks;
 
   const filteredTasks = visibleTasks.filter(task => {
     const matchesSearch = task.title[locale].toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    return matchesSearch && matchesStatus;
+    const matchesAssignee = assigneeFilter === 'all' || task.assignees.some(a => a.id === assigneeFilter);
+    return matchesSearch && matchesStatus && matchesAssignee;
   });
   
 
@@ -99,6 +102,19 @@ export default function AllTasksPage() {
               />
           </div>
           <div className="flex gap-2">
+            {!isUserEmployee && (
+               <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+                  <SelectTrigger className="flex-1 sm:w-40 h-10">
+                      <SelectValue placeholder="All Assignees" />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">All Assignees</SelectItem>
+                      {users.map(user => (
+                        <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
+                      ))}
+                  </SelectContent>
+              </Select>
+            )}
             <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
                 <SelectTrigger className="flex-1 sm:w-40 h-10">
                     <SelectValue placeholder={t('all_tasks.all_statuses')} />
