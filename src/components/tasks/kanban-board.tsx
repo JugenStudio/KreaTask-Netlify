@@ -32,8 +32,8 @@ function KanbanTaskCard({ task }: { task: Task }) {
         <Card className="mb-3 bg-card hover:bg-muted transition-colors rounded-xl">
             <Link href={`/tasks/${task.id}`}>
                 <CardContent className="p-3">
-                    <p className="text-sm font-semibold leading-tight mb-2 text-card-foreground break-words">{task.title[locale]}</p>
-                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{task.description[locale]}</p>
+                    <p className="text-sm font-semibold leading-tight mb-2 text-card-foreground break-words whitespace-normal">{task.title[locale]}</p>
+                    <p className="text-xs text-muted-foreground mb-3 line-clamp-2 whitespace-normal">{task.description[locale]}</p>
 
                     {totalSubtasks > 0 && (
                         <div className="text-xs text-muted-foreground mb-3">
@@ -62,12 +62,12 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
     const { t } = useLanguage();
 
     return (
-        <div className="flex-shrink-0 w-64 md:w-72">
-            <div className="h-full bg-secondary/50 border-none rounded-xl md:rounded-2xl">
+        <div className="flex-shrink-0 w-72">
+            <div className="h-full bg-secondary/50 rounded-xl md:rounded-2xl">
                 <CardHeader className="p-3 flex-row justify-between items-center space-y-0">
                     <div className="flex items-center gap-2">
                         <div className={cn("w-2.5 h-2.5 rounded-full", statusColors[status])} />
-                        <CardTitle className="text-sm font-semibold">
+                        <CardTitle className="text-sm font-semibold whitespace-nowrap">
                             {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: status})}
                         </CardTitle>
                     </div>
@@ -109,7 +109,7 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
   }
 
   return (
-    <ScrollArea className="w-full whitespace-nowrap rounded-lg">
+    <ScrollArea className="w-full rounded-lg">
         <div className="flex gap-4 pb-4">
             {statusColumns.map(status => (
                 <KanbanColumn
