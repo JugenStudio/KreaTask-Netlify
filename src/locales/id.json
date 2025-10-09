@@ -131,6 +131,9 @@
     "validation_panel": {
       "title": "Menunggu Validasi Anda",
       "description": "Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.",
+      "tasks_selected": "{{count}} tugas dipilih",
+      "tasks_approved_toast": "{{count}} tugas disetujui",
+      "tasks_approved_desc_toast": "Tugas yang dipilih telah divalidasi.",
       "table": {
         "task": "Tugas",
         "employee": "Karyawan",
@@ -139,7 +142,9 @@
       },
       "buttons": {
         "edit": "Ubah",
-        "approve": "Setujui"
+        "approve": "Setujui",
+        "approve_selected": "Setujui Pilihan",
+        "select_all": "Pilih Semua"
       },
       "empty": "Tidak ada tugas memerlukan validasi.",
       "empty_desc": "Semua tugas yang diajukan telah divalidasi."

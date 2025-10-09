@@ -18,6 +18,7 @@ import { EditValueModal } from "@/components/performance-report/edit-value-modal
 import { useLanguage } from "@/providers/language-provider";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -57,8 +58,8 @@ export default function PerformanceReportPage() {
       )
     );
     toast({
-      title: `${selectedForApproval.size} tasks approved`,
-      description: 'The selected tasks have been validated.',
+      title: `${selectedForApproval.size} ${t('report.validation_panel.tasks_approved_toast', {count: selectedForApproval.size})}`,
+      description: t('report.validation_panel.tasks_approved_desc_toast'),
     });
     setSelectedForApproval(new Set());
   }
@@ -237,10 +238,10 @@ export default function PerformanceReportPage() {
                   <>
                       {selectedForApproval.size > 0 && (
                           <div className="mb-4 flex items-center justify-between bg-secondary p-2 rounded-lg">
-                              <p className="text-sm font-medium text-secondary-foreground">{selectedForApproval.size} task(s) selected</p>
+                              <p className="text-sm font-medium text-secondary-foreground">{t('report.validation_panel.tasks_selected', {count: selectedForApproval.size})}</p>
                               <Button size="sm" onClick={handleBulkApprove}>
                                   <CheckCircle className="h-4 w-4 mr-2" />
-                                  Approve Selected
+                                  {t('report.validation_panel.buttons.approve_selected')}
                               </Button>
                           </div>
                       )}
@@ -275,7 +276,7 @@ export default function PerformanceReportPage() {
                                           <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
                                           <TableCell className="whitespace-nowrap hidden sm:table-cell">{task.assignees[0]?.name || 'N/A'}</TableCell>
                                           <TableCell>
-                                              <Badge variant="outline">{task.value} Poin</Badge>
+                                              <Badge variant="outline">{task.value} {t('report.edit_modal.points')}</Badge>
                                           </TableCell>
                                           <TableCell className="text-right space-x-2 whitespace-nowrap">
                                               <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} className="transition-all active:scale-95"><Edit className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.edit')}</span></Button>
@@ -289,6 +290,15 @@ export default function PerformanceReportPage() {
 
                       {/* Mobile Card View */}
                       <div className="block md:hidden space-y-3">
+                          <div className="flex items-center space-x-2 pb-2 border-b">
+                              <Checkbox
+                                  id="mobile-select-all"
+                                  checked={selectedForApproval.size === tasksToValidate.length && tasksToValidate.length > 0}
+                                  onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                                  aria-label={t('report.validation_panel.buttons.select_all')}
+                              />
+                              <Label htmlFor="mobile-select-all" className="text-sm font-medium">{t('report.validation_panel.buttons.select_all')}</Label>
+                          </div>
                           {tasksToValidate.map(task => (
                               <Card key={task.id} className="rounded-xl p-3">
                                 <div className="space-y-3">
