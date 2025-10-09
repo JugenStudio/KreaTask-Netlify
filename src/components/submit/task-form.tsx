@@ -85,17 +85,25 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   });
 
   const assignableUsers = useMemo(() => {
+    if (isEmployee(currentUser.role)) {
+      // Level 1 can only assign to themselves (implicitly)
+      return [currentUser];
+    }
     if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
-      // Level 3 can assign to anyone except themselves
-      return users.filter(u => u.id !== currentUser.id);
+      // Level 3 can assign to anyone including themselves for delegation
+      return users;
     }
     if (isDirector(currentUser.role)) {
-      // Level 2 can assign to employees
-      return users.filter(u => isEmployee(u.role));
+      // Level 2 can assign to employees and themselves
+      return users.filter(u => isEmployee(u.role) || u.id === currentUser.id);
     }
-    // Level 1 can't assign to others
     return [];
   }, [currentUser]);
+
+  // If user is employee, auto-assign to them
+  if (isEmployee(currentUser.role)) {
+      defaultValues.assignees = [currentUser.id];
+  }
 
 
   function onSubmit(values: TaskFormValues) {
@@ -319,7 +327,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                                 <SelectItem key={user.id} value={user.id}>
                                     <div className="flex items-center gap-2">
                                         <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
-                                        <span>{user.name} ({user.role})</span>
+                                        <span>{user.name} ({t(`roles.${user.role}` as any)})</span>
                                     </div>
                                 </SelectItem>
                                 ))}
