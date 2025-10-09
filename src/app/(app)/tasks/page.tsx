@@ -55,7 +55,7 @@ export default function AllTasksPage() {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 md:space-y-8">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
@@ -79,7 +79,7 @@ export default function AllTasksPage() {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
-                    <SelectItem value="To-do">{t('all_tasks.status.todo')}</SelectItem>
+                    <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
                     <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
                     <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
                     <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
