@@ -105,4 +105,19 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
 }

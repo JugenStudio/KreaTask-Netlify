@@ -52,6 +52,11 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
     } else {
       document.title = "KreaTask";
     }
+    
+    // Cleanup function to reset title when component unmounts or dependencies change
+    return () => {
+      document.title = "KreaTask";
+    };
   }, [isSilent, unreadCount]);
 
   useEffect(() => {
@@ -128,7 +133,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
               {t('header.no_notifications')}
             </p>
           ) : (
-            <ul className="space-y-1 max-h-80 overflow-y-auto p-2">
+            <ul className="space-y-1 max-h-80 overflow-y-auto p-2 scroll-smooth">
               {userNotifications.map((notif) => (
                 <li
                   key={notif.id}
