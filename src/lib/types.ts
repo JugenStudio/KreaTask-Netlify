@@ -55,6 +55,12 @@ export interface Revision {
   change: LocalizedString;
 }
 
+export interface Subtask {
+  id: string;
+  title: string;
+  isCompleted: boolean;
+}
+
 export type Evaluator = "AI" | "Direktur Operasional" | "Direktur Bisnis" | "Direktur Utama";
 
 export interface Task {
@@ -67,6 +73,7 @@ export interface Task {
   revisions: Revision[];
   comments: Comment[];
   files: File[];
+  subtasks?: Subtask[];
   createdAt: string;
   category: TaskCategory; // Priority: low, medium, high
   

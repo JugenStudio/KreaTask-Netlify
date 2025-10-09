@@ -22,10 +22,15 @@ import {
   Film,
   Image as ImageIcon,
   Palette,
+  Check,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useLanguage } from "@/providers/language-provider";
+import { useState } from "react";
+import { Progress } from "@/components/ui/progress";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -42,8 +47,22 @@ const fileTypeIcons = {
   document: <FileIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
 };
 
-export function TaskDetails({ task }: { task: Task }) {
+export function TaskDetails({ task: initialTask }: { task: Task }) {
   const { locale, t } = useLanguage();
+  const [task, setTask] = useState(initialTask);
+
+  const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
+    setTask(prevTask => {
+      const newSubtasks = prevTask.subtasks?.map(st => 
+        st.id === subtaskId ? { ...st, isCompleted: checked } : st
+      );
+      return { ...prevTask, subtasks: newSubtasks };
+    });
+  };
+  
+  const completedSubtasks = task.subtasks?.filter(st => st.isCompleted).length || 0;
+  const totalSubtasks = task.subtasks?.length || 0;
+  const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   return (
     <Card className="h-full">
@@ -64,6 +83,36 @@ export function TaskDetails({ task }: { task: Task }) {
             <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
         </div>
         <Separator />
+        
+        {task.subtasks && task.subtasks.length > 0 && (
+          <div className="space-y-4">
+            <h4 className="font-semibold text-base md:text-lg">Checklist</h4>
+            <div className="space-y-2">
+                <Progress value={progressPercentage} className="h-2" />
+                <p className="text-xs text-muted-foreground">{completedSubtasks} of {totalSubtasks} sub-tasks completed</p>
+            </div>
+            <div className="space-y-3">
+              {task.subtasks.map(subtask => (
+                <div key={subtask.id} className="flex items-center space-x-3 bg-secondary/50 p-3 rounded-lg">
+                  <Checkbox
+                    id={`subtask-${subtask.id}`}
+                    checked={subtask.isCompleted}
+                    onCheckedChange={(checked) => handleSubtaskChange(subtask.id, !!checked)}
+                  />
+                  <Label
+                    htmlFor={`subtask-${subtask.id}`}
+                    className={cn("text-sm", subtask.isCompleted && "line-through text-muted-foreground")}
+                  >
+                    {subtask.title}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        
+        <Separator />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <h4 className="font-semibold">{t('task.assignees')}</h4>

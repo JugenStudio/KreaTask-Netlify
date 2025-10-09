@@ -6,17 +6,21 @@ import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { allTasks, users } from "@/lib/data";
-import { Search } from "lucide-react";
+import { Search, List, LayoutGrid } from "lucide-react";
 import type { Task, TaskStatus, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/providers/language-provider";
+import { Button } from "@/components/ui/button";
+import { KanbanBoard } from "@/components/tasks/kanban-board";
+import { cn } from "@/lib/utils";
 
 export default function AllTasksPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const { t, locale } = useLanguage();
 
   useEffect(() => {
@@ -86,9 +90,32 @@ export default function AllTasksPage() {
                     <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
                 </SelectContent>
             </Select>
+             <div className="hidden md:flex items-center gap-1 rounded-full bg-muted p-1">
+                <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="rounded-full h-8 w-8"
+                    onClick={() => setViewMode('list')}
+                >
+                    <List className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant={viewMode === 'board' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="rounded-full h-8 w-8"
+                    onClick={() => setViewMode('board')}
+                >
+                    <LayoutGrid className="h-4 w-4" />
+                </Button>
+            </div>
         </div>
       </div>
-      <TaskTable tasks={filteredTasks} />
+
+      {viewMode === 'list' || window.innerWidth < 768 ? (
+        <TaskTable tasks={filteredTasks} />
+      ) : (
+        <KanbanBoard tasks={filteredTasks} />
+      )}
     </div>
   );
 }

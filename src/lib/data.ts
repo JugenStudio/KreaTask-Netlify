@@ -32,6 +32,11 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: "Direktur Utama",
     revisions: [], comments: [], files: [],
+    subtasks: [
+      { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
+      { id: 'sub-1-2', title: 'Create initial draft', isCompleted: true },
+      { id: 'sub-1-3', title: 'Finalize design', isCompleted: true },
+    ],
   },
   {
     id: 'task-3',
@@ -47,6 +52,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: "Direktur Utama",
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   // Completed Tasks - Pending Validation
   {
@@ -63,6 +69,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-6',
@@ -78,6 +85,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-7',
@@ -93,6 +101,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-8',
@@ -108,6 +117,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-9',
@@ -123,6 +133,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-10',
@@ -138,6 +149,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-11',
@@ -153,6 +165,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-12',
@@ -168,6 +181,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-13',
@@ -183,6 +197,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   {
     id: 'task-14',
@@ -198,6 +213,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
   // In-Progress / To-do Tasks
   {
@@ -214,6 +230,11 @@ export const allTasks: Task[] = [
     evaluator: "AI", 
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [
+      { id: 'sub-4-1', title: 'Write script', isCompleted: true },
+      { id: 'sub-4-2', title: 'Record voiceover', isCompleted: false },
+      { id: 'sub-4-3', title: 'Edit video footage', isCompleted: false },
+    ],
   },
   {
     id: 'task-5',
@@ -229,6 +250,7 @@ export const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], comments: [], files: [],
+    subtasks: [],
   },
 ];
 
