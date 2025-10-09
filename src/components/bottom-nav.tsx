@@ -16,7 +16,7 @@ export function BottomNav() {
   const navItems = [
     { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
-    { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
+    { href: "/submit", icon: PenSquare, label: "Submit" }, // Shortened label
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/performance-report", icon: FileText, label: t('sidebar.performance_report') },
   ];
@@ -41,7 +41,7 @@ export function BottomNav() {
                 <item.icon className="h-5 w-5" />
               </div>
               <span className={cn(
-                "text-xs font-medium mt-1",
+                "text-xs font-medium mt-1 w-full text-center truncate", // Added truncate and width
                 isActive ? "text-primary font-bold" : "text-muted-foreground"
               )}>{item.label}</span>
             </Link>
