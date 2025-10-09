@@ -55,7 +55,7 @@ export default function AllTasksPage() {
       <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
         <Link href="/dashboard">
           <ArrowLeft className="mr-2 h-4 w-4" />
-          Kembali ke Beranda
+          {t('common.back_to_home')}
         </Link>
       </Button>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">

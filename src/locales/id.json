@@ -9,6 +9,9 @@
     "profile": "Profil",
     "settings": "Pengaturan"
   },
+  "common": {
+    "back_to_home": "Kembali ke Beranda"
+  },
   "roles": {
     "Direktur Utama": "Direktur Utama",
     "Direktur Operasional": "Direktur Operasional",

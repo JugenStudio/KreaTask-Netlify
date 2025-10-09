@@ -9,6 +9,9 @@
     "profile": "Profile",
     "settings": "Settings"
   },
+  "common": {
+    "back_to_home": "Back to Home"
+  },
   "roles": {
     "Direktur Utama": "Main Director",
     "Direktur Operasional": "Operational Director",
