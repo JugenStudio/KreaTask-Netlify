@@ -24,14 +24,8 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   const router = useRouter();
   const { locale, t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const prevUnreadCount = useRef(0);
-
-  useEffect(() => {
-    // Initialize the audio element on the client side
-    audioRef.current = new Audio('/sounds/notification.mp3');
-  }, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -43,10 +37,6 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    // Play sound only when the unread count increases
-    if (unreadCount > prevUnreadCount.current && !isSilent && audioRef.current) {
-        audioRef.current.play().catch(error => console.error("Audio play failed:", error));
-    }
     prevUnreadCount.current = unreadCount;
 
     if (!isSilent) {
