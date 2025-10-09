@@ -28,11 +28,11 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
           </div>
         </div>
         <h3 className="text-xl font-bold text-card-foreground">{performer.name}</h3>
-        <p className="text-muted-foreground mb-2">Score: {performer.score}</p>
+        <p className="text-sm text-muted-foreground mb-2">{t(`roles.${performer.role}` as any, { defaultValue: performer.role })}</p>
+        <p className="text-sm text-muted-foreground mb-2">Score: {performer.score}</p>
         <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-4 font-semibold border-none">
           {performer.tasksCompleted} Tasks Completed
         </Badge>
-        <p className="text-sm font-semibold text-foreground mt-2">{t(`roles.${performer.role}` as any, { defaultValue: performer.role })}</p>
       </CardContent>
     </Card>
   );
