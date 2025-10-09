@@ -13,7 +13,7 @@ import { useCurrentUser } from "@/app/(app)/layout";
 import { isEmployee } from "@/lib/roles";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Languages, Laptop, Moon, Sun } from "lucide-react";
+import { Languages, Laptop, Moon, Sun, ArrowLeft } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -21,6 +21,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 
 type Theme = "light" | "dark" | "system";
@@ -83,6 +85,12 @@ export default function SettingsPage() {
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-4xl mx-auto">
+       <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+        <Link href="/dashboard">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t('common.back_to_home')}
+        </Link>
+      </Button>
       <div>
         <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('settings.title')}</h1>
         <p className="text-muted-foreground text-sm md:text-base">{t('settings.description')}</p>
