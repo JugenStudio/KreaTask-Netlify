@@ -1,9 +1,10 @@
+
 "use server";
 
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
 import { generateTaskSuggestions } from "@/ai/flows/generate-tasks-flow";
-import { translateContent, TranslateContentInputSchema, TranslateContentOutputSchema } from "@/ai/flows/translate-content-flow";
+import { translateContent } from "@/ai/flows/translate-content-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
 
@@ -76,11 +77,24 @@ export async function getTaskSuggestions(goal: string) {
   }
 }
 
+// Schemas and types for translation moved here
+const TranslateContentInputSchema = z.object({
+  text: z.string().describe('The text to be translated.'),
+});
+export type TranslateContentInput = z.infer<typeof TranslateContentInputSchema>;
 
-export async function getTranslations(text: string): Promise<{ data: z.infer<typeof TranslateContentOutputSchema> | null, error: string | null }> {
+const TranslateContentOutputSchema = z.object({
+  en: z.string().describe('The English translation.'),
+  id: z.string().describe('The Indonesian translation.'),
+});
+export type TranslateContentOutput = z.infer<typeof TranslateContentOutputSchema>;
+
+
+export async function getTranslations(text: string): Promise<{ data: TranslateContentOutput | null, error: string | null }> {
   try {
     const validatedData = TranslateContentInputSchema.parse({ text });
     const result = await translateContent(validatedData);
+    // The result from the flow already matches TranslateContentOutputSchema
     return { data: result, error: null };
   } catch (error) {
     console.error("Translation action error:", error);

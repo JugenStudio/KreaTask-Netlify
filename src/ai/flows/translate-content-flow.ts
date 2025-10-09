@@ -4,25 +4,21 @@
  * @fileOverview A flow that translates text into English and Indonesian.
  *
  * - translateContent - A function that handles the translation process.
- * - TranslateContentInput - The input type for the function.
- * - TranslateContentOutput - The return type for the function.
  */
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
-export const TranslateContentInputSchema = z.object({
+const TranslateContentInputSchema = z.object({
   text: z.string().describe('The text to be translated.'),
 });
-export type TranslateContentInput = z.infer<typeof TranslateContentInputSchema>;
+type TranslateContentInput = z.infer<typeof TranslateContentInputSchema>;
 
-export const TranslateContentOutputSchema = z.object({
+const TranslateContentOutputSchema = z.object({
   en: z.string().describe('The English translation.'),
   id: z.string().describe('The Indonesian translation.'),
 });
-export type TranslateContentOutput = z.infer<
-  typeof TranslateContentOutputSchema
->;
+type TranslateContentOutput = z.infer<typeof TranslateContentOutputSchema>;
 
 export async function translateContent(
   input: TranslateContentInput
