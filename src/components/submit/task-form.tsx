@@ -369,7 +369,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         render={({ field }) => (
                         <FormItem>
                             <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
-                            <Select onValueChange={(value) => field.onChange([value])} >
+                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]}>
                             <FormControl>
                                 <SelectTrigger>
                                 <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />

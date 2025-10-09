@@ -117,10 +117,13 @@ export function useTaskData() {
     setAllTasksAndStorage(updatedTasks);
   };
 
-  const addNotification = (newNotification: Notification) => {
-    const updatedNotifications = [newNotification, ...notifications];
-    setNotifications(updatedNotifications);
-  };
+  const addNotification = useCallback((newNotification: Notification) => {
+    setNotificationsState(prevNotifications => {
+      const updatedNotifications = [newNotification, ...prevNotifications];
+      updateSessionStorage('notifications', updatedNotifications);
+      return updatedNotifications;
+    });
+  }, []);
 
 
   return { 
