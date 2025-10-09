@@ -66,11 +66,7 @@
     "assignees": "Penerima Tugas",
     "due_date": "Batas Waktu",
     "attachments": "Lampiran",
-    "no_attachments": "Tidak ada file terlampir.",
-    "tabs": {
-      "comments": "Komentar",
-      "history": "Riwayat"
-    }
+    "no_attachments": "Tidak ada file terlampir."
   },
   "history": {
     "title": "Riwayat Revisi",
@@ -153,7 +149,15 @@
       "title": "Riwayat Semua Tugas Selesai",
       "description": "Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim, termasuk yang sudah dan belum divalidasi.",
       "empty_title": "Semua Sudah Beres!",
-      "empty_desc": "Tidak ada tugas selesai untuk ditampilkan saat ini."
+      "empty_desc": "Tidak ada tugas selesai untuk ditampilkan saat ini.",
+      "filter": {
+        "title": "Filter",
+        "employee_placeholder": "Filter berdasarkan karyawan...",
+        "all_employees": "Semua Karyawan",
+        "date_placeholder": "Filter berdasarkan tanggal...",
+        "all_status": "Semua",
+        "reset_button": "Atur Ulang"
+      }
     },
     "toast": {
       "approved": {

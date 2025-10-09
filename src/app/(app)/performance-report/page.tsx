@@ -10,7 +10,7 @@ import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History, CheckCircle, Edit, ThumbsUp, FileDown } from "lucide-react";
+import { History, CheckCircle, Edit, ThumbsUp, FileDown, Filter, Calendar as CalendarIcon, X } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -19,6 +19,12 @@ import { useLanguage } from "@/providers/language-provider";
 import { Separator } from "@/components/ui/separator";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { cn } from "@/lib/utils";
+import { format, addDays } from "date-fns";
+import type { DateRange } from "react-day-picker";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -28,6 +34,12 @@ export default function PerformanceReportPage() {
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [selectedForApproval, setSelectedForApproval] = useState<Set<string>>(new Set());
   const { t, locale } = useLanguage();
+
+  // Filters for report history
+  const [employeeFilter, setEmployeeFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "waiting">("all");
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
+
 
   useEffect(() => {
     const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
@@ -58,7 +70,7 @@ export default function PerformanceReportPage() {
       )
     );
     toast({
-      title: `${selectedForApproval.size} ${t('report.validation_panel.tasks_approved_toast', {count: selectedForApproval.size})}`,
+      title: t('report.validation_panel.tasks_approved_toast', { count: selectedForApproval.size.toString() }),
       description: t('report.validation_panel.tasks_approved_desc_toast'),
     });
     setSelectedForApproval(new Set());
@@ -94,6 +106,17 @@ export default function PerformanceReportPage() {
     // Directors see all completed tasks in the main report
     return tasks.filter(task => task.status === "Completed");
   }, [currentUser, tasks]);
+  
+  const filteredCompletedTasks = useMemo(() => {
+    return completedTasks.filter(task => {
+      const employeeMatch = employeeFilter === 'all' || task.assignees.some(a => a.id === employeeFilter);
+      const statusMatch = statusFilter === 'all' || (statusFilter === 'approved' && task.approvedBy) || (statusFilter === 'waiting' && !task.approvedBy);
+      const dateMatch = !dateRange?.from || (new Date(task.dueDate) >= dateRange.from && (!dateRange.to || new Date(task.dueDate) <= dateRange.to));
+      
+      return employeeMatch && statusMatch && dateMatch;
+    });
+  }, [completedTasks, employeeFilter, statusFilter, dateRange]);
+
 
   const tasksToValidate = useMemo(() => {
       if (!currentUser || isEmployee(currentUser.role)) return [];
@@ -120,7 +143,8 @@ export default function PerformanceReportPage() {
   };
 
   const handleExportCSV = () => {
-    if (completedTasks.length === 0) {
+    const dataToExport = filteredCompletedTasks;
+    if (dataToExport.length === 0) {
       toast({
         title: t('report.toast.export_failed.title'),
         description: t('report.toast.export_failed.description'),
@@ -140,7 +164,7 @@ export default function PerformanceReportPage() {
       "Disetujui Oleh",
     ];
 
-    const rows = completedTasks.map(task => [
+    const rows = dataToExport.map(task => [
       task.id,
       `"${task.title[locale].replace(/"/g, '""')}"`, // Handle quotes in title
       `"${task.assignees.map(a => a.name).join(', ')}"`,
@@ -167,6 +191,12 @@ export default function PerformanceReportPage() {
       description: t('report.toast.export_success.description'),
     });
   };
+
+  const resetFilters = () => {
+    setEmployeeFilter("all");
+    setStatusFilter("all");
+    setDateRange(undefined);
+  }
 
   if (!currentUser) {
     return (
@@ -345,8 +375,71 @@ export default function PerformanceReportPage() {
                   </div>
               </div>
               <Card>
+                  <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b">
+                      <div className="flex flex-wrap items-center gap-2">
+                          <h4 className="text-base font-semibold flex-shrink-0">{t('report.history_panel.filter.title')}</h4>
+                          <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
+                              <SelectTrigger className="w-full sm:w-[180px] h-9">
+                                  <SelectValue placeholder={t('report.history_panel.filter.employee_placeholder')} />
+                              </SelectTrigger>
+                              <SelectContent>
+                                  <SelectItem value="all">{t('report.history_panel.filter.all_employees')}</SelectItem>
+                                  {users.map(u => <SelectItem key={u.id} value={u.id}>{u.name}</SelectItem>)}
+                              </SelectContent>
+                          </Select>
+
+                          <Popover>
+                              <PopoverTrigger asChild>
+                                <Button
+                                  id="date"
+                                  variant={"outline"}
+                                  className={cn(
+                                    "w-full sm:w-[240px] justify-start text-left font-normal h-9",
+                                    !dateRange && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon className="mr-2 h-4 w-4" />
+                                  {dateRange?.from ? (
+                                    dateRange.to ? (
+                                      <>
+                                        {format(dateRange.from, "LLL dd, y")} -{" "}
+                                        {format(dateRange.to, "LLL dd, y")}
+                                      </>
+                                    ) : (
+                                      format(dateRange.from, "LLL dd, y")
+                                    )
+                                  ) : (
+                                    <span>{t('report.history_panel.filter.date_placeholder')}</span>
+                                  )}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-auto p-0" align="start">
+                                <Calendar
+                                  initialFocus
+                                  mode="range"
+                                  defaultMonth={dateRange?.from}
+                                  selected={dateRange}
+                                  onSelect={setDateRange}
+                                  numberOfMonths={2}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          
+                          <div className="flex items-center rounded-lg bg-muted p-1">
+                              <Button variant={statusFilter === 'all' ? 'secondary' : 'ghost'} size="sm" className="h-7 px-2" onClick={() => setStatusFilter('all')}>{t('report.history_panel.filter.all_status')}</Button>
+                              <Button variant={statusFilter === 'approved' ? 'secondary' : 'ghost'} size="sm" className="h-7 px-2" onClick={() => setStatusFilter('approved')}>{t('report.table.approved')}</Button>
+                              <Button variant={statusFilter === 'waiting' ? 'secondary' : 'ghost'} size="sm" className="h-7 px-2" onClick={() => setStatusFilter('waiting')}>{t('report.table.waiting')}</Button>
+                          </div>
+                           {(employeeFilter !== 'all' || statusFilter !== 'all' || dateRange) && (
+                              <Button variant="ghost" size="sm" onClick={resetFilters} className="h-9 text-muted-foreground">
+                                <X className="mr-2 h-4 w-4"/>
+                                {t('report.history_panel.filter.reset_button')}
+                              </Button>
+                            )}
+                      </div>
+                  </CardHeader>
                   <CardContent className="p-4 md:p-6">
-                    <ReportTable tasks={completedTasks} />
+                    <ReportTable tasks={filteredCompletedTasks} />
                   </CardContent>
               </Card>
           </div>

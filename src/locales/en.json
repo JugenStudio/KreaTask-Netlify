@@ -66,11 +66,7 @@
     "assignees": "Assignees",
     "due_date": "Due Date",
     "attachments": "Attachments",
-    "no_attachments": "No files attached.",
-    "tabs": {
-      "comments": "Comments",
-      "history": "History"
-    }
+    "no_attachments": "No files attached."
   },
   "history": {
     "title": "Revision History",
@@ -153,7 +149,15 @@
       "title": "All Completed Task History",
       "description": "Here is a list of all tasks completed by the team, including those that have been validated and those that have not.",
       "empty_title": "All Caught Up!",
-      "empty_desc": "No completed tasks to show right now."
+      "empty_desc": "No completed tasks to show right now.",
+      "filter": {
+        "title": "Filters",
+        "employee_placeholder": "Filter by employee...",
+        "all_employees": "All Employees",
+        "date_placeholder": "Filter by date range...",
+        "all_status": "All",
+        "reset_button": "Reset"
+      }
     },
     "toast": {
       "approved": {
