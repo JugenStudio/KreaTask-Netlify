@@ -3,6 +3,7 @@
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
 import { generateTaskSuggestions } from "@/ai/flows/generate-tasks-flow";
+import { translateContent, TranslateContentInputSchema, TranslateContentOutputSchema } from "@/ai/flows/translate-content-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
 
@@ -72,5 +73,20 @@ export async function getTaskSuggestions(goal: string) {
       return { suggestions: null, error: "Invalid goal provided." };
     }
     return { suggestions: null, error: "Sorry, I couldn't generate task suggestions right now." };
+  }
+}
+
+
+export async function getTranslations(text: string): Promise<{ data: z.infer<typeof TranslateContentOutputSchema> | null, error: string | null }> {
+  try {
+    const validatedData = TranslateContentInputSchema.parse({ text });
+    const result = await translateContent(validatedData);
+    return { data: result, error: null };
+  } catch (error) {
+    console.error("Translation action error:", error);
+    if (error instanceof z.ZodError) {
+      return { data: null, error: "Invalid text provided for translation." };
+    }
+    return { data: null, error: "Sorry, I couldn't translate the content right now." };
   }
 }

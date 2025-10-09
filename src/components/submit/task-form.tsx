@@ -38,7 +38,7 @@ import { useState, useMemo, useEffect } from "react";
 import { TaskCategory, UserRole, type User } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
-import { getTaskSuggestions } from "@/app/actions";
+import { getTaskSuggestions, getTranslations } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { useRouter } from "next/navigation";
@@ -72,7 +72,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const [files, setFiles] = useState<File[]>([]);
   const [aiGoal, setAiGoal] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { t, locale } = useLanguage();
 
@@ -106,15 +107,31 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     return [];
   }, [currentUser, users]);
 
-  function onSubmit(values: TaskFormValues) {
+  async function onSubmit(values: TaskFormValues) {
+    setIsSubmitting(true);
     const newTaskId = `task-${Date.now()}`;
     const assignedUser = users.find(u => u.id === values.assignees[0]);
 
-    // Simulate creating the new task object
+    // Translate title and description
+    const titleTranslationPromise = getTranslations(values.title);
+    const descriptionTranslationPromise = values.description ? getTranslations(values.description) : Promise.resolve({ data: { en: "", id: "" }, error: null });
+
+    const [titleResult, descriptionResult] = await Promise.all([titleTranslationPromise, descriptionTranslationPromise]);
+
+    if (titleResult.error || descriptionResult.error) {
+      toast({
+        variant: "destructive",
+        title: "Translation Failed",
+        description: "Could not translate task content. Please try again.",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     const newTask = {
       id: newTaskId,
-      title: { en: values.title, id: values.title },
-      description: { en: values.description || '', id: values.description || '' },
+      title: titleResult.data || { en: values.title, id: values.title },
+      description: descriptionResult.data || { en: values.description || '', id: values.description || '' },
       status: 'To-do' as const,
       assignees: assignedUser ? [assignedUser] : [],
       dueDate: format(values.dueDate, 'yyyy-MM-dd'),
@@ -132,11 +149,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     
     addTask(newTask);
 
-    // Simulate creating a notification
     addNotification({
       id: `notif-${Date.now()}`,
       userId: currentUser.id,
-      message: `You created a new task: "${values.title}"`,
+      message: `You created a new task: "${newTask.title[locale]}"`,
       type: 'TASK_ASSIGN',
       read: false,
       link: `/tasks/${newTaskId}`,
@@ -148,7 +164,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
        addNotification({
         id: `notif-${Date.now() + 1}`,
         userId: assignedUser.id,
-        message: `${currentUser.name} assigned you a new task: "${values.title}"`,
+        message: `${currentUser.name} assigned you a new task: "${newTask.title[locale]}"`,
         type: 'TASK_ASSIGN',
         read: false,
         link: `/tasks/${newTaskId}`,
@@ -159,15 +175,14 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
     toast({
       title: t('submit.toast.success_title'),
-      description: t('submit.toast.success_desc', { title: values.title }),
+      description: t('submit.toast.success_desc', { title: newTask.title[locale] }),
     });
 
     form.reset();
     setFiles([]);
     setSuggestions([]);
     setAiGoal("");
-
-    // Redirect to the task list page to see the new task
+    setIsSubmitting(false);
     router.push('/tasks');
   }
 
@@ -191,7 +206,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
   const handleGenerateSuggestions = async () => {
     if (!aiGoal.trim()) return;
-    setIsLoading(true);
+    setIsGenerating(true);
     setError(null);
     setSuggestions([]);
     const result = await getTaskSuggestions(aiGoal);
@@ -200,7 +215,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     } else if (result.suggestions) {
       setSuggestions(result.suggestions);
     }
-    setIsLoading(false);
+    setIsGenerating(false);
   };
   
   const applySuggestion = (suggestion: Suggestion) => {
@@ -228,10 +243,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
               value={aiGoal}
               onChange={(e) => setAiGoal(e.target.value)}
               className="h-20"
-              disabled={isLoading}
+              disabled={isGenerating}
             />
-            <Button onClick={handleGenerateSuggestions} disabled={isLoading || !aiGoal.trim()}>
-              {isLoading ? (
+            <Button onClick={handleGenerateSuggestions} disabled={isGenerating || !aiGoal.trim()}>
+              {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   {t('submit.ai_generator.loading_button')}
@@ -290,7 +305,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         <FormItem>
                         <FormLabel>{t('submit.manual_form.task_title_label')}</FormLabel>
                         <FormControl>
-                            <Input placeholder={t('submit.manual_form.task_title_placeholder')} {...field} />
+                            <Input placeholder={t('submit.manual_form.task_title_placeholder')} {...field} disabled={isSubmitting} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -302,7 +317,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>{t('submit.manual_form.category_label')}</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder={t('submit.manual_form.category_placeholder')} />
@@ -338,6 +353,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                                     "w-full h-10 justify-start text-left font-normal",
                                     !field.value && "text-muted-foreground"
                                 )}
+                                disabled={isSubmitting}
                                 >
                                 <CalendarIcon className="mr-2 h-4 w-4" />
                                 {field.value ? (
@@ -369,7 +385,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         render={({ field }) => (
                         <FormItem>
                             <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
-                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]}>
+                            <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]} disabled={isSubmitting}>
                             <FormControl>
                                 <SelectTrigger>
                                 <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
@@ -404,6 +420,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                             placeholder={t('submit.manual_form.description_placeholder')}
                             className="resize-none h-24"
                             {...field}
+                            disabled={isSubmitting}
                         />
                         </FormControl>
                         <FormMessage />
@@ -416,13 +433,13 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
                 <FormControl>
                     <div className="flex items-center justify-center w-full">
-                    <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-secondary hover:bg-muted">
+                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
                             <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
                             <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
                         </div>
-                        <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} />
+                        <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} disabled={isSubmitting} />
                     </label>
                     </div>
                 </FormControl>
@@ -432,7 +449,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         <Card key={file.name} className="relative group rounded-xl">
                         <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95">
+                            <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>
                             <X className="h-4 w-4" />
                             </Button>
                         </div>
@@ -444,8 +461,17 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 </FormItem>
 
                 <div className="flex justify-end gap-2">
-                    <Button type="button" variant="ghost" onClick={() => form.reset()} className="transition-all active:scale-95">{t('submit.manual_form.cancel_button')}</Button>
-                    <Button type="submit" className="transition-all active:scale-95">{t('submit.manual_form.submit_button')}</Button>
+                    <Button type="button" variant="ghost" onClick={() => form.reset()} className="transition-all active:scale-95" disabled={isSubmitting}>{t('submit.manual_form.cancel_button')}</Button>
+                    <Button type="submit" className="transition-all active:scale-95" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {t('submit.manual_form.submit_button_loading', { defaultValue: 'Creating...' })}
+                            </>
+                        ) : (
+                           t('submit.manual_form.submit_button')
+                        )}
+                    </Button>
                 </div>
             </form>
             </Form>

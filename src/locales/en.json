@@ -218,42 +218,6 @@
       "save_button": "Save & Approve"
     }
   },
-  "settings": {
-    "title": "Settings",
-    "description": "Manage your team and application settings.",
-    "appearance": {
-      "title": "Appearance",
-      "description": "Customize the look and feel of the application.",
-      "theme_label": "Theme",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System",
-      "language_label": "Language"
-    },
-    "user_management": {
-      "title": "User Management",
-      "description": "Manage user roles, permissions, and remove users from the team.",
-      "table": {
-        "user": "User",
-        "email": "Email",
-        "role": "Role",
-        "actions": "Actions",
-        "select_role": "Select a role"
-      },
-      "toast": {
-        "role_updated_title": "User Role Updated",
-        "role_updated_desc": "{{name}}'s role has been changed to {{role}}.",
-        "user_deleted_title": "User Removed",
-        "user_deleted_desc": "{{name}} has been removed from the team."
-      },
-      "delete_dialog": {
-        "title": "Are you sure you want to remove {{name}}?",
-        "description": "This action cannot be undone. This will permanently remove the user and their associated data from the system.",
-        "cancel": "Cancel",
-        "confirm": "Delete User"
-      }
-    }
-  },
   "submit": {
     "title": "Submit a New Task",
     "description": "Fill out the details below to create a new task.",
@@ -282,7 +246,8 @@
       "attachments_dnd": "or drag and drop",
       "attachments_desc": "Video, illustration, or any other file",
       "cancel_button": "Cancel",
-      "submit_button": "Create Task"
+      "submit_button": "Create Task",
+      "submit_button_loading": "Creating..."
     },
     "toast": {
       "success_title": "Task Submitted",

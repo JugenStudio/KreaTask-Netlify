@@ -282,7 +282,8 @@
       "attachments_dnd": "atau seret dan lepas",
       "attachments_desc": "Video, ilustrasi, atau file lainnya",
       "cancel_button": "Batal",
-      "submit_button": "Buat Tugas"
+      "submit_button": "Buat Tugas",
+      "submit_button_loading": "Membuat..."
     },
     "toast": {
       "success_title": "Tugas Terkirim",
