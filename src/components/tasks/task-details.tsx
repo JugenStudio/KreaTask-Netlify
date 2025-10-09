@@ -1,4 +1,6 @@
 
+"use client";
+
 import Image from "next/image";
 import {
   Avatar,
@@ -24,6 +26,7 @@ import {
   Palette,
   Check,
   ListChecks,
+  Send,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -32,6 +35,9 @@ import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { useCurrentUser } from "@/app/(app)/layout";
+import { isEmployee } from "@/lib/roles";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -50,7 +56,9 @@ const fileTypeIcons = {
 
 export function TaskDetails({ task: initialTask }: { task: Task }) {
   const { locale, t } = useLanguage();
+  const { toast } = useToast();
   const [task, setTask] = useState(initialTask);
+  const { currentUser } = useCurrentUser();
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
     setTask(prevTask => {
@@ -60,10 +68,22 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
       return { ...prevTask, subtasks: newSubtasks };
     });
   };
+
+  const handleSubmitForReview = () => {
+    setTask(prevTask => ({ ...prevTask, status: "In Review" }));
+    toast({
+        title: "Tugas Terkirim!",
+        description: `Tugas "${task.title[locale]}" telah dikirim untuk ditinjau.`,
+    });
+  };
   
   const completedSubtasks = task.subtasks?.filter(st => st.isCompleted).length || 0;
   const totalSubtasks = task.subtasks?.length || 0;
   const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
+
+  const isAssignedToCurrentUser = currentUser && task.assignees.some(a => a.id === currentUser.id);
+  const canSubmit = currentUser && isEmployee(currentUser.role) && isAssignedToCurrentUser && task.status === 'In Progress';
+
 
   return (
     <Card className="h-full">
@@ -79,6 +99,20 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 md:space-y-6">
+        
+        {canSubmit && (
+            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                    <h4 className="font-semibold text-primary">Siap menyelesaikan tugas ini?</h4>
+                    <p className="text-sm text-primary/80">Kirim pekerjaan Anda untuk ditinjau dan divalidasi nilainya.</p>
+                </div>
+                <Button onClick={handleSubmitForReview} className="w-full sm:w-auto flex-shrink-0">
+                    <Send className="mr-2 h-4 w-4" />
+                    Submit for Review
+                </Button>
+            </div>
+        )}
+
         <div className="space-y-2">
             <h4 className="font-semibold text-base md:text-lg">{t('task.description')}</h4>
             <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
