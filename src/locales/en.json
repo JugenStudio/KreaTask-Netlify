@@ -204,6 +204,15 @@
   "settings": {
     "title": "Settings",
     "description": "Manage your team and application settings.",
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of the application.",
+      "theme_label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "language_label": "Language"
+    },
     "user_management": {
       "title": "User Management",
       "description": "Manage user roles, permissions, and remove users from the team.",

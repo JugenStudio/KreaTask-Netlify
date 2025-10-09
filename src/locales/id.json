@@ -204,6 +204,15 @@
   "settings": {
     "title": "Pengaturan",
     "description": "Kelola tim dan pengaturan aplikasi Anda.",
+    "appearance": {
+      "title": "Tampilan",
+      "description": "Sesuaikan tampilan dan nuansa aplikasi.",
+      "theme_label": "Tema",
+      "light": "Terang",
+      "dark": "Gelap",
+      "system": "Sistem",
+      "language_label": "Bahasa"
+    },
     "user_management": {
       "title": "Manajemen Pengguna",
       "description": "Kelola peran, izin pengguna, dan hapus pengguna dari tim.",

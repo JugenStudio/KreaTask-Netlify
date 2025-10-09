@@ -80,7 +80,7 @@ export default function ProfilePage() {
           <div>
             <p className="font-medium text-base md:text-lg">{currentUser.name}</p>
             <p className="text-sm text-muted-foreground">{currentUser.email}</p>
-            <p className="text-sm text-muted-foreground">{currentUser.role}</p>
+            <p className="text-sm text-muted-foreground">{t(`roles.${currentUser.role}` as any)}</p>
           </div>
         </CardContent>
       </Card>
@@ -102,7 +102,7 @@ export default function ProfilePage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="role">{t('profile.details.role')}</Label>
-            <Input id="role" defaultValue={currentUser.role} disabled />
+            <Input id="role" defaultValue={t(`roles.${currentUser.role}` as any)} disabled />
           </div>
            <div className="flex justify-end">
             <Button className="transition-all active:scale-95">{t('profile.details.save_button')}</Button>

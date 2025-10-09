@@ -35,43 +35,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { useCurrentUser } from "@/app/(app)/layout";
 
-type Theme = "light" | "dark" | "system";
-
 export function Header() {
   const { currentUser } = useCurrentUser();
   const { locale, t, setLocale } = useLanguage();
-  const [theme, setTheme] = useState<Theme>("system");
-
-  useEffect(() => {
-    const storedTheme = localStorage.getItem("theme") as Theme | null;
-    if (storedTheme) {
-      setTheme(storedTheme);
-    } else {
-      setTheme("system");
-    }
-  }, []);
-
-  useEffect(() => {
-    const root = window.document.documentElement;
-    root.classList.remove("light", "dark");
-
-    let effectiveTheme: "light" | "dark";
-    if (theme === "system") {
-      effectiveTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    } else {
-      effectiveTheme = theme;
-    }
-    
-    root.classList.add(effectiveTheme);
-    root.style.colorScheme = effectiveTheme;
-    localStorage.setItem("theme", theme);
-  }, [theme]);
-
-  const handleThemeChange = (newTheme: Theme) => {
-    setTheme(newTheme);
-  };
 
   if (!currentUser) {
     return (
@@ -126,7 +92,7 @@ export function Header() {
                     <p className="text-sm font-medium leading-none">
                     {currentUser.name}
                     </p>
-                    <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">{currentUser.role}</Badge>
+                    <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">{t(`roles.${currentUser.role}` as any)}</Badge>
                 </div>
                 <p className="text-xs leading-none text-muted-foreground">
                   {currentUser.email}
@@ -149,49 +115,7 @@ export function Header() {
                 <span>{t("header.settings")}</span>
               </Link>
             </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            {/* Language Switcher */}
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Languages className="mr-2 h-4 w-4" />
-                <span>Language</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border bg-popover backdrop-blur-xl">
-                  <DropdownMenuItem onClick={() => setLocale("en")}>
-                    English
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setLocale("id")}>
-                    Indonesia
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-
-            {/* Theme Switcher */}
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <Sun className="mr-2 h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                <Moon className="absolute mr-2 h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                <span>Theme</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent className="border-border bg-popover backdrop-blur-xl">
-                  <DropdownMenuItem onClick={() => handleThemeChange("light")}>
-                    Light
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleThemeChange("dark")}>
-                    Dark
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleThemeChange("system")}>
-                    System
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-
+            
             <DropdownMenuSeparator />
 
             <DropdownMenuItem asChild>
