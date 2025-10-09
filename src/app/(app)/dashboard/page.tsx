@@ -93,7 +93,7 @@ export default function DashboardPage() {
     <div className="space-y-6 md:space-y-8">
       {/* Header Section */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold font-headline text-foreground">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
           {t("dashboard.welcome", { name: currentUser.name.split(" ")[0] })}
         </h1>
         <p className="text-muted-foreground text-base md:text-lg">
