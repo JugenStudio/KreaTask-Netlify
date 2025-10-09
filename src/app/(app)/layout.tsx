@@ -32,24 +32,35 @@ export default function AppLayout({
 
   useEffect(() => {
     let userToSet: User | null = null;
+    // We check for the explicit currentUser object first.
     const storedUser = sessionStorage.getItem('currentUser');
     
     if (storedUser) {
         userToSet = JSON.parse(storedUser);
     } else {
+        // If no user object, we fall back to selectedRole.
+        // This is the main path for a new login simulation.
         const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
         if (selectedRole) {
-            userToSet = users.find(u => u.role === selectedRole) || users[0];
+            userToSet = users.find(u => u.role === selectedRole) || null;
+            if (!userToSet) {
+              // Handle case where role exists but no user matches, default to first user
+              userToSet = users[0];
+            }
         } else {
-            userToSet = users[0]; // Default user
+            // Default user if nothing is set (e.g., first visit)
+            userToSet = users[0]; 
+        }
+
+        // IMPORTANT: Only set the 'currentUser' in storage if it wasn't already there.
+        // This prevents overwriting the user on subsequent page loads.
+        if (userToSet) {
+          sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
         }
     }
 
     if (userToSet) {
         setCurrentUser(userToSet);
-        if (!storedUser) {
-          sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
-        }
     }
     setIsLoading(false);
   }, []);

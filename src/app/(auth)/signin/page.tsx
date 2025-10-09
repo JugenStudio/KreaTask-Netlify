@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,9 +16,15 @@ export default function SignInPage() {
   const router = useRouter();
   const [role, setRole] = useState<UserRole>(UserRole.DIREKTUR_UTAMA);
 
+  useEffect(() => {
+    // Clear previous user session data to ensure a fresh login simulation
+    sessionStorage.removeItem('currentUser');
+    sessionStorage.removeItem('selectedRole');
+  }, []);
+
   const handleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // Store the selected role in session storage to be picked up by the dashboard
+    // Store the newly selected role in session storage
     sessionStorage.setItem('selectedRole', role);
     router.push('/dashboard');
   };
