@@ -77,6 +77,23 @@
     "checklist": {
       "title": "Checklist",
       "progress": "{{completed}} dari {{total}} sub-tugas selesai"
+    },
+    "submit": {
+      "panel": {
+        "title": "Kirim Hasil Pekerjaan",
+        "description": "Unggah file Anda di sini dan kirim untuk ditinjau.",
+        "submit_button": "Kirim untuk Ditinjau"
+      },
+      "toast": {
+        "success_title": "Tugas Terkirim!",
+        "success_desc": "Tugas \"{{title}}\" telah dikirim untuk ditinjau."
+      },
+      "upload": {
+        "toast": {
+          "success_title": "File Terunggah",
+          "success_desc": "{{count}} file telah ditambahkan ke pengiriman Anda."
+        }
+      }
     }
   },
   "history": {
@@ -303,3 +320,5 @@
     "no_tasks_desc": "Coba sesuaikan pencarian atau filter Anda."
   }
 }
+
+    

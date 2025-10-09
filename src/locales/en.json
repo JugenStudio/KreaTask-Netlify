@@ -77,6 +77,23 @@
     "checklist": {
       "title": "Checklist",
       "progress": "{{completed}} of {{total}} sub-tasks completed"
+    },
+    "submit": {
+      "panel": {
+        "title": "Submit Your Work",
+        "description": "Upload your files here and submit them for review.",
+        "submit_button": "Submit for Review"
+      },
+      "toast": {
+        "success_title": "Task Submitted!",
+        "success_desc": "Task \"{{title}}\" has been sent for review."
+      },
+      "upload": {
+        "toast": {
+          "success_title": "File Uploaded",
+          "success_desc": "{{count}} file(s) have been added to your submission."
+        }
+      }
     }
   },
   "history": {
@@ -303,3 +320,5 @@
     "no_tasks_desc": "Try adjusting your search or filter."
   }
 }
+
+    

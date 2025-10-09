@@ -27,6 +27,9 @@ import {
   Check,
   ListChecks,
   Send,
+  UploadCloud,
+  X,
+  Paperclip
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -58,6 +61,7 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const [task, setTask] = useState(initialTask);
+  const [submissionFiles, setSubmissionFiles] = useState<File[]>([]);
   const { currentUser } = useCurrentUser();
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
@@ -72,17 +76,37 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
   const handleSubmitForReview = () => {
     setTask(prevTask => ({ ...prevTask, status: "In Review" }));
     toast({
-        title: "Tugas Terkirim!",
-        description: `Tugas "${task.title[locale]}" telah dikirim untuk ditinjau.`,
+        title: t('task.submit.toast.success_title'),
+        description: t('task.submit.toast.success_desc', { title: task.title[locale] }),
     });
   };
+
+  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    if (event.target.files) {
+      const newFiles = Array.from(event.target.files).map(file => {
+        const fileWithPreview = Object.assign(file, {
+          preview: URL.createObjectURL(file),
+        });
+        return fileWithPreview;
+      });
+      setSubmissionFiles(prev => [...prev, ...newFiles as any[]]);
+      toast({
+        title: t('task.submit.upload.toast.success_title'),
+        description: t('task.submit.upload.toast.success_desc', { count: newFiles.length.toString() })
+      });
+    }
+  }
+
+  function removeFile(fileName: string) {
+    setSubmissionFiles(prev => prev.filter(file => file.name !== fileName));
+  }
   
   const completedSubtasks = task.subtasks?.filter(st => st.isCompleted).length || 0;
   const totalSubtasks = task.subtasks?.length || 0;
   const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   const isAssignedToCurrentUser = currentUser && task.assignees.some(a => a.id === currentUser.id);
-  const canSubmit = currentUser && isEmployee(currentUser.role) && isAssignedToCurrentUser && task.status === 'In Progress';
+  const canSubmit = isEmployee(currentUser?.role || '') && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
 
 
   return (
@@ -99,18 +123,48 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-4 md:space-y-6">
-        
+
         {canSubmit && (
-            <div className="p-4 bg-primary/10 rounded-lg border border-primary/20 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="text-center sm:text-left">
-                    <h4 className="font-semibold text-primary">Siap menyelesaikan tugas ini?</h4>
-                    <p className="text-sm text-primary/80">Kirim pekerjaan Anda untuk ditinjau dan divalidasi nilainya.</p>
-                </div>
-                <Button onClick={handleSubmitForReview} className="w-full sm:w-auto flex-shrink-0">
-                    <Send className="mr-2 h-4 w-4" />
-                    Submit for Review
-                </Button>
-            </div>
+            <Card className="bg-secondary/50">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-headline text-xl">
+                        <UploadCloud className="h-6 w-6 text-primary" />
+                        {t('task.submit.panel.title')}
+                    </CardTitle>
+                    <CardDescription>{t('task.submit.panel.description')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex items-center justify-center w-full">
+                        <label htmlFor="submission-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background/50 hover:bg-muted">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
+                                <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
+                                <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
+                            </div>
+                            <input id="submission-file-upload" type="file" className="hidden" multiple onChange={handleFileChange} />
+                        </label>
+                    </div>
+                    {submissionFiles.length > 0 && (
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {submissionFiles.map(file => (
+                                <div key={file.name} className="relative group rounded-xl bg-background p-2">
+                                    <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
+                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                                        <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                    <p className="text-xs pt-2 truncate text-center text-muted-foreground">{file.name}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                     <Button onClick={handleSubmitForReview} className="w-full" disabled={submissionFiles.length === 0}>
+                        <Send className="mr-2 h-4 w-4" />
+                        {t('task.submit.panel.submit_button')}
+                    </Button>
+                </CardContent>
+            </Card>
         )}
 
         <div className="space-y-2">
@@ -211,3 +265,5 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
     </Card>
   );
 }
+
+    
