@@ -32,7 +32,7 @@
     "tasks_overdue": "Tugas Terlambat",
     "no_active_tasks": "Anda tidak memiliki tugas aktif.",
     "my_monthly_progress": "Progres Bulanan Saya",
-    "team_leaderboard": "Papan Peringkat Tim",
+    "team_leaderboard": "Peringkat Tim",
     "monthly_progress": "Progres Bulanan"
   },
   "header": {
@@ -237,5 +237,3 @@
     "no_tasks_desc": "Coba sesuaikan pencarian atau filter Anda."
   }
 }
-
-    

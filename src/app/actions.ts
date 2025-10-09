@@ -2,6 +2,7 @@
 
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
+import { generateTaskSuggestions } from "@/ai/flows/generate-tasks-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
 
@@ -53,5 +54,23 @@ export async function getKreaBotResponse(
   } catch (error) {
     console.error("KreaBot action error:", error);
     return { response: null, error: "Sorry, I encountered an error. Please try again." };
+  }
+}
+
+const GenerateTasksSchema = z.object({
+  goal: z.string(),
+});
+
+export async function getTaskSuggestions(goal: string) {
+  try {
+    const validatedData = GenerateTasksSchema.parse({ goal });
+    const result = await generateTaskSuggestions(validatedData);
+    return { suggestions: result.suggestions, error: null };
+  } catch (error) {
+    console.error("Generate Tasks action error:", error);
+    if (error instanceof z.ZodError) {
+      return { suggestions: null, error: "Invalid goal provided." };
+    }
+    return { suggestions: null, error: "Sorry, I couldn't generate task suggestions right now." };
   }
 }
