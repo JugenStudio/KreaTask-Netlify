@@ -317,8 +317,16 @@
       "delete": "Hapus"
     },
     "no_tasks_title": "Tidak Ada Tugas Ditemukan",
-    "no_tasks_desc": "Coba sesuaikan pencarian atau filter Anda."
+    "no_tasks_desc": "Coba sesuaikan pencarian atau filter Anda.",
+    "toast": {
+      "delete_success_title": "Tugas Dihapus",
+      "delete_success_desc": "Tugas \"{{title}}\" telah berhasil dihapus."
+    },
+    "delete_dialog": {
+      "title": "Apakah Anda yakin?",
+      "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus tugas \"{{title}}\" secara permanen.",
+      "cancel": "Batal",
+      "confirm": "Hapus"
+    }
   }
 }
-
-    

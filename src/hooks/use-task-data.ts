@@ -106,14 +106,22 @@ export function useTaskData() {
   };
   
   const addTask = (newTask: Task) => {
-    const updatedTasks = [newTask, ...allTasks];
-    setAllTasksAndStorage(updatedTasks);
+    setAllTasks(prevTasks => {
+        const updatedTasks = [newTask, ...prevTasks];
+        updateSessionStorage('tasks', updatedTasks);
+        return updatedTasks;
+    });
   };
 
   const updateTask = (taskId: string, updates: Partial<Task>) => {
     const updatedTasks = allTasks.map(task =>
       task.id === taskId ? { ...task, ...updates } : task
     );
+    setAllTasksAndStorage(updatedTasks);
+  };
+
+  const deleteTask = (taskId: string) => {
+    const updatedTasks = allTasks.filter(task => task.id !== taskId);
     setAllTasksAndStorage(updatedTasks);
   };
 
@@ -137,6 +145,7 @@ export function useTaskData() {
     setNotifications,
     addTask,
     updateTask,
+    deleteTask,
     addNotification
   };
 }

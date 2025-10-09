@@ -317,8 +317,16 @@
       "delete": "Delete"
     },
     "no_tasks_title": "No Tasks Found",
-    "no_tasks_desc": "Try adjusting your search or filter."
+    "no_tasks_desc": "Try adjusting your search or filter.",
+    "toast": {
+      "delete_success_title": "Task Deleted",
+      "delete_success_desc": "The task \"{{title}}\" has been successfully deleted."
+    },
+    "delete_dialog": {
+      "title": "Are you sure?",
+      "description": "This action cannot be undone. This will permanently delete the task \"{{title}}\".",
+      "cancel": "Cancel",
+      "confirm": "Delete"
+    }
   }
 }
-
-    

@@ -1,6 +1,7 @@
 
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import {
   Table,
@@ -16,14 +17,27 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal } from "lucide-react";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 import type { Task, TaskStatus } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
+import { useTaskData } from "@/hooks/use-task-data";
+import { useToast } from "@/hooks/use-toast";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500 border-transparent text-white",
@@ -35,6 +49,20 @@ const statusColors: Record<TaskStatus, string> = {
 
 export function TaskTable({ tasks }: { tasks: Task[] }) {
   const { locale, t } = useLanguage();
+  const { deleteTask } = useTaskData();
+  const { toast } = useToast();
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+
+  const handleDelete = () => {
+    if (taskToDelete) {
+      deleteTask(taskToDelete.id);
+      toast({
+        title: t('all_tasks.toast.delete_success_title', {defaultValue: "Task Deleted"}),
+        description: t('all_tasks.toast.delete_success_desc', { title: taskToDelete.title[locale] }),
+      });
+      setTaskToDelete(null);
+    }
+  };
 
   if (tasks.length === 0) {
       return (
@@ -98,7 +126,11 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
                         <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
-                      <DropdownMenuItem className="text-destructive">{t('all_tasks.actions.delete')}</DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>{t('all_tasks.actions.delete')}</span>
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -136,6 +168,25 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
               </Card>
           ))}
       </div>
+
+      {taskToDelete && (
+        <AlertDialog open={!!taskToDelete} onOpenChange={() => setTaskToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('all_tasks.delete_dialog.title')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('all_tasks.delete_dialog.description', { title: taskToDelete.title[locale] })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('all_tasks.delete_dialog.cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDelete} className="bg-destructive hover:bg-destructive/90">
+                {t('all_tasks.delete_dialog.confirm')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
     </>
   );
 }
