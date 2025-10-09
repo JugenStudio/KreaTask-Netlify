@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { useState, useMemo, useEffect } from "react";
-import { TaskCategory, UserRole, type User } from "@/lib/types";
+import { TaskCategory, UserRole, type User, type LocalizedString } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions, getTranslations } from "@/app/actions";
@@ -114,11 +114,24 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
     // Translate title and description
     const titleTranslationPromise = getTranslations(values.title);
-    const descriptionTranslationPromise = values.description ? getTranslations(values.description) : Promise.resolve({ data: { en: "", id: "" }, error: null });
+    let descriptionTranslations: LocalizedString = { en: "", id: "" };
+    if (values.description && values.description.trim()) {
+        const descriptionResult = await getTranslations(values.description);
+        if (descriptionResult.error) {
+            toast({
+                variant: "destructive",
+                title: "Translation Failed",
+                description: "Could not translate task description. Please try again.",
+            });
+            setIsSubmitting(false);
+            return;
+        }
+        descriptionTranslations = descriptionResult.data || { en: values.description, id: values.description };
+    }
 
-    const [titleResult, descriptionResult] = await Promise.all([titleTranslationPromise, descriptionTranslationPromise]);
+    const titleResult = await titleTranslationPromise;
 
-    if (titleResult.error || descriptionResult.error) {
+    if (titleResult.error) {
       toast({
         variant: "destructive",
         title: "Translation Failed",
@@ -131,7 +144,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     const newTask = {
       id: newTaskId,
       title: titleResult.data || { en: values.title, id: values.title },
-      description: descriptionResult.data || { en: values.description || '', id: values.description || '' },
+      description: descriptionTranslations,
       status: 'To-do' as const,
       assignees: assignedUser ? [assignedUser] : [],
       dueDate: format(values.dueDate, 'yyyy-MM-dd'),
@@ -480,3 +493,5 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
+
+    
