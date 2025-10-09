@@ -30,12 +30,20 @@ export default function AllTasksPage() {
   
   const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
-  const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const [viewMode, setViewMode] = useState<"list" | "board">(isMobile ? "list" : "board");
   const { t, locale } = useLanguage();
 
   useEffect(() => {
     setSearchTerm(query);
   }, [query]);
+
+  useEffect(() => {
+    // Default to list view on mobile, but allow user to change it.
+    // If window is resized to mobile, switch to list view.
+    if (isMobile) {
+      setViewMode("list");
+    }
+  }, [isMobile]);
 
   if (!currentUser || isLoading) {
     return (
@@ -62,7 +70,6 @@ export default function AllTasksPage() {
     return matchesSearch && matchesStatus;
   });
   
-  const currentView = isMobile ? 'list' : viewMode;
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -105,7 +112,7 @@ export default function AllTasksPage() {
               </Select>
               <div className="flex items-center gap-1 rounded-full bg-muted p-1">
                   <Button
-                      variant={currentView === 'list' ? 'secondary' : 'ghost'}
+                      variant={viewMode === 'list' ? 'secondary' : 'ghost'}
                       size="icon"
                       className="rounded-full h-8 w-8"
                       onClick={() => setViewMode('list')}
@@ -113,11 +120,10 @@ export default function AllTasksPage() {
                       <List className="h-4 w-4" />
                   </Button>
                   <Button
-                      variant={currentView === 'board' ? 'secondary' : 'ghost'}
+                      variant={viewMode === 'board' ? 'secondary' : 'ghost'}
                       size="icon"
                       className="rounded-full h-8 w-8"
                       onClick={() => setViewMode('board')}
-                      disabled={isMobile}
                   >
                       <LayoutGrid className="h-4 w-4" />
                   </Button>
@@ -126,7 +132,7 @@ export default function AllTasksPage() {
         </div>
       </div>
 
-      {currentView === 'list' ? (
+      {viewMode === 'list' ? (
         <TaskTable tasks={filteredTasks} currentUser={currentUser} />
       ) : (
         <KanbanBoard tasks={filteredTasks} />

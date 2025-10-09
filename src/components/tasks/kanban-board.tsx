@@ -32,7 +32,7 @@ function KanbanTaskCard({ task }: { task: Task }) {
         <Card className="mb-4 bg-card hover:bg-muted transition-colors">
             <Link href={`/tasks/${task.id}`}>
                 <CardContent className="p-3">
-                    <p className="text-sm font-semibold leading-tight mb-2 text-card-foreground">{task.title[locale]}</p>
+                    <p className="text-sm font-semibold leading-tight mb-2 text-card-foreground break-words">{task.title[locale]}</p>
                     <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{task.description[locale]}</p>
 
                     {totalSubtasks > 0 && (
