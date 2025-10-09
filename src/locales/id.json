@@ -4,7 +4,7 @@
     "dashboard": "Dasbor",
     "all_tasks": "Semua Tugas",
     "submit_task": "Kirim Tugas",
-    "leaderboard": "Papan Peringkat",
+    "leaderboard": "Peringkat",
     "performance_report": "Laporan",
     "profile": "Profil",
     "settings": "Pengaturan"
@@ -83,7 +83,7 @@
     "post_button": "Kirim Komentar"
   },
   "leaderboard": {
-    "title": "Papan Peringkat Kinerja Karyawan",
+    "title": "Peringkat Kinerja Karyawan",
     "description": "Lihat bagaimana kinerja anggota tim bulan ini.",
     "total_tasks_completed": "Total Tugas Selesai",
     "average_score": "Skor Rata-rata",
