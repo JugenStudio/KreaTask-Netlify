@@ -12,6 +12,7 @@ import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface NotificationCenterProps {
     currentUser: User | null;
@@ -27,6 +28,19 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   
   const userNotifications = notifications.filter(n => n.userId === currentUser?.id);
   const unreadCount = userNotifications.filter((n) => !n.read).length;
+
+  const prevUnreadCountRef = useRef(unreadCount);
+  const [isAnimating, setIsAnimating] = useState(false);
+
+
+  useEffect(() => {
+    if (unreadCount > prevUnreadCountRef.current) {
+        setIsAnimating(true);
+        const timer = setTimeout(() => setIsAnimating(false), 1000); // Animation duration
+        return () => clearTimeout(timer);
+    }
+    prevUnreadCountRef.current = unreadCount;
+  }, [unreadCount]);
 
   useEffect(() => {
     if (!isSilent) {
@@ -74,19 +88,26 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
 
   return (
     <div className="relative inline-block" ref={containerRef}>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => setIsOpen(!isOpen)}
-        className="relative rounded-full"
+      <motion.div
+        animate={isAnimating ? {
+            rotate: [0, -15, 15, -10, 10, -5, 5, 0],
+            transition: { duration: 0.5, ease: "easeInOut" }
+        } : {}}
       >
-        {isSilent ? <BellOff className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
-        {unreadCount > 0 && !isSilent && (
-          <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-background">
-            {unreadCount}
-          </span>
-        )}
-      </Button>
+        <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsOpen(!isOpen)}
+            className="relative rounded-full"
+        >
+            {isSilent ? <BellOff className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+            {unreadCount > 0 && !isSilent && (
+            <span className="absolute top-1 right-1 bg-red-600 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center border-2 border-background">
+                {unreadCount}
+            </span>
+            )}
+        </Button>
+      </motion.div>
 
       {isOpen && (
         <Card className="absolute right-0 mt-2 w-80 sm:w-96 shadow-2xl border z-50 bg-popover rounded-2xl">
