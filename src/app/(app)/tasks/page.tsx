@@ -32,11 +32,11 @@ export default function AllTasksPage() {
   if (!currentUser) {
     return (
         <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <Skeleton className="h-12 w-1/3" />
-                <div className="flex gap-2">
-                    <Skeleton className="h-10 w-48" />
-                    <Skeleton className="h-10 w-40" />
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                <Skeleton className="h-10 md:h-12 w-1/3" />
+                <div className="flex gap-2 w-full md:w-auto">
+                    <Skeleton className="h-10 flex-1 md:w-48" />
+                    <Skeleton className="h-10 w-32 md:w-40" />
                 </div>
             </div>
             <Skeleton className="h-96 w-full" />
@@ -58,23 +58,23 @@ export default function AllTasksPage() {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
-          <p className="text-muted-foreground">
+          <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
+          <p className="text-muted-foreground text-sm md:text-base">
             {t('all_tasks.description')}
           </p>
         </div>
         <div className="flex gap-2 items-center w-full md:w-auto">
             <div className="relative flex-1 md:flex-initial">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder={t('all_tasks.filter_placeholder')} 
-                  className="w-full md:w-48 pl-8"
+                  className="w-full md:w-48 pl-8 h-10"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)} 
                 />
             </div>
             <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
-                <SelectTrigger className="w-40">
+                <SelectTrigger className="w-32 md:w-40 h-10">
                     <SelectValue placeholder={t('all_tasks.all_statuses')} />
                 </SelectTrigger>
                 <SelectContent>
@@ -88,9 +88,7 @@ export default function AllTasksPage() {
             </Select>
         </div>
       </div>
-      <div className="w-full overflow-x-auto">
-        <TaskTable tasks={filteredTasks} />
-      </div>
+      <TaskTable tasks={filteredTasks} />
     </div>
   );
 }

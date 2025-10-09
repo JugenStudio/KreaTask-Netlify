@@ -115,9 +115,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="space-y-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+        <div className="space-y-6 md:space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
             <FormField
               control={form.control}
               name="title"
@@ -157,7 +157,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
             />
           </div>
 
-          <div className={cn("grid grid-cols-1 md:grid-cols-1 gap-8", canAssignTasks && "md:grid-cols-2")}>
+          <div className={cn("grid grid-cols-1 gap-6 md:gap-8", canAssignTasks && "md:grid-cols-2")}>
             <FormField
               control={form.control}
               name="dueDate"
@@ -253,8 +253,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
             <div className="flex items-center justify-center w-full">
               <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-secondary hover:bg-muted">
                   <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Paperclip className="w-8 h-8 mb-3 text-muted-foreground" />
-                      <p className="mb-2 text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
+                      <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
+                      <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
                       <p className="text-xs text-muted-foreground">Video, illustration, or any other file</p>
                   </div>
                   <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} />
@@ -264,10 +264,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           {files.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
               {files.map(file => (
-                <Card key={file.name} className="relative group">
+                <Card key={file.name} className="relative group rounded-xl">
                   <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)}>
+                    <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95">
                       <X className="h-4 w-4" />
                     </Button>
                   </div>
@@ -279,8 +279,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         </FormItem>
 
         <div className="flex justify-end gap-2">
-            <Button type="button" variant="ghost">Cancel</Button>
-            <Button type="submit">Create Task</Button>
+            <Button type="button" variant="ghost" className="transition-all active:scale-95">Cancel</Button>
+            <Button type="submit" className="transition-all active:scale-95">Create Task</Button>
         </div>
       </form>
     </Form>

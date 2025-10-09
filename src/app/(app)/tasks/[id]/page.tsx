@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useMemo } from "react";
@@ -28,7 +29,7 @@ export default function TaskDetailPage() {
   }
 
   return (
-    <div className="grid md:grid-cols-3 gap-8">
+    <div className="grid md:grid-cols-3 gap-6 md:gap-8">
       <div className="md:col-span-2">
         <TaskDetails task={task} />
       </div>

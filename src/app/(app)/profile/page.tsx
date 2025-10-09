@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -66,27 +67,27 @@ export default function ProfilePage() {
   return (
     <div className="space-y-6 max-w-4xl mx-auto">
       <div>
-        <h1 className="text-3xl font-bold font-headline">{t('profile.title')}</h1>
-        <p className="text-muted-foreground">{t('profile.description')}</p>
+        <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('profile.title')}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">{t('profile.description')}</p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">{t('profile.photo.title')}</CardTitle>
+          <CardTitle className="font-headline text-xl md:text-2xl">{t('profile.photo.title')}</CardTitle>
           <CardDescription>{t('profile.photo.description')}</CardDescription>
         </CardHeader>
-        <CardContent className="flex items-center gap-6">
+        <CardContent className="flex items-center gap-4 md:gap-6">
           <div className="relative">
-            <Avatar className="h-24 w-24">
+            <Avatar className="h-20 w-20 md:h-24 md:w-24">
               <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
               <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="icon" className="absolute bottom-0 right-0 rounded-full h-8 w-8">
-              <Camera className="h-4 w-4" />
+            <Button variant="outline" size="icon" className="absolute bottom-0 right-0 rounded-full h-7 w-7 md:h-8 md:w-8 transition-all active:scale-95">
+              <Camera className="h-3 w-3 md:h-4 md:w-4" />
               <span className="sr-only">Change Photo</span>
             </Button>
           </div>
           <div>
-            <p className="font-medium">{currentUser.name}</p>
+            <p className="font-medium text-base md:text-lg">{currentUser.name}</p>
             <p className="text-sm text-muted-foreground">{currentUser.email}</p>
             <p className="text-sm text-muted-foreground">{currentUser.role}</p>
           </div>
@@ -94,11 +95,11 @@ export default function ProfilePage() {
       </Card>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">{t('profile.details.title')}</CardTitle>
+          <CardTitle className="font-headline text-xl md:text-2xl">{t('profile.details.title')}</CardTitle>
           <CardDescription>{t('profile.details.description')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">{t('profile.details.name')}</Label>
               <Input id="name" defaultValue={currentUser.name} />
@@ -113,7 +114,7 @@ export default function ProfilePage() {
             <Input id="role" defaultValue={currentUser.role} disabled />
           </div>
            <div className="flex justify-end">
-            <Button>{t('profile.details.save_button')}</Button>
+            <Button className="transition-all active:scale-95">{t('profile.details.save_button')}</Button>
           </div>
         </CardContent>
       </Card>

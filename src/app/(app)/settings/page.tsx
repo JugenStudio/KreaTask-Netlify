@@ -27,7 +27,7 @@ export default function SettingsPage() {
   if (!currentUser) {
     return (
         <div className="space-y-6">
-            <Skeleton className="h-12 w-1/3" />
+            <Skeleton className="h-10 md:h-12 w-1/3" />
             <Card>
                 <CardHeader>
                     <Skeleton className="h-8 w-1/4" />
@@ -44,20 +44,18 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold font-headline">{t('settings.title')}</h1>
-        <p className="text-muted-foreground">{t('settings.description')}</p>
+        <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('settings.title')}</h1>
+        <p className="text-muted-foreground text-sm md:text-base">{t('settings.description')}</p>
       </div>
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline">{t("settings.user_management.title")}</CardTitle>
+          <CardTitle className="font-headline text-xl md:text-2xl">{t("settings.user_management.title")}</CardTitle>
           <CardDescription>
             {t("settings.user_management.description")}
           </CardDescription>
         </CardHeader>
-        <CardContent>
-            <div className="w-full overflow-x-auto">
-                <UserTable initialUsers={users} currentUser={currentUser} />
-            </div>
+        <CardContent className="p-4 md:p-6">
+            <UserTable initialUsers={users} currentUser={currentUser} />
         </CardContent>
       </Card>
     </div>

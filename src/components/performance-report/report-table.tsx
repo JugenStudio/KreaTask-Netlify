@@ -14,7 +14,7 @@ import type { Task } from "@/lib/types";
 import { Badge } from "../ui/badge";
 import { useLanguage } from "@/providers/language-provider";
 import { Button } from "../ui/button";
-import { CheckCircle, Clock, ChevronRight } from "lucide-react";
+import { CheckCircle, Clock } from "lucide-react";
 import { Card, CardContent } from "../ui/card";
 
 interface ReportTableProps {
@@ -26,9 +26,9 @@ export function ReportTable({ tasks }: ReportTableProps) {
 
   if (tasks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground bg-secondary/50 rounded-2xl">
-        <CheckCircle className="h-12 w-12 mb-4 text-green-500" />
-        <p className="font-semibold">{t('report.history_panel.empty_title', {defaultValue: "All caught up!"})}</p>
+      <div className="flex flex-col items-center justify-center h-48 text-center text-muted-foreground bg-secondary/50 rounded-xl md:rounded-2xl">
+        <CheckCircle className="h-10 w-10 md:h-12 md:w-12 mb-4 text-green-500" />
+        <p className="font-semibold text-sm md:text-base">{t('report.history_panel.empty_title', {defaultValue: "All caught up!"})}</p>
         <p className="text-sm">{t('report.history_panel.empty_desc', {defaultValue: "No completed tasks to show right now."})}</p>
       </div>
     );
@@ -91,9 +91,9 @@ export function ReportTable({ tasks }: ReportTableProps) {
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
         {tasks.map((task) => (
-          <Card key={task.id} className="transition-all active:scale-95">
+          <Card key={task.id} className="transition-all active:scale-95 rounded-xl">
             <Link href={`/tasks/${task.id}`}>
-              <CardContent className="p-4">
+              <CardContent className="p-3">
                 <div className="flex justify-between items-start gap-3">
                     <div className="flex-1 space-y-1">
                         <p className="font-semibold text-sm leading-tight text-card-foreground">{task.title[locale]}</p>

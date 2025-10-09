@@ -1,3 +1,4 @@
+
 import Image from "next/image";
 import {
   Avatar,
@@ -35,10 +36,10 @@ const statusColors: Record<TaskStatus, string> = {
 };
 
 const fileTypeIcons = {
-  video: <Film className="h-10 w-10 text-muted-foreground" />,
-  image: <ImageIcon className="h-10 w-10 text-muted-foreground" />,
-  illustration: <Palette className="h-10 w-10 text-muted-foreground" />,
-  document: <FileIcon className="h-10 w-10 text-muted-foreground" />,
+  video: <Film className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
+  image: <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
+  illustration: <Palette className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
+  document: <FileIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
 };
 
 export function TaskDetails({ task }: { task: Task }) {
@@ -47,23 +48,23 @@ export function TaskDetails({ task }: { task: Task }) {
   return (
     <Card className="h-full">
       <CardHeader>
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-start gap-4">
             <div>
-                <CardTitle className="font-headline text-2xl">{task.title[locale]}</CardTitle>
-                <CardDescription>{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
+                <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
+                <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
             </div>
-            <Badge className={cn("text-white", statusColors[task.status])}>
+            <Badge className={cn("text-white text-xs md:text-sm whitespace-nowrap", statusColors[task.status])}>
                 {task.status}
             </Badge>
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 md:space-y-6">
         <div className="space-y-2">
-            <h4 className="font-semibold">{t('task.description')}</h4>
+            <h4 className="font-semibold text-base md:text-lg">{t('task.description')}</h4>
             <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
         </div>
         <Separator />
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <h4 className="font-semibold">{t('task.assignees')}</h4>
             <div className="flex items-center space-x-2">
@@ -90,11 +91,11 @@ export function TaskDetails({ task }: { task: Task }) {
         </div>
         <Separator />
         <div className="space-y-4">
-          <h4 className="font-semibold">{t('task.attachments')}</h4>
+          <h4 className="font-semibold text-base md:text-lg">{t('task.attachments')}</h4>
           {task.files.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {task.files.map((file) => (
-                <Card key={file.id} className="overflow-hidden">
+                <Card key={file.id} className="overflow-hidden rounded-xl">
                   <div className="aspect-[16/9] bg-muted flex items-center justify-center">
                     {file.type === 'image' || file.type === 'illustration' ? (
                        <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
@@ -108,7 +109,7 @@ export function TaskDetails({ task }: { task: Task }) {
                         <p className="text-sm font-medium truncate">{file.name}</p>
                         <p className="text-xs text-muted-foreground">{file.size}</p>
                       </div>
-                      <Button variant="outline" size="icon" asChild>
+                      <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
                         <a href={file.url} download>
                           <Download className="h-4 w-4" />
                         </a>

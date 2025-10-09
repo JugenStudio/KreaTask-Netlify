@@ -38,8 +38,8 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
 
   if (tasks.length === 0) {
       return (
-          <div className="text-center p-10 rounded-2xl bg-secondary/50">
-              <p className="font-bold">{t('all_tasks.no_tasks_title', { defaultValue: 'No Tasks Found' })}</p>
+          <div className="text-center p-10 rounded-xl md:rounded-2xl bg-secondary/50">
+              <p className="font-bold text-sm md:text-base">{t('all_tasks.no_tasks_title', { defaultValue: 'No Tasks Found' })}</p>
               <p className="text-sm text-muted-foreground">{t('all_tasks.no_tasks_desc', { defaultValue: 'Try adjusting your search or filter.' })}</p>
           </div>
       )
@@ -49,7 +49,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
     <>
       {/* Desktop View */}
       <div className="hidden md:block w-full overflow-x-auto rounded-lg border">
-        <Table className="min-w-[640px]">
+        <Table>
           <TableHeader>
             <TableRow>
               <TableHead className="w-[40%]">{t('all_tasks.table.task')}</TableHead>
@@ -88,7 +88,7 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
                 <TableCell>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button aria-haspopup="true" size="icon" variant="ghost" className="transition-all active:scale-95">
+                      <Button aria-haspopup="true" size="icon" variant="ghost" className="transition-all active:scale-95 h-8 w-8">
                         <MoreHorizontal className="h-4 w-4" />
                         <span className="sr-only">Toggle menu</span>
                       </Button>
@@ -111,12 +111,12 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
           {tasks.map(task => (
-              <Card key={task.id} className="transition-all active:scale-95">
+              <Card key={task.id} className="transition-all active:scale-95 rounded-xl">
                   <Link href={`/tasks/${task.id}`} className="block">
-                      <CardContent className="p-4">
-                          <div className="flex justify-between items-start">
+                      <CardContent className="p-3">
+                          <div className="flex justify-between items-start gap-3">
                               <p className="font-semibold text-sm flex-1 pr-2 text-card-foreground">{task.title[locale]}</p>
-                               <Badge className={cn("text-xs", statusColors[task.status])}>
+                               <Badge className={cn("text-xs whitespace-nowrap", statusColors[task.status])}>
                                 {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
                               </Badge>
                           </div>

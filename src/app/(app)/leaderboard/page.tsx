@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -40,19 +41,19 @@ export default function LeaderboardPage() {
   
   if (!currentUser) {
     return (
-      <div className="space-y-8">
-        <Skeleton className="h-12 w-1/2" />
+      <div className="space-y-6 md:space-y-8">
+        <Skeleton className="h-10 md:h-12 w-1/2" />
         <Skeleton className="h-6 w-3/4" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-          <Skeleton className="h-32 rounded-2xl" />
-          <Skeleton className="h-32 rounded-2xl" />
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
+          <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
+          <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
         </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           <div className="lg:col-span-2">
-            <Skeleton className="h-64 rounded-2xl" />
+            <Skeleton className="h-64 rounded-xl md:rounded-2xl" />
           </div>
           <div className="lg:col-span-1">
-            <Skeleton className="h-64 rounded-2xl" />
+            <Skeleton className="h-64 rounded-xl md:rounded-2xl" />
           </div>
         </div>
       </div>
@@ -60,7 +61,7 @@ export default function LeaderboardPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       <div>
         <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
           <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
@@ -71,7 +72,7 @@ export default function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
         <StatsCard
           title={t('leaderboard.total_tasks_completed')}
           value={totalTasks}
@@ -80,25 +81,23 @@ export default function LeaderboardPage() {
         <StatsCard title={t('leaderboard.average_score')} value={avgScore} icon={Trophy} />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">
+              <CardTitle className="font-headline text-xl md:text-2xl">
                 {t('leaderboard.top_performers')}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="w-full overflow-x-auto">
-                <LeaderboardTable leaderboardData={leaderboardData} />
-              </div>
+              <LeaderboardTable leaderboardData={leaderboardData} />
             </CardContent>
           </Card>
         </div>
         <div className="lg:col-span-1">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline">{t('leaderboard.monthly_progress')}</CardTitle>
+              <CardTitle className="font-headline text-xl md:text-2xl">{t('leaderboard.monthly_progress')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ProgressChart currentUser={currentUser} />

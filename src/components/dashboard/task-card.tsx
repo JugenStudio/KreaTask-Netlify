@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -28,7 +29,7 @@ export function TaskCard({ task }: { task: Task }) {
   const { locale } = useLanguage();
 
   return (
-    <Card className={cn("bg-card transition-all hover:bg-white/10")}>
+    <Card className={cn("bg-card transition-all hover:bg-white/10 active:scale-95")}>
       <CardHeader>
         <div className="flex justify-between items-center">
             <Badge className={cn(categoryColors[task.category], "font-bold border-none")}>{task.category}</Badge>
@@ -41,27 +42,27 @@ export function TaskCard({ task }: { task: Task }) {
       <CardContent>
         <div className="space-y-3">
           <Link href={`/tasks/${task.id}`}>
-            <CardTitle className="text-lg font-bold hover:underline text-card-foreground">
+            <CardTitle className="text-base md:text-lg font-bold hover:underline text-card-foreground">
               {task.title[locale]}
             </CardTitle>
           </Link>
-          <CardDescription className="line-clamp-2 text-muted-foreground">
+          <CardDescription className="line-clamp-2 text-muted-foreground text-sm">
             {task.description[locale]}
           </CardDescription>
           <div className="flex justify-between items-center">
             <div className="flex -space-x-2">
               {task.assignees.map((user) => (
-                <Avatar key={user.id} className="h-9 w-9 border-2 border-background/50">
+                <Avatar key={user.id} className="h-8 w-8 md:h-9 md:w-9 border-2 border-background/50">
                   <AvatarImage src={user.avatarUrl} alt={user.name} />
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               ))}
-              <div className="flex items-center justify-center h-9 w-9 rounded-full bg-primary text-primary-foreground text-xs font-bold border-2 border-background/50">
+              <div className="flex items-center justify-center h-8 w-8 md:h-9 md:w-9 rounded-full bg-primary text-primary-foreground text-xs font-bold border-2 border-background/50">
                 5+
               </div>
             </div>
-            <Link href={`/tasks/${task.id}`} className="p-3 rounded-full bg-white/10 text-card-foreground cursor-pointer hover:bg-white/20 transition-colors">
-                <ArrowRight className="h-5 w-5" />
+            <Link href={`/tasks/${task.id}`} className="p-2 md:p-3 rounded-full bg-white/10 text-card-foreground cursor-pointer hover:bg-white/20 transition-colors">
+                <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />
             </Link>
           </div>
         </div>

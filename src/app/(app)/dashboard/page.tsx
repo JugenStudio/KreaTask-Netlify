@@ -41,14 +41,14 @@ export default function DashboardPage() {
 
   if (!currentUser || !currentUserLeaderboard) {
     return (
-        <div className="space-y-8">
-            <Skeleton className="h-12 w-1/2" />
-            <Skeleton className="h-8 w-3/4" />
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
-                <Skeleton className="h-32 rounded-2xl" />
-                <Skeleton className="h-32 rounded-2xl" />
-                <Skeleton className="h-32 rounded-2xl" />
-                <Skeleton className="h-32 rounded-2xl" />
+        <div className="space-y-6 md:space-y-8">
+            <Skeleton className="h-10 md:h-12 w-1/2" />
+            <Skeleton className="h-6 md:h-8 w-3/4" />
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+                <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
+                <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
+                <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
+                <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
             </div>
         </div>
     );
@@ -99,19 +99,19 @@ export default function DashboardPage() {
     ).length;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8">
       {/* Header Section */}
       <div>
-        <h1 className="text-4xl font-bold font-headline text-foreground">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline text-foreground">
           {t("dashboard.welcome", { name: currentUser.name.split(" ")[0] })}
         </h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-base md:text-lg">
           {t("dashboard.description")}
         </p>
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
         {isLvl1 ? (
           <>
             <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={BookOpen} href="/tasks" />
@@ -130,26 +130,26 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Content Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         {isLvl1 ? (
             <>
                 {/* Employee View */}
-                <div className="lg:col-span-2 space-y-8">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="lg:col-span-2 space-y-6 md:space-y-8">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                        {todoTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {inProgressTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {/* If no tasks, show a placeholder */}
                        {todoTasks.length === 0 && inProgressTasks.length === 0 && completedTasks.length === 0 && (
-                          <Card className="md:col-span-2 flex items-center justify-center h-64">
+                          <Card className="md:col-span-2 flex items-center justify-center h-48 md:h-64">
                             <p className="text-muted-foreground">{t('dashboard.no_active_tasks')}</p>
                           </Card>
                        )}
                     </div>
                 </div>
-                <div className="lg:col-span-1 space-y-8">
+                <div className="lg:col-span-1 space-y-6 md:space-y-8">
                     <Card>
-                        <CardHeader><CardTitle className="font-headline text-foreground">{t('dashboard.my_monthly_progress')}</CardTitle></CardHeader>
+                        <CardHeader><CardTitle className="font-headline text-xl md:text-2xl text-foreground">{t('dashboard.my_monthly_progress')}</CardTitle></CardHeader>
                         <CardContent><ProgressChart currentUser={currentUser} /></CardContent>
                     </Card>
                 </div>
@@ -157,15 +157,13 @@ export default function DashboardPage() {
         ) : (
             <>
                 {/* Director View */}
-                <div className="lg:col-span-2 space-y-8">
+                <div className="lg:col-span-2 space-y-6 md:space-y-8">
                     <Card>
                     <CardHeader>
-                        <CardTitle className="font-headline text-foreground">{t('dashboard.team_leaderboard')}</CardTitle>
+                        <CardTitle className="font-headline text-xl md:text-2xl text-foreground">{t('dashboard.team_leaderboard')}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="w-full overflow-x-auto">
-                            <LeaderboardTable leaderboardData={topThree} />
-                        </div>
+                        <LeaderboardTable leaderboardData={topThree} />
                     </CardContent>
                     </Card>
                 </div>
@@ -179,9 +177,9 @@ export default function DashboardPage() {
 
       {/* Additional Tasks for Director */}
       {!isLvl1 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
+            <div className="lg:col-span-2 space-y-6 md:space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                 {inProgressTasks.map((task) => (
                 <TaskCard key={task.id} task={task} />
                 ))}
@@ -193,7 +191,7 @@ export default function DashboardPage() {
             <div className="lg:col-span-1">
             <Card>
                 <CardHeader>
-                <CardTitle className="font-headline text-foreground">
+                <CardTitle className="font-headline text-xl md:text-2xl text-foreground">
                     {t('dashboard.monthly_progress')}
                 </CardTitle>
                 </CardHeader>

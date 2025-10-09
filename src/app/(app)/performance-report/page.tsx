@@ -137,7 +137,7 @@ export default function PerformanceReportPage() {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <Skeleton className="h-12 w-1/3" />
+                <Skeleton className="h-10 md:h-12 w-1/3" />
             </div>
             <Skeleton className="h-96 w-full" />
         </div>
@@ -150,24 +150,22 @@ export default function PerformanceReportPage() {
       <div className="space-y-6">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold font-headline flex items-center gap-3">
-              <History className="h-8 w-8" />
+            <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3">
+              <History className="h-6 w-6 md:h-8 md:w-8" />
               {t('report.employee_view.title')}
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm md:text-base">
               {t('report.employee_view.description')}
             </p>
           </div>
-           <Button onClick={handleExportCSV}>
+           <Button onClick={handleExportCSV} size="sm" className="md:size-auto transition-all active:scale-95">
             <FileDown className="h-4 w-4 mr-2" />
             {t('report.export_csv')}
           </Button>
         </div>
         <Card>
-          <CardContent className="pt-6">
-            <div className="w-full overflow-x-auto">
-              <ReportTable tasks={completedTasks} />
-            </div>
+          <CardContent className="p-4 md:p-6">
+            <ReportTable tasks={completedTasks} />
           </CardContent>
         </Card>
       </div>
@@ -177,13 +175,13 @@ export default function PerformanceReportPage() {
   // Director/Super User View: Validation Panel + Full Report
   return (
     <>
-      <div className="space-y-8">
+      <div className="space-y-6 md:space-y-8">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h1 className="text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
-                <p className="text-muted-foreground">{t('report.director_view.description')}</p>
+                <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
+                <p className="text-muted-foreground text-sm md:text-base">{t('report.director_view.description')}</p>
             </div>
-            <Button onClick={handleExportCSV}>
+            <Button onClick={handleExportCSV} size="sm" className="md:size-auto transition-all active:scale-95">
               <FileDown className="h-4 w-4 mr-2" />
               {t('report.export_csv')}
             </Button>
@@ -192,16 +190,16 @@ export default function PerformanceReportPage() {
           {/* Validation Panel */}
           <Card>
               <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><ThumbsUp className="h-6 w-6 text-primary"/> {t('report.validation_panel.title')}</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-xl md:text-2xl"><ThumbsUp className="h-5 w-5 md:h-6 md:h-6 text-primary"/> {t('report.validation_panel.title')}</CardTitle>
                   <CardDescription>{t('report.validation_panel.description')}</CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-4 md:p-6">
                   <div className="w-full overflow-x-auto">
                       <Table>
                           <TableHeader>
                               <TableRow>
                                   <TableHead>{t('report.validation_panel.table.task')}</TableHead>
-                                  <TableHead>{t('report.validation_panel.table.employee')}</TableHead>
+                                  <TableHead className="hidden sm:table-cell">{t('report.validation_panel.table.employee')}</TableHead>
                                   <TableHead>{t('report.validation_panel.table.value')}</TableHead>
                                   <TableHead className="text-right">{t('report.validation_panel.table.actions')}</TableHead>
                               </TableRow>
@@ -210,13 +208,13 @@ export default function PerformanceReportPage() {
                               {tasksToValidate.length > 0 ? tasksToValidate.map(task => (
                                   <TableRow key={task.id}>
                                       <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
-                                      <TableCell className="whitespace-nowrap">{task.assignees[0]?.name || 'N/A'}</TableCell>
+                                      <TableCell className="whitespace-nowrap hidden sm:table-cell">{task.assignees[0]?.name || 'N/A'}</TableCell>
                                       <TableCell>
                                           <Badge variant="outline">{task.value} Poin</Badge>
                                       </TableCell>
                                       <TableCell className="text-right space-x-2 whitespace-nowrap">
-                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(task)}><Edit className="h-4 w-4 mr-2" /> {t('report.validation_panel.buttons.edit')}</Button>
-                                          <Button variant="default" size="sm" onClick={() => handleApprove(task.id)}><CheckCircle className="h-4 w-4 mr-2" /> {t('report.validation_panel.buttons.approve')}</Button>
+                                          <Button variant="ghost" size="sm" onClick={() => handleEdit(task)} className="transition-all active:scale-95"><Edit className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.edit')}</span></Button>
+                                          <Button variant="default" size="sm" onClick={() => handleApprove(task.id)} className="transition-all active:scale-95"><CheckCircle className="h-4 w-4 md:mr-2" /><span className="hidden md:inline">{t('report.validation_panel.buttons.approve')}</span></Button>
                                       </TableCell>
                                   </TableRow>
                               )) : (
@@ -234,20 +232,18 @@ export default function PerformanceReportPage() {
           <div className="space-y-6">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                   <div>
-                      <h2 className="text-2xl font-bold font-headline flex items-center gap-3">
-                          <History className="h-7 w-7" />
+                      <h2 className="text-xl md:text-2xl font-bold font-headline flex items-center gap-3">
+                          <History className="h-6 w-6 md:h-7 md:h-7" />
                           {t('report.history_panel.title')}
                       </h2>
-                      <p className="text-muted-foreground">
+                      <p className="text-muted-foreground text-sm md:text-base">
                           {t('report.history_panel.description')}
                       </p>
                   </div>
               </div>
               <Card>
-                  <CardContent className="pt-6">
-                    <div className="w-full overflow-x-auto">
-                      <ReportTable tasks={completedTasks} />
-                    </div>
+                  <CardContent className="p-4 md:p-6">
+                    <ReportTable tasks={completedTasks} />
                   </CardContent>
               </Card>
           </div>
@@ -264,5 +260,3 @@ export default function PerformanceReportPage() {
     </>
   )
 }
-
-    
