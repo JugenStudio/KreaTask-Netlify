@@ -29,7 +29,7 @@ function KanbanTaskCard({ task }: { task: Task }) {
     const totalSubtasks = task.subtasks?.length || 0;
 
     return (
-        <Card className="mb-4 bg-card hover:bg-muted transition-colors">
+        <Card className="mb-3 bg-card hover:bg-muted transition-colors rounded-xl">
             <Link href={`/tasks/${task.id}`}>
                 <CardContent className="p-3">
                     <p className="text-sm font-semibold leading-tight mb-2 text-card-foreground break-words">{task.title[locale]}</p>
@@ -62,8 +62,8 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
     const { t } = useLanguage();
 
     return (
-        <div className="flex-shrink-0 w-72">
-            <Card className="bg-secondary/50 border-none">
+        <div className="flex-shrink-0 w-64 md:w-72">
+            <div className="h-full bg-secondary/50 border-none rounded-xl md:rounded-2xl">
                 <CardHeader className="p-3 flex-row justify-between items-center space-y-0">
                     <div className="flex items-center gap-2">
                         <div className={cn("w-2.5 h-2.5 rounded-full", statusColors[status])} />
@@ -73,14 +73,16 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <CardContent className="p-3 pt-0">
-                    <div className="h-[500px] overflow-y-auto pr-2 -mr-2">
-                        {tasks.map(task => (
-                            <KanbanTaskCard key={task.id} task={task} />
-                        ))}
-                    </div>
+                <CardContent className="p-1.5 pt-0 h-full">
+                    <ScrollArea className="h-[calc(100vh-20rem)] rounded-lg">
+                        <div className="p-1.5 space-y-1">
+                            {tasks.map(task => (
+                                <KanbanTaskCard key={task.id} task={task} />
+                            ))}
+                        </div>
+                    </ScrollArea>
                 </CardContent>
-            </Card>
+            </div>
         </div>
     );
 }
@@ -107,8 +109,8 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
   }
 
   return (
-    <ScrollArea className="w-full whitespace-nowrap">
-        <div className="flex gap-6 pb-4">
+    <ScrollArea className="w-full whitespace-nowrap rounded-lg">
+        <div className="flex gap-4 pb-4">
             {statusColumns.map(status => (
                 <KanbanColumn
                     key={status}

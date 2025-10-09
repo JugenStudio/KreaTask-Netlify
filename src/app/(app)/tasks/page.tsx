@@ -30,19 +30,15 @@ export default function AllTasksPage() {
   
   const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
-  const [viewMode, setViewMode] = useState<"list" | "board">(isMobile ? "list" : "board");
-  const { t, locale } = useLanguage();
+  const [viewMode, setViewMode] = useState<"list" | "board">("list");
 
   useEffect(() => {
     setSearchTerm(query);
   }, [query]);
 
   useEffect(() => {
-    // Default to list view on mobile, but allow user to change it.
-    // If window is resized to mobile, switch to list view.
-    if (isMobile) {
-      setViewMode("list");
-    }
+    // On initial load, set view mode based on device
+    setViewMode(isMobile ? "list" : "board");
   }, [isMobile]);
 
   if (!currentUser || isLoading) {
@@ -73,7 +69,7 @@ export default function AllTasksPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-      <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+      <Button variant="outline" size="sm" asChild className="w-fit transition-all active:scale-95">
         <Link href="/dashboard">
           <ArrowLeft className="mr-2 h-4 w-4" />
           {t('common.back_to_home')}
@@ -86,50 +82,52 @@ export default function AllTasksPage() {
             {t('all_tasks.description')}
           </p>
         </div>
-        <div className="flex flex-col md:flex-row gap-2 items-center w-full md:w-auto">
-            <div className="relative flex-1 md:flex-initial w-full">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input 
-                  placeholder={t('all_tasks.filter_placeholder')} 
-                  className="w-full md:w-48 pl-8 h-10"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)} 
-                />
+      </div>
+      
+      {/* Filters Section */}
+      <div className="flex flex-col sm:flex-row gap-2 w-full">
+          <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input 
+                placeholder={t('all_tasks.filter_placeholder')} 
+                className="w-full pl-8 h-10"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)} 
+              />
+          </div>
+          <div className="flex gap-2">
+            <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
+                <SelectTrigger className="flex-1 h-10">
+                    <SelectValue placeholder={t('all_tasks.all_statuses')} />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
+                    <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
+                    <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
+                    <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
+                    <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
+                    <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
+                </SelectContent>
+            </Select>
+            <div className="flex items-center gap-1 rounded-md bg-muted p-1">
+                <Button
+                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="rounded-sm h-8 w-8"
+                    onClick={() => setViewMode('list')}
+                >
+                    <List className="h-4 w-4" />
+                </Button>
+                <Button
+                    variant={viewMode === 'board' ? 'secondary' : 'ghost'}
+                    size="icon"
+                    className="rounded-sm h-8 w-8"
+                    onClick={() => setViewMode('board')}
+                >
+                    <LayoutGrid className="h-4 w-4" />
+                </Button>
             </div>
-            <div className="flex gap-2 w-full">
-              <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
-                  <SelectTrigger className="w-full md:w-40 h-10">
-                      <SelectValue placeholder={t('all_tasks.all_statuses')} />
-                  </SelectTrigger>
-                  <SelectContent>
-                      <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
-                      <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
-                      <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
-                      <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
-                      <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
-                      <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
-                  </SelectContent>
-              </Select>
-              <div className="flex items-center gap-1 rounded-full bg-muted p-1">
-                  <Button
-                      variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                      size="icon"
-                      className="rounded-full h-8 w-8"
-                      onClick={() => setViewMode('list')}
-                  >
-                      <List className="h-4 w-4" />
-                  </Button>
-                  <Button
-                      variant={viewMode === 'board' ? 'secondary' : 'ghost'}
-                      size="icon"
-                      className="rounded-full h-8 w-8"
-                      onClick={() => setViewMode('board')}
-                  >
-                      <LayoutGrid className="h-4 w-4" />
-                  </Button>
-              </div>
-            </div>
-        </div>
+          </div>
       </div>
 
       {viewMode === 'list' ? (
