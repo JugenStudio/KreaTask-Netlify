@@ -1,7 +1,8 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -21,10 +22,17 @@ import Link from "next/link";
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
   const { allTasks, isLoading } = useTaskData();
-  const [searchTerm, setSearchTerm] = useState("");
+  const searchParams = useSearchParams();
+  const query = searchParams.get('q') || '';
+  
+  const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const { t, locale } = useLanguage();
+
+  useEffect(() => {
+    setSearchTerm(query);
+  }, [query]);
 
   if (!currentUser || isLoading) {
     return (

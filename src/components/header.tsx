@@ -34,10 +34,22 @@ import type { User } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { useCurrentUser } from "@/app/(app)/layout";
+import { useRouter } from "next/navigation";
 
 export function Header() {
   const { currentUser } = useCurrentUser();
   const { locale, t, setLocale } = useLanguage();
+  const router = useRouter();
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (searchTerm.trim()) {
+      router.push(`/tasks?q=${encodeURIComponent(searchTerm.trim())}`);
+    } else {
+      router.push('/tasks');
+    }
+  };
 
   if (!currentUser) {
     return (
@@ -53,14 +65,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-lg">
       {/* Search bar */}
-      <div className="relative flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+      <form onSubmit={handleSearch} className="relative flex-1 md:grow-0">
+        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           type="search"
           placeholder={t("header.search_placeholder")}
           className="w-full rounded-lg bg-secondary/50 pl-8 md:w-[200px] lg:w-[320px] text-foreground placeholder:text-muted-foreground border-none"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-      </div>
+      </form>
 
       {/* Right section */}
       <div className="flex items-center gap-2 ml-auto">
