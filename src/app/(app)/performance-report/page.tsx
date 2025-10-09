@@ -376,7 +376,7 @@ export default function PerformanceReportPage() {
               </div>
               <Card>
                   <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center justify-center gap-2">
                           <h4 className="text-base font-semibold flex-shrink-0">{t('report.history_panel.filter.title')}</h4>
                           <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
                               <SelectTrigger className="w-full sm:w-[180px] h-9">
@@ -413,7 +413,7 @@ export default function PerformanceReportPage() {
                                   )}
                                 </Button>
                               </PopoverTrigger>
-                              <PopoverContent className="w-auto p-0" align="start">
+                              <PopoverContent className="w-auto p-0 z-50" align="start">
                                 <Calendar
                                   initialFocus
                                   mode="range"
