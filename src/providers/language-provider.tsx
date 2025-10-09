@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
 import en from '@/locales/en.json';
 import id from '@/locales/id.json';
 
@@ -17,7 +18,24 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider = ({ children }: { children: ReactNode }) => {
-  const [locale, setLocale] = useState<Locale>('en');
+  const [locale, setLocaleState] = useState<Locale>('id'); // Default to 'id' initially
+
+  useEffect(() => {
+    // On component mount, try to get the locale from localStorage
+    const storedLocale = localStorage.getItem('kreatask_locale') as Locale | null;
+    if (storedLocale && (storedLocale === 'en' || storedLocale === 'id')) {
+      setLocaleState(storedLocale);
+    }
+  }, []);
+
+  const setLocale = (newLocale: Locale) => {
+    setLocaleState(newLocale);
+    try {
+      localStorage.setItem('kreatask_locale', newLocale);
+    } catch (error) {
+      console.error("Could not save locale to localStorage", error);
+    }
+  };
 
   const t = useCallback((key: string, replacements?: { [key: string]: string }) => {
     const keys = key.split('.');
