@@ -18,12 +18,15 @@ import { KanbanBoard } from "@/components/tasks/kanban-board";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Link from "next/link";
+import { useIsMobile } from "@/hooks/use-mobile";
+
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
   const { allTasks, isLoading } = useTaskData();
   const searchParams = useSearchParams();
   const query = searchParams.get('q') || '';
+  const isMobile = useIsMobile();
   
   const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
@@ -58,6 +61,8 @@ export default function AllTasksPage() {
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+  
+  const currentView = isMobile ? 'list' : viewMode;
 
   return (
     <div className="space-y-6 md:space-y-8">
@@ -74,8 +79,8 @@ export default function AllTasksPage() {
             {t('all_tasks.description')}
           </p>
         </div>
-        <div className="flex gap-2 items-center w-full md:w-auto">
-            <div className="relative flex-1 md:flex-initial">
+        <div className="flex flex-col md:flex-row gap-2 items-center w-full md:w-auto">
+            <div className="relative flex-1 md:flex-initial w-full">
                 <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input 
                   placeholder={t('all_tasks.filter_placeholder')} 
@@ -84,41 +89,44 @@ export default function AllTasksPage() {
                   onChange={(e) => setSearchTerm(e.target.value)} 
                 />
             </div>
-            <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
-                <SelectTrigger className="w-32 md:w-40 h-10">
-                    <SelectValue placeholder={t('all_tasks.all_statuses')} />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
-                    <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
-                    <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
-                    <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
-                    <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
-                    <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
-                </SelectContent>
-            </Select>
-             <div className="hidden md:flex items-center gap-1 rounded-full bg-muted p-1">
-                <Button
-                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="rounded-full h-8 w-8"
-                    onClick={() => setViewMode('list')}
-                >
-                    <List className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={viewMode === 'board' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="rounded-full h-8 w-8"
-                    onClick={() => setViewMode('board')}
-                >
-                    <LayoutGrid className="h-4 w-4" />
-                </Button>
+            <div className="flex gap-2 w-full">
+              <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
+                  <SelectTrigger className="w-full md:w-40 h-10">
+                      <SelectValue placeholder={t('all_tasks.all_statuses')} />
+                  </SelectTrigger>
+                  <SelectContent>
+                      <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
+                      <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
+                      <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
+                      <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
+                      <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
+                      <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
+                  </SelectContent>
+              </Select>
+              <div className="flex items-center gap-1 rounded-full bg-muted p-1">
+                  <Button
+                      variant={currentView === 'list' ? 'secondary' : 'ghost'}
+                      size="icon"
+                      className="rounded-full h-8 w-8"
+                      onClick={() => setViewMode('list')}
+                  >
+                      <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      variant={currentView === 'board' ? 'secondary' : 'ghost'}
+                      size="icon"
+                      className="rounded-full h-8 w-8"
+                      onClick={() => setViewMode('board')}
+                      disabled={isMobile}
+                  >
+                      <LayoutGrid className="h-4 w-4" />
+                  </Button>
+              </div>
             </div>
         </div>
       </div>
 
-      {viewMode === 'list' || (typeof window !== 'undefined' && window.innerWidth < 768) ? (
+      {currentView === 'list' ? (
         <TaskTable tasks={filteredTasks} currentUser={currentUser} />
       ) : (
         <KanbanBoard tasks={filteredTasks} />
