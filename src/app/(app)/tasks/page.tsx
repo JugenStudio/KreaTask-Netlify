@@ -111,7 +111,7 @@ export default function AllTasksPage() {
       </div>
 
       {viewMode === 'list' || (typeof window !== 'undefined' && window.innerWidth < 768) ? (
-        <TaskTable tasks={filteredTasks} />
+        <TaskTable tasks={filteredTasks} currentUser={currentUser} />
       ) : (
         <KanbanBoard tasks={filteredTasks} />
       )}

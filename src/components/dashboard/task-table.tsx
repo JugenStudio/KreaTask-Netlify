@@ -32,12 +32,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { MoreHorizontal, Trash2 } from "lucide-react";
-import type { Task, TaskStatus } from "@/lib/types";
+import type { Task, TaskStatus, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useToast } from "@/hooks/use-toast";
+import { isDirector, isEmployee } from "@/lib/roles";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500 border-transparent text-white",
@@ -47,7 +48,12 @@ const statusColors: Record<TaskStatus, string> = {
   "Blocked": "bg-red-500 border-transparent text-white",
 };
 
-export function TaskTable({ tasks }: { tasks: Task[] }) {
+interface TaskTableProps {
+  tasks: Task[];
+  currentUser: User;
+}
+
+export function TaskTable({ tasks, currentUser }: TaskTableProps) {
   const { locale, t } = useLanguage();
   const { deleteTask } = useTaskData();
   const { toast } = useToast();
@@ -62,6 +68,18 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
       });
       setTaskToDelete(null);
     }
+  };
+
+  const canDeleteTask = (task: Task): boolean => {
+    // Level 2 (Directors) and 3 (Super Admins) can delete any task.
+    if (isDirector(currentUser.role)) {
+      return true;
+    }
+    // Level 1 (Employees) can only delete tasks that are in 'To-do' or 'In Progress' status.
+    if (isEmployee(currentUser.role)) {
+      return task.status === 'To-do' || task.status === 'In Progress';
+    }
+    return false;
   };
 
   if (tasks.length === 0) {
@@ -126,11 +144,15 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
                         <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        <span>{t('all_tasks.actions.delete')}</span>
-                      </DropdownMenuItem>
+                       {canDeleteTask(task) && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>{t('all_tasks.actions.delete')}</span>
+                          </DropdownMenuItem>
+                        </>
+                      )}
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </TableCell>
@@ -161,11 +183,15 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
                                 <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
                               </DropdownMenuItem>
                               <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>{t('all_tasks.actions.delete')}</span>
-                              </DropdownMenuItem>
+                               {canDeleteTask(task) && (
+                                <>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    <span>{t('all_tasks.actions.delete')}</span>
+                                  </DropdownMenuItem>
+                                </>
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                       </div>
