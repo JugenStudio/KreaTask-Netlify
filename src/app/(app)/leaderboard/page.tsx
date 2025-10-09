@@ -70,7 +70,7 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-6 md:space-y-8">
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold font-headline flex items-center gap-3 text-card-foreground">
+        <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3 text-foreground">
           <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
           {t('leaderboard.title')}
         </h1>
