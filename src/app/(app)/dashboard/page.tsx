@@ -37,9 +37,9 @@ export default function DashboardPage() {
             <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
                 <Skeleton className="h-10 md:h-12 w-1/2" />
             </h1>
-            <p className="text-muted-foreground text-base md:text-lg">
+            <div className="text-muted-foreground text-base md:text-lg">
                 <Skeleton className="h-6 md:h-8 w-3/4" />
-            </p>
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                 <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
                 <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />

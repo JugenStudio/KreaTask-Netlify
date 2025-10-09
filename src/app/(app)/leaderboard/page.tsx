@@ -35,7 +35,9 @@ export default function LeaderboardPage() {
     return (
       <div className="space-y-6 md:space-y-8">
         <Skeleton className="h-10 md:h-12 w-1/2" />
-        <Skeleton className="h-6 w-3/4" />
+        <div className="h-6 w-3/4">
+          <Skeleton className="h-full w-full" />
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
           <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
           <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
