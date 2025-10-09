@@ -283,7 +283,10 @@
       "attachments_desc": "Video, illustration, or any other file",
       "cancel_button": "Cancel",
       "submit_button": "Create Task",
-      "submit_button_loading": "Creating..."
+      "submit_button_loading": "Creating...",
+      "checklist_label": "Checklist",
+      "checklist_placeholder": "Add a sub-task item...",
+      "checklist_add_button": "Add"
     },
     "toast": {
       "success_title": "Task Submitted",
@@ -331,3 +334,5 @@
     }
   }
 }
+
+    

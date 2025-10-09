@@ -27,7 +27,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Paperclip, X, WandSparkles, Loader2, Lightbulb } from "lucide-react";
+import { CalendarIcon, Paperclip, X, WandSparkles, Loader2, Lightbulb, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useTaskData } from "@/hooks/use-task-data";
@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { useState, useMemo, useEffect } from "react";
-import { TaskCategory, UserRole, type User, type LocalizedString } from "@/lib/types";
+import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions, getTranslations } from "@/app/actions";
@@ -76,6 +76,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { t, locale } = useLanguage();
+
+  const [subtasks, setSubtasks] = useState<string[]>([]);
+  const [currentSubtask, setCurrentSubtask] = useState("");
 
   const defaultValues: Partial<TaskFormValues> = useMemo(() => ({
       title: "",
@@ -135,6 +138,12 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         const titleTranslations = titleResult.data || { en: values.title, id: values.title };
         const descriptionTranslations = descriptionResult.data || { en: values.description || "", id: values.description || "" };
         
+        const newSubtasks: Subtask[] = subtasks.map((subtaskTitle, index) => ({
+          id: `subtask-${newTaskId}-${index}`,
+          title: subtaskTitle,
+          isCompleted: false,
+        }));
+
         const newTask = {
           id: newTaskId,
           title: titleTranslations,
@@ -151,7 +160,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           revisions: [],
           comments: [],
           files: [],
-          subtasks: [],
+          subtasks: newSubtasks,
         };
         
         addTask(newTask);
@@ -187,6 +196,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
         form.reset();
         setFiles([]);
+        setSubtasks([]);
         setSuggestions([]);
         setAiGoal("");
         router.push('/tasks');
@@ -245,6 +255,18 @@ export function TaskForm({ currentUser }: TaskFormProps) {
       description: t('submit.toast.suggestion_applied_desc'),
     });
   };
+
+  const handleAddSubtask = () => {
+    if (currentSubtask.trim() !== "") {
+      setSubtasks([...subtasks, currentSubtask.trim()]);
+      setCurrentSubtask("");
+    }
+  };
+
+  const handleRemoveSubtask = (index: number) => {
+    setSubtasks(subtasks.filter((_, i) => i !== index));
+  };
+
 
   return (
     <>
@@ -446,6 +468,49 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     </FormItem>
                     )}
                 />
+                 
+                <FormItem>
+                    <FormLabel>Checklist</FormLabel>
+                    <div className="flex gap-2">
+                        <FormControl>
+                            <Input 
+                                placeholder="Add a sub-task item..."
+                                value={currentSubtask}
+                                onChange={(e) => setCurrentSubtask(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddSubtask();
+                                    }
+                                }}
+                                disabled={isSubmitting}
+                            />
+                        </FormControl>
+                        <Button type="button" onClick={handleAddSubtask} disabled={isSubmitting || !currentSubtask.trim()} className="transition-all active:scale-95">
+                            <Plus className="h-4 w-4 mr-2" /> Add
+                        </Button>
+                    </div>
+                     {subtasks.length > 0 && (
+                        <div className="space-y-2 pt-2">
+                            {subtasks.map((task, index) => (
+                                <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-secondary/50">
+                                    <span className="text-sm text-secondary-foreground">{task}</span>
+                                    <Button 
+                                        type="button" 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={() => handleRemoveSubtask(index)} 
+                                        className="h-6 w-6 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all active:scale-95"
+                                        disabled={isSubmitting}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </FormItem>
+
                 </div>
                 
                 <FormItem>
@@ -499,3 +564,5 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
+
+    

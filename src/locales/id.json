@@ -283,7 +283,10 @@
       "attachments_desc": "Video, ilustrasi, atau file lainnya",
       "cancel_button": "Batal",
       "submit_button": "Buat Tugas",
-      "submit_button_loading": "Membuat..."
+      "submit_button_loading": "Membuat...",
+      "checklist_label": "Checklist",
+      "checklist_placeholder": "Tambah item sub-tugas...",
+      "checklist_add_button": "Tambah"
     },
     "toast": {
       "success_title": "Tugas Terkirim",
@@ -331,3 +334,5 @@
     }
   }
 }
+
+    
