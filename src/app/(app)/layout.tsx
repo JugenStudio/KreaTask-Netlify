@@ -4,7 +4,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
-import { users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/bottom-nav";
@@ -26,34 +26,40 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isUserLoading, setIsUserLoading] = useState(true);
+  const { users, isLoading: isTaskDataLoading } = useTaskData();
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
   useEffect(() => {
+    // Only run this logic once the user data from useTaskData is loaded
+    if (isTaskDataLoading) return;
+
     let userToSet: User | null = null;
-    // We check for the explicit currentUser object first.
     const storedUser = sessionStorage.getItem('currentUser');
     
     if (storedUser) {
-        userToSet = JSON.parse(storedUser);
-    } else {
-        // If no user object, we fall back to selectedRole.
-        // This is the main path for a new login simulation.
+        try {
+            userToSet = JSON.parse(storedUser);
+        } catch (e) {
+            console.error("Failed to parse currentUser from sessionStorage", e);
+            sessionStorage.removeItem('currentUser');
+        }
+    } 
+    
+    if (!userToSet) {
         const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
         if (selectedRole) {
             userToSet = users.find(u => u.role === selectedRole) || null;
-            if (!userToSet) {
-              // Handle case where role exists but no user matches, default to first user
+            if (!userToSet && users.length > 0) {
+              // Fallback to the first user if the role isn't found for some reason
               userToSet = users[0];
             }
-        } else {
-            // Default user if nothing is set (e.g., first visit)
+        } else if (users.length > 0) {
+            // Default to the first user if no role is selected (initial load)
             userToSet = users[0]; 
         }
 
-        // IMPORTANT: Only set the 'currentUser' in storage if it wasn't already there.
-        // This prevents overwriting the user on subsequent page loads.
         if (userToSet) {
           sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
         }
@@ -62,13 +68,15 @@ export default function AppLayout({
     if (userToSet) {
         setCurrentUser(userToSet);
     }
-    setIsLoading(false);
-  }, []);
+    setIsUserLoading(false);
+  }, [isTaskDataLoading, users]);
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
       return <>{children}</>
   }
   
+  const isLoading = isUserLoading || isTaskDataLoading;
+
   if (isLoading) {
     return (
       <LanguageProvider>
@@ -107,7 +115,7 @@ export default function AppLayout({
           <div className="flex min-h-screen w-full">
             {!isMobile && currentUser && <AppSidebar user={currentUser} />}
             <div className="flex flex-1 flex-col bg-transparent">
-              <Header />
+              {currentUser && <Header />}
               <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -138,5 +146,3 @@ export const useCurrentUser = () => {
   }
   return context;
 };
-
-    
