@@ -34,7 +34,7 @@ import { users } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { TaskCategory, UserRole, type User } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
@@ -72,39 +72,35 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const [error, setError] = useState<string | null>(null);
   const { t } = useLanguage();
 
-  const defaultValues: Partial<TaskFormValues> = {
+  const defaultValues: Partial<TaskFormValues> = useMemo(() => ({
       title: "",
       description: "",
       category: TaskCategory.Medium,
-      assignees: [],
-  };
+      assignees: isEmployee(currentUser.role) ? [currentUser.id] : [],
+  }), [currentUser]);
 
   const form = useForm<TaskFormValues>({
     resolver: zodResolver(taskFormSchema),
     defaultValues,
   });
 
+  useEffect(() => {
+    form.reset(defaultValues);
+  }, [currentUser, defaultValues, form]);
+
+
   const assignableUsers = useMemo(() => {
     if (isEmployee(currentUser.role)) {
-      // Level 1 can only assign to themselves (implicitly)
       return [currentUser];
     }
     if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
-      // Level 3 can assign to anyone including themselves for delegation
       return users;
     }
     if (isDirector(currentUser.role)) {
-      // Level 2 can assign to employees and themselves
       return users.filter(u => isEmployee(u.role) || u.id === currentUser.id);
     }
     return [];
   }, [currentUser]);
-
-  // If user is employee, auto-assign to them
-  if (isEmployee(currentUser.role)) {
-      defaultValues.assignees = [currentUser.id];
-  }
-
 
   function onSubmit(values: TaskFormValues) {
     console.log(values);
@@ -401,3 +397,5 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
+
+    
