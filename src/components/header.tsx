@@ -164,7 +164,7 @@ export function Header() {
                     English
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setLocale("id")}>
-                    Bahasa Indonesia
+                    Indonesia
                   </DropdownMenuItem>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
