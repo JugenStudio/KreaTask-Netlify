@@ -30,7 +30,7 @@ import {
 import { CalendarIcon, Paperclip, X, WandSparkles, Loader2, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { users } from "@/lib/data";
+import { users, allTasks } from "@/lib/data";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
@@ -41,6 +41,9 @@ import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
+import { mockNotifications } from "@/lib/notifications";
+import { useRouter } from "next/navigation";
+
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -65,12 +68,13 @@ interface Suggestion {
 
 export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
+  const router = useRouter();
   const [files, setFiles] = useState<File[]>([]);
   const [aiGoal, setAiGoal] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const { t } = useLanguage();
+  const { t, locale } = useLanguage();
 
   const defaultValues: Partial<TaskFormValues> = useMemo(() => ({
       title: "",
@@ -103,15 +107,69 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   }, [currentUser]);
 
   function onSubmit(values: TaskFormValues) {
-    console.log(values);
+    const newTaskId = `task-${Date.now()}`;
+    const assignedUser = users.find(u => u.id === values.assignees[0]);
+
+    // Simulate creating the new task object
+    const newTask = {
+      id: newTaskId,
+      title: { en: values.title, id: values.title },
+      description: { en: values.description || '', id: values.description || '' },
+      status: 'To-do' as const,
+      assignees: assignedUser ? [assignedUser] : [],
+      dueDate: format(values.dueDate, 'yyyy-MM-dd'),
+      createdAt: new Date().toISOString(),
+      category: values.category,
+      value: 0,
+      valueCategory: 'Rendah' as const,
+      evaluator: 'AI' as const,
+      approvedBy: null,
+      revisions: [],
+      comments: [],
+      files: [],
+      subtasks: [],
+    };
+
+    // Simulate adding to the "database" by pushing to the in-memory array
+    allTasks.unshift(newTask);
+
+    // Simulate creating a notification
+    mockNotifications.unshift({
+      id: `notif-${Date.now()}`,
+      userId: currentUser.id,
+      message: `You created a new task: "${values.title}"`,
+      type: 'TASK_ASSIGN',
+      read: false,
+      link: `/tasks/${newTaskId}`,
+      taskId: newTaskId,
+      createdAt: new Date().toISOString(),
+    });
+    
+    if (assignedUser && assignedUser.id !== currentUser.id) {
+       mockNotifications.unshift({
+        id: `notif-${Date.now() + 1}`,
+        userId: assignedUser.id,
+        message: `${currentUser.name} assigned you a new task: "${values.title}"`,
+        type: 'TASK_ASSIGN',
+        read: false,
+        link: `/tasks/${newTaskId}`,
+        taskId: newTaskId,
+        createdAt: new Date().toISOString(),
+      });
+    }
+
     toast({
       title: t('submit.toast.success_title'),
       description: t('submit.toast.success_desc', { title: values.title }),
     });
+
     form.reset();
     setFiles([]);
     setSuggestions([]);
     setAiGoal("");
+
+    // Redirect to the task list page to see the new task
+    router.push('/tasks');
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
