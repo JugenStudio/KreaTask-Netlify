@@ -127,7 +127,7 @@
     "validation_panel": {
       "title": "Awaiting Your Validation",
       "description": "List of tasks whose scores need to be approved by you as the Main Director.",
-      "tasks_selected": "{{count}} task(s) selected",
+      "tasks_selected": "{{count}} selected",
       "tasks_approved_toast": "{{count}} tasks approved",
       "tasks_approved_desc_toast": "The selected tasks have been validated.",
       "table": {
