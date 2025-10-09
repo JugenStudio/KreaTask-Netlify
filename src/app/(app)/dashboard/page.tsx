@@ -16,28 +16,12 @@ import type { Task, User, LeaderboardEntry } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function DashboardPage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useCurrentUser();
   const [currentUserLeaderboard, setCurrentUserLeaderboard] = useState<LeaderboardEntry | null>(null);
   const { t } = useLanguage();
-
-  useEffect(() => {
-    // Try to get user from sessionStorage first
-    const storedUser = sessionStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Fallback to role-based selection if not in session
-      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-      if (selectedRole) {
-        const user = users.find(u => u.role === selectedRole);
-        setCurrentUser(user || users[0]);
-      } else {
-        setCurrentUser(users[0]); // Default to Direktur Utama
-      }
-    }
-  }, []);
 
   useEffect(() => {
     if (currentUser) {
@@ -81,7 +65,7 @@ export default function DashboardPage() {
 
   // Data for Director view
   const topThree = leaderboardData.slice(0, 3);
-  const topPerformer = leaderboardData[0];
+  const topPerformer = leaderboardData.find(u => u.name === "Deva") || leaderboardData[0];
   const totalTasksCompletedTeam = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
     0

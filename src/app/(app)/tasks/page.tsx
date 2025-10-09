@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,30 +15,14 @@ import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { KanbanBoard } from "@/components/tasks/kanban-board";
 import { cn } from "@/lib/utils";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function AllTasksPage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const { t, locale } = useLanguage();
-
-  useEffect(() => {
-    // Try to get user from sessionStorage first
-    const storedUser = sessionStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Fallback to role-based selection if not in session
-      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-      if (selectedRole) {
-        const user = users.find(u => u.role === selectedRole);
-        setCurrentUser(user || users[0]);
-      } else {
-        setCurrentUser(users[0]);
-      }
-    }
-  }, []);
 
   if (!currentUser) {
     return (
@@ -118,7 +102,7 @@ export default function AllTasksPage() {
         </div>
       </div>
 
-      {viewMode === 'list' || window.innerWidth < 768 ? (
+      {viewMode === 'list' || (typeof window !== 'undefined' && window.innerWidth < 768) ? (
         <TaskTable tasks={filteredTasks} />
       ) : (
         <KanbanBoard tasks={filteredTasks} />

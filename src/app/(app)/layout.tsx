@@ -9,26 +9,24 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/bottom-nav";
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from "react";
+import { useEffect, useState, createContext, useContext } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+
+// 1. Create the context
+const UserContext = createContext<{ currentUser: User | null }>({
+  currentUser: null,
+});
 
 export default function AppLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-        const storedUser = sessionStorage.getItem('currentUser');
-        if (storedUser) {
-            return JSON.parse(storedUser);
-        }
-    }
-    return null;
-  });
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const isMobile = useIsMobile();
   const pathname = usePathname();
 
@@ -43,21 +41,24 @@ export default function AppLayout({
         if (selectedRole) {
             userToSet = users.find(u => u.role === selectedRole) || users[0];
         } else {
-            userToSet = users[0];
+            userToSet = users[0]; // Default user
         }
     }
 
     if (userToSet) {
         setCurrentUser(userToSet);
-        sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
+        if (!storedUser) {
+          sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
+        }
     }
-  }, [pathname]);
+    setIsLoading(false);
+  }, []);
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
       return <>{children}</>
   }
   
-  if (!currentUser) {
+  if (isLoading) {
     return (
       <LanguageProvider>
         <div className="flex min-h-screen w-full bg-background">
@@ -90,28 +91,39 @@ export default function AppLayout({
 
   return (
     <LanguageProvider>
-      <div className={cn("min-h-screen w-full bg-background")}>
-        <div className="flex min-h-screen w-full">
-          {!isMobile && <AppSidebar user={currentUser} />}
-          <div className="flex flex-1 flex-col bg-transparent">
-            <Header />
-            <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={pathname}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                >
-                  {children}
-                </motion.div>
-              </AnimatePresence>
-            </main>
+      <UserContext.Provider value={{ currentUser }}>
+        <div className={cn("min-h-screen w-full bg-background")}>
+          <div className="flex min-h-screen w-full">
+            {!isMobile && currentUser && <AppSidebar user={currentUser} />}
+            <div className="flex flex-1 flex-col bg-transparent">
+              <Header />
+              <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={pathname}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                  >
+                    {children}
+                  </motion.div>
+                </AnimatePresence>
+              </main>
+            </div>
           </div>
+          {isMobile && <BottomNav />}
         </div>
-        {isMobile && <BottomNav />}
-      </div>
+      </UserContext.Provider>
     </LanguageProvider>
   );
 }
+
+// 2. Create a custom hook to use the context
+export const useCurrentUser = () => {
+  const context = useContext(UserContext);
+  if (context === undefined) {
+    throw new Error('useCurrentUser must be used within a AppLayout');
+  }
+  return context;
+};

@@ -4,32 +4,13 @@
 import { TaskForm } from "@/components/submit/task-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/providers/language-provider";
-import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
-import { users } from "@/lib/data";
-import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function SubmitPage() {
   const { t } = useLanguage();
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    // Try to get user from sessionStorage first
-    const storedUser = sessionStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Fallback to role-based selection if not in session
-      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-      if (selectedRole) {
-        const user = users.find(u => u.role === selectedRole);
-        setCurrentUser(user || users[0]);
-      } else {
-        setCurrentUser(users[0]);
-      }
-    }
-  }, []);
+  const { currentUser } = useCurrentUser();
 
 
   return (

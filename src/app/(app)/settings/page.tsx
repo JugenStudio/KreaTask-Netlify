@@ -9,27 +9,12 @@ import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/providers/language-provider";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function SettingsPage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useCurrentUser();
   const { t } = useLanguage();
 
-  useEffect(() => {
-    // Try to get user from sessionStorage first
-    const storedUser = sessionStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Fallback to role-based selection if not in session
-      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-      if (selectedRole) {
-        const user = users.find(u => u.role === selectedRole);
-        setCurrentUser(user || users[0]);
-      } else {
-        setCurrentUser(users[0]);
-      }
-    }
-  }, []);
 
   if (!currentUser) {
     return (

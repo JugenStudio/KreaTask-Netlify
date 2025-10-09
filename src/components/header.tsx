@@ -28,30 +28,19 @@ import {
   DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { users } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
 import { Badge } from "@/components/ui/badge";
 import type { User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationCenter } from "@/components/notifications/notification-center";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 type Theme = "light" | "dark" | "system";
 
 export function Header() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useCurrentUser();
   const { locale, t, setLocale } = useLanguage();
   const [theme, setTheme] = useState<Theme>("system");
-
-  useEffect(() => {
-    const selectedRole = sessionStorage.getItem("selectedRole") as UserRole | null;
-    if (selectedRole) {
-      const user = users.find((u) => u.role === selectedRole);
-      setCurrentUser(user || users[0]);
-    } else {
-      setCurrentUser(users[0]); // Default to Direktur Utama
-    }
-  }, []);
 
   useEffect(() => {
     const storedTheme = localStorage.getItem("theme") as Theme | null;

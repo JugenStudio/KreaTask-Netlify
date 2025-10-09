@@ -25,9 +25,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format, addDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function PerformanceReportPage() {
-  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { currentUser } = useCurrentUser();
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,23 +41,6 @@ export default function PerformanceReportPage() {
   const [statusFilter, setStatusFilter] = useState<"all" | "approved" | "waiting">("all");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
-
-  useEffect(() => {
-    // Try to get user from sessionStorage first
-    const storedUser = sessionStorage.getItem('currentUser');
-    if (storedUser) {
-      setCurrentUser(JSON.parse(storedUser));
-    } else {
-      // Fallback to role-based selection if not in session
-      const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
-      if (selectedRole) {
-        const user = users.find(u => u.role === selectedRole);
-        setCurrentUser(user || users[0]);
-      } else {
-        setCurrentUser(users[0]);
-      }
-    }
-  }, []);
 
   const handleApprove = (taskId: string) => {
     setTasks(prevTasks =>
