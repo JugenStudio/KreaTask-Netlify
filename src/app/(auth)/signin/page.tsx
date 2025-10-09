@@ -17,14 +17,14 @@ export default function SignInPage() {
   const [role, setRole] = useState<UserRole>(UserRole.DIREKTUR_UTAMA);
 
   useEffect(() => {
-    // Clear previous user session data to ensure a fresh login simulation
+    // Clear only session-level user data, keep persistent data in localStorage
     sessionStorage.removeItem('currentUser');
     sessionStorage.removeItem('selectedRole');
   }, []);
 
   const handleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    // Store the newly selected role in session storage
+    // Store the newly selected role in session storage to be picked up by the layout
     sessionStorage.setItem('selectedRole', role);
     router.push('/dashboard');
   };

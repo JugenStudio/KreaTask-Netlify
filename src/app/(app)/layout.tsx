@@ -36,11 +36,18 @@ export default function AppLayout({
     if (isTaskDataLoading) return;
 
     let userToSet: User | null = null;
+    // sessionStorage is used for session-specific info like the currently simulated user
     const storedUser = sessionStorage.getItem('currentUser');
     
     if (storedUser) {
         try {
-            userToSet = JSON.parse(storedUser);
+            // Validate that the user from sessionStorage still exists in our main user list
+            const parsedUser: User = JSON.parse(storedUser);
+            if (users.find(u => u.id === parsedUser.id)) {
+                 userToSet = parsedUser;
+            } else {
+                 sessionStorage.removeItem('currentUser'); // Clear invalid user
+            }
         } catch (e) {
             console.error("Failed to parse currentUser from sessionStorage", e);
             sessionStorage.removeItem('currentUser');

@@ -46,10 +46,15 @@ export function useTaskData() {
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
 
   useEffect(() => {
+    // Prevent execution on server
+    if (typeof window === 'undefined') {
+        return;
+    }
+    
     try {
-      const storedTasks = sessionStorage.getItem('tasks');
-      const storedUsers = sessionStorage.getItem('users');
-      const storedNotifications = sessionStorage.getItem('notifications');
+      const storedTasks = localStorage.getItem('kreatask_tasks');
+      const storedUsers = localStorage.getItem('kreatask_users');
+      const storedNotifications = localStorage.getItem('kreatask_notifications');
 
       const tasks = storedTasks ? JSON.parse(storedTasks) : initialData.allTasks;
       const users = storedUsers ? JSON.parse(storedUsers) : initialData.users;
@@ -59,16 +64,19 @@ export function useTaskData() {
       setUsersState(users);
       setNotificationsState(notifications);
 
-      if (!storedTasks) sessionStorage.setItem('tasks', JSON.stringify(tasks));
-      if (!storedUsers) sessionStorage.setItem('users', JSON.stringify(users));
-      if (!storedNotifications) sessionStorage.setItem('notifications', JSON.stringify(notifications));
+      if (!storedTasks) localStorage.setItem('kreatask_tasks', JSON.stringify(tasks));
+      if (!storedUsers) localStorage.setItem('kreatask_users', JSON.stringify(users));
+      if (!storedNotifications) localStorage.setItem('kreatask_notifications', JSON.stringify(notifications));
 
     } catch (error) {
-        console.error("Failed to parse data from sessionStorage", error);
-        // Fallback to initial data
+        console.error("Failed to parse data from localStorage", error);
+        // Fallback to initial data and clear potentially corrupted storage
         setAllTasks(initialData.allTasks);
         setUsersState(initialData.users);
         setNotificationsState(initialData.mockNotifications);
+        localStorage.removeItem('kreatask_tasks');
+        localStorage.removeItem('kreatask_users');
+        localStorage.removeItem('kreatask_notifications');
     } finally {
         setIsLoading(false);
     }
@@ -78,37 +86,38 @@ export function useTaskData() {
     if (allTasks.length > 0 && users.length > 0) {
       const newLeaderboard = calculateLeaderboard(allTasks, users);
       setLeaderboardData(newLeaderboard);
+      localStorage.setItem('kreatask_tasks', JSON.stringify(allTasks));
     }
   }, [allTasks, users]);
 
 
-  const updateSessionStorage = (key: string, data: any) => {
+  const updateLocalStorage = (key: string, data: any) => {
       try {
-          sessionStorage.setItem(key, JSON.stringify(data));
+          localStorage.setItem(key, JSON.stringify(data));
       } catch (error) {
-          console.error(`Failed to update sessionStorage for key: ${key}`, error);
+          console.error(`Failed to update localStorage for key: ${key}`, error);
       }
   };
 
   const setUsers = (newUsers: User[]) => {
     setUsersState(newUsers);
-    updateSessionStorage('users', newUsers);
+    updateLocalStorage('kreatask_users', newUsers);
   };
 
   const setAllTasksAndStorage = (newTasks: Task[]) => {
       setAllTasks(newTasks);
-      updateSessionStorage('tasks', newTasks);
+      updateLocalStorage('kreatask_tasks', newTasks);
   };
 
   const setNotifications = (newNotifications: Notification[]) => {
       setNotificationsState(newNotifications);
-      updateSessionStorage('notifications', newNotifications);
+      updateLocalStorage('kreatask_notifications', newNotifications);
   };
   
   const addTask = (newTask: Task) => {
     setAllTasks(prevTasks => {
         const updatedTasks = [newTask, ...prevTasks];
-        updateSessionStorage('tasks', updatedTasks);
+        updateLocalStorage('kreatask_tasks', updatedTasks);
         return updatedTasks;
     });
   };
@@ -128,7 +137,7 @@ export function useTaskData() {
   const addNotification = useCallback((newNotification: Notification) => {
     setNotificationsState(prevNotifications => {
       const updatedNotifications = [newNotification, ...prevNotifications];
-      updateSessionStorage('notifications', updatedNotifications);
+      updateLocalStorage('kreatask_notifications', updatedNotifications);
       return updatedNotifications;
     });
   }, []);
