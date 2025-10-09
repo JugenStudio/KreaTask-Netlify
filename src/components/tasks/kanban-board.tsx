@@ -62,7 +62,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
     const { t } = useLanguage();
 
     return (
-        <div className="flex-shrink-0 w-72">
+        <div className="w-full md:w-72 flex-shrink-0">
             <div className="h-full bg-secondary/50 rounded-xl md:rounded-2xl">
                 <CardHeader className="p-3 flex-row justify-between items-center space-y-0">
                     <div className="flex items-center gap-2">
@@ -73,14 +73,12 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <CardContent className="p-1.5 pt-0 h-full">
-                    <ScrollArea className="h-[calc(100vh-20rem)] rounded-lg">
-                        <div className="p-1.5 space-y-1">
-                            {tasks.map(task => (
-                                <KanbanTaskCard key={task.id} task={task} />
-                            ))}
-                        </div>
-                    </ScrollArea>
+                <CardContent className="p-1.5 pt-0">
+                    <div className="space-y-1">
+                        {tasks.map(task => (
+                            <KanbanTaskCard key={task.id} task={task} />
+                        ))}
+                    </div>
                 </CardContent>
             </div>
         </div>
@@ -89,9 +87,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
 
 export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     
-    // In a real app, setTasks would come from a context or prop to handle drag-and-drop state changes
-    // For now, it's just for display
-    const [taskState, setTaskState] = useState(tasks);
+    const [taskState] = useState(tasks);
     const { t } = useLanguage();
 
     const tasksByStatus = statusColumns.reduce((acc, status) => {
@@ -110,7 +106,8 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
 
   return (
     <ScrollArea className="w-full rounded-lg">
-        <div className="flex gap-4 pb-4">
+        {/* On mobile, columns stack vertically. On desktop, they are in a row. */}
+        <div className="flex flex-col md:flex-row gap-4 pb-4">
             {statusColumns.map(status => (
                 <KanbanColumn
                     key={status}
