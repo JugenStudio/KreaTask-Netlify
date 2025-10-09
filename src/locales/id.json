@@ -69,7 +69,15 @@
     "assignees": "Penerima Tugas",
     "due_date": "Batas Waktu",
     "attachments": "Lampiran",
-    "no_attachments": "Tidak ada file terlampir."
+    "no_attachments": "Tidak ada file terlampir.",
+    "tabs": {
+      "comments": "Komentar",
+      "history": "Riwayat"
+    },
+    "checklist": {
+      "title": "Checklist",
+      "progress": "{{completed}} dari {{total}} sub-tugas selesai"
+    }
   },
   "history": {
     "title": "Riwayat Revisi",
@@ -79,7 +87,10 @@
   "comments": {
     "title": "Komentar",
     "add_comment_placeholder": "Tambahkan komentar...",
-    "post_button": "Kirim Komentar"
+    "post_button": "Kirim Komentar",
+    "summarize_button": "Ringkas dengan AI",
+    "summarizing_button": "Meringkas...",
+    "ai_summary_title": "Ringkasan AI"
   },
   "leaderboard": {
     "title": "Peringkat Kinerja Karyawan",
@@ -219,11 +230,45 @@
   },
   "submit": {
     "title": "Kirim Tugas Baru",
-    "description": "Isi detail di bawah ini untuk membuat tugas baru."
+    "description": "Isi detail di bawah ini untuk membuat tugas baru.",
+    "separator": "ATAU",
+    "ai_generator": {
+      "title": "Generator Tugas AI",
+      "placeholder": "Jelaskan tujuan proyek Anda, mis., 'Luncurkan kampanye pemasaran baru untuk Q4'",
+      "button": "Buat Saran Tugas",
+      "loading_button": "Membuat...",
+      "suggestions_title": "Saran Tugas:"
+    },
+    "manual_form": {
+      "title": "Buat Tugas Manual",
+      "task_title_label": "Judul Tugas",
+      "task_title_placeholder": "mis., Buat animasi bagian hero baru",
+      "category_label": "Kategori",
+      "category_placeholder": "Pilih kategori",
+      "due_date_label": "Batas Waktu",
+      "due_date_placeholder": "Pilih tanggal",
+      "assign_to_label": "Tugaskan Kepada",
+      "assign_to_placeholder": "Pilih karyawan atau direktur",
+      "description_label": "Deskripsi",
+      "description_placeholder": "Tambahkan deskripsi detail untuk tugas...",
+      "attachments_label": "Lampiran",
+      "attachments_cta": "Klik untuk mengunggah",
+      "attachments_dnd": "atau seret dan lepas",
+      "attachments_desc": "Video, ilustrasi, atau file lainnya",
+      "cancel_button": "Batal",
+      "submit_button": "Buat Tugas"
+    },
+    "toast": {
+      "success_title": "Tugas Terkirim",
+      "success_desc": "\"{{title}}\" telah berhasil dibuat.",
+      "suggestion_applied_title": "Saran Diterapkan",
+      "suggestion_applied_desc": "Detail tugas telah diisi dari saran AI."
+    }
   },
   "all_tasks": {
     "title": "Semua Tugas",
     "description": "Telusuri dan kelola semua tugas di seluruh tim.",
+    "back_to_tasks": "Kembali ke Tugas",
     "filter_placeholder": "Filter tugas...",
     "all_statuses": "Semua Status",
     "status": {

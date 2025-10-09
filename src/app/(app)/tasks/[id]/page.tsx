@@ -35,7 +35,7 @@ export default function TaskDetailPage() {
     <div className="space-y-6">
         <Button variant="outline" size="sm" onClick={() => router.back()} className="mb-4">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Tasks
+            {t('all_tasks.back_to_tasks')}
         </Button>
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
         <div className="md:col-span-2">

@@ -40,6 +40,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions } from "@/app/actions";
 import { Separator } from "../ui/separator";
+import { useLanguage } from "@/providers/language-provider";
 
 const taskFormSchema = z.object({
   title: z.string().min(1, "Title is required."),
@@ -69,6 +70,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useLanguage();
 
   const defaultValues: Partial<TaskFormValues> = {
       title: "",
@@ -99,8 +101,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   function onSubmit(values: TaskFormValues) {
     console.log(values);
     toast({
-      title: "Task Submitted",
-      description: `"${values.title}" has been created.`,
+      title: t('submit.toast.success_title'),
+      description: t('submit.toast.success_desc', { title: values.title }),
     });
     form.reset();
     setFiles([]);
@@ -144,8 +146,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     form.setValue("title", suggestion.title);
     form.setValue("description", suggestion.description);
     toast({
-      title: "Suggestion Applied",
-      description: "Task details have been filled from the AI suggestion.",
+      title: t('submit.toast.suggestion_applied_title'),
+      description: t('submit.toast.suggestion_applied_desc'),
     });
   };
 
@@ -155,13 +157,13 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-xl md:text-2xl">
             <WandSparkles className="h-6 w-6 text-primary" />
-            AI Task Generator
+            {t('submit.ai_generator.title')}
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <Textarea
-              placeholder="Describe your project goal, e.g., 'Launch a new marketing campaign for Q4'"
+              placeholder={t('submit.ai_generator.placeholder')}
               value={aiGoal}
               onChange={(e) => setAiGoal(e.target.value)}
               className="h-20"
@@ -171,16 +173,16 @@ export function TaskForm({ currentUser }: TaskFormProps) {
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Generating...
+                  {t('submit.ai_generator.loading_button')}
                 </>
               ) : (
-                "Generate Task Suggestions"
+                t('submit.ai_generator.button')
               )}
             </Button>
             {error && <p className="text-sm text-destructive">{error}</p>}
             {suggestions.length > 0 && (
               <div className="space-y-3 pt-4">
-                 <h4 className="font-semibold text-md">Suggested Tasks:</h4>
+                 <h4 className="font-semibold text-md">{t('submit.ai_generator.suggestions_title')}</h4>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {suggestions.map((s, i) => (
                       <Card 
@@ -208,12 +210,12 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
       <div className="relative my-6 md:my-8">
         <Separator />
-        <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">OR</span>
+        <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">{t('submit.separator')}</span>
       </div>
 
       <Card>
         <CardHeader>
-            <CardTitle className="font-headline text-xl md:text-2xl">Create Task Manually</CardTitle>
+            <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
         </CardHeader>
         <CardContent>
             <Form {...form}>
@@ -225,9 +227,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     name="title"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Task Title</FormLabel>
+                        <FormLabel>{t('submit.manual_form.task_title_label')}</FormLabel>
                         <FormControl>
-                            <Input placeholder="e.g., Animate new hero section" {...field} />
+                            <Input placeholder={t('submit.manual_form.task_title_placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                         </FormItem>
@@ -238,11 +240,11 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     name="category"
                     render={({ field }) => (
                         <FormItem>
-                        <FormLabel>Category</FormLabel>
+                        <FormLabel>{t('submit.manual_form.category_label')}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                             <SelectTrigger>
-                                <SelectValue placeholder="Select a category" />
+                                <SelectValue placeholder={t('submit.manual_form.category_placeholder')} />
                             </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -265,7 +267,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     name="dueDate"
                     render={({ field }) => (
                         <FormItem className="flex flex-col">
-                        <FormLabel>Due Date</FormLabel>
+                        <FormLabel>{t('submit.manual_form.due_date_label')}</FormLabel>
                         <Popover>
                             <PopoverTrigger asChild>
                             <FormControl>
@@ -280,7 +282,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                                 {field.value ? (
                                     format(field.value, "PPP")
                                 ) : (
-                                    <span>Pick a date</span>
+                                    <span>{t('submit.manual_form.due_date_placeholder')}</span>
                                 )}
                                 </Button>
                             </FormControl>
@@ -305,11 +307,11 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         name="assignees"
                         render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Assign To</FormLabel>
+                            <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
                             <Select onValueChange={(value) => field.onChange([value])} >
                             <FormControl>
                                 <SelectTrigger>
-                                <SelectValue placeholder="Select an employee or director" />
+                                <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
                                 </SelectTrigger>
                             </FormControl>
                             <SelectContent>
@@ -335,10 +337,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     name="description"
                     render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>{t('submit.manual_form.description_label')}</FormLabel>
                         <FormControl>
                         <Textarea
-                            placeholder="Add a detailed description for the task..."
+                            placeholder={t('submit.manual_form.description_placeholder')}
                             className="resize-none h-24"
                             {...field}
                         />
@@ -350,14 +352,14 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 </div>
                 
                 <FormItem>
-                <FormLabel>Attachments</FormLabel>
+                <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
                 <FormControl>
                     <div className="flex items-center justify-center w-full">
                     <label htmlFor="dropzone-file" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-secondary hover:bg-muted">
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
-                            <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">Click to upload</span> or drag and drop</p>
-                            <p className="text-xs text-muted-foreground">Video, illustration, or any other file</p>
+                            <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
+                            <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
                         </div>
                         <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} />
                     </label>
@@ -381,8 +383,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 </FormItem>
 
                 <div className="flex justify-end gap-2">
-                    <Button type="button" variant="ghost" className="transition-all active:scale-95">Cancel</Button>
-                    <Button type="submit" className="transition-all active:scale-95">Create Task</Button>
+                    <Button type="button" variant="ghost" className="transition-all active:scale-95">{t('submit.manual_form.cancel_button')}</Button>
+                    <Button type="submit" className="transition-all active:scale-95">{t('submit.manual_form.submit_button')}</Button>
                 </div>
             </form>
             </Form>
@@ -391,4 +393,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-

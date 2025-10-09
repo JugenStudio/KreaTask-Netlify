@@ -69,7 +69,15 @@
     "assignees": "Assignees",
     "due_date": "Due Date",
     "attachments": "Attachments",
-    "no_attachments": "No files attached."
+    "no_attachments": "No files attached.",
+    "tabs": {
+      "comments": "Comments",
+      "history": "History"
+    },
+    "checklist": {
+      "title": "Checklist",
+      "progress": "{{completed}} of {{total}} sub-tasks completed"
+    }
   },
   "history": {
     "title": "Revision History",
@@ -79,7 +87,10 @@
   "comments": {
     "title": "Comments",
     "add_comment_placeholder": "Add a comment...",
-    "post_button": "Post Comment"
+    "post_button": "Post Comment",
+    "summarize_button": "Summarize with AI",
+    "summarizing_button": "Summarizing...",
+    "ai_summary_title": "AI Summary"
   },
   "leaderboard": {
     "title": "Employee Performance Leaderboard",
@@ -219,11 +230,45 @@
   },
   "submit": {
     "title": "Submit a New Task",
-    "description": "Fill out the details below to create a new task."
+    "description": "Fill out the details below to create a new task.",
+    "separator": "OR",
+    "ai_generator": {
+      "title": "AI Task Generator",
+      "placeholder": "Describe your project goal, e.g., 'Launch a new marketing campaign for Q4'",
+      "button": "Generate Task Suggestions",
+      "loading_button": "Generating...",
+      "suggestions_title": "Suggested Tasks:"
+    },
+    "manual_form": {
+      "title": "Create Task Manually",
+      "task_title_label": "Task Title",
+      "task_title_placeholder": "e.g., Animate new hero section",
+      "category_label": "Category",
+      "category_placeholder": "Select a category",
+      "due_date_label": "Due Date",
+      "due_date_placeholder": "Pick a date",
+      "assign_to_label": "Assign To",
+      "assign_to_placeholder": "Select an employee or director",
+      "description_label": "Description",
+      "description_placeholder": "Add a detailed description for the task...",
+      "attachments_label": "Attachments",
+      "attachments_cta": "Click to upload",
+      "attachments_dnd": "or drag and drop",
+      "attachments_desc": "Video, illustration, or any other file",
+      "cancel_button": "Cancel",
+      "submit_button": "Create Task"
+    },
+    "toast": {
+      "success_title": "Task Submitted",
+      "success_desc": "\"{{title}}\" has been created.",
+      "suggestion_applied_title": "Suggestion Applied",
+      "suggestion_applied_desc": "Task details have been filled from the AI suggestion."
+    }
   },
   "all_tasks": {
     "title": "All Tasks",
     "description": "Browse and manage all tasks across the team.",
+    "back_to_tasks": "Back to Tasks",
     "filter_placeholder": "Filter tasks...",
     "all_statuses": "All Statuses",
     "status": {

@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useActionState } from "react";
@@ -24,17 +25,18 @@ const initialState = {
 
 function SummarizeButton() {
   const { pending } = useFormStatus();
+  const { t } = useLanguage();
   return (
     <Button size="sm" type="submit" disabled={pending}>
       {pending ? (
         <>
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          Summarizing...
+          {t('comments.summarizing_button')}
         </>
       ) : (
         <>
           <Bot className="mr-2 h-4 w-4" />
-          Summarize with AI
+          {t('comments.summarize_button')}
         </>
       )}
     </Button>
@@ -85,7 +87,7 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
         <Card className="bg-secondary">
           <CardHeader className="flex flex-row items-center gap-2 pb-2">
             <Bot className="h-5 w-5 text-primary" />
-            <CardTitle className="text-md font-headline">AI Summary</CardTitle>
+            <CardTitle className="text-md font-headline">{t('comments.ai_summary_title')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground whitespace-pre-wrap">{state.summary}</p>

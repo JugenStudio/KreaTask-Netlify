@@ -23,6 +23,7 @@ import {
   Image as ImageIcon,
   Palette,
   Check,
+  ListChecks,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -73,7 +74,7 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
                 <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
             </div>
             <Badge className={cn("text-white text-xs md:text-sm whitespace-nowrap", statusColors[task.status])}>
-                {task.status}
+                {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
             </Badge>
         </div>
       </CardHeader>
@@ -86,10 +87,10 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
         
         {task.subtasks && task.subtasks.length > 0 && (
           <div className="space-y-4">
-            <h4 className="font-semibold text-base md:text-lg">Checklist</h4>
+            <h4 className="font-semibold text-base md:text-lg flex items-center gap-2"><ListChecks className="h-5 w-5"/> {t('task.checklist.title')}</h4>
             <div className="space-y-2">
                 <Progress value={progressPercentage} className="h-2" />
-                <p className="text-xs text-muted-foreground">{completedSubtasks} of {totalSubtasks} sub-tasks completed</p>
+                <p className="text-xs text-muted-foreground">{t('task.checklist.progress', { completed: completedSubtasks.toString(), total: totalSubtasks.toString() })}</p>
             </div>
             <div className="space-y-3">
               {task.subtasks.map(subtask => (
