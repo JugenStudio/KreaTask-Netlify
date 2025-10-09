@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import type { LeaderboardEntry } from "@/lib/types";
 import { Crown } from "lucide-react";
+import Link from "next/link";
 
 export function TopPerformerCard({ performer }: { performer: LeaderboardEntry }) {
   return (
@@ -28,8 +30,8 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
         <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 font-semibold border-none">
           {performer.tasksCompleted} Tasks Completed
         </Badge>
-        <Button className="w-full rounded-full bg-primary hover:bg-green-500 text-primary-foreground font-bold">
-          View Profile
+        <Button asChild className="w-full rounded-full bg-primary hover:bg-green-500 text-primary-foreground font-bold">
+          <Link href="/profile">View Profile</Link>
         </Button>
       </CardContent>
     </Card>
