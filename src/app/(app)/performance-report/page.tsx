@@ -17,6 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { EditValueModal } from "@/components/performance-report/edit-value-modal";
 import { useLanguage } from "@/providers/language-provider";
 import { Separator } from "@/components/ui/separator";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function PerformanceReportPage() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -24,6 +25,7 @@ export default function PerformanceReportPage() {
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
+  const [selectedForApproval, setSelectedForApproval] = useState<Set<string>>(new Set());
   const { t, locale } = useLanguage();
 
   useEffect(() => {
@@ -47,6 +49,19 @@ export default function PerformanceReportPage() {
       description: t('report.toast.approved.description'),
     });
   };
+
+  const handleBulkApprove = () => {
+    setTasks(prevTasks =>
+      prevTasks.map(task =>
+        selectedForApproval.has(task.id) ? { ...task, approvedBy: "Direktur Utama" } : task
+      )
+    );
+    toast({
+      title: `${selectedForApproval.size} tasks approved`,
+      description: 'The selected tasks have been validated.',
+    });
+    setSelectedForApproval(new Set());
+  }
 
   const handleEdit = (task: Task) => {
     setSelectedTask(task);
@@ -84,6 +99,24 @@ export default function PerformanceReportPage() {
       // For directors, show tasks that are completed but not yet approved by Direktur Utama
       return tasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
   }, [tasks, currentUser]);
+
+  const toggleSelectAll = (checked: boolean) => {
+    const newSelected = new Set<string>();
+    if (checked) {
+      tasksToValidate.forEach(task => newSelected.add(task.id));
+    }
+    setSelectedForApproval(newSelected);
+  };
+
+  const toggleSelectOne = (taskId: string, checked: boolean) => {
+    const newSelected = new Set(selectedForApproval);
+    if (checked) {
+      newSelected.add(taskId);
+    } else {
+      newSelected.delete(taskId);
+    }
+    setSelectedForApproval(newSelected);
+  };
 
   const handleExportCSV = () => {
     if (completedTasks.length === 0) {
@@ -202,11 +235,27 @@ export default function PerformanceReportPage() {
                    </div>
                 ) : (
                   <>
+                      {selectedForApproval.size > 0 && (
+                          <div className="mb-4 flex items-center justify-between bg-secondary p-2 rounded-lg">
+                              <p className="text-sm font-medium text-secondary-foreground">{selectedForApproval.size} task(s) selected</p>
+                              <Button size="sm" onClick={handleBulkApprove}>
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Approve Selected
+                              </Button>
+                          </div>
+                      )}
                       {/* Desktop Table View */}
                       <div className="hidden md:block w-full overflow-x-auto">
                           <Table>
                               <TableHeader>
                                   <TableRow>
+                                      <TableHead className="w-10">
+                                          <Checkbox
+                                            checked={selectedForApproval.size === tasksToValidate.length && tasksToValidate.length > 0}
+                                            onCheckedChange={(checked) => toggleSelectAll(!!checked)}
+                                            aria-label="Select all"
+                                          />
+                                      </TableHead>
                                       <TableHead>{t('report.validation_panel.table.task')}</TableHead>
                                       <TableHead className="hidden sm:table-cell">{t('report.validation_panel.table.employee')}</TableHead>
                                       <TableHead>{t('report.validation_panel.table.value')}</TableHead>
@@ -215,7 +264,14 @@ export default function PerformanceReportPage() {
                               </TableHeader>
                               <TableBody>
                                   {tasksToValidate.map(task => (
-                                      <TableRow key={task.id}>
+                                      <TableRow key={task.id} data-state={selectedForApproval.has(task.id) && "selected"}>
+                                          <TableCell>
+                                            <Checkbox
+                                              checked={selectedForApproval.has(task.id)}
+                                              onCheckedChange={(checked) => toggleSelectOne(task.id, !!checked)}
+                                              aria-label={`Select task ${task.id}`}
+                                            />
+                                          </TableCell>
                                           <TableCell className="font-medium whitespace-nowrap">{task.title[locale]}</TableCell>
                                           <TableCell className="whitespace-nowrap hidden sm:table-cell">{task.assignees[0]?.name || 'N/A'}</TableCell>
                                           <TableCell>
@@ -237,9 +293,17 @@ export default function PerformanceReportPage() {
                               <Card key={task.id} className="rounded-xl p-3">
                                 <div className="space-y-3">
                                   <div className="flex justify-between items-start gap-3">
-                                    <div className="flex-1">
-                                      <p className="font-semibold text-sm leading-tight">{task.title[locale]}</p>
-                                      <p className="text-xs text-muted-foreground">{task.assignees[0]?.name || 'N/A'}</p>
+                                    <div className="flex-1 flex items-start gap-3">
+                                      <Checkbox
+                                          id={`mobile-select-${task.id}`}
+                                          checked={selectedForApproval.has(task.id)}
+                                          onCheckedChange={(checked) => toggleSelectOne(task.id, !!checked)}
+                                          className="mt-1"
+                                      />
+                                      <div>
+                                        <p className="font-semibold text-sm leading-tight">{task.title[locale]}</p>
+                                        <p className="text-xs text-muted-foreground">{task.assignees[0]?.name || 'N/A'}</p>
+                                      </div>
                                     </div>
                                     <Badge variant="outline" className="text-xs whitespace-nowrap">{task.value} {t('report.edit_modal.points')}</Badge>
                                   </div>
@@ -289,5 +353,3 @@ export default function PerformanceReportPage() {
     </>
   )
 }
-
-    
