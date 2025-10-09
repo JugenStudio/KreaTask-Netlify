@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useState }from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { allTasks as initialTasks, users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import type { Task, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
@@ -30,7 +30,7 @@ import Link from "next/link";
 
 export default function PerformanceReportPage() {
   const { currentUser } = useCurrentUser();
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const { allTasks, users, isLoading, updateTask } = useTaskData();
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -44,11 +44,7 @@ export default function PerformanceReportPage() {
 
 
   const handleApprove = (taskId: string) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId ? { ...task, approvedBy: "Direktur Utama" } : task
-      )
-    );
+    updateTask(taskId, { approvedBy: "Direktur Utama" });
     toast({
       title: t('report.toast.approved.title'),
       description: t('report.toast.approved.description'),
@@ -56,11 +52,9 @@ export default function PerformanceReportPage() {
   };
 
   const handleBulkApprove = () => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        selectedForApproval.has(task.id) ? { ...task, approvedBy: "Direktur Utama" } : task
-      )
-    );
+    selectedForApproval.forEach(taskId => {
+        updateTask(taskId, { approvedBy: "Direktur Utama" });
+    });
     toast({
       title: t('report.validation_panel.tasks_approved_toast', { count: selectedForApproval.size.toString() }),
       description: t('report.validation_panel.tasks_approved_desc_toast'),
@@ -74,11 +68,7 @@ export default function PerformanceReportPage() {
   };
 
   const handleUpdateAndApprove = (taskId: string, newValue: number) => {
-    setTasks(prevTasks =>
-      prevTasks.map(task =>
-        task.id === taskId ? { ...task, value: newValue, approvedBy: "Direktur Utama" } : task
-      )
-    );
+    updateTask(taskId, { value: newValue, approvedBy: "Direktur Utama" });
     toast({
       title: t('report.toast.updated.title'),
       description: t('report.toast.updated.description', { value: newValue.toString() }),
@@ -90,14 +80,14 @@ export default function PerformanceReportPage() {
   const completedTasks = useMemo(() => {
     if (!currentUser) return [];
     if (isEmployee(currentUser.role)) {
-      return tasks.filter(task => 
+      return allTasks.filter(task => 
         task.status === "Completed" && 
         task.assignees.some(assignee => assignee.id === currentUser.id)
       );
     }
     // Directors see all completed tasks in the main report
-    return tasks.filter(task => task.status === "Completed");
-  }, [currentUser, tasks]);
+    return allTasks.filter(task => task.status === "Completed");
+  }, [currentUser, allTasks]);
   
   const filteredCompletedTasks = useMemo(() => {
     return completedTasks.filter(task => {
@@ -113,8 +103,8 @@ export default function PerformanceReportPage() {
   const tasksToValidate = useMemo(() => {
       if (!currentUser || isEmployee(currentUser.role)) return [];
       // For directors, show tasks that are completed but not yet approved by Direktur Utama
-      return tasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
-  }, [tasks, currentUser]);
+      return allTasks.filter(task => task.status === 'Completed' && task.approvedBy === null);
+  }, [allTasks, currentUser]);
 
   const toggleSelectAll = (checked: boolean) => {
     const newSelected = new Set<string>();
@@ -190,7 +180,7 @@ export default function PerformanceReportPage() {
     setDateRange(undefined);
   }
 
-  if (!currentUser) {
+  if (!currentUser || isLoading) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">

@@ -3,14 +3,11 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trophy, BookOpen, ArrowLeft } from "lucide-react";
-import { leaderboardData, users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
-import { useEffect, useState } from "react";
-import type { User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { Button } from "@/components/ui/button";
@@ -20,6 +17,7 @@ import Link from "next/link";
 export default function LeaderboardPage() {
   const { t } = useLanguage();
   const { currentUser } = useCurrentUser();
+  const { leaderboardData, isLoading } = useTaskData();
 
   const totalTasks = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
@@ -33,7 +31,7 @@ export default function LeaderboardPage() {
         )
       : 0;
   
-  if (!currentUser) {
+  if (!currentUser || isLoading) {
     return (
       <div className="space-y-6 md:space-y-8">
         <Skeleton className="h-10 md:h-12 w-1/2" />

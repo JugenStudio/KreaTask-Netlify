@@ -5,7 +5,7 @@ import { useState } from "react";
 import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { allTasks, users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { Search, List, LayoutGrid, ArrowLeft } from "lucide-react";
 import type { Task, TaskStatus, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
@@ -20,12 +20,13 @@ import Link from "next/link";
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
+  const { allTasks, isLoading } = useTaskData();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [viewMode, setViewMode] = useState<"list" | "board">("list");
   const { t, locale } = useLanguage();
 
-  if (!currentUser) {
+  if (!currentUser || isLoading) {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">

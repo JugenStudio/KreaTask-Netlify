@@ -5,7 +5,7 @@ import { useState, useEffect, useRef } from "react";
 import { Bell, BellOff, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { mockNotifications } from "@/lib/notifications";
+import { useTaskData } from "@/hooks/use-task-data";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/language-provider";
 import { formatDistanceToNow } from "date-fns";
@@ -18,27 +18,17 @@ interface NotificationCenterProps {
 }
 
 export function NotificationCenter({ currentUser }: NotificationCenterProps) {
-  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const { notifications, setNotifications } = useTaskData();
   const [isOpen, setIsOpen] = useState(false);
   const [isSilent, setIsSilent] = useState(false);
   const router = useRouter();
   const { locale, t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   
-  const prevUnreadCount = useRef(0);
+  const userNotifications = notifications.filter(n => n.userId === currentUser?.id);
+  const unreadCount = userNotifications.filter((n) => !n.read).length;
 
   useEffect(() => {
-    if (currentUser) {
-      const userNotifications = mockNotifications.filter(n => n.userId === currentUser.id);
-      setNotifications(userNotifications);
-    }
-  }, [currentUser]);
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
-
-  useEffect(() => {
-    prevUnreadCount.current = unreadCount;
-
     if (!isSilent) {
       if (unreadCount > 0) {
         document.title = `(${unreadCount}) 🔔 KreaTask`;
@@ -48,7 +38,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
     } else {
       document.title = "KreaTask";
     }
-  }, [notifications, isSilent, unreadCount]);
+  }, [isSilent, unreadCount]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -64,13 +54,17 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   const toggleSilent = () => setIsSilent(!isSilent);
 
   const markAllAsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    const updatedNotifications = notifications.map((n) => 
+        n.userId === currentUser?.id ? { ...n, read: true } : n
+    );
+    setNotifications(updatedNotifications);
   };
 
   const handleNotificationClick = (notif: Notification) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === notif.id ? { ...n, read: true } : n))
+    const updatedNotifications = notifications.map((n) => 
+        n.id === notif.id ? { ...n, read: true } : n
     );
+    setNotifications(updatedNotifications);
     setIsOpen(false);
     if (notif.link) {
         router.push(notif.link);
@@ -108,13 +102,13 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
             </div>
           </div>
 
-          {notifications.length === 0 ? (
+          {userNotifications.length === 0 ? (
             <p className="text-muted-foreground text-sm text-center py-10">
               {t('header.no_notifications')}
             </p>
           ) : (
             <ul className="space-y-1 max-h-80 overflow-y-auto p-2">
-              {notifications.map((notif) => (
+              {userNotifications.map((notif) => (
                 <li
                   key={notif.id}
                   onClick={() => handleNotificationClick(notif)}

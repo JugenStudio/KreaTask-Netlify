@@ -11,21 +11,36 @@ import {
 import { CommentSection } from "@/components/tasks/comment-section";
 import { RevisionHistory } from "@/components/tasks/revision-history";
 import { TaskDetails } from "@/components/tasks/task-details";
-import { tasks, users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { notFound, useParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/providers/language-provider";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { useCurrentUser } from "@/app/(app)/layout";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function TaskDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
+  const { allTasks, users, isLoading, updateTask, addNotification } = useTaskData();
+  const { currentUser } = useCurrentUser();
   
-  const task = useMemo(() => tasks.find((t) => t.id === id), [id]);
+  const task = useMemo(() => allTasks.find((t) => t.id === id), [id, allTasks]);
   
-  const currentUser = users[0]; // Assume logged in user
   const { t } = useLanguage();
+
+  if (isLoading || !currentUser) {
+    return (
+      <div className="space-y-6">
+        <Skeleton className="h-9 w-36" />
+        <div className="grid md:grid-cols-3 gap-6 md:gap-8">
+            <Skeleton className="md:col-span-2 h-[600px]" />
+            <Skeleton className="md:col-span-1 h-[400px]" />
+        </div>
+      </div>
+    );
+  }
 
   if (!task) {
     notFound();
@@ -39,7 +54,11 @@ export default function TaskDetailPage() {
         </Button>
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
         <div className="md:col-span-2">
-            <TaskDetails task={task} />
+            <TaskDetails 
+              task={task} 
+              onUpdateTask={updateTask} 
+              onAddNotification={addNotification}
+            />
         </div>
         <div className="md:col-span-1">
             <Tabs defaultValue="comments" className="w-full">

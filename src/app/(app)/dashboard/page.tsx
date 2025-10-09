@@ -4,7 +4,7 @@
 import { useEffect, useState } from "react";
 import { TaskCard } from "@/components/dashboard/task-card";
 import { TopPerformerCard } from "@/components/dashboard/top-performer-card";
-import { allTasks, users, leaderboardData } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { BookOpen, Trophy, Clock, Star, TrendingUp } from "lucide-react";
@@ -20,21 +20,26 @@ import { useCurrentUser } from "@/app/(app)/layout";
 
 export default function DashboardPage() {
   const { currentUser } = useCurrentUser();
+  const { allTasks, users, leaderboardData, isLoading: isTaskDataLoading } = useTaskData();
   const [currentUserLeaderboard, setCurrentUserLeaderboard] = useState<LeaderboardEntry | null>(null);
   const { t } = useLanguage();
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && leaderboardData.length > 0) {
       const leaderboardEntry = leaderboardData.find(entry => entry.id === currentUser.id);
       setCurrentUserLeaderboard(leaderboardEntry || null);
     }
-  }, [currentUser]);
+  }, [currentUser, leaderboardData]);
 
-  if (!currentUser || !currentUserLeaderboard) {
+  if (isTaskDataLoading || !currentUser || !currentUserLeaderboard) {
     return (
         <div className="space-y-6 md:space-y-8">
-            <Skeleton className="h-10 md:h-12 w-1/2" />
-            <Skeleton className="h-6 md:h-8 w-3/4" />
+            <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
+                <Skeleton className="h-10 md:h-12 w-1/2" />
+            </h1>
+            <p className="text-muted-foreground text-base md:text-lg">
+                <Skeleton className="h-6 md:h-8 w-3/4" />
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
                 <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
                 <Skeleton className="h-28 md:h-32 rounded-xl md:rounded-2xl" />
@@ -159,7 +164,7 @@ export default function DashboardPage() {
                     </Card>
                 </div>
                 <div className="lg:col-span-1">
-                    <TopPerformerCard performer={topPerformer} />
+                    {topPerformer && <TopPerformerCard performer={topPerformer} />}
                 </div>
             </>
         )}
@@ -193,7 +198,7 @@ export default function DashboardPage() {
             </div>
         </div>
       )}
-      <Chatbot tasks={visibleTasks} users={users} leaderboardData={leaderboardData} />
+      <Chatbot />
     </div>
   );
 }

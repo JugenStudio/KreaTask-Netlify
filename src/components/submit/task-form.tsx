@@ -30,7 +30,7 @@ import {
 import { CalendarIcon, Paperclip, X, WandSparkles, Loader2, Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { users, allTasks } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
@@ -41,7 +41,6 @@ import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
-import { mockNotifications } from "@/lib/notifications";
 import { useRouter } from "next/navigation";
 
 
@@ -69,6 +68,7 @@ interface Suggestion {
 export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { users, addTask, addNotification } = useTaskData();
   const [files, setFiles] = useState<File[]>([]);
   const [aiGoal, setAiGoal] = useState("");
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
@@ -104,7 +104,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
       return users.filter(u => isEmployee(u.role) || u.id === currentUser.id);
     }
     return [];
-  }, [currentUser]);
+  }, [currentUser, users]);
 
   function onSubmit(values: TaskFormValues) {
     const newTaskId = `task-${Date.now()}`;
@@ -129,12 +129,11 @@ export function TaskForm({ currentUser }: TaskFormProps) {
       files: [],
       subtasks: [],
     };
-
-    // Simulate adding to the "database" by pushing to the in-memory array
-    allTasks.unshift(newTask);
+    
+    addTask(newTask);
 
     // Simulate creating a notification
-    mockNotifications.unshift({
+    addNotification({
       id: `notif-${Date.now()}`,
       userId: currentUser.id,
       message: `You created a new task: "${values.title}"`,
@@ -146,7 +145,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     });
     
     if (assignedUser && assignedUser.id !== currentUser.id) {
-       mockNotifications.unshift({
+       addNotification({
         id: `notif-${Date.now() + 1}`,
         userId: assignedUser.id,
         message: `${currentUser.name} assigned you a new task: "${values.title}"`,
@@ -445,7 +444,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 </FormItem>
 
                 <div className="flex justify-end gap-2">
-                    <Button type="button" variant="ghost" className="transition-all active:scale-95">{t('submit.manual_form.cancel_button')}</Button>
+                    <Button type="button" variant="ghost" onClick={() => form.reset()} className="transition-all active:scale-95">{t('submit.manual_form.cancel_button')}</Button>
                     <Button type="submit" className="transition-all active:scale-95">{t('submit.manual_form.submit_button')}</Button>
                 </div>
             </form>
@@ -455,5 +454,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    

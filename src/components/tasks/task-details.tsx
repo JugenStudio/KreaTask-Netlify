@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Task, TaskStatus } from "@/lib/types";
+import type { Task, TaskStatus, Notification } from "@/lib/types";
 import {
   CalendarDays,
   Download,
@@ -57,7 +57,13 @@ const fileTypeIcons = {
   document: <FileIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
 };
 
-export function TaskDetails({ task: initialTask }: { task: Task }) {
+interface TaskDetailsProps {
+    task: Task;
+    onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
+    onAddNotification: (notification: Notification) => void;
+}
+
+export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const [task, setTask] = useState(initialTask);
@@ -65,19 +71,35 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
   const { currentUser } = useCurrentUser();
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
-    setTask(prevTask => {
-      const newSubtasks = prevTask.subtasks?.map(st => 
+    const updatedSubtasks = task.subtasks?.map(st => 
         st.id === subtaskId ? { ...st, isCompleted: checked } : st
-      );
-      return { ...prevTask, subtasks: newSubtasks };
-    });
+    );
+    const updatedTask = { ...task, subtasks: updatedSubtasks };
+    setTask(updatedTask);
+    onUpdateTask(task.id, { subtasks: updatedSubtasks });
   };
 
   const handleSubmitForReview = () => {
-    setTask(prevTask => ({ ...prevTask, status: "In Review" }));
+    const updatedTask = { ...task, status: "In Review" as TaskStatus };
+    setTask(updatedTask);
+    onUpdateTask(task.id, { status: "In Review" });
+
     toast({
         title: t('task.submit.toast.success_title'),
         description: t('task.submit.toast.success_desc', { title: task.title[locale] }),
+    });
+    
+    // Notify directors
+    // This is a simplification. In a real app, you'd find the user's manager.
+    onAddNotification({
+      id: `notif-review-${Date.now()}`,
+      userId: 'user-1', // Direktur Utama
+      message: `${currentUser?.name} has submitted task "${task.title[locale]}" for review.`,
+      type: 'VALIDATION_REQUEST',
+      read: false,
+      link: `/performance-report`,
+      taskId: task.id,
+      createdAt: new Date().toISOString(),
     });
   };
 
@@ -265,5 +287,3 @@ export function TaskDetails({ task: initialTask }: { task: Task }) {
     </Card>
   );
 }
-
-    

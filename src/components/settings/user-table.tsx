@@ -42,21 +42,21 @@ const roles: UserRole[] = Object.values(UserRole);
 interface UserTableProps {
   initialUsers: User[];
   currentUser: User;
+  setUsers: (users: User[]) => void;
 }
 
-export function UserTable({ initialUsers, currentUser }: UserTableProps) {
-  const [users, setUsers] = useState<User[]>(initialUsers);
+export function UserTable({ initialUsers, currentUser, setUsers }: UserTableProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const handleRoleChange = (userId: string, newRole: UserRole) => {
-    setUsers((prevUsers) =>
-      prevUsers.map((user) =>
-        user.id === userId ? { ...user, role: newRole } : user
-      )
+    const updatedUsers = initialUsers.map((user) =>
+      user.id === userId ? { ...user, role: newRole } : user
     );
-    const user = users.find((u) => u.id === userId);
+    setUsers(updatedUsers);
+
+    const user = initialUsers.find((u) => u.id === userId);
     toast({
       title: t("settings.user_management.toast.role_updated_title"),
       description: t("settings.user_management.toast.role_updated_desc", {
@@ -73,9 +73,9 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
   const confirmDelete = () => {
     if (!userToDelete) return;
 
-    setUsers((prevUsers) =>
-      prevUsers.filter((user) => user.id !== userToDelete.id)
-    );
+    const updatedUsers = initialUsers.filter((user) => user.id !== userToDelete.id);
+    setUsers(updatedUsers);
+
     toast({
       title: t("settings.user_management.toast.user_deleted_title"),
       description: t("settings.user_management.toast.user_deleted_desc", { name: userToDelete.name }),
@@ -117,7 +117,7 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users.map((user) => (
+            {initialUsers.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -164,7 +164,7 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
 
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
-        {users.map((user) => (
+        {initialUsers.map((user) => (
           <Card key={user.id} className="rounded-xl">
             <CardContent className="p-3">
               <div className="flex items-center gap-3 mb-3">

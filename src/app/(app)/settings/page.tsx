@@ -3,7 +3,7 @@
 
 import { UserTable } from "@/components/settings/user-table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { users } from "@/lib/data";
+import { useTaskData } from "@/hooks/use-task-data";
 import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
@@ -29,6 +29,7 @@ type Theme = "light" | "dark" | "system";
 
 export default function SettingsPage() {
   const { currentUser } = useCurrentUser();
+  const { users, isLoading, setUsers } = useTaskData();
   const { t, locale, setLocale } = useLanguage();
   const [theme, setTheme] = useState<Theme>("system");
 
@@ -64,7 +65,7 @@ export default function SettingsPage() {
   };
 
 
-  if (!currentUser) {
+  if (!currentUser || isLoading) {
     return (
         <div className="space-y-6">
             <Skeleton className="h-10 md:h-12 w-1/3" />
@@ -157,7 +158,7 @@ export default function SettingsPage() {
             </CardDescription>
             </CardHeader>
             <CardContent className="p-4 md:p-6">
-                <UserTable initialUsers={users} currentUser={currentUser} />
+                <UserTable initialUsers={users} currentUser={currentUser} setUsers={setUsers} />
             </CardContent>
         </Card>
       )}

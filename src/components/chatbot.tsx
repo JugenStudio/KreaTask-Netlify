@@ -4,32 +4,21 @@
 import { useState, useRef, useEffect } from 'react';
 import { Bot, Loader2, Send, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from '@/components/ui/sheet';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { Task, User, LeaderboardEntry, UserRole } from '@/lib/types';
+import type { Task, User } from '@/lib/types';
 import { getKreaBotResponse } from '@/app/actions';
 import { useLanguage } from '@/providers/language-provider';
+import { useTaskData } from '@/hooks/use-task-data';
 
 interface Message {
   sender: 'user' | 'bot';
   text: string;
 }
 
-interface ChatbotProps {
-  tasks: Task[];
-  users: User[];
-  leaderboardData: LeaderboardEntry[];
-}
-
-export function Chatbot({ tasks, users }: ChatbotProps) {
+export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -37,6 +26,8 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const { t } = useLanguage();
+  const { allTasks, users, isLoading: isTaskDataLoading } = useTaskData();
+
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +38,7 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
     setInputValue('');
     setIsLoading(true);
 
-    const { response, error } = await getKreaBotResponse(inputValue, tasks, users);
+    const { response, error } = await getKreaBotResponse(inputValue, allTasks, users);
     
     const botMessage: Message = {
       sender: 'bot',
@@ -140,9 +131,9 @@ export function Chatbot({ tasks, users }: ChatbotProps) {
                         onChange={(e) => setInputValue(e.target.value)}
                         placeholder="Ask KreaBot..."
                         className="flex-1"
-                        disabled={isLoading}
+                        disabled={isLoading || isTaskDataLoading}
                     />
-                    <Button type="submit" size="icon" disabled={isLoading || !inputValue.trim()}>
+                    <Button type="submit" size="icon" disabled={isLoading || isTaskDataLoading || !inputValue.trim()}>
                         <Send className="h-5 w-5" />
                     </Button>
                 </form>
