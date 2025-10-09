@@ -51,6 +51,7 @@ export function AppSidebar({ user }: { user: User }) {
             <Link
               key={item.href}
               href={item.href}
+              prefetch
               className={cn(
                 "flex items-center gap-3 rounded-full px-4 py-2.5 text-muted-foreground transition-colors hover:text-foreground",
                 isActive && "bg-primary text-primary-foreground font-semibold shadow-lg"

@@ -30,8 +30,9 @@ export function BottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              prefetch
               className={cn(
-                "group flex flex-col items-center justify-center p-1 rounded-lg text-muted-foreground",
+                "group flex flex-col items-center justify-center p-1 rounded-lg text-muted-foreground transition-all active:scale-95",
               )}
             >
               <div className={cn(

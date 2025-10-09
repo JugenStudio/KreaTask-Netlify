@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function AppLayout({
   children,
@@ -20,7 +21,6 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
-    // Try to get user from sessionStorage on initial load
     if (typeof window !== 'undefined') {
         const storedUser = sessionStorage.getItem('currentUser');
         if (storedUser) {
@@ -33,20 +33,26 @@ export default function AppLayout({
   const pathname = usePathname();
 
   useEffect(() => {
-    const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
     let userToSet: User | null = null;
-    if (selectedRole) {
-      userToSet = users.find(u => u.role === selectedRole) || users[0];
+    const storedUser = sessionStorage.getItem('currentUser');
+    
+    if (storedUser) {
+        userToSet = JSON.parse(storedUser);
     } else {
-      userToSet = users[0];
+        const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
+        if (selectedRole) {
+            userToSet = users.find(u => u.role === selectedRole) || users[0];
+        } else {
+            userToSet = users[0];
+        }
     }
-    setCurrentUser(userToSet);
+
     if (userToSet) {
+        setCurrentUser(userToSet);
         sessionStorage.setItem('currentUser', JSON.stringify(userToSet));
     }
-  }, [pathname]); // Re-run on path change to keep user consistent
+  }, [pathname]);
 
-  // This layout is for the main app, not auth pages
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
       return <>{children}</>
   }
@@ -90,7 +96,17 @@ export default function AppLayout({
           <div className="flex flex-1 flex-col bg-transparent">
             <Header />
             <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
-              {children}
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={pathname}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.2, ease: "easeOut" }}
+                >
+                  {children}
+                </motion.div>
+              </AnimatePresence>
             </main>
           </div>
         </div>
