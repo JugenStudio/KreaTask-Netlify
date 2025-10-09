@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  LayoutDashboard, 
+  Home, 
   ListTodo, 
   PenSquare, 
   Settings,
@@ -27,7 +27,7 @@ export function AppSidebar({ user }: { user: User }) {
   const isLvl1 = isEmployee(user.role);
 
   const navItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
@@ -46,7 +46,11 @@ export function AppSidebar({ user }: { user: User }) {
       </div>
       <nav className="mt-8 flex flex-col gap-2 flex-1">
         {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          // Special case for dashboard to match root and /dashboard
+          const isActive = item.href === "/dashboard" 
+            ? pathname === "/" || pathname.startsWith(item.href)
+            : pathname.startsWith(item.href);
+          
           return (
             <Link
               key={item.href}

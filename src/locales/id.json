@@ -1,7 +1,7 @@
 
 {
   "sidebar": {
-    "dashboard": "Dasbor",
+    "home": "Beranda",
     "all_tasks": "Semua Tugas",
     "submit_task": "Kirim Tugas",
     "leaderboard": "Peringkat",
@@ -127,7 +127,7 @@
     "validation_panel": {
       "title": "Menunggu Validasi Anda",
       "description": "Daftar tugas yang nilainya perlu disetujui oleh Anda sebagai Direktur Utama.",
-      "tasks_selected": "{{count}} dipilih",
+      "selected": "{{count}} dipilih",
       "tasks_approved_toast": "{{count}} tugas disetujui",
       "tasks_approved_desc_toast": "Tugas yang dipilih telah divalidasi.",
       "table": {

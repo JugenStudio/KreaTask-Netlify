@@ -65,7 +65,7 @@ export default function DashboardPage() {
 
   // Data for Director view
   const topThree = leaderboardData.slice(0, 3);
-  const topPerformer = leaderboardData.find(u => u.name === "Deva") || leaderboardData[0];
+  const topPerformer = leaderboardData[0];
   const totalTasksCompletedTeam = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
     0

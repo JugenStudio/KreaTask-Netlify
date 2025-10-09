@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, ListTodo, PenSquare, Trophy, FileText, History } from "lucide-react";
+import { Home, ListTodo, PenSquare, Trophy, FileText, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 
@@ -14,7 +14,7 @@ export function BottomNav() {
   // We can't use isEmployee here as user is not passed. 
   // Let's just use a generic icon for now.
   const navItems = [
-    { href: "/dashboard", icon: LayoutDashboard, label: t('sidebar.dashboard') },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: "Submit" }, // Shortened label
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
@@ -25,7 +25,9 @@ export function BottomNav() {
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/80 p-2 backdrop-blur-lg md:hidden">
       <div className="grid h-full max-w-lg grid-cols-5 mx-auto">
         {navItems.map((item) => {
-          const isActive = pathname.startsWith(item.href);
+          const isActive = item.href === "/dashboard" 
+            ? pathname === "/" || pathname.startsWith(item.href)
+            : pathname.startsWith(item.href);
           return (
             <Link
               key={item.href}

@@ -8,8 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import type { LeaderboardEntry } from "@/lib/types";
 import { Crown } from "lucide-react";
 import Link from "next/link";
+import { useLanguage } from "@/providers/language-provider";
 
 export function TopPerformerCard({ performer }: { performer: LeaderboardEntry }) {
+  const { t } = useLanguage();
   return (
     <Card className="h-full">
       <CardHeader>
@@ -26,13 +28,11 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
           </div>
         </div>
         <h3 className="text-xl font-bold text-card-foreground">{performer.name}</h3>
-        <p className="text-muted-foreground mb-4">Score: {performer.score}</p>
-        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-6 font-semibold border-none">
+        <p className="text-muted-foreground mb-2">Score: {performer.score}</p>
+        <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-4 font-semibold border-none">
           {performer.tasksCompleted} Tasks Completed
         </Badge>
-        <Button asChild className="w-full rounded-full bg-primary hover:bg-green-500 text-primary-foreground font-bold">
-          <Link href="/profile">View Profile</Link>
-        </Button>
+        <p className="text-sm font-semibold text-foreground mt-2">{t(`roles.${performer.role}` as any, { defaultValue: performer.role })}</p>
       </CardContent>
     </Card>
   );
