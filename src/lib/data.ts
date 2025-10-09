@@ -54,6 +54,22 @@ export const allTasks: Task[] = [
     revisions: [], comments: [], files: [],
     subtasks: [],
   },
+  {
+    id: 'task-15-deva',
+    title: { en: 'Review Operational Workflows', id: 'Tinjau Alur Kerja Operasional' },
+    description: { en: 'Review and optimize the current operational workflows for Q4.', id: 'Tinjau dan optimalkan alur kerja operasional saat ini untuk Q4.' },
+    assignees: [users.find(u => u.name === "Deva")!],
+    status: 'Completed',
+    category: TaskCategory.High,
+    dueDate: '2024-09-05',
+    createdAt: '2024-09-01',
+    valueCategory: "Tinggi",
+    value: 40,
+    evaluator: "AI",
+    approvedBy: "Direktur Utama",
+    revisions: [], comments: [], files: [],
+    subtasks: [],
+  },
   // Completed Tasks - Pending Validation
   {
     id: 'task-2',

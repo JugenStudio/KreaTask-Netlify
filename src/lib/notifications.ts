@@ -23,7 +23,7 @@ export const mockNotifications: Notification[] = [
   {
     id: 'notif-5',
     userId: 'user-1',
-    message: 'Top performer bulan ini adalah Deva dengan 320 poin.',
+    message: 'Top performer bulan ini adalah Ariya dengan 60 poin. Lihat papan peringkat untuk detailnya.',
     type: 'PERFORMANCE_ALERT',
     read: true,
     link: '/leaderboard',
@@ -66,7 +66,7 @@ export const mockNotifications: Notification[] = [
   {
     id: 'notif-2',
     userId: 'user-3',
-    message: 'Tugas "Design Promotional Banner" telah disetujui dengan nilai 20 Poin.',
+    message: 'Tugas Anda "Design Promotional Banner" telah disetujui dengan nilai 20 Poin.',
     type: 'TASK_APPROVED',
     read: false,
     link: '/performance-report',
