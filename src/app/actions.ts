@@ -77,7 +77,7 @@ export async function getTaskSuggestions(goal: string) {
   }
 }
 
-// Schemas and types for translation moved here
+// Define Zod schemas for validation
 const TranslateContentInputSchema = z.object({
   text: z.string().describe('The text to be translated.'),
 });
@@ -94,7 +94,6 @@ export async function getTranslations(text: string): Promise<{ data: TranslateCo
   try {
     const validatedData = TranslateContentInputSchema.parse({ text });
     const result = await translateContent(validatedData);
-    // The result from the flow already matches TranslateContentOutputSchema
     return { data: result, error: null };
   } catch (error) {
     console.error("Translation action error:", error);

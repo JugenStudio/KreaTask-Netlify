@@ -23,6 +23,10 @@ type TranslateContentOutput = z.infer<typeof TranslateContentOutputSchema>;
 export async function translateContent(
   input: TranslateContentInput
 ): Promise<TranslateContentOutput> {
+  // If the input text is empty or just whitespace, return empty strings to avoid unnecessary API calls.
+  if (!input.text || !input.text.trim()) {
+    return { en: "", id: "" };
+  }
   return translateContentFlow(input);
 }
 

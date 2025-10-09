@@ -109,94 +109,100 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
   async function onSubmit(values: TaskFormValues) {
     setIsSubmitting(true);
+    setError(null);
     const newTaskId = `task-${Date.now()}`;
     const assignedUser = users.find(u => u.id === values.assignees[0]);
 
-    // Translate title and description
-    const titleTranslationPromise = getTranslations(values.title);
-    let descriptionTranslations: LocalizedString = { en: "", id: "" };
-    if (values.description && values.description.trim()) {
-        const descriptionResult = await getTranslations(values.description);
-        if (descriptionResult.error) {
+    try {
+        // Translate title and description concurrently
+        const [titleResult, descriptionResult] = await Promise.all([
+            getTranslations(values.title),
+            getTranslations(values.description || "")
+        ]);
+
+        if (titleResult.error || descriptionResult.error) {
+            const errorMessage = titleResult.error || descriptionResult.error || "Translation failed.";
             toast({
                 variant: "destructive",
-                title: "Translation Failed",
-                description: "Could not translate task description. Please try again.",
+                title: "Translation Error",
+                description: errorMessage,
             });
+            setError(errorMessage);
             setIsSubmitting(false);
             return;
         }
-        descriptionTranslations = descriptionResult.data || { en: values.description, id: values.description };
+
+        const titleTranslations = titleResult.data || { en: values.title, id: values.title };
+        const descriptionTranslations = descriptionResult.data || { en: values.description || "", id: values.description || "" };
+        
+        const newTask = {
+          id: newTaskId,
+          title: titleTranslations,
+          description: descriptionTranslations,
+          status: 'To-do' as const,
+          assignees: assignedUser ? [assignedUser] : [],
+          dueDate: format(values.dueDate, 'yyyy-MM-dd'),
+          createdAt: new Date().toISOString(),
+          category: values.category,
+          value: 0,
+          valueCategory: 'Rendah' as const,
+          evaluator: 'AI' as const,
+          approvedBy: null,
+          revisions: [],
+          comments: [],
+          files: [],
+          subtasks: [],
+        };
+        
+        addTask(newTask);
+
+        addNotification({
+          id: `notif-${Date.now()}`,
+          userId: currentUser.id,
+          message: `You created a new task: "${newTask.title[locale]}"`,
+          type: 'TASK_ASSIGN',
+          read: false,
+          link: `/tasks/${newTaskId}`,
+          taskId: newTaskId,
+          createdAt: new Date().toISOString(),
+        });
+        
+        if (assignedUser && assignedUser.id !== currentUser.id) {
+           addNotification({
+            id: `notif-${Date.now() + 1}`,
+            userId: assignedUser.id,
+            message: `${currentUser.name} assigned you a new task: "${newTask.title[locale]}"`,
+            type: 'TASK_ASSIGN',
+            read: false,
+            link: `/tasks/${newTaskId}`,
+            taskId: newTaskId,
+            createdAt: new Date().toISOString(),
+          });
+        }
+
+        toast({
+          title: t('submit.toast.success_title'),
+          description: t('submit.toast.success_desc', { title: newTask.title[locale] }),
+        });
+
+        form.reset();
+        setFiles([]);
+        setSuggestions([]);
+        setAiGoal("");
+        router.push('/tasks');
+
+    } catch (e) {
+        console.error("An unexpected error occurred during task submission:", e);
+        const errorMessage = "An unexpected error occurred. Please try again.";
+        setError(errorMessage);
+        toast({
+            variant: "destructive",
+            title: "Submission Failed",
+            description: errorMessage,
+        });
+    } finally {
+        setIsSubmitting(false);
     }
-
-    const titleResult = await titleTranslationPromise;
-
-    if (titleResult.error) {
-      toast({
-        variant: "destructive",
-        title: "Translation Failed",
-        description: "Could not translate task content. Please try again.",
-      });
-      setIsSubmitting(false);
-      return;
-    }
-
-    const newTask = {
-      id: newTaskId,
-      title: titleResult.data || { en: values.title, id: values.title },
-      description: descriptionTranslations,
-      status: 'To-do' as const,
-      assignees: assignedUser ? [assignedUser] : [],
-      dueDate: format(values.dueDate, 'yyyy-MM-dd'),
-      createdAt: new Date().toISOString(),
-      category: values.category,
-      value: 0,
-      valueCategory: 'Rendah' as const,
-      evaluator: 'AI' as const,
-      approvedBy: null,
-      revisions: [],
-      comments: [],
-      files: [],
-      subtasks: [],
-    };
-    
-    addTask(newTask);
-
-    addNotification({
-      id: `notif-${Date.now()}`,
-      userId: currentUser.id,
-      message: `You created a new task: "${newTask.title[locale]}"`,
-      type: 'TASK_ASSIGN',
-      read: false,
-      link: `/tasks/${newTaskId}`,
-      taskId: newTaskId,
-      createdAt: new Date().toISOString(),
-    });
-    
-    if (assignedUser && assignedUser.id !== currentUser.id) {
-       addNotification({
-        id: `notif-${Date.now() + 1}`,
-        userId: assignedUser.id,
-        message: `${currentUser.name} assigned you a new task: "${newTask.title[locale]}"`,
-        type: 'TASK_ASSIGN',
-        read: false,
-        link: `/tasks/${newTaskId}`,
-        taskId: newTaskId,
-        createdAt: new Date().toISOString(),
-      });
-    }
-
-    toast({
-      title: t('submit.toast.success_title'),
-      description: t('submit.toast.success_desc', { title: newTask.title[locale] }),
-    });
-
-    form.reset();
-    setFiles([]);
-    setSuggestions([]);
-    setAiGoal("");
-    setIsSubmitting(false);
-    router.push('/tasks');
   }
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
@@ -493,5 +499,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    
