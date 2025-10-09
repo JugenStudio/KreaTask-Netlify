@@ -7,6 +7,9 @@ import { useLanguage } from "@/providers/language-provider";
 import type { User } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 export default function SubmitPage() {
   const { t } = useLanguage();
@@ -15,6 +18,12 @@ export default function SubmitPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 md:space-y-8">
+       <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+        <Link href="/dashboard">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Kembali ke Beranda
+        </Link>
+      </Button>
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('submit.title')}</h1>
         <p className="text-muted-foreground text-sm md:text-base">{t('submit.description')}</p>

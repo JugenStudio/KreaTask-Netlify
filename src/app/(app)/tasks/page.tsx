@@ -6,7 +6,7 @@ import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { allTasks, users } from "@/lib/data";
-import { Search, List, LayoutGrid } from "lucide-react";
+import { Search, List, LayoutGrid, ArrowLeft } from "lucide-react";
 import type { Task, TaskStatus, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { KanbanBoard } from "@/components/tasks/kanban-board";
 import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/app/(app)/layout";
+import Link from "next/link";
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
@@ -51,6 +52,12 @@ export default function AllTasksPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+        <Link href="/dashboard">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Kembali ke Beranda
+        </Link>
+      </Button>
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>

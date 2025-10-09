@@ -10,7 +10,7 @@ import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History, CheckCircle, Edit, ThumbsUp, FileDown, Filter, Calendar as CalendarIcon, X } from "lucide-react";
+import { History, CheckCircle, Edit, ThumbsUp, FileDown, Filter, Calendar as CalendarIcon, X, ArrowLeft } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils";
 import { format, addDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { useCurrentUser } from "@/app/(app)/layout";
+import Link from "next/link";
 
 export default function PerformanceReportPage() {
   const { currentUser } = useCurrentUser();
@@ -204,6 +205,12 @@ export default function PerformanceReportPage() {
   if (isEmployee(currentUser.role)) {
     return (
       <div className="space-y-6">
+        <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+            <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali ke Beranda
+            </Link>
+        </Button>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3">
@@ -232,6 +239,12 @@ export default function PerformanceReportPage() {
   return (
     <>
       <div className="space-y-6 md:space-y-8">
+          <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+            <Link href="/dashboard">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Kembali ke Beranda
+            </Link>
+          </Button>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>

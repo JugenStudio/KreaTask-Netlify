@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, BookOpen } from "lucide-react";
+import { Trophy, BookOpen, ArrowLeft } from "lucide-react";
 import { leaderboardData, users } from "@/lib/data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { useLanguage } from "@/providers/language-provider";
@@ -13,6 +13,8 @@ import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 
 export default function LeaderboardPage() {
@@ -54,6 +56,12 @@ export default function LeaderboardPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+      <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+        <Link href="/dashboard">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Kembali ke Beranda
+        </Link>
+      </Button>
       <div>
         <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3 text-foreground">
           <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
