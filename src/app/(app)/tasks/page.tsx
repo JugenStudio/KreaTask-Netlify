@@ -25,12 +25,13 @@ export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
   const { allTasks, isLoading } = useTaskData();
   const searchParams = useSearchParams();
+  const { t, locale } = useLanguage();
   const query = searchParams.get('q') || '';
   const isMobile = useIsMobile();
   
   const [searchTerm, setSearchTerm] = useState(query);
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
-  const [viewMode, setViewMode] = useState<"list" | "board">("list");
+  const [viewMode, setViewMode] = useState<"list" | "board">("board");
 
   useEffect(() => {
     setSearchTerm(query);
@@ -38,7 +39,9 @@ export default function AllTasksPage() {
 
   useEffect(() => {
     // On initial load, set view mode based on device
-    setViewMode(isMobile ? "list" : "board");
+    if (isMobile) {
+      setViewMode("list");
+    }
   }, [isMobile]);
 
   if (!currentUser || isLoading) {
@@ -97,7 +100,7 @@ export default function AllTasksPage() {
           </div>
           <div className="flex gap-2">
             <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
-                <SelectTrigger className="flex-1 h-10">
+                <SelectTrigger className="flex-1 sm:w-40 h-10">
                     <SelectValue placeholder={t('all_tasks.all_statuses')} />
                 </SelectTrigger>
                 <SelectContent>
