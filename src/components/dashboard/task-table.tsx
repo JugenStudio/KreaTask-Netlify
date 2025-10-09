@@ -144,27 +144,48 @@ export function TaskTable({ tasks }: { tasks: Task[] }) {
       <div className="block md:hidden space-y-3">
           {tasks.map(task => (
               <Card key={task.id} className="transition-all active:scale-95 rounded-xl">
-                  <Link href={`/tasks/${task.id}`} className="block">
-                      <CardContent className="p-3">
-                          <div className="flex justify-between items-start gap-3">
-                              <p className="font-semibold text-sm flex-1 pr-2 text-card-foreground">{task.title[locale]}</p>
-                               <Badge className={cn("text-xs whitespace-nowrap", statusColors[task.status])}>
-                                {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
-                              </Badge>
-                          </div>
-                          <div className="flex justify-between items-end mt-3">
-                            <div className="flex -space-x-2">
-                              {task.assignees.map((user) => (
-                                <Avatar key={user.id} className="h-8 w-8 border-2 border-card">
-                                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                                </Avatar>
-                              ))}
-                            </div>
-                            <p className="text-xs text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</p>
-                          </div>
-                      </CardContent>
-                  </Link>
+                  <CardContent className="p-3">
+                      <div className="flex justify-between items-start gap-3">
+                          <Link href={`/tasks/${task.id}`} className="flex-1 pr-2">
+                            <p className="font-semibold text-sm text-card-foreground hover:underline">{task.title[locale]}</p>
+                          </Link>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button aria-haspopup="true" size="icon" variant="ghost" className="transition-all active:scale-95 h-7 w-7 -mt-1 -mr-1">
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Toggle menu</span>
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem asChild>
+                                <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => setTaskToDelete(task)} className="text-destructive focus:text-destructive focus:bg-destructive/10">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>{t('all_tasks.actions.delete')}</span>
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                      </div>
+                      <div className="flex justify-between items-end mt-1">
+                        <div className="flex -space-x-2">
+                          {task.assignees.map((user) => (
+                            <Avatar key={user.id} className="h-7 w-7 border-2 border-card">
+                              <AvatarImage src={user.avatarUrl} alt={user.name} />
+                              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                          ))}
+                        </div>
+                        <div className="flex items-center gap-2">
+                           <Badge className={cn("text-xs whitespace-nowrap", statusColors[task.status])}>
+                            {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
+                          </Badge>
+                          <p className="text-xs text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</p>
+                        </div>
+                      </div>
+                  </CardContent>
               </Card>
           ))}
       </div>
