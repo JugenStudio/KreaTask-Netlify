@@ -34,17 +34,10 @@ import {
   PlusCircle,
   Edit,
 } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useLanguage } from "@/providers/language-provider";
-import { useState, useEffect, useMemo } from "react";
+import { useState } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -84,11 +77,10 @@ interface TaskDetailsProps {
     onDeleteTask: (taskId: string) => void;
 }
 
-export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification, onDeleteTask }: TaskDetailsProps) {
+export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTask }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const { addToDownloadHistory } = useTaskData();
-  const [task, setTask] = useState(initialTask);
   const [submissionFiles, setSubmissionFiles] = useState<FileWithPreview[]>([]);
   const { currentUser } = useCurrentUser();
   const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
@@ -96,19 +88,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const router = useRouter();
   const [editingFileId, setEditingFileId] = useState<string | null>(null);
   const [editingNote, setEditingNote] = useState('');
-
-  useEffect(() => {
-    setTask(initialTask);
-  }, [initialTask]);
-  
-  useEffect(() => {
-    // Cleanup function to revoke object URLs on component unmount
-    return () => {
-        submissionFiles.forEach(file => {
-            URL.revokeObjectURL(file.preview);
-        });
-    };
-  }, [submissionFiles]);
 
   const canDeleteTask = (task: Task, user: User | null): boolean => {
     if (!user) return false;
@@ -138,8 +117,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     const updatedSubtasks = task.subtasks?.map(st => 
         st.id === subtaskId ? { ...st, isCompleted: checked } : st
     );
-    const updatedTask = { ...task, subtasks: updatedSubtasks };
-    setTask(updatedTask);
     onUpdateTask(task.id, { subtasks: updatedSubtasks });
   };
   
@@ -151,9 +128,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     if (!fileToDelete) return;
 
     const updatedFiles = task.files?.filter(file => file.id !== fileToDelete.id);
-    const updatedTask = { ...task, files: updatedFiles };
     
-    setTask(updatedTask);
     onUpdateTask(task.id, { files: updatedFiles });
 
     toast({
@@ -175,9 +150,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     }));
 
     const updatedFiles = [...(task.files || []), ...fileObjects];
-    const updatedTask = { ...task, files: updatedFiles };
-    
-    setTask(updatedTask);
     onUpdateTask(task.id, { files: updatedFiles });
     
     toast({
@@ -209,18 +181,12 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
 
   const handleSaveNote = (fileId: string) => {
     const updatedFiles = task.files?.map(f => f.id === fileId ? { ...f, note: editingNote } : f);
-    const updatedTask = { ...task, files: updatedFiles };
-    
-    setTask(updatedTask);
     onUpdateTask(task.id, { files: updatedFiles });
-
     setEditingFileId(null);
     setEditingNote('');
   };
 
   const handleSubmitForReview = () => {
-    const updatedTask = { ...task, status: "In Review" as TaskStatus };
-    setTask(updatedTask);
     onUpdateTask(task.id, { status: "In Review" });
 
     toast({
@@ -404,55 +370,56 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
           <Separator />
           <div className="space-y-4">
             <h4 className="font-semibold text-base md:text-lg">{t('task.attachments.title')}</h4>
-            {task.files && task.files.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {task.files.map((file) => (
-                  <Card key={file.id} className="overflow-hidden rounded-xl group">
-                    <div className="block aspect-[16/9] bg-muted flex items-center justify-center">
-                      {file.type === 'image' || file.type === 'illustration' ? (
-                          <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
-                      ) : (
-                        fileTypeIcons[file.type as keyof typeof fileTypeIcons]
-                      )}
-                    </div>
-                    <div className="p-3">
-                      <p className="text-sm font-medium truncate">{file.name}</p>
-                      <p className="text-xs text-muted-foreground">{file.size}</p>
-                      {editingFileId === file.id ? (
-                          <div className="mt-2 space-y-2">
-                              <Input 
-                                  value={editingNote} 
-                                  onChange={(e) => setEditingNote(e.target.value)}
-                                  placeholder="Add a note..."
-                                  className="h-8 text-xs"
-                              />
-                              <div className="flex gap-2">
-                                  <Button size="sm" className="h-7" onClick={() => handleSaveNote(file.id)}>Save</Button>
-                                  <Button size="sm" variant="ghost" className="h-7" onClick={() => setEditingFileId(null)}>Cancel</Button>
-                              </div>
-                          </div>
-                      ) : (
-                         file.note && <p className="text-xs italic text-muted-foreground mt-1">"{file.note}"</p>
-                      )}
-                      <div className="flex justify-end items-center gap-1 mt-2">
-                        <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleDownloadClick(file)}>
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleEditNote(file)}>
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="icon" 
-                          className="h-8 w-8 transition-all active:scale-95"
-                          onClick={() => handleDeleteFileClick(file)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {task.files && task.files.length > 0 && (
+                    task.files.map((file) => (
+                    <Card key={file.id} className="overflow-hidden rounded-xl group">
+                        <div className="block aspect-[16/9] bg-muted flex items-center justify-center">
+                        {file.type === 'image' || file.type === 'illustration' ? (
+                            <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
+                        ) : (
+                            fileTypeIcons[file.type as keyof typeof fileTypeIcons]
+                        )}
+                        </div>
+                        <div className="p-3">
+                        <p className="text-sm font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">{file.size}</p>
+                        {editingFileId === file.id ? (
+                            <div className="mt-2 space-y-2">
+                                <Input 
+                                    value={editingNote} 
+                                    onChange={(e) => setEditingNote(e.target.value)}
+                                    placeholder="Add a note..."
+                                    className="h-8 text-xs"
+                                />
+                                <div className="flex gap-2">
+                                    <Button size="sm" className="h-7" onClick={() => handleSaveNote(file.id)}>Save</Button>
+                                    <Button size="sm" variant="ghost" className="h-7" onClick={() => setEditingFileId(null)}>Cancel</Button>
+                                </div>
+                            </div>
+                        ) : (
+                            file.note && <p className="text-xs italic text-muted-foreground mt-1">"{file.note}"</p>
+                        )}
+                        <div className="flex justify-end items-center gap-1 mt-2">
+                            <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleDownloadClick(file)}>
+                            <Download className="h-4 w-4" />
+                            </Button>
+                            <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleEditNote(file)}>
+                            <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="h-8 w-8 transition-all active:scale-95"
+                            onClick={() => handleDeleteFileClick(file)}
+                            >
+                            <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        </div>
+                    </Card>
+                    ))
+                )}
                 {/* Upload Card */}
                 <label 
                   htmlFor="attachment-upload-input"
@@ -472,27 +439,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                   onChange={handleFileUploadChange}
                 />
               </div>
-            ) : (
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <label 
-                  htmlFor="attachment-upload-input"
-                  className="flex flex-col items-center justify-center aspect-[16/9] w-full border-2 border-dashed rounded-xl bg-secondary/30 text-muted-foreground hover:bg-muted hover:border-primary hover:text-primary transition-colors cursor-pointer"
-                  onDrop={handleFileDrop}
-                  onDragOver={(e) => e.preventDefault()}
-                >
-                    <PlusCircle className="h-8 w-8 mb-2" />
-                    <span className="text-sm font-semibold">{t('task.attachments.upload_card.title')}</span>
-                    <span className="text-xs">{t('task.attachments.upload_card.description')}</span>
-                </label>
-                <input 
-                  id="attachment-upload-input" 
-                  type="file" 
-                  className="hidden" 
-                  multiple
-                  onChange={handleFileUploadChange}
-                />
-              </div>
-            )}
           </div>
           
           {canDeleteTask(task, currentUser) && (
@@ -546,3 +492,5 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </>
   );
 }
+
+    
