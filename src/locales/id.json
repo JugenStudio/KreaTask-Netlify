@@ -75,6 +75,12 @@
       "delete_toast": {
         "success_title": "File Dihapus",
         "success_desc": "File \"{{fileName}}\" telah dihapus dari tugas ini."
+      },
+      "delete_dialog": {
+        "title": "Apakah Anda yakin?",
+        "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus file \"{{fileName}}\" secara permanen.",
+        "cancel_button": "Batal",
+        "confirm_button": "Hapus"
       }
     },
     "tabs": {

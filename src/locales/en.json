@@ -75,6 +75,12 @@
       "delete_toast": {
         "success_title": "File Deleted",
         "success_desc": "\"{{fileName}}\" has been removed from this task."
+      },
+      "delete_dialog": {
+        "title": "Are you sure?",
+        "description": "This action cannot be undone. This will permanently delete the file \"{{fileName}}\".",
+        "cancel_button": "Cancel",
+        "confirm_button": "Delete"
       }
     },
     "tabs": {

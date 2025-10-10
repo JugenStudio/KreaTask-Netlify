@@ -41,6 +41,16 @@ import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { isEmployee } from "@/lib/roles";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -73,6 +83,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [task, setTask] = useState(initialTask);
   const [submissionFiles, setSubmissionFiles] = useState<FileWithPreview[]>([]);
   const { currentUser } = useCurrentUser();
+  const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
 
   useEffect(() => {
     setTask(initialTask);
@@ -96,22 +107,22 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     onUpdateTask(task.id, { subtasks: updatedSubtasks });
   };
   
-  const handleDeleteFile = (fileId: string, fileName: string) => {
-    const isConfirmed = window.confirm(t('task.attachments.delete_confirm_message', { fileName }));
+  const confirmDeleteFile = () => {
+    if (!fileToDelete) return;
 
-    if (isConfirmed) {
-      const updatedFiles = task.files?.filter(file => file.id !== fileId);
-      const updatedTask = { ...task, files: updatedFiles };
-      
-      setTask(updatedTask);
-      onUpdateTask(task.id, { files: updatedFiles });
+    const updatedFiles = task.files?.filter(file => file.id !== fileToDelete.id);
+    const updatedTask = { ...task, files: updatedFiles };
+    
+    setTask(updatedTask);
+    onUpdateTask(task.id, { files: updatedFiles });
 
-      toast({
-        title: t('task.attachments.delete_toast.success_title'),
-        description: t('task.attachments.delete_toast.success_desc', { fileName }),
-        variant: "destructive",
-      });
-    }
+    toast({
+      title: t('task.attachments.delete_toast.success_title'),
+      description: t('task.attachments.delete_toast.success_desc', { fileName: fileToDelete.name }),
+      variant: "destructive",
+    });
+
+    setFileToDelete(null); // Close the dialog
   };
 
   const handleSubmitForReview = () => {
@@ -177,6 +188,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         .map(st => st.linkedFileId)
     );
   
+    // Include files that are not linked to any subtask, OR are linked to a completed subtask.
     return task.files.filter(file => {
       const isLinkedToAnySubtask = task.subtasks?.some(st => st.linkedFileId === file.id);
       
@@ -190,168 +202,187 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
 
 
   return (
-    <Card className="h-full">
-      <CardHeader>
-        <div className="flex justify-between items-start gap-4">
-            <div>
-                <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
-                <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
-            </div>
-            <Badge className={cn("text-white text-xs md:text-sm whitespace-nowrap", statusColors[task.status])}>
-                {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
-            </Badge>
-        </div>
-      </CardHeader>
-      <CardContent className="space-y-4 md:space-y-6">
-
-        {canSubmit && (
-            <Card className="bg-secondary/50">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline text-xl">
-                        <UploadCloud className="h-6 w-6 text-primary" />
-                        {t('task.submit.panel.title')}
-                    </CardTitle>
-                    <CardDescription>{t('task.submit.panel.description')}</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                    <div className="flex items-center justify-center w-full">
-                        <label htmlFor="submission-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background/50 hover:bg-muted">
-                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                                <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
-                                <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
-                                <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
-                            </div>
-                            <input id="submission-file-upload" type="file" className="hidden" multiple onChange={handleFileChange} />
-                        </label>
-                    </div>
-                    {submissionFiles.length > 0 && (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                            {submissionFiles.map(file => (
-                                <div key={file.name} className="relative group rounded-xl bg-background p-2">
-                                    <Image src={file.preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                                        <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
-                                            <X className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                    <p className="text-xs pt-2 truncate text-center text-muted-foreground">{file.name}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                     <Button onClick={handleSubmitForReview} className="w-full" disabled={submissionFiles.length === 0}>
-                        <Send className="mr-2 h-4 w-4" />
-                        {t('task.submit.panel.submit_button')}
-                    </Button>
-                </CardContent>
-            </Card>
-        )}
-
-        <div className="space-y-2">
-            <h4 className="font-semibold text-base md:text-lg">{t('task.description')}</h4>
-            <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
-        </div>
-        <Separator />
-        
-        {task.subtasks && task.subtasks.length > 0 && (
-          <div className="space-y-4">
-            <h4 className="font-semibold text-base md:text-lg flex items-center gap-2"><ListChecks className="h-5 w-5"/> {t('task.checklist.title')}</h4>
-            <div className="space-y-2">
-                <Progress value={progressPercentage} className="h-2" />
-                <p className="text-xs text-muted-foreground">{t('task.checklist.progress', { completed: completedSubtasks.toString(), total: totalSubtasks.toString() })}</p>
-            </div>
-            <div className="space-y-3">
-              {task.subtasks.map(subtask => (
-                <div key={subtask.id} className="flex items-center space-x-3 bg-secondary/50 p-3 rounded-lg">
-                  <Checkbox
-                    id={`subtask-${subtask.id}`}
-                    checked={subtask.isCompleted}
-                    onCheckedChange={(checked) => handleSubtaskChange(subtask.id, !!checked)}
-                  />
-                  <Label
-                    htmlFor={`subtask-${subtask.id}`}
-                    className={cn("text-sm", subtask.isCompleted && "line-through text-muted-foreground")}
-                  >
-                    {subtask.title}
-                  </Label>
-                </div>
-              ))}
-            </div>
+    <>
+      <Card className="h-full">
+        <CardHeader>
+          <div className="flex justify-between items-start gap-4">
+              <div>
+                  <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
+                  <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
+              </div>
+              <Badge className={cn("text-white text-xs md:text-sm whitespace-nowrap", statusColors[task.status])}>
+                  {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
+              </Badge>
           </div>
-        )}
-        
-        <Separator />
+        </CardHeader>
+        <CardContent className="space-y-4 md:space-y-6">
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <h4 className="font-semibold">{t('task.assignees')}</h4>
-             <div className="flex flex-col space-y-2">
-                {task.assignees.map((user) => (
-                    <div key={user.id} className="flex items-center space-x-2">
-                        <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatarUrl} alt={user.name} />
-                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <p className="text-sm font-medium">{user.name}</p>
-                    </div>
-                ))}
-            </div>
-          </div>
-          <div className="space-y-2">
-            <h4 className="font-semibold">{t('task.due_date')}</h4>
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              <p className="text-sm font-medium">
-                {new Date(task.dueDate).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </div>
-        <Separator />
-        <div className="space-y-4">
-          <h4 className="font-semibold text-base md:text-lg">{t('task.attachments.title')}</h4>
-          {visibleFiles && visibleFiles.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {visibleFiles.map((file) => (
-                <Card key={file.id} className="overflow-hidden rounded-xl group">
-                  <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
-                    {file.type === 'image' || file.type === 'illustration' ? (
-                       <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
-                    ) : (
-                      fileTypeIcons[file.type as keyof typeof fileTypeIcons]
-                    )}
-                  </a>
-                  <div className="p-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <p className="text-sm font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{file.size}</p>
+          {canSubmit && (
+              <Card className="bg-secondary/50">
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 font-headline text-xl">
+                          <UploadCloud className="h-6 w-6 text-primary" />
+                          {t('task.submit.panel.title')}
+                      </CardTitle>
+                      <CardDescription>{t('task.submit.panel.description')}</CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                      <div className="flex items-center justify-center w-full">
+                          <label htmlFor="submission-file-upload" className="flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer bg-background/50 hover:bg-muted">
+                              <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                  <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
+                                  <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
+                                  <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
+                              </div>
+                              <input id="submission-file-upload" type="file" className="hidden" multiple onChange={handleFileChange} />
+                          </label>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
-                          <a href={file.url} download={file.name}>
-                            <Download className="h-4 w-4" />
-                          </a>
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="icon" 
-                          className="h-8 w-8 transition-all active:scale-95"
-                          onClick={() => handleDeleteFile(file.id, file.name)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">{t('task.attachments.no_attachments')}</p>
+                      {submissionFiles.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                              {submissionFiles.map(file => (
+                                  <div key={file.name} className="relative group rounded-xl bg-background p-2">
+                                      <Image src={file.preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
+                                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
+                                          <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
+                                              <X className="h-4 w-4" />
+                                          </Button>
+                                      </div>
+                                      <p className="text-xs pt-2 truncate text-center text-muted-foreground">{file.name}</p>
+                                  </div>
+                              ))}
+                          </div>
+                      )}
+                       <Button onClick={handleSubmitForReview} className="w-full" disabled={submissionFiles.length === 0}>
+                          <Send className="mr-2 h-4 w-4" />
+                          {t('task.submit.panel.submit_button')}
+                      </Button>
+                  </CardContent>
+              </Card>
           )}
-        </div>
-      </CardContent>
-    </Card>
+
+          <div className="space-y-2">
+              <h4 className="font-semibold text-base md:text-lg">{t('task.description')}</h4>
+              <p className="text-sm text-muted-foreground">{task.description[locale]}</p>
+          </div>
+          <Separator />
+          
+          {task.subtasks && task.subtasks.length > 0 && (
+            <div className="space-y-4">
+              <h4 className="font-semibold text-base md:text-lg flex items-center gap-2"><ListChecks className="h-5 w-5"/> {t('task.checklist.title')}</h4>
+              <div className="space-y-2">
+                  <Progress value={progressPercentage} className="h-2" />
+                  <p className="text-xs text-muted-foreground">{t('task.checklist.progress', { completed: completedSubtasks.toString(), total: totalSubtasks.toString() })}</p>
+              </div>
+              <div className="space-y-3">
+                {task.subtasks.map(subtask => (
+                  <div key={subtask.id} className="flex items-center space-x-3 bg-secondary/50 p-3 rounded-lg">
+                    <Checkbox
+                      id={`subtask-${subtask.id}`}
+                      checked={subtask.isCompleted}
+                      onCheckedChange={(checked) => handleSubtaskChange(subtask.id, !!checked)}
+                    />
+                    <Label
+                      htmlFor={`subtask-${subtask.id}`}
+                      className={cn("text-sm", subtask.isCompleted && "line-through text-muted-foreground")}
+                    >
+                      {subtask.title}
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          
+          <Separator />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <h4 className="font-semibold">{t('task.assignees')}</h4>
+              <div className="flex flex-col space-y-2">
+                  {task.assignees.map((user) => (
+                      <div key={user.id} className="flex items-center space-x-2">
+                          <Avatar className="h-8 w-8">
+                              <AvatarImage src={user.avatarUrl} alt={user.name} />
+                              <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <p className="text-sm font-medium">{user.name}</p>
+                      </div>
+                  ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h4 className="font-semibold">{t('task.due_date')}</h4>
+              <div className="flex items-center gap-2">
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                <p className="text-sm font-medium">
+                  {new Date(task.dueDate).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+          <Separator />
+          <div className="space-y-4">
+            <h4 className="font-semibold text-base md:text-lg">{t('task.attachments.title')}</h4>
+            {visibleFiles && visibleFiles.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {visibleFiles.map((file) => (
+                  <Card key={file.id} className="overflow-hidden rounded-xl group">
+                    <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
+                      {file.type === 'image' || file.type === 'illustration' ? (
+                         <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
+                      ) : (
+                        fileTypeIcons[file.type as keyof typeof fileTypeIcons]
+                      )}
+                    </a>
+                    <div className="p-3">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">{file.size}</p>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
+                            <a href={file.url} download={file.name}>
+                              <Download className="h-4 w-4" />
+                            </a>
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="icon" 
+                            className="h-8 w-8 transition-all active:scale-95"
+                            onClick={() => setFileToDelete(file)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">{t('task.attachments.no_attachments')}</p>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+      
+      <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('task.attachments.delete_dialog.title')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('task.attachments.delete_dialog.description', { fileName: fileToDelete?.name || '' })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('task.attachments.delete_dialog.cancel_button')}</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteFile} className="bg-destructive hover:bg-destructive/90">
+              {t('task.attachments.delete_dialog.confirm_button')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
