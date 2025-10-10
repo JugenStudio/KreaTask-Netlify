@@ -68,8 +68,15 @@
     "description": "Description",
     "assignees": "Assignees",
     "due_date": "Due Date",
-    "attachments": "Attachments",
-    "no_attachments": "No files attached.",
+    "attachments": {
+      "title": "Attachments",
+      "no_attachments": "No files attached.",
+      "delete_confirm_message": "Are you sure you want to delete the file \"{{fileName}}\"?",
+      "delete_toast": {
+        "success_title": "File Deleted",
+        "success_desc": "\"{{fileName}}\" has been removed from this task."
+      }
+    },
     "tabs": {
       "comments": "Comments",
       "history": "History"
@@ -93,13 +100,6 @@
           "success_title": "File Uploaded",
           "success_desc": "{{count}} file(s) have been added to your submission."
         }
-      }
-    },
-    "attachments": {
-      "delete_confirm_message": "Are you sure you want to delete the file \"{{fileName}}\"?",
-      "delete_toast": {
-        "success_title": "File Deleted",
-        "success_desc": "\"{{fileName}}\" has been removed from this task."
       }
     }
   },

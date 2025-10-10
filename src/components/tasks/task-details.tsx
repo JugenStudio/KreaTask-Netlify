@@ -171,7 +171,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const visibleFiles = useMemo(() => {
     if (!task.files) return [];
   
-    // Ambil semua ID file yang terhubung dengan sub-tugas yang sudah selesai
     const completedLinkedFileIds = new Set(
       task.subtasks
         ?.filter(st => st.isCompleted && st.linkedFileId)
@@ -179,15 +178,12 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     );
   
     return task.files.filter(file => {
-      // Cek apakah file ini terhubung ke suatu sub-tugas
-      const isLinked = task.subtasks?.some(st => st.linkedFileId === file.id);
+      const isLinkedToAnySubtask = task.subtasks?.some(st => st.linkedFileId === file.id);
       
-      // Jika file tidak terhubung ke sub-tugas manapun, selalu tampilkan
-      if (!isLinked) {
+      if (!isLinkedToAnySubtask) {
         return true;
       }
       
-      // Jika terhubung, hanya tampilkan jika sub-tugasnya sudah selesai
       return completedLinkedFileIds.has(file.id);
     });
   }, [task.files, task.subtasks]);
@@ -313,7 +309,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         </div>
         <Separator />
         <div className="space-y-4">
-          <h4 className="font-semibold text-base md:text-lg">{t('task.attachments')}</h4>
+          <h4 className="font-semibold text-base md:text-lg">{t('task.attachments.title')}</h4>
           {visibleFiles && visibleFiles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {visibleFiles.map((file) => (
@@ -352,12 +348,10 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
               ))}
             </div>
           ) : (
-            <p className="text-sm text-muted-foreground">{t('task.no_attachments')}</p>
+            <p className="text-sm text-muted-foreground">{t('task.attachments.no_attachments')}</p>
           )}
         </div>
       </CardContent>
     </Card>
   );
 }
-
-    
