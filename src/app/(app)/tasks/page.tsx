@@ -61,9 +61,28 @@ export default function AllTasksPage() {
   }
 
   const isUserEmployee = isEmployee(currentUser.role);
-  const visibleTasks: Task[] = isUserEmployee
-    ? allTasks.filter(task => task.assignees.some(assignee => assignee.id === currentUser.id))
-    : allTasks;
+  
+  const visibleTasks: Task[] = (() => {
+    if (isEmployee(currentUser.role)) {
+      // Level 1: Karyawan hanya melihat tugasnya sendiri
+      return allTasks.filter(task => 
+        task.assignees.some(assignee => assignee.id === currentUser.id)
+      );
+    }
+    if (currentUser.role === UserRole.DIREKTUR_OPERASIONAL) {
+      // Level 2: Direktur Operasional melihat tugas timnya
+      const supervisedRoles = [UserRole.JURNALIS, UserRole.SOCIAL_MEDIA_OFFICER, UserRole.DESAIN_GRAFIS];
+      return allTasks.filter(task => 
+        task.assignees.some(assignee => supervisedRoles.includes(assignee.role))
+      );
+    }
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
+      // Level 3: Direktur Utama melihat semua tugas
+      return allTasks;
+    }
+    // Fallback jika peran tidak terdefinisi
+    return [];
+  })();
 
   const filteredTasks = visibleTasks.filter(task => {
     const matchesSearch = task.title[locale].toLowerCase().includes(searchTerm.toLowerCase());
