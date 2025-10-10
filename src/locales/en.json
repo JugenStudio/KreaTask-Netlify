@@ -46,6 +46,7 @@
     "unread_count": "{{count}} unread",
     "profile": "Profile",
     "settings": "Settings",
+    "about": "About",
     "downloads": "Downloads",
     "logout": "Log out"
   },

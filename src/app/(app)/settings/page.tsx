@@ -162,25 +162,6 @@ export default function SettingsPage() {
             </CardContent>
         </Card>
       )}
-
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline text-xl md:text-2xl">{t('settings.about.title')}</CardTitle>
-          <CardDescription>{t('settings.about.description')}</CardDescription>
-        </CardHeader>
-        <CardContent className="p-4 md:p-6">
-            <Link href="/about" className="w-full">
-                <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50 hover:bg-muted transition-colors cursor-pointer">
-                    <div className="flex items-center gap-4">
-                        <Info className="h-5 w-5 text-primary"/>
-                        <span className="font-semibold text-sm">{t('settings.about.link_text')}</span>
-                    </div>
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                </div>
-            </Link>
-        </CardContent>
-      </Card>
-
     </div>
   );
 }

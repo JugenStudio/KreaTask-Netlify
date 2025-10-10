@@ -17,7 +17,7 @@ interface InfoRowProps {
 const InfoRow = ({ label, value }: InfoRowProps) => (
   <div className="grid grid-cols-1 md:grid-cols-3 gap-1 md:gap-4 py-3 border-b border-border/50">
     <dt className="text-sm font-semibold text-muted-foreground">{label}</dt>
-    <dd className="text-sm md:col-span-2">{value}</dd>
+    <dd className="text-sm md:col-span-2 text-foreground">{value}</dd>
   </div>
 );
 

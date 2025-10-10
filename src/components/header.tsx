@@ -9,6 +9,7 @@ import {
   Settings,
   LogOut,
   Download,
+  Info,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,6 +121,13 @@ export function Header() {
               <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>{t("header.settings")}</span>
+              </Link>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem asChild>
+              <Link href="/about">
+                <Info className="mr-2 h-4 w-4" />
+                <span>{t("header.about")}</span>
               </Link>
             </DropdownMenuItem>
 
