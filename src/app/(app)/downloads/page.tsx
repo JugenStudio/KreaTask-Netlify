@@ -27,15 +27,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 
-const initialDownloadHistory = [
-    { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
-    { id: 2, fileName: "Brand_Guidelines.pdf", taskName: "Desain Banner Promosi", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), size: "850 KB", status: "Completed", progress: 100 },
-    { id: 3, fileName: "Script_Final_v2.docx", taskName: "Produksi Video Presentasi", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), size: "128 KB", status: "Completed", progress: 100 },
-    { id: 4, fileName: "Campaign_Concept_B.jpg", taskName: "Desain visual kampanye", date: new Date().toISOString(), size: "2.8 MB", status: "Completed", progress: 100 },
-    { id: 5, fileName: "Annual_Report_Q3.pdf", taskName: "Laporan Keuangan Kuartal 3", date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), size: "5.4 MB", status: "Failed", progress: 0 },
-];
-
-type DownloadItem = typeof initialDownloadHistory[0];
+type DownloadItem = {
+  id: number;
+  fileName: string;
+  taskName: string;
+  date: string;
+  size: string;
+  status: 'Completed' | 'In Progress' | 'Failed';
+  progress: number;
+};
 
 const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') => {
   return downloads.reduce((acc, download) => {
@@ -62,9 +62,8 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { addNotification } = useTaskData();
+  const { downloadHistory, setDownloadHistory, addNotification } = useTaskData();
   const { currentUser } = useCurrentUser();
-  const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
   const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
@@ -97,7 +96,7 @@ export default function DownloadsPage() {
 
         return () => clearInterval(interval);
     }
-  }, [downloadHistory]);
+  }, [downloadHistory, setDownloadHistory]);
   
   useEffect(() => {
     if (!currentUser) return;
@@ -150,7 +149,7 @@ export default function DownloadsPage() {
 
   const handleDeleteItem = () => {
     if (itemToDelete) {
-        setDownloadHistory(prev => prev.filter(item => item.id !== itemToDelete.id));
+        setDownloadHistory(downloadHistory.filter(item => item.id !== itemToDelete.id));
         toast({
             title: t('downloads.toast.item_deleted_title'),
             description: t('downloads.toast.item_deleted_desc', { fileName: itemToDelete.fileName }),
@@ -161,8 +160,8 @@ export default function DownloadsPage() {
   };
   
   const handleRedownload = (item: DownloadItem) => {
-    setDownloadHistory(prev =>
-      prev.map(d =>
+    setDownloadHistory(
+      downloadHistory.map(d =>
         d.id === item.id
           ? { ...d, status: 'In Progress', progress: 0 }
           : d

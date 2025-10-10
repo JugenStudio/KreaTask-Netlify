@@ -52,6 +52,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTaskData } from "@/hooks/use-task-data";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -81,6 +82,7 @@ interface TaskDetailsProps {
 export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
+  const { addToDownloadHistory } = useTaskData();
   const [task, setTask] = useState(initialTask);
   const [submissionFiles, setSubmissionFiles] = useState<FileWithPreview[]>([]);
   const { currentUser } = useCurrentUser();
@@ -214,6 +216,19 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         return prev.filter(file => file.name !== fileName);
     });
   }
+
+  const handleDownloadClick = (file: FileType) => {
+    // 1. Add to download manager to simulate progress
+    addToDownloadHistory({ name: file.name, size: file.size }, task.title[locale]);
+
+    // 2. Programmatically trigger the actual download
+    const link = document.createElement('a');
+    link.href = file.url;
+    link.setAttribute('download', file.name);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   
   const completedSubtasks = task.subtasks?.filter(st => st.isCompleted).length || 0;
   const totalSubtasks = task.subtasks?.length || 0;
@@ -368,13 +383,13 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {visibleFiles && visibleFiles.map((file) => (
                 <Card key={file.id} className="overflow-hidden rounded-xl group">
-                  <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
+                  <div className="block aspect-[16/9] bg-muted flex items-center justify-center">
                     {file.type === 'image' || file.type === 'illustration' ? (
                         <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
                     ) : (
                       fileTypeIcons[file.type as keyof typeof fileTypeIcons]
                     )}
-                  </a>
+                  </div>
                   <div className="p-3">
                     <div className="flex justify-between items-start gap-2">
                       <div>
@@ -382,10 +397,8 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                         <p className="text-xs text-muted-foreground">{file.size}</p>
                       </div>
                       <div className="flex items-center gap-1">
-                        <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
-                          <a href={file.url} download={file.name}>
-                            <Download className="h-4 w-4" />
-                          </a>
+                        <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleDownloadClick(file)}>
+                          <Download className="h-4 w-4" />
                         </Button>
                         <Button 
                           variant="destructive" 

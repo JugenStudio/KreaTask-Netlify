@@ -44,6 +44,7 @@ export function useTaskData() {
   const [users, setUsersState] = useState<User[]>([]);
   const [notifications, setNotificationsState] = useState<Notification[]>([]);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+  const [downloadHistory, setDownloadHistoryState] = useState<any[]>([]);
 
   useEffect(() => {
     // Prevent execution on server
@@ -55,18 +56,22 @@ export function useTaskData() {
       const storedTasks = localStorage.getItem('kreatask_tasks');
       const storedUsers = localStorage.getItem('kreatask_users');
       const storedNotifications = localStorage.getItem('kreatask_notifications');
+      const storedDownloads = localStorage.getItem('kreatask_downloads');
 
       const tasks = storedTasks ? JSON.parse(storedTasks) : initialData.allTasks;
       const users = storedUsers ? JSON.parse(storedUsers) : initialData.users;
       const notifications = storedNotifications ? JSON.parse(storedNotifications) : initialData.mockNotifications;
+      const downloads = storedDownloads ? JSON.parse(storedDownloads) : initialData.initialDownloadHistory;
 
       setAllTasks(tasks);
       setUsersState(users);
       setNotificationsState(notifications);
+      setDownloadHistoryState(downloads);
 
       if (!storedTasks) localStorage.setItem('kreatask_tasks', JSON.stringify(tasks));
       if (!storedUsers) localStorage.setItem('kreatask_users', JSON.stringify(users));
       if (!storedNotifications) localStorage.setItem('kreatask_notifications', JSON.stringify(notifications));
+      if (!storedDownloads) localStorage.setItem('kreatask_downloads', JSON.stringify(downloads));
 
     } catch (error) {
         console.error("Failed to parse data from localStorage", error);
@@ -74,9 +79,8 @@ export function useTaskData() {
         setAllTasks(initialData.allTasks);
         setUsersState(initialData.users);
         setNotificationsState(initialData.mockNotifications);
-        localStorage.removeItem('kreatask_tasks');
-        localStorage.removeItem('kreatask_users');
-        localStorage.removeItem('kreatask_notifications');
+        setDownloadHistoryState(initialData.initialDownloadHistory);
+        localStorage.clear();
     } finally {
         setIsLoading(false);
     }
@@ -112,6 +116,11 @@ export function useTaskData() {
       setNotificationsState(newNotifications);
       updateLocalStorage('kreatask_notifications', newNotifications);
   };
+
+  const setDownloadHistory = (newHistory: any[]) => {
+    setDownloadHistoryState(newHistory);
+    updateLocalStorage('kreatask_downloads', newHistory);
+  };
   
   const addTask = (newTask: Task) => {
     setAllTasks(prevTasks => {
@@ -141,6 +150,19 @@ export function useTaskData() {
     });
   }, []);
 
+  const addToDownloadHistory = (file: { name: string; size: string }, taskName: string) => {
+    const newDownloadItem = {
+      id: Date.now(), // Use timestamp for a unique enough ID for this simulation
+      fileName: file.name,
+      taskName: taskName,
+      date: new Date().toISOString(),
+      size: file.size,
+      status: 'In Progress',
+      progress: 0,
+    };
+    setDownloadHistory([newDownloadItem, ...downloadHistory]);
+  };
+
 
   return { 
     isLoading, 
@@ -148,12 +170,15 @@ export function useTaskData() {
     users,
     leaderboardData, 
     notifications,
+    downloadHistory,
     setUsers,
     setAllTasks: setAllTasksAndStorage, 
     setNotifications,
+    setDownloadHistory,
     addTask,
     updateTask,
     deleteTask,
-    addNotification
+    addNotification,
+    addToDownloadHistory,
   };
 }
