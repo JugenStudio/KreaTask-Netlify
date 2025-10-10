@@ -56,7 +56,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (itemInProgress) {
         const intervalId = `download-interval-${itemInProgress.id}`;
-        // Prevent multiple intervals for the same download
         if (window[intervalId as any]) {
             return;
         }
@@ -64,7 +63,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
         const interval = setInterval(() => {
             setDownloadHistory(prevHistory => {
                 const currentItem = prevHistory.find(d => d.id === itemInProgress.id);
-                // Stop if item is gone or status changed
                 if (!currentItem || currentItem.status !== 'In Progress') {
                     clearInterval(interval);
                     delete window[intervalId as any];
@@ -113,8 +111,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
             type: 'SYSTEM_UPDATE',
             read: false,
+            link: '/downloads',
             createdAt: new Date().toISOString(),
-            link: '/downloads'
         });
         
         addNotifiedDownload(item.id, currentUser.id);

@@ -26,12 +26,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type DownloadItem = {
@@ -69,7 +63,7 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { downloadHistory, setDownloadHistory, addNotification } = useTaskData();
+  const { downloadHistory, setDownloadHistory } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
@@ -244,5 +238,3 @@ export default function DownloadsPage() {
     </>
   );
 }
-
-    
