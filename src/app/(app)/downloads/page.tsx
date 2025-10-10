@@ -26,6 +26,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 type DownloadItem = {
   id: number;
@@ -191,13 +198,21 @@ export default function DownloadsPage() {
                 {downloads.map((item) => (
                   <Card 
                     key={item.id} 
-                    className="bg-secondary/40 border-border/60 hover:bg-muted/40 transition-colors cursor-pointer"
-                    onClick={() => handleRedownload(item)}
+                    className="bg-secondary/40 border-border/60 hover:bg-muted/40 transition-colors"
                   >
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
-                        <div className="flex-1 overflow-hidden">
-                           <p className="font-medium truncate">{item.fileName}</p>
+                        <div className="flex-1 overflow-hidden" onClick={() => handleRedownload(item)}>
+                           <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <p className="font-medium truncate cursor-pointer">{item.fileName}</p>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>{item.fileName}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                            {item.status === 'In Progress' ? (
                                 <div className="flex items-center gap-2 mt-1">
                                     <Progress value={item.progress} className="h-1 flex-1" />
