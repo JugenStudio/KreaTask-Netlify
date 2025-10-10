@@ -393,7 +393,7 @@ const allTasks: Task[] = [
           author: users.find(u => u.name === 'Ariya')!,
           timestamp: new Date('2024-09-26T15:30:00Z').toISOString(),
           isPinned: false,
-          content: { en: 'Hi Deva, the initial concepts are ready. I\'ve uploaded them for you to see. Let me know what you think.', id: 'Halo Deva, konsep awalnya sudah siap. Sudah saya unggah untuk Anda lihat. Beri tahu saya pendapat Anda.' },
+          content: { en: 'Hi Deva, the initial concepts are ready. I have uploaded them for you to see. Let me know what you think.', id: 'Halo Deva, konsep awalnya sudah siap. Sudah saya unggah untuk Anda lihat. Beri tahu saya pendapat Anda.' },
         },
          {
           id: 'comment-12-3',
@@ -403,7 +403,10 @@ const allTasks: Task[] = [
           content: { en: 'Concept B looks promising. Please proceed with that one and finalize it.', id: 'Konsep B terlihat menjanjikan. Silakan lanjutkan dengan yang itu dan selesaikan.' },
         }
     ], 
-    files: [],
+    files: [
+      { id: 'file-5', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB' },
+      { id: 'file-6', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB' },
+    ],
     subtasks: [],
   },
   {
