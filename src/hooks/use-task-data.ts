@@ -55,6 +55,8 @@ export function useTaskData() {
   const [notifications, setNotificationsState] = useState<Notification[]>([]);
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -156,10 +158,13 @@ export function useTaskData() {
       updateLocalStorage('kreatask_notifications', newNotifications);
   };
 
-  const setDownloadHistory = useCallback((newHistory: DownloadItem[]) => {
+  const setDownloadHistory = useCallback((newHistory: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => {
     if (currentUserId) {
-      setDownloadHistoryState(newHistory);
-      updateLocalStorage(`kreatask_downloads_${currentUserId}`, newHistory);
+        setDownloadHistoryState(prevState => {
+            const updatedState = typeof newHistory === 'function' ? newHistory(prevState) : newHistory;
+            updateLocalStorage(`kreatask_downloads_${currentUserId}`, updatedState);
+            return updatedState;
+        });
     }
   }, [currentUserId]);
   
@@ -204,11 +209,7 @@ export function useTaskData() {
       progress: 0,
     };
 
-    setDownloadHistory(prevHistory => {
-        const newHistory = [newDownloadItem, ...prevHistory];
-        updateLocalStorage(`kreatask_downloads_${currentUserId}`, newHistory);
-        return newHistory;
-    });
+    setDownloadHistory(prevHistory => [newDownloadItem, ...prevHistory]);
   }, [currentUserId, setDownloadHistory]);
 
 
