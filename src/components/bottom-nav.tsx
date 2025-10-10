@@ -15,19 +15,34 @@ export function BottomNav() {
   const navItems = [
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
-    { href: "/dashboard", icon: Home, label: t('sidebar.home'), isLogo: true },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home'), isCenter: true },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
   ];
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/80 p-2 backdrop-blur-lg md:hidden">
-      <div className="grid h-full max-w-lg grid-cols-5 mx-auto">
+      <div className="grid h-full max-w-lg grid-cols-5 mx-auto items-center">
         {navItems.map((item) => {
           const isActive = item.href === "/dashboard" 
             ? pathname === "/" || pathname.startsWith(item.href)
             : pathname.startsWith(item.href);
             
+          if (item.isCenter) {
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                prefetch
+                className="flex flex-col items-center justify-center -mt-6"
+              >
+                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-lg">
+                  <item.icon className="h-7 w-7" />
+                </div>
+              </Link>
+            )
+          }
+
           return (
             <Link
               key={item.href}
@@ -39,13 +54,9 @@ export function BottomNav() {
             >
               <div className={cn(
                 "flex flex-col items-center justify-center gap-1 w-16 h-8 rounded-full transition-colors",
-                 isActive ? "bg-primary text-primary-foreground" : "group-hover:bg-muted"
+                 isActive ? "text-primary" : "group-hover:bg-muted"
               )}>
-                {item.isLogo ? (
-                  <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={20} height={20} className={cn(!isActive && "dark:invert-0 invert")}/>
-                ) : (
-                  <item.icon className="h-5 w-5" />
-                )}
+                <item.icon className="h-5 w-5" />
               </div>
               <span className={cn(
                 "text-xs font-medium mt-1 w-full text-center truncate",
