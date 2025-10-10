@@ -370,6 +370,10 @@
       "completed": "Completed",
       "in_progress": "In Progress",
       "failed": "Failed"
+    },
+    "toast": {
+      "completed_title": "Download Complete",
+      "completed_desc": "File \"{{fileName}}\" has been successfully downloaded."
     }
   }
 }

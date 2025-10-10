@@ -370,6 +370,10 @@
       "completed": "Selesai",
       "in_progress": "Sedang Berjalan",
       "failed": "Gagal"
+    },
+    "toast": {
+      "completed_title": "Unduhan Selesai",
+      "completed_desc": "File \"{{fileName}}\" berhasil diunduh."
     }
   }
 }
