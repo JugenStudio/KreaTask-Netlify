@@ -15,51 +15,6 @@ const users: User[] = [
   { id: 'user-11', name: 'Budi', email: 'budi@kreatask.com', avatarUrl: getAvatarUrl(11), role: UserRole.UNASSIGNED },
 ];
 
-const mockComments: Comment[] = [
-    {
-      id: 'comment-1',
-      author: users.find(u => u.name === 'Naufal')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
-      content: { en: 'Great job on this, Ariya! The design looks clean.', id: 'Kerja bagus, Ariya! Desainnya terlihat bersih.' },
-    },
-    {
-      id: 'comment-2',
-      author: users.find(u => u.name === 'Ariya')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 50).toISOString(),
-      content: { en: 'Thanks, Naufal! I will submit it for review shortly.', id: 'Terima kasih, Naufal! Saya akan segera mengirimkannya untuk ditinjau.' },
-    },
-    {
-      id: 'comment-3',
-      author: users.find(u => u.name === 'Deva')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
-      content: { en: 'Agus, please make sure to double check the sources for this article.', id: 'Agus, tolong pastikan untuk memeriksa kembali sumber untuk artikel ini.' },
-    },
-    {
-      id: 'comment-4',
-      author: users.find(u => u.name === 'Agus')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(),
-      content: { en: 'Will do, Deva. I have the sources ready.', id: 'Siap, Deva. Saya sudah menyiapkan sumbernya.' },
-    },
-    {
-      id: 'comment-5',
-      author: users.find(u => u.name === 'Sasi')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
-      content: { en: 'The content plan is ready for review. I focused on video content for this month.', id: 'Rencana konten sudah siap ditinjau. Saya fokus pada konten video untuk bulan ini.' },
-    },
-    {
-      id: 'comment-6',
-      author: users.find(u => u.name === 'Deva')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
-      content: { en: 'Looks good, Sasi. Please proceed with the production.', id: 'Bagus, Sasi. Silakan lanjutkan ke produksi.' },
-    },
-    {
-      id: 'comment-7',
-      author: users.find(u => u.name === 'Ariya')!,
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-      content: { en: 'Infographic is done. I used the new brand colors.', id: 'Infografisnya sudah selesai. Saya menggunakan warna merek yang baru.' },
-    },
-];
-
 const allTasks: Task[] = [
   // Completed Tasks - Approved
   {
@@ -205,7 +160,20 @@ const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], 
-    comments: [mockComments[4], mockComments[5]], 
+    comments: [
+        {
+          id: 'comment-6-1',
+          author: users.find(u => u.name === 'Sasi')!,
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 5).toISOString(),
+          content: { en: 'The content plan is ready for review. I focused on video content for this month.', id: 'Rencana konten sudah siap ditinjau. Saya fokus pada konten video untuk bulan ini.' },
+        },
+        {
+          id: 'comment-6-2',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4).toISOString(),
+          content: { en: 'Looks good, Sasi. Please proceed with the production.', id: 'Bagus, Sasi. Silakan lanjutkan ke produksi.' },
+        },
+    ], 
     files: [],
     subtasks: [],
   },
