@@ -82,10 +82,9 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
       content: translationResult.data!,
     };
     
-    // Update UI instantly
     const updatedComments = [...localComments, comment];
     setLocalComments(updatedComments);
-    onUpdateComments(updatedComments); // Propagate to parent to save
+    onUpdateComments(updatedComments);
     
     setNewComment("");
     setIsPosting(false);
@@ -94,7 +93,7 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
   const handleDeleteComment = (commentId: string) => {
     const updatedComments = localComments.filter(c => c.id !== commentId);
     setLocalComments(updatedComments);
-    onUpdateComments(updatedComments); // Propagate to parent to save
+    onUpdateComments(updatedComments);
   };
   
   const handleEditComment = (comment: CommentType) => {
@@ -114,7 +113,7 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
     );
     
     setLocalComments(updatedComments);
-    onUpdateComments(updatedComments); // Propagate to parent to save
+    onUpdateComments(updatedComments);
 
     setEditingComment(null);
     setEditingText("");
@@ -247,5 +246,7 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
     </div>
   );
 }
+
+    
 
     
