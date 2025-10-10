@@ -286,6 +286,11 @@
         "cancel": "Batal",
         "confirm": "Hapus Pengguna"
       }
+    },
+     "about": {
+      "title": "Tentang Aplikasi",
+      "description": "Lihat informasi tentang aplikasi ini.",
+      "link_text": "Tentang Aplikasi Ini"
     }
   },
   "submit": {
@@ -406,5 +411,16 @@
       "cancel": "Batal",
       "confirm": "Hapus"
     }
+  },
+   "about": {
+    "title": "Tentang Aplikasi",
+    "back_button": "Kembali ke Pengaturan",
+    "version": "Versi",
+    "developer": "Pengembang",
+    "nim": "NIM",
+    "thesis_title": "Judul Skripsi",
+    "study_program": "Program Studi",
+    "year": "Tahun",
+    "copyright": "Hak Cipta: © 2025 KreaTask - Dikembangkan untuk kebutuhan penelitian dan tugas akhir."
   }
 }

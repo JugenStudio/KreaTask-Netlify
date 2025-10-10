@@ -371,6 +371,11 @@
         "cancel": "Cancel",
         "confirm": "Delete User"
       }
+    },
+    "about": {
+      "title": "About Application",
+      "description": "View information about this application.",
+      "link_text": "About This Application"
     }
   },
   "downloads": {
@@ -406,5 +411,16 @@
       "cancel": "Cancel",
       "confirm": "Remove"
     }
+  },
+  "about": {
+    "title": "About Application",
+    "back_button": "Back to Settings",
+    "version": "Version",
+    "developer": "Developer",
+    "nim": "NIM",
+    "thesis_title": "Thesis Title",
+    "study_program": "Study Program",
+    "year": "Year",
+    "copyright": "Copyright: © 2025 KreaTask - Developed for research and final project purposes."
   }
 }
