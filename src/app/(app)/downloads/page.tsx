@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, FileText, HardDriveDownload, Search, X, Trash2, Folder, CheckCircle } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { format, isToday, isYesterday } from "date-fns";
 import { id } from "date-fns/locale";
 
-// Mock data with more realistic dates
 const initialDownloadHistory = [
     { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
     { id: 2, fileName: "Brand_Guidelines.pdf", taskName: "Desain Banner Promosi", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), size: "850 KB", status: "Completed", progress: 100 },
@@ -55,9 +54,9 @@ export default function DownloadsPage() {
   const { currentUser } = useCurrentUser();
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
   const [searchTerm, setSearchTerm] = useState("");
+  const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
 
   useEffect(() => {
-    // One-time simulation trigger to demonstrate the progress bar.
     const simulationTimeout = setTimeout(() => {
       const itemToDownload = downloadHistory.find(item => item.id === 4);
       if (itemToDownload && itemToDownload.status === 'Completed') {
@@ -65,45 +64,32 @@ export default function DownloadsPage() {
           prev.map(item => item.id === 4 ? { ...item, status: 'In Progress', progress: 0 } : item)
         );
       }
-    }, 1000); // Start simulation 1 second after page load
+    }, 1000);
 
     return () => clearTimeout(simulationTimeout);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Empty dependency array ensures this runs only once on mount.
+  }, []);
 
   useEffect(() => {
-    if (!currentUser) return;
-
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
     if (itemInProgress) {
         const interval = setInterval(() => {
             setDownloadHistory(prevHistory => {
+                let isDone = false;
                 const updatedHistory = prevHistory.map(item => {
                     if (item.id === itemInProgress.id) {
                         const newProgress = Math.min(item.progress + 20, 100);
                         if (newProgress >= 100) {
-                            clearInterval(interval);
-                            toast({
-                                title: t('downloads.toast.completed_title'),
-                                description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-                            });
-                             addNotification({
-                                id: `notif-download-${Date.now()}`,
-                                userId: currentUser.id,
-                                message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-                                type: 'SYSTEM_UPDATE',
-                                read: false,
-                                createdAt: new Date().toISOString(),
-                            });
-                            return { ...item, status: "Completed" as const, progress: 100 };
+                           isDone = true;
+                           return { ...item, status: "Completed" as const, progress: 100 };
                         }
                         return { ...item, progress: newProgress };
                     }
                     return item;
                 });
-                if (!updatedHistory.some(i => i.status === 'In Progress')) {
-                  clearInterval(interval);
+                if (isDone) {
+                    clearInterval(interval);
                 }
                 return updatedHistory;
             });
@@ -111,7 +97,37 @@ export default function DownloadsPage() {
 
         return () => clearInterval(interval);
     }
-  }, [downloadHistory, t, toast, addNotification, currentUser]);
+  }, [downloadHistory]);
+  
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    // Check for newly completed downloads
+    const newlyCompleted = downloadHistory.filter(current => {
+        const previous = prevDownloadHistoryRef.current.find(p => p.id === current.id);
+        return current.status === 'Completed' && previous?.status !== 'Completed';
+    });
+
+    newlyCompleted.forEach(item => {
+        toast({
+            title: t('downloads.toast.completed_title'),
+            description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+        });
+        addNotification({
+            id: `notif-download-${Date.now()}-${item.id}`,
+            userId: currentUser.id,
+            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            type: 'SYSTEM_UPDATE',
+            read: false,
+            createdAt: new Date().toISOString(),
+        });
+    });
+
+    // Update the ref for the next render
+    prevDownloadHistoryRef.current = downloadHistory;
+
+  }, [downloadHistory, currentUser, t, toast, addNotification]);
+
 
   const filteredDownloads = useMemo(() => {
     return downloadHistory.filter(item =>
