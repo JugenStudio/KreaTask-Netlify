@@ -77,8 +77,9 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   useEffect(() => {
     setTask(initialTask);
   }, [initialTask]);
-
+  
   useEffect(() => {
+    // Cleanup function to revoke object URLs on component unmount
     return () => {
         submissionFiles.forEach(file => {
             URL.revokeObjectURL(file.preview);
@@ -168,27 +169,25 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const canSubmit = isEmployee(currentUser?.role || '') && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
 
   const visibleFiles = useMemo(() => {
-    if (!task.files || !task.subtasks) {
-      return task.files || [];
-    }
+    if (!task.files) return [];
   
     // Ambil semua ID file yang terhubung dengan sub-tugas yang sudah selesai
     const completedLinkedFileIds = new Set(
       task.subtasks
-        .filter(st => st.isCompleted && st.linkedFileId)
+        ?.filter(st => st.isCompleted && st.linkedFileId)
         .map(st => st.linkedFileId)
     );
   
-    // Tampilkan file jika:
-    // 1. File tersebut tidak terhubung ke sub-tugas manapun.
-    // 2. File tersebut terhubung ke sub-tugas yang sudah selesai.
     return task.files.filter(file => {
-      const linkedSubtask = task.subtasks.find(st => st.linkedFileId === file.id);
-      // Jika tidak ada sub-tugas yang terhubung, selalu tampilkan file.
-      if (!linkedSubtask) {
+      // Cek apakah file ini terhubung ke suatu sub-tugas
+      const isLinked = task.subtasks?.some(st => st.linkedFileId === file.id);
+      
+      // Jika file tidak terhubung ke sub-tugas manapun, selalu tampilkan
+      if (!isLinked) {
         return true;
       }
-      // Jika terhubung, hanya tampilkan jika sub-tugasnya sudah selesai.
+      
+      // Jika terhubung, hanya tampilkan jika sub-tugasnya sudah selesai
       return completedLinkedFileIds.has(file.id);
     });
   }, [task.files, task.subtasks]);
