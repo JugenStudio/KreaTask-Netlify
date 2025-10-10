@@ -473,8 +473,24 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                 />
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-xl bg-secondary/30 text-muted-foreground">
-                <p>{t('task.attachments.no_attachments')}</p>
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label 
+                  htmlFor="attachment-upload-input"
+                  className="flex flex-col items-center justify-center aspect-[16/9] w-full border-2 border-dashed rounded-xl bg-secondary/30 text-muted-foreground hover:bg-muted hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                  onDrop={handleFileDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                >
+                    <PlusCircle className="h-8 w-8 mb-2" />
+                    <span className="text-sm font-semibold">{t('task.attachments.upload_card.title')}</span>
+                    <span className="text-xs">{t('task.attachments.upload_card.description')}</span>
+                </label>
+                <input 
+                  id="attachment-upload-input" 
+                  type="file" 
+                  className="hidden" 
+                  multiple
+                  onChange={handleFileUploadChange}
+                />
               </div>
             )}
           </div>
