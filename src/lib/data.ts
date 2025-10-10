@@ -30,7 +30,20 @@ const allTasks: Task[] = [
     value: 20,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], 
+    revisions: [
+      {
+        id: 'rev-1-1',
+        timestamp: new Date('2024-08-11T10:00:00Z').toISOString(),
+        author: users.find(u => u.name === 'Ariya')!,
+        change: { en: 'Changed status from In Progress to In Review', id: 'Mengubah status dari Dikerjakan menjadi Ditinjau' },
+      },
+      {
+        id: 'rev-1-2',
+        timestamp: new Date('2024-08-12T09:00:00Z').toISOString(),
+        author: users.find(u => u.name === 'Deva')!,
+        change: { en: 'Changed status from In Review to Completed', id: 'Mengubah status dari Ditinjau menjadi Selesai' },
+      },
+    ], 
     comments: [
         {
           id: 'comment-1-1',
@@ -65,7 +78,20 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], 
+    revisions: [
+       {
+        id: 'rev-3-1',
+        timestamp: new Date('2024-08-14T17:00:00Z').toISOString(),
+        author: users.find(u => u.name === 'Agus')!,
+        change: { en: 'Marked the task as Completed', id: 'Menandai tugas sebagai Selesai' },
+      },
+      {
+        id: 'rev-3-2',
+        timestamp: new Date('2024-08-16T10:00:00Z').toISOString(),
+        author: users.find(u => u.name === 'Naufal')!,
+        change: { en: 'Approved the task value of 40 points', id: 'Menyetujui nilai tugas sebesar 40 poin' },
+      },
+    ], 
     comments: [
         {
           id: 'comment-3-1',
@@ -326,7 +352,14 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], 
+    revisions: [
+      {
+        id: 'rev-12-1',
+        timestamp: new Date('2024-09-27T10:00:00Z').toISOString(),
+        author: users.find(u => u.name === 'Ariya')!,
+        change: { en: 'Changed status from In Progress to In Review', id: 'Mengubah status dari Dikerjakan menjadi Ditinjau' },
+      }
+    ], 
     comments: [
         {
           id: 'comment-12-1',
@@ -628,4 +661,5 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     
 
     
+
 
