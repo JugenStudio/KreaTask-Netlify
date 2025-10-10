@@ -64,7 +64,7 @@ import { useTaskData } from "@/hooks/use-task-data";
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
   "In Progress": "bg-blue-500",
-  "In Review": "bg-yellow-500 text-black",
+  "In Review": "bg-yellow-500",
   Completed: "bg-green-500",
   Blocked: "bg-red-500",
 };
@@ -285,15 +285,21 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                   <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
               </div>
               <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
-                <SelectTrigger className={cn("w-36 text-white text-xs md:text-sm font-bold border-none", statusColors[task.status])}>
-                  <SelectValue />
+                <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
+                  <div className="flex items-center gap-2">
+                    <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
+                    <SelectValue />
+                  </div>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
-                  <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
-                  <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
-                  <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
-                  <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
+                  {Object.keys(statusColors).map(status => (
+                    <SelectItem key={status} value={status}>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
+                        {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
+                      </div>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
           </div>
@@ -481,3 +487,5 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </>
   );
 }
+
+    
