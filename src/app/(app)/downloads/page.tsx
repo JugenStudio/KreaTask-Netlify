@@ -25,6 +25,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 const initialDownloadHistory = [
     { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
@@ -243,6 +244,8 @@ export default function DownloadsPage() {
                                     <Progress value={item.progress} className="h-1 flex-1" />
                                     <span className="text-xs text-muted-foreground">{item.progress}%</span>
                                 </div>
+                           ) : item.status === 'Failed' ? (
+                                <p className="text-xs text-destructive">{t(`downloads.status.failed`)}</p>
                            ) : (
                                 <p className="text-xs text-muted-foreground">{item.size}</p>
                            )}
