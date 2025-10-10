@@ -36,7 +36,8 @@
     "no_active_tasks": "You have no active tasks.",
     "my_monthly_progress": "My Monthly Progress",
     "team_leaderboard": "Team Leaderboard",
-    "monthly_progress": "Monthly Progress"
+    "monthly_progress": "Monthly Progress",
+    "top_performer": "Top Performer"
   },
   "header": {
     "search_placeholder": "Search tasks...",
@@ -150,6 +151,7 @@
     "monthly_progress": "Monthly Progress",
     "view_report_button": "View Full Report & Export CSV",
     "top_performers_desc": "Based on points accumulated from completed tasks.",
+    "tasks_completed_badge": "{{count}} Tasks Completed",
     "table": {
       "rank": "Rank",
       "employee": "Employee",
@@ -267,6 +269,12 @@
       "task_title_placeholder": "e.g., Animate new hero section",
       "category_label": "Category",
       "category_placeholder": "Select a category",
+      "categories": {
+        "low": "Low",
+        "medium": "Medium",
+        "high": "High",
+        "critical": "Critical"
+      },
       "due_date_label": "Due Date",
       "due_date_placeholder": "Pick a date",
       "assign_to_label": "Assign To",
@@ -400,5 +408,3 @@
     }
   }
 }
-
-    

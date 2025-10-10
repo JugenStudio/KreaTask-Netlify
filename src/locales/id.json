@@ -36,7 +36,8 @@
     "no_active_tasks": "Anda tidak memiliki tugas aktif.",
     "my_monthly_progress": "Progres Bulanan Saya",
     "team_leaderboard": "Peringkat Tim",
-    "monthly_progress": "Progres Bulanan"
+    "monthly_progress": "Progres Bulanan",
+    "top_performer": "Performer Teratas"
   },
   "header": {
     "search_placeholder": "Cari tugas...",
@@ -150,6 +151,7 @@
     "monthly_progress": "Progres Bulanan",
     "view_report_button": "Lihat Laporan & Ekspor CSV",
     "top_performers_desc": "Berdasarkan poin yang terkumpul dari tugas yang diselesaikan.",
+    "tasks_completed_badge": "{{count}} Tugas Selesai",
     "table": {
       "rank": "Rank",
       "employee": "Karyawan",
@@ -303,6 +305,12 @@
       "task_title_placeholder": "mis., Buat animasi bagian hero baru",
       "category_label": "Kategori",
       "category_placeholder": "Pilih kategori",
+      "categories": {
+        "low": "Rendah",
+        "medium": "Menengah",
+        "high": "Tinggi",
+        "critical": "Kritis"
+      },
       "due_date_label": "Batas Waktu",
       "due_date_placeholder": "Pilih tanggal",
       "assign_to_label": "Tugaskan Kepada",
@@ -400,5 +408,3 @@
     }
   }
 }
-
-    

@@ -15,7 +15,7 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
   return (
     <Card className="h-full">
       <CardHeader>
-        <CardTitle className="font-headline text-card-foreground">Top Performer</CardTitle>
+        <CardTitle className="font-headline text-card-foreground">{t('dashboard.top_performer')}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col items-center text-center">
         <div className="relative mb-4">
@@ -29,9 +29,9 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
         </div>
         <h3 className="text-xl font-bold text-card-foreground">{performer.name}</h3>
         <p className="text-sm text-muted-foreground mb-2">{t(`roles.${performer.role}` as any, { defaultValue: performer.role })}</p>
-        <p className="text-sm text-muted-foreground mb-2">Score: {performer.score}</p>
+        <p className="text-sm text-muted-foreground mb-2">{t('leaderboard.table.total_score')}: {performer.score}</p>
         <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-4 font-semibold border-none">
-          {performer.tasksCompleted} Tasks Completed
+          {t('leaderboard.tasks_completed_badge', { count: performer.tasksCompleted.toString() })}
         </Badge>
       </CardContent>
     </Card>

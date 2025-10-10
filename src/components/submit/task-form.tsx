@@ -386,7 +386,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                             <SelectContent>
                             {Object.values(TaskCategory).map((category) => (
                                 <SelectItem key={category} value={category}>
-                                {category}
+                                {t(`submit.manual_form.categories.${category.toLowerCase()}`)}
                                 </SelectItem>
                             ))}
                             </SelectContent>

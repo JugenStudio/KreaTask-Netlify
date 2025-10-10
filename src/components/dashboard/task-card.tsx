@@ -26,17 +26,13 @@ const categoryColors = {
 }
 
 export function TaskCard({ task }: { task: Task }) {
-  const { locale } = useLanguage();
+  const { locale, t } = useLanguage();
 
   return (
     <Card className={cn("bg-card transition-all hover:bg-white/10 active:scale-95")}>
       <CardHeader>
         <div className="flex justify-between items-center">
-            <Badge className={cn(categoryColors[task.category], "font-bold border-none")}>{task.category}</Badge>
-            <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Star className="h-4 w-4 fill-yellow-400 text-yellow-500" />
-                <span className="font-bold text-card-foreground">4.5</span>
-            </div>
+            <Badge className={cn(categoryColors[task.category], "font-bold border-none")}>{t(`submit.manual_form.categories.${task.category.toLowerCase()}`)}</Badge>
         </div>
       </CardHeader>
       <CardContent>
