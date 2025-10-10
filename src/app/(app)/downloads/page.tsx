@@ -88,8 +88,6 @@ export default function DownloadsPage() {
     const newNotifId = `notif-download-${currentUser.id}-${item.id}`;
     const notifExistsInGlobalState = notifications.some(n => n.id === newNotifId);
 
-    // Only proceed if this download has not been notified before (check localStorage)
-    // and a notification for it doesn't already exist in the global state
     if (!notifiedDownloads.has(item.id) && !notifExistsInGlobalState) {
         toast({
             title: t('downloads.toast.completed_title'),
@@ -106,30 +104,34 @@ export default function DownloadsPage() {
             createdAt: new Date().toISOString(),
         });
         
-        // Record that this download has been notified in localStorage
         addNotifiedDownload(item.id, currentUser.id);
     }
   }, [addNotification, currentUser, notifications, t, toast]);
 
 
   useEffect(() => {
-    // On initial load/refresh, check any items that are already completed
-    // and create notifications if they haven't been created before.
-    downloadHistory.forEach(item => {
-        if (item.status === "Completed") {
-            createDownloadNotification(item);
-        }
-    });
-
-    // Find an item that is currently in progress to simulate its completion
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
     if (itemInProgress) {
+        const intervalId = `download-interval-${itemInProgress.id}`;
+        // Prevent multiple intervals for the same item
+        if (window[intervalId as any]) {
+            return;
+        }
+
         const interval = setInterval(() => {
             let completedItem: DownloadItem | null = null;
             setDownloadHistory(prevHistory => {
+                // Find the latest state of the item
+                const currentItem = prevHistory.find(d => d.id === itemInProgress.id);
+                if (!currentItem || currentItem.status !== 'In Progress') {
+                    clearInterval(interval);
+                    delete window[intervalId as any];
+                    return prevHistory;
+                }
+
                 const updatedHistory = prevHistory.map(item => {
-                    if (item.id === itemInProgress.id && item.status === "In Progress") {
+                    if (item.id === itemInProgress.id) {
                         const newProgress = Math.min(item.progress + 20, 100);
                         if (newProgress >= 100) {
                            const finishedItem = { ...item, status: "Completed" as const, progress: 100 };
@@ -141,17 +143,22 @@ export default function DownloadsPage() {
                     return item;
                 });
                 
-                // If an item was completed in this update, trigger its notification
                 if (completedItem) {
                     createDownloadNotification(completedItem);
                     clearInterval(interval);
+                    delete window[intervalId as any];
                 }
 
                 return updatedHistory;
             });
         }, 500);
 
-        return () => clearInterval(interval);
+        (window as any)[intervalId] = interval;
+
+        return () => {
+            clearInterval(interval);
+            delete window[intervalId as any];
+        };
     }
   }, [downloadHistory, setDownloadHistory, createDownloadNotification]);
 
@@ -190,7 +197,6 @@ export default function DownloadsPage() {
   };
   
   const handleRedownload = (item: DownloadItem) => {
-    // Check if another download is already in progress
     const isDownloading = downloadHistory.some(d => d.status === 'In Progress');
     if (isDownloading) {
         toast({
@@ -327,5 +333,3 @@ export default function DownloadsPage() {
     </>
   );
 }
-
-    
