@@ -286,10 +286,10 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
               </div>
               <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
                 <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
-                  <div className="flex items-center gap-2">
-                    <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
-                    <SelectValue />
-                  </div>
+                    <div className="flex items-center gap-2">
+                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
+                        <SelectValue />
+                    </div>
                 </SelectTrigger>
                 <SelectContent>
                   {Object.keys(statusColors).map(status => (
@@ -487,5 +487,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </>
   );
 }
+
+    
 
     
