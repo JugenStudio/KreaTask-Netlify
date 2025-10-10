@@ -77,7 +77,7 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { downloadHistory, setDownloadHistory, addNotification } = useTaskData();
+  const { downloadHistory, setDownloadHistory, addNotification, notifications } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
@@ -125,19 +125,26 @@ export default function DownloadsPage() {
             description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
             duration: 5000,
         });
-        addNotification({
-            id: `notif-download-${item.id}`,
-            userId: currentUser.id,
-            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-            type: 'SYSTEM_UPDATE',
-            read: false,
-            createdAt: new Date().toISOString(),
-        });
-        // Add to persistent storage
+
+        const newNotifId = `notif-download-${item.id}`;
+        const notifExists = notifications.some(n => n.id === newNotifId);
+
+        if (!notifExists) {
+          addNotification({
+              id: newNotifId,
+              userId: currentUser.id,
+              message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+              type: 'SYSTEM_UPDATE',
+              read: false,
+              createdAt: new Date().toISOString(),
+          });
+        }
+        
+        // Add to persistent storage to prevent re-notifying with toasts
         addNotifiedDownload(item.id);
     });
 
-  }, [downloadHistory, currentUser, t, toast, addNotification]);
+  }, [downloadHistory, currentUser, t, toast, addNotification, notifications]);
 
 
   const filteredDownloads = useMemo(() => {
@@ -296,3 +303,5 @@ export default function DownloadsPage() {
     </>
   );
 }
+
+    
