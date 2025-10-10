@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
@@ -85,10 +86,8 @@ export default function DownloadsPage() {
     if (!currentUser) return;
 
     const notifiedDownloads = getNotifiedDownloads(currentUser.id);
-    const newNotifId = `notif-download-${currentUser.id}-${item.id}`;
-    const notifExistsInGlobalState = notifications.some(n => n.id === newNotifId);
 
-    if (!notifiedDownloads.has(item.id) && !notifExistsInGlobalState) {
+    if (!notifiedDownloads.has(item.id)) {
         toast({
             title: t('downloads.toast.completed_title'),
             description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
@@ -96,17 +95,18 @@ export default function DownloadsPage() {
         });
 
         addNotification({
-            id: newNotifId,
+            id: `notif-download-${currentUser.id}-${item.id}`,
             userId: currentUser.id,
             message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
             type: 'SYSTEM_UPDATE',
             read: false,
             createdAt: new Date().toISOString(),
+            link: '/downloads'
         });
         
         addNotifiedDownload(item.id, currentUser.id);
     }
-  }, [addNotification, currentUser, notifications, t, toast]);
+  }, [addNotification, currentUser, t, toast]);
 
 
   useEffect(() => {

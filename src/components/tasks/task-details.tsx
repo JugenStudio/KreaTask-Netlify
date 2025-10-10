@@ -77,6 +77,16 @@ interface TaskDetailsProps {
     onDeleteTask: (taskId: string) => void;
 }
 
+// Helper to convert File to Data URI
+const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
+
 export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTask }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
@@ -140,18 +150,35 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
     setFileToDelete(null); // Close the dialog
   };
 
-  const handleAddNewFiles = (newFiles: File[]) => {
-    const fileObjects: FileType[] = newFiles.map((file, index) => ({
-      id: `file-${task.id}-${Date.now() + index}`,
-      name: file.name,
-      size: `${(file.size / 1024).toFixed(1)} KB`,
-      url: URL.createObjectURL(file), // Create a temporary URL for preview
-      type: file.type.startsWith('image') ? 'image' : 'document',
-    }));
+  const handleAddNewFiles = async (newFiles: File[]) => {
+    if (!currentUser) return;
 
+    const fileObjectsPromises = newFiles.map(async (file, index) => {
+      const dataUri = await fileToDataUri(file);
+      return {
+        id: `file-${task.id}-${Date.now() + index}`,
+        name: file.name,
+        size: `${(file.size / 1024).toFixed(1)} KB`,
+        url: dataUri,
+        type: file.type.startsWith('image') ? 'image' : 'document',
+      } as FileType;
+    });
+
+    const fileObjects = await Promise.all(fileObjectsPromises);
     const updatedFiles = [...(task.files || []), ...fileObjects];
     onUpdateTask(task.id, { files: updatedFiles });
     
+    onAddNotification({
+      id: `notif-upload-${Date.now()}`,
+      userId: currentUser.id,
+      message: `${newFiles.length} file(s) have been attached to task "${task.title[locale]}".`,
+      type: 'SYSTEM_UPDATE',
+      read: false,
+      link: `/tasks/${task.id}`,
+      taskId: task.id,
+      createdAt: new Date().toISOString(),
+    });
+
     toast({
       title: t('task.attachments.upload_toast.success_title'),
       description: t('task.attachments.upload_toast.success_desc', { count: newFiles.length.toString() }),
@@ -492,5 +519,3 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
     </>
   );
 }
-
-    

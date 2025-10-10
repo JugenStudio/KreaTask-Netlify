@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -64,6 +65,16 @@ interface Suggestion {
     title: string;
     description: string;
 }
+
+// Helper to convert File to Data URI
+const fileToDataUri = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+};
 
 export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
@@ -144,13 +155,18 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           isCompleted: false,
         }));
         
-        const newFiles: FileType[] = files.map((file, index) => ({
-            id: `file-${newTaskId}-${index}`,
-            name: file.name,
-            size: `${(file.size / 1024).toFixed(1)} KB`,
-            url: (file as any).preview,
-            type: file.type.startsWith('image') ? 'image' : 'document',
-        }));
+        const newFilesPromises = files.map(async (file, index) => {
+            const dataUri = await fileToDataUri(file);
+            return {
+                id: `file-${newTaskId}-${index}`,
+                name: file.name,
+                size: `${(file.size / 1024).toFixed(1)} KB`,
+                url: dataUri,
+                type: file.type.startsWith('image') ? 'image' : 'document',
+            } as FileType;
+        });
+
+        const newFiles = await Promise.all(newFilesPromises);
 
 
         const newTask = {
@@ -224,15 +240,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     }
   }
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
-      const newFiles = Array.from(event.target.files).map(file => {
-        const fileWithPreview = Object.assign(file, {
-          preview: URL.createObjectURL(file),
-        });
-        return fileWithPreview;
-      });
-      setFiles(prev => [...prev, ...newFiles as any[]]);
+      setFiles(prev => [...prev, ...Array.from(event.target.files)]);
     }
   }
 
@@ -540,7 +550,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                     {files.map(file => (
                         <Card key={file.name} className="relative group rounded-xl overflow-hidden">
-                        <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
+                        <Image src={URL.createObjectURL(file)} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>
                             <X className="h-4 w-4" />
@@ -575,5 +585,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    
