@@ -191,16 +191,7 @@ export default function DownloadsPage() {
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 overflow-hidden">
-                           <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p className="font-medium truncate cursor-pointer">{item.fileName}</p>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>{item.fileName}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
+                           <p className="font-medium break-words">{item.fileName}</p>
                            {item.status === 'In Progress' ? (
                                 <div className="flex items-center gap-2 mt-1">
                                     <Progress value={item.progress} className="h-1 flex-1" />
@@ -253,3 +244,5 @@ export default function DownloadsPage() {
     </>
   );
 }
+
+    
