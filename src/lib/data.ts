@@ -76,7 +76,20 @@ const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: "Direktur Utama",
     revisions: [], 
-    comments: [mockComments[0], mockComments[1]], 
+    comments: [
+        {
+          id: 'comment-1-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-08-10T10:00:00Z').toISOString(),
+          content: { en: 'Ariya, the draft looks good, but can we try a different color palette? Something more vibrant.', id: 'Ariya, drafnya sudah bagus, tapi bisakah kita coba palet warna lain? Yang lebih cerah.' },
+        },
+        {
+          id: 'comment-1-2',
+          author: users.find(u => u.name === 'Ariya')!,
+          timestamp: new Date('2024-08-10T11:30:00Z').toISOString(),
+          content: { en: 'Sure, Deva. I will prepare two new options with more vibrant colors and send them over.', id: 'Tentu, Deva. Saya akan siapkan dua opsi baru dengan warna yang lebih cerah dan mengirimkannya.' },
+        },
+    ], 
     files: [],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
@@ -134,7 +147,8 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], comments: [
+    revisions: [], 
+    comments: [
         {
             id: 'comment-deva-1',
             author: users.find(u => u.name === 'Naufal')!,
@@ -147,7 +161,8 @@ const allTasks: Task[] = [
             timestamp: new Date(Date.now() - 1000 * 60 * 60 * 47).toISOString(),
             content: { en: 'Almost done. Just finalizing the documentation. I will mark it as complete by EOD.', id: 'Hampir selesai. Tinggal finalisasi dokumentasi. Saya akan tandai selesai hari ini.' },
         }
-    ], files: [],
+    ], 
+    files: [],
     subtasks: [],
   },
   // Completed Tasks - Pending Validation
@@ -165,7 +180,14 @@ const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], 
-    comments: [mockComments[3]], 
+    comments: [
+        {
+          id: 'comment-2-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-08-09T15:00:00Z').toISOString(),
+          content: { en: 'The revision is good, but I think the conclusion can be stronger. Please elaborate on the impact.', id: 'Revisinya bagus, tapi menurut saya kesimpulannya bisa lebih kuat. Tolong jelaskan lebih lanjut dampaknya.' },
+        },
+    ], 
     files: [],
     subtasks: [],
   },
@@ -262,7 +284,22 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+        {
+            id: 'comment-9-1',
+            author: users.find(u => u.name === 'Naufal')!,
+            timestamp: new Date('2024-09-19T10:00:00Z').toISOString(),
+            content: { en: 'Agus, please send me the draft before publishing. I want to do a final review.', id: 'Agus, tolong kirimkan saya drafnya sebelum dipublikasikan. Saya ingin melakukan tinjauan akhir.' },
+        },
+        {
+            id: 'comment-9-2',
+            author: users.find(u => u.name === 'Agus')!,
+            timestamp: new Date('2024-09-19T11:00:00Z').toISOString(),
+            content: { en: 'Of course, Mr. Naufal. The draft has been sent to your email.', id: 'Tentu, Pak Naufal. Drafnya sudah dikirim ke email Anda.' },
+        }
+    ], 
+    files: [],
     subtasks: [],
   },
   {
@@ -278,7 +315,9 @@ const allTasks: Task[] = [
     value: 10,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [], 
+    files: [],
     subtasks: [],
   },
   {
@@ -356,7 +395,16 @@ const allTasks: Task[] = [
     value: 20,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+        {
+          id: 'comment-13-1',
+          author: users.find(u => u.name === 'Naufal')!,
+          timestamp: new Date('2024-09-26T11:00:00Z').toISOString(),
+          content: { en: 'Sasi, please make sure the budget for this event does not exceed the allocated amount.', id: 'Sasi, tolong pastikan anggaran untuk acara ini tidak melebihi jumlah yang dialokasikan.' },
+        },
+    ], 
+    files: [],
     subtasks: [],
   },
   {
@@ -410,7 +458,16 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI", 
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+        {
+            id: 'comment-4-1',
+            author: users.find(u => u.name === 'Naufal')!,
+            timestamp: new Date().toISOString(),
+            content: { en: 'Please prioritize this, Citra. The client is waiting.', id: 'Tolong prioritaskan ini, Citra. Klien sudah menunggu.' },
+        },
+    ], 
+    files: [],
     subtasks: [
       { id: 'sub-4-1', title: 'Write script', isCompleted: true },
       { id: 'sub-4-2', title: 'Record voiceover', isCompleted: false },
@@ -430,7 +487,9 @@ const allTasks: Task[] = [
     value: 50,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [], 
+    files: [],
     subtasks: [],
   },
 ];
@@ -591,6 +650,8 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
+
+    
 
     
 
