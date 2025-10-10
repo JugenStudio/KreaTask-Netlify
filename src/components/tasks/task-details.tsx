@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Task, TaskStatus, Notification, File as FileType } from "@/lib/types";
+import type { Task, TaskStatus, Notification, File as FileType, Subtask } from "@/lib/types";
 import {
   CalendarDays,
   Download,
@@ -142,7 +142,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
           preview: URL.createObjectURL(file),
         })
       );
-      setSubmissionFiles(prev => [...prev, ...newFiles as any[]]);
+      setSubmissionFiles(prev => [...prev, ...newFiles as FileWithPreview[]]);
       toast({
         title: t('task.submit.upload.toast.success_title'),
         description: t('task.submit.upload.toast.success_desc', { count: newFiles.length.toString() })
@@ -171,19 +171,24 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     if (!task.files || !task.subtasks) {
       return task.files || [];
     }
-
-    const allLinkedFileIds = new Set(task.subtasks.map(st => st.linkedFileId).filter(Boolean));
+  
+    // Ambil semua ID file yang terhubung dengan sub-tugas yang sudah selesai
     const completedLinkedFileIds = new Set(
       task.subtasks
         .filter(st => st.isCompleted && st.linkedFileId)
         .map(st => st.linkedFileId)
     );
-    
-    // Show files that are not linked to any subtask, OR are linked to a completed subtask.
+  
+    // Tampilkan file jika:
+    // 1. File tersebut tidak terhubung ke sub-tugas manapun.
+    // 2. File tersebut terhubung ke sub-tugas yang sudah selesai.
     return task.files.filter(file => {
-      if (!allLinkedFileIds.has(file.id)) {
+      const linkedSubtask = task.subtasks.find(st => st.linkedFileId === file.id);
+      // Jika tidak ada sub-tugas yang terhubung, selalu tampilkan file.
+      if (!linkedSubtask) {
         return true;
       }
+      // Jika terhubung, hanya tampilkan jika sub-tugasnya sudah selesai.
       return completedLinkedFileIds.has(file.id);
     });
   }, [task.files, task.subtasks]);
@@ -355,3 +360,5 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </Card>
   );
 }
+
+    
