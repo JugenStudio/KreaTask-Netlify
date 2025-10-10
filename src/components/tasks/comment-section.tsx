@@ -1,18 +1,19 @@
 
 "use client";
 
-import { useState, useEffect, useActionState } from "react";
+import { useState, useEffect, useActionState, useMemo } from "react";
 import { useFormStatus } from "react-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Loader2, MoreVertical, Edit, Trash2 } from "lucide-react";
+import { Bot, Loader2, MoreVertical, Edit, Trash2, Pin, PinOff } from "lucide-react";
 import type { Comment as CommentType, User } from "@/lib/types";
 import { getSummary } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { getTranslations } from "@/app/actions";
+import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -79,11 +80,12 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
       author: currentUser,
       timestamp: new Date().toISOString(),
       content: translationResult.data!,
+      isPinned: false,
     };
     
     const updatedComments = [...localComments, comment];
-    setLocalComments(updatedComments); // Update UI locally
-    onUpdateComments(updatedComments); // Propagate change to parent
+    setLocalComments(updatedComments);
+    onUpdateComments(updatedComments);
     
     setNewComment("");
     setIsPosting(false);
@@ -119,6 +121,14 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     setIsPosting(false);
   };
 
+  const handleTogglePin = (commentId: string) => {
+    const updatedComments = localComments.map(c => 
+        c.id === commentId ? { ...c, isPinned: !c.isPinned } : c
+    );
+    setLocalComments(updatedComments);
+    onUpdateComments(updatedComments);
+  };
+
 
   const formatCommentThread = () => {
     return [...localComments]
@@ -126,6 +136,14 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
       .map(c => `${c.author.name}: "${c.content[locale]}"`)
       .join("\n");
   }
+
+  const sortedComments = useMemo(() => {
+    return [...localComments].sort((a, b) => {
+        if (a.isPinned && !b.isPinned) return -1;
+        if (!a.isPinned && b.isPinned) return 1;
+        return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
+    });
+  }, [localComments]);
 
   return (
     <div className="space-y-6">
@@ -177,16 +195,19 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
       
       <Separator />
 
-      <div className="space-y-6">
-        {[...localComments].reverse().map((comment) => (
-          <div key={comment.id} className="flex gap-3">
+      <div className="space-y-4">
+        {sortedComments.map((comment) => (
+          <div key={comment.id} className={cn("flex gap-3", comment.isPinned && "rounded-lg bg-primary/10 p-3")}>
             <Avatar className="h-9 w-9">
               <AvatarImage src={comment.author.avatarUrl} alt={comment.author.name} />
               <AvatarFallback>{comment.author.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <div className="w-full rounded-md bg-secondary p-3">
+            <div className={cn("w-full rounded-md p-3", !comment.isPinned && "bg-secondary")}>
               <div className="flex items-center justify-between">
-                <p className="font-semibold text-sm">{comment.author.name}</p>
+                <div className="flex items-center gap-2">
+                    <p className="font-semibold text-sm">{comment.author.name}</p>
+                    {comment.isPinned && <Pin className="h-4 w-4 text-primary" />}
+                </div>
                 <div className="flex items-center">
                     <p className="text-xs text-muted-foreground mr-2">
                     {new Date(comment.timestamp).toLocaleString()}
@@ -199,6 +220,10 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
+                                <DropdownMenuItem onClick={() => handleTogglePin(comment.id)}>
+                                    {comment.isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
+                                    <span>{comment.isPinned ? "Unpin" : "Pin"}</span>
+                                </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => handleEditComment(comment)}>
                                     <Edit className="mr-2 h-4 w-4" />
                                     <span>Edit</span>

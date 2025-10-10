@@ -46,6 +46,7 @@ export interface Comment {
   author: User;
   timestamp: string;
   content: LocalizedString;
+  isPinned?: boolean;
 }
 
 export interface Revision {
