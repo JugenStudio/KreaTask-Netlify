@@ -25,7 +25,7 @@ export function BottomNav() {
       <div className="grid h-full max-w-lg grid-cols-5 mx-auto items-center">
         {navItems.map((item) => {
           const isActive = item.href === "/dashboard" 
-            ? pathname === "/" || pathname.startsWith(item.href)
+            ? pathname === "/" || pathname === item.href
             : pathname.startsWith(item.href);
             
           if (item.isCenter) {
@@ -36,7 +36,10 @@ export function BottomNav() {
                 prefetch
                 className="flex flex-col items-center justify-center -mt-6"
               >
-                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-lg">
+                <div className={cn(
+                  "flex items-center justify-center h-16 w-16 rounded-full shadow-lg transition-colors",
+                  isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}>
                    <item.icon className="h-7 w-7" />
                 </div>
               </Link>
