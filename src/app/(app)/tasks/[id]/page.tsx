@@ -24,7 +24,7 @@ export default function TaskDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { allTasks, users, isLoading, updateTask, addNotification } = useTaskData();
+  const { allTasks, users, isLoading, updateTask, addNotification, deleteTask } = useTaskData();
   const { currentUser } = useCurrentUser();
   
   const task = useMemo(() => allTasks.find((t) => t.id === id), [id, allTasks]);
@@ -65,6 +65,7 @@ export default function TaskDetailPage() {
               task={task} 
               onUpdateTask={updateTask} 
               onAddNotification={addNotification}
+              onDeleteTask={deleteTask}
             />
         </div>
         <div className="md:col-span-1">
@@ -90,3 +91,5 @@ export default function TaskDetailPage() {
     </div>
   );
 }
+
+    

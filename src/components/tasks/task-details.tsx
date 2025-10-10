@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Task, TaskStatus, Notification, File as FileType, Subtask } from "@/lib/types";
+import type { Task, TaskStatus, Notification, File as FileType, Subtask, User } from "@/lib/types";
 import {
   CalendarDays,
   Download,
@@ -47,7 +47,7 @@ import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { useCurrentUser } from "@/app/(app)/layout";
-import { isEmployee } from "@/lib/roles";
+import { isDirector, isEmployee } from "@/lib/roles";
 import { useToast } from "@/hooks/use-toast";
 import {
   AlertDialog,
@@ -60,6 +60,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { useTaskData } from "@/hooks/use-task-data";
+import { useRouter } from "next/navigation";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -84,9 +85,10 @@ interface TaskDetailsProps {
     task: Task;
     onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
     onAddNotification: (notification: Notification) => void;
+    onDeleteTask: (taskId: string) => void;
 }
 
-export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification }: TaskDetailsProps) {
+export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification, onDeleteTask }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const { addToDownloadHistory } = useTaskData();
@@ -94,6 +96,9 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [submissionFiles, setSubmissionFiles] = useState<FileWithPreview[]>([]);
   const { currentUser } = useCurrentUser();
   const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
+  const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
+  const router = useRouter();
+
 
   useEffect(() => {
     setTask(initialTask);
@@ -107,6 +112,30 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         });
     };
   }, [submissionFiles]);
+
+  const canDeleteTask = (task: Task, user: User | null): boolean => {
+    if (!user) return false;
+    // Level 2 (Directors) and 3 (Super Admins) can delete any task.
+    if (isDirector(user.role)) {
+      return true;
+    }
+    // Level 1 (Employees) can only delete tasks that are in 'To-do' or 'In Progress' status.
+    if (isEmployee(user.role)) {
+      return task.status === 'To-do' || task.status === 'In Progress';
+    }
+    return false;
+  };
+
+  const handleDeleteTask = () => {
+    onDeleteTask(task.id);
+    toast({
+      title: t('all_tasks.toast.delete_success_title'),
+      description: t('all_tasks.toast.delete_success_desc', { title: task.title[locale] }),
+      variant: 'destructive',
+    });
+    router.push('/tasks');
+  };
+
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
     const updatedSubtasks = task.subtasks?.map(st => 
@@ -286,7 +315,12 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
               </div>
               <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
                 <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
-                    <SelectValue />
+                   <SelectValue>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
+                        {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any)}
+                      </div>
+                    </SelectValue>
                 </SelectTrigger>
                 <SelectContent>
                   {Object.keys(statusColors).map(status => (
@@ -462,6 +496,18 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
               />
             </div>
           </div>
+          
+          {canDeleteTask(task, currentUser) && (
+            <>
+              <Separator />
+              <div className="flex justify-end">
+                <Button variant="destructive" onClick={() => setIsDeleteAlertOpen(true)}>
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  {t('all_tasks.actions.delete')}
+                </Button>
+              </div>
+            </>
+          )}
         </CardContent>
       </Card>
       
@@ -477,6 +523,23 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
             <AlertDialogCancel>{t('task.attachments.delete_dialog.cancel_button')}</AlertDialogCancel>
             <AlertDialogAction onClick={confirmDeleteFile} className="bg-destructive hover:bg-destructive/90">
               {t('task.attachments.delete_dialog.confirm_button')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={isDeleteAlertOpen} onOpenChange={setIsDeleteAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('all_tasks.delete_dialog.title')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('all_tasks.delete_dialog.description', { title: task.title[locale] })}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('all_tasks.delete_dialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteTask} className="bg-destructive hover:bg-destructive/90">
+              {t('all_tasks.delete_dialog.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
