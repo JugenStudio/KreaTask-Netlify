@@ -55,6 +55,23 @@ export default function DownloadsPage() {
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
   const [searchTerm, setSearchTerm] = useState("");
   const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
+  const notifiedDownloadsRef = useRef<Set<number>>(new Set());
+
+  useEffect(() => {
+    // Only run this simulation once on mount if desired.
+    const simulationTimeout = setTimeout(() => {
+        const itemToDownload = downloadHistory.find(item => item.id === 4);
+        // We check status to prevent re-triggering if already in progress from a previous state update.
+        if (itemToDownload && itemToDownload.status === 'Completed') {
+            setDownloadHistory(prev =>
+                prev.map(item => item.id === 4 ? { ...item, status: 'In Progress', progress: 0 } : item)
+            );
+        }
+    }, 1000);
+
+    return () => clearTimeout(simulationTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
@@ -95,19 +112,24 @@ export default function DownloadsPage() {
     });
 
     newlyCompleted.forEach(item => {
-        toast({
-            title: t('downloads.toast.completed_title'),
-            description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-            duration: 5000,
-        });
-        addNotification({
-            id: `notif-download-${Date.now()}-${item.id}`,
-            userId: currentUser.id,
-            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-            type: 'SYSTEM_UPDATE',
-            read: false,
-            createdAt: new Date().toISOString(),
-        });
+        // Only create notification if we haven't for this item's completion yet.
+        if (!notifiedDownloadsRef.current.has(item.id)) {
+            toast({
+                title: t('downloads.toast.completed_title'),
+                description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+                duration: 5000,
+            });
+            addNotification({
+                id: `notif-download-${item.id}`,
+                userId: currentUser.id,
+                message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+                type: 'SYSTEM_UPDATE',
+                read: false,
+                createdAt: new Date().toISOString(),
+            });
+            // Record that we have notified for this item.
+            notifiedDownloadsRef.current.add(item.id);
+        }
     });
 
     // Update the ref for the next render
