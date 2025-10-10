@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ListTodo, Download, Trophy, FileText, History } from "lucide-react";
+import { Home, ListTodo, PenSquare, Trophy, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 
@@ -16,7 +16,7 @@ export function BottomNav() {
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
-    { href: "/downloads", icon: Download, label: t('header.downloads') },
+    { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
   ];
 
   return (
