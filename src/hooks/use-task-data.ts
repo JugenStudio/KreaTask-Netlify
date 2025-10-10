@@ -6,6 +6,16 @@ import { initialData } from '@/lib/data';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { UserRole } from '@/lib/types';
 
+type DownloadItem = {
+  id: number;
+  fileName: string;
+  taskName: string;
+  date: string;
+  size: string;
+  status: 'Completed' | 'In Progress' | 'Failed';
+  progress: number;
+};
+
 const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
     const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: UserRole; } } = {};
 
@@ -43,11 +53,32 @@ export function useTaskData() {
   const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [users, setUsersState] = useState<User[]>([]);
   const [notifications, setNotificationsState] = useState<Notification[]>([]);
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
-  const [downloadHistory, setDownloadHistoryState] = useState<any[]>([]);
+  const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Prevent execution on server
+    if (typeof window !== 'undefined') {
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                const parsedUser: User = JSON.parse(storedUser);
+                setCurrentUserId(parsedUser.id);
+            } catch (e) {
+                // if parsing fails, it might be an old format, we can default or clear it
+            }
+        } else {
+            // If no user in session, maybe default to first user for initial load context
+            const storedUsers = localStorage.getItem('kreatask_users');
+            const users = storedUsers ? JSON.parse(storedUsers) : initialData.users;
+            if (users.length > 0) {
+              setCurrentUserId(users[0].id);
+            }
+        }
+    }
+  }, []);
+
+
+  useEffect(() => {
     if (typeof window === 'undefined') {
         return;
     }
@@ -56,35 +87,43 @@ export function useTaskData() {
       const storedTasks = localStorage.getItem('kreatask_tasks');
       const storedUsers = localStorage.getItem('kreatask_users');
       const storedNotifications = localStorage.getItem('kreatask_notifications');
-      const storedDownloads = localStorage.getItem('kreatask_downloads');
-
+      
       const tasks = storedTasks ? JSON.parse(storedTasks) : initialData.allTasks;
       const users = storedUsers ? JSON.parse(storedUsers) : initialData.users;
       const notifications = storedNotifications ? JSON.parse(storedNotifications) : initialData.mockNotifications;
-      const downloads = storedDownloads ? JSON.parse(storedDownloads) : initialData.initialDownloadHistory;
 
       setAllTasks(tasks);
       setUsersState(users);
       setNotificationsState(notifications);
-      setDownloadHistoryState(downloads);
 
       if (!storedTasks) localStorage.setItem('kreatask_tasks', JSON.stringify(tasks));
       if (!storedUsers) localStorage.setItem('kreatask_users', JSON.stringify(users));
       if (!storedNotifications) localStorage.setItem('kreatask_notifications', JSON.stringify(notifications));
-      if (!storedDownloads) localStorage.setItem('kreatask_downloads', JSON.stringify(downloads));
 
     } catch (error) {
         console.error("Failed to parse data from localStorage", error);
-        // Fallback to initial data and clear potentially corrupted storage
         setAllTasks(initialData.allTasks);
         setUsersState(initialData.users);
         setNotificationsState(initialData.mockNotifications);
-        setDownloadHistoryState(initialData.initialDownloadHistory);
-        localStorage.clear();
+        localStorage.clear(); // Clear potentially corrupted storage
     } finally {
         setIsLoading(false);
     }
   }, []);
+
+   useEffect(() => {
+    if (currentUserId) {
+        try {
+            const storedDownloads = localStorage.getItem(`kreatask_downloads_${currentUserId}`);
+            const downloads = storedDownloads ? JSON.parse(storedDownloads) : [];
+            setDownloadHistoryState(downloads);
+        } catch (error) {
+            console.error("Failed to parse user-specific downloads from localStorage", error);
+            setDownloadHistoryState([]);
+        }
+    }
+  }, [currentUserId]);
+
 
   useEffect(() => {
     if (allTasks.length > 0 && users.length > 0) {
@@ -117,10 +156,12 @@ export function useTaskData() {
       updateLocalStorage('kreatask_notifications', newNotifications);
   };
 
-  const setDownloadHistory = (newHistory: any[]) => {
-    setDownloadHistoryState(newHistory);
-    updateLocalStorage('kreatask_downloads', newHistory);
-  };
+  const setDownloadHistory = useCallback((newHistory: DownloadItem[]) => {
+    if (currentUserId) {
+      setDownloadHistoryState(newHistory);
+      updateLocalStorage(`kreatask_downloads_${currentUserId}`, newHistory);
+    }
+  }, [currentUserId]);
   
   const addTask = (newTask: Task) => {
     setAllTasks(prevTasks => {
@@ -150,9 +191,11 @@ export function useTaskData() {
     });
   }, []);
 
-  const addToDownloadHistory = (file: { name: string; size: string }, taskName: string) => {
-    const newDownloadItem = {
-      id: Date.now(), // Use timestamp for a unique enough ID for this simulation
+  const addToDownloadHistory = useCallback((file: { name: string; size: string }, taskName: string) => {
+    if (!currentUserId) return;
+
+    const newDownloadItem: DownloadItem = {
+      id: Date.now(),
       fileName: file.name,
       taskName: taskName,
       date: new Date().toISOString(),
@@ -160,8 +203,13 @@ export function useTaskData() {
       status: 'In Progress',
       progress: 0,
     };
-    setDownloadHistory([newDownloadItem, ...downloadHistory]);
-  };
+
+    setDownloadHistory(prevHistory => {
+        const newHistory = [newDownloadItem, ...prevHistory];
+        updateLocalStorage(`kreatask_downloads_${currentUserId}`, newHistory);
+        return newHistory;
+    });
+  }, [currentUserId, setDownloadHistory]);
 
 
   return { 

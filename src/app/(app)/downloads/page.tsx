@@ -37,18 +37,18 @@ type DownloadItem = {
   progress: number;
 };
 
-const getNotifiedDownloads = (): Set<number> => {
+const getNotifiedDownloads = (userId: string): Set<number> => {
     if (typeof window === 'undefined') {
         return new Set();
     }
-    const stored = localStorage.getItem('kreatask_notified_downloads');
+    const stored = localStorage.getItem(`kreatask_notified_downloads_${userId}`);
     return stored ? new Set(JSON.parse(stored)) : new Set();
 };
 
-const addNotifiedDownload = (id: number) => {
-    const notified = getNotifiedDownloads();
+const addNotifiedDownload = (id: number, userId: string) => {
+    const notified = getNotifiedDownloads(userId);
     notified.add(id);
-    localStorage.setItem('kreatask_notified_downloads', JSON.stringify(Array.from(notified)));
+    localStorage.setItem(`kreatask_notified_downloads_${userId}`, JSON.stringify(Array.from(notified)));
 };
 
 
@@ -114,7 +114,7 @@ export default function DownloadsPage() {
   useEffect(() => {
     if (!currentUser) return;
     
-    const notifiedDownloads = getNotifiedDownloads();
+    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
     const newlyCompleted = downloadHistory.filter(
       (item) => item.status === 'Completed' && !notifiedDownloads.has(item.id)
     );
@@ -140,14 +140,14 @@ export default function DownloadsPage() {
           });
         }
         
-        // Add to persistent storage to prevent re-notifying with toasts
-        addNotifiedDownload(item.id);
+        addNotifiedDownload(item.id, currentUser.id);
     });
 
   }, [downloadHistory, currentUser, t, toast, addNotification, notifications]);
 
 
   const filteredDownloads = useMemo(() => {
+    if (!downloadHistory) return [];
     return downloadHistory.filter(item =>
       item.fileName.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -235,7 +235,7 @@ export default function DownloadsPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                 />
             </div>
-            <Button variant="ghost" onClick={clearHistory} disabled={downloadHistory.length === 0} className="transition-all active:scale-95">{t('downloads.clear_all')}</Button>
+            <Button variant="ghost" onClick={clearHistory} disabled={!downloadHistory || downloadHistory.length === 0} className="transition-all active:scale-95">{t('downloads.clear_all')}</Button>
         </div>
       </div>
       
@@ -303,5 +303,3 @@ export default function DownloadsPage() {
     </>
   );
 }
-
-    
