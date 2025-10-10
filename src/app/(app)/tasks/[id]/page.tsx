@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   Tabs,
   TabsContent,
@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { Skeleton } from "@/components/ui/skeleton";
+import type { Comment as CommentType } from "@/lib/types";
 
 export default function TaskDetailPage() {
   const params = useParams();
@@ -29,6 +30,13 @@ export default function TaskDetailPage() {
   const task = useMemo(() => allTasks.find((t) => t.id === id), [id, allTasks]);
   
   const { t } = useLanguage();
+
+  const handleAddComment = useCallback((newComment: CommentType) => {
+    if (task) {
+      const updatedComments = [newComment, ...task.comments];
+      updateTask(task.id, { comments: updatedComments });
+    }
+  }, [task, updateTask]);
 
   if (isLoading || !currentUser) {
     return (
@@ -67,7 +75,12 @@ export default function TaskDetailPage() {
                 <TabsTrigger value="revisions">{t('task.tabs.history')}</TabsTrigger>
             </TabsList>
             <TabsContent value="comments" className="mt-4">
-                <CommentSection comments={task.comments} currentUser={currentUser} />
+                <CommentSection 
+                    taskId={task.id}
+                    comments={task.comments} 
+                    currentUser={currentUser} 
+                    onAddComment={handleAddComment}
+                />
             </TabsContent>
             <TabsContent value="revisions" className="mt-4">
                 <RevisionHistory revisions={task.revisions} />
@@ -78,3 +91,5 @@ export default function TaskDetailPage() {
     </div>
   );
 }
+
+    

@@ -12,10 +12,13 @@ import type { Comment as CommentType, User } from "@/lib/types";
 import { getSummary } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
+import { getTranslations } from "@/app/actions";
 
 interface CommentSectionProps {
+  taskId: string;
   comments: CommentType[];
   currentUser: User;
+  onAddComment: (comment: CommentType) => void;
 }
 
 const initialState = {
@@ -43,30 +46,39 @@ function SummarizeButton() {
   );
 }
 
-export function CommentSection({ comments, currentUser }: CommentSectionProps) {
+export function CommentSection({ taskId, comments, currentUser, onAddComment }: CommentSectionProps) {
   const [newComment, setNewComment] = useState("");
-  const [commentList, setCommentList] = useState(comments);
+  const [isPosting, setIsPosting] = useState(false);
   const [state, formAction] = useActionState(getSummary, initialState);
   const { locale, t } = useLanguage();
 
-  const handlePostComment = () => {
-    if (newComment.trim()) {
-      const comment: CommentType = {
-        id: `comment-${Date.now()}`,
-        author: currentUser,
-        timestamp: new Date().toISOString(),
-        content: {
-          en: newComment,
-          id: newComment,
-        },
-      };
-      setCommentList([comment, ...commentList]);
-      setNewComment("");
+  const handlePostComment = async () => {
+    if (!newComment.trim()) return;
+
+    setIsPosting(true);
+
+    // Translate the comment
+    const translationResult = await getTranslations(newComment);
+    if (translationResult.error) {
+        console.error("Translation failed:", translationResult.error);
+        // Fallback to using the original text if translation fails
+        translationResult.data = { en: newComment, id: newComment };
     }
+
+    const comment: CommentType = {
+      id: `comment-${Date.now()}`,
+      author: currentUser,
+      timestamp: new Date().toISOString(),
+      content: translationResult.data!,
+    };
+    
+    onAddComment(comment);
+    setNewComment("");
+    setIsPosting(false);
   };
 
   const formatCommentThread = () => {
-    return commentList
+    return comments
       .slice()
       .reverse()
       .map(c => `${c.author.name}: "${c.content[locale]}"`)
@@ -77,10 +89,12 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h3 className="text-lg font-headline font-semibold">{t('comments.title')}</h3>
-        <form action={formAction}>
-           <input type="hidden" name="commentThread" value={formatCommentThread()} />
-           <SummarizeButton />
-        </form>
+        {comments.length > 0 && (
+            <form action={formAction}>
+                <input type="hidden" name="commentThread" value={formatCommentThread()} />
+                <SummarizeButton />
+            </form>
+        )}
       </div>
       
       {state.summary && (
@@ -107,16 +121,20 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
               placeholder={t('comments.add_comment_placeholder')}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
+              disabled={isPosting}
             />
             <div className="flex justify-end">
-              <Button onClick={handlePostComment} disabled={!newComment.trim()}>{t('comments.post_button')}</Button>
+              <Button onClick={handlePostComment} disabled={!newComment.trim() || isPosting}>
+                {isPosting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {t('comments.post_button')}
+              </Button>
             </div>
           </div>
         </div>
       </div>
       <Separator />
       <div className="space-y-6">
-        {commentList.map((comment) => (
+        {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
             <Avatar className="h-9 w-9">
               <AvatarImage src={comment.author.avatarUrl} alt={comment.author.name} />
@@ -139,3 +157,5 @@ export function CommentSection({ comments, currentUser }: CommentSectionProps) {
     </div>
   );
 }
+
+    

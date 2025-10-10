@@ -1,5 +1,5 @@
 
-import type { User, Task, LeaderboardEntry, DetailedReportEntry, Notification } from './types';
+import type { User, Task, LeaderboardEntry, DetailedReportEntry, Notification, Comment } from './types';
 import { TaskCategory, UserRole } from './types';
 
 const getAvatarUrl = (seed: number) => `https://picsum.photos/seed/${seed}/100/100`;
@@ -13,6 +13,33 @@ const users: User[] = [
   { id: 'user-9', name: 'Citra', email: 'citra@kreatask.com', avatarUrl: getAvatarUrl(9), role: UserRole.MARKETING },
   { id: 'user-10', name: 'Doni', email: 'doni@kreatask.com', avatarUrl: getAvatarUrl(10), role: UserRole.FINANCE },
   { id: 'user-11', name: 'Budi', email: 'budi@kreatask.com', avatarUrl: getAvatarUrl(11), role: UserRole.UNASSIGNED },
+];
+
+const mockComments: Comment[] = [
+    {
+      id: 'comment-1',
+      author: users.find(u => u.name === 'Naufal')!,
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+      content: { en: 'Great job on this, Ariya! The design looks clean.', id: 'Kerja bagus, Ariya! Desainnya terlihat bersih.' },
+    },
+    {
+      id: 'comment-2',
+      author: users.find(u => u.name === 'Ariya')!,
+      timestamp: new Date(Date.now() - 1000 * 60 * 50).toISOString(),
+      content: { en: 'Thanks, Naufal! I will submit it for review shortly.', id: 'Terima kasih, Naufal! Saya akan segera mengirimkannya untuk ditinjau.' },
+    },
+    {
+      id: 'comment-3',
+      author: users.find(u => u.name === 'Deva')!,
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
+      content: { en: 'Agus, please make sure to double check the sources for this article.', id: 'Agus, tolong pastikan untuk memeriksa kembali sumber untuk artikel ini.' },
+    },
+    {
+      id: 'comment-4',
+      author: users.find(u => u.name === 'Agus')!,
+      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 23).toISOString(),
+      content: { en: 'Will do, Deva. I have the sources ready.', id: 'Siap, Deva. Saya sudah menyiapkan sumbernya.' },
+    },
 ];
 
 const allTasks: Task[] = [
@@ -30,7 +57,9 @@ const allTasks: Task[] = [
     value: 20,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [mockComments[0], mockComments[1]], 
+    files: [],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
       { id: 'sub-1-2', title: 'Create initial draft', isCompleted: true },
@@ -50,7 +79,9 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [mockComments[2], mockComments[3]], 
+    files: [],
     subtasks: [],
   },
   {
@@ -83,7 +114,9 @@ const allTasks: Task[] = [
     value: 10,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [], 
+    files: [],
     subtasks: [],
   },
   {
@@ -425,3 +458,5 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
+
+    
