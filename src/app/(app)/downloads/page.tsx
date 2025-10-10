@@ -102,14 +102,12 @@ export default function DownloadsPage() {
   useEffect(() => {
     if (!currentUser) return;
     
-    // Check for newly completed downloads
     const newlyCompleted = downloadHistory.filter(current => {
         const previous = prevDownloadHistoryRef.current.find(p => p.id === current.id);
         return current.status === 'Completed' && previous?.status !== 'Completed';
     });
 
     newlyCompleted.forEach(item => {
-        // Only create notification if we haven't for this item's completion yet.
         if (!notifiedDownloadsRef.current.has(item.id)) {
             toast({
                 title: t('downloads.toast.completed_title'),
@@ -124,12 +122,10 @@ export default function DownloadsPage() {
                 read: false,
                 createdAt: new Date().toISOString(),
             });
-            // Record that we have notified for this item.
             notifiedDownloadsRef.current.add(item.id);
         }
     });
 
-    // Update the ref for the next render
     prevDownloadHistoryRef.current = downloadHistory;
 
   }, [downloadHistory, currentUser, t, toast, addNotification]);
