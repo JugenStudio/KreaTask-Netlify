@@ -13,10 +13,10 @@ export function BottomNav() {
 
   const navItems = [
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
-    { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
-    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
-    { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
+    { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
+    { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
   ];
 
   return (
