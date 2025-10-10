@@ -3,7 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, ListTodo, PenSquare, Trophy, FileText, History } from "lucide-react";
+import { Home, ListTodo, Download, Trophy, FileText, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 
@@ -11,14 +11,12 @@ export function BottomNav() {
   const pathname = usePathname();
   const { t } = useLanguage();
 
-  // We can't use isEmployee here as user is not passed. 
-  // The "Home" item is placed in the middle for better ergonomics on mobile.
   const navItems = [
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
-    { href: "/submit", icon: PenSquare, label: "Submit" }, // Shortened label
-    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
+    { href: "/downloads", icon: Download, label: t('header.downloads') },
   ];
 
   return (
@@ -29,7 +27,6 @@ export function BottomNav() {
             ? pathname === "/" || pathname.startsWith(item.href)
             : pathname.startsWith(item.href);
           
-          // Special styling for the middle button to make it stand out
           if (item.href === "/dashboard") {
             return (
                <Link

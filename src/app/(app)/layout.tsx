@@ -138,7 +138,7 @@ export default function AppLayout({
               </main>
             </div>
           </div>
-          {isMobile && <BottomNav />}
+          {isMobile && currentUser && <BottomNav />}
         </div>
       </UserContext.Provider>
     </LanguageProvider>
