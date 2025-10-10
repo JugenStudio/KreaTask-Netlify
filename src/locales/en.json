@@ -378,7 +378,15 @@
       "completed_title": "Download Complete",
       "completed_desc": "File \"{{fileName}}\" has been successfully downloaded.",
       "cleared_title": "History Cleared",
-      "cleared_desc": "Your download history has been cleared."
+      "cleared_desc": "Your download history has been cleared.",
+      "item_deleted_title": "Download Removed",
+      "item_deleted_desc": "The download for \"{{fileName}}\" has been removed from history."
+    },
+    "delete_dialog": {
+      "title": "Remove from history?",
+      "description": "This will remove \"{{fileName}}\" from your download history.",
+      "cancel": "Cancel",
+      "confirm": "Remove"
     }
   }
 }

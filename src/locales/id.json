@@ -378,7 +378,15 @@
       "completed_title": "Unduhan Selesai",
       "completed_desc": "File \"{{fileName}}\" berhasil diunduh.",
       "cleared_title": "Riwayat Dihapus",
-      "cleared_desc": "Riwayat unduhan Anda telah dihapus."
+      "cleared_desc": "Riwayat unduhan Anda telah dihapus.",
+      "item_deleted_title": "Unduhan Dihapus",
+      "item_deleted_desc": "Unduhan \"{{fileName}}\" telah dihapus dari riwayat."
+    },
+    "delete_dialog": {
+      "title": "Hapus dari riwayat?",
+      "description": "Ini akan menghapus \"{{fileName}}\" dari riwayat unduhan Anda.",
+      "cancel": "Batal",
+      "confirm": "Hapus"
     }
   }
 }

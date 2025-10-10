@@ -15,6 +15,16 @@ import { Button } from "@/components/ui/button";
 import { format, isToday, isYesterday } from "date-fns";
 import { id } from "date-fns/locale";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const initialDownloadHistory = [
     { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
@@ -55,6 +65,7 @@ export default function DownloadsPage() {
   const { currentUser } = useCurrentUser();
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
   const [searchTerm, setSearchTerm] = useState("");
+  const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
   const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
   const notifiedDownloadsRef = useRef<Set<number>>(new Set());
 
@@ -140,6 +151,29 @@ export default function DownloadsPage() {
     });
   }
 
+  const handleDeleteItem = () => {
+    if (itemToDelete) {
+        setDownloadHistory(prev => prev.filter(item => item.id !== itemToDelete.id));
+        toast({
+            title: t('downloads.toast.item_deleted_title'),
+            description: t('downloads.toast.item_deleted_desc', { fileName: itemToDelete.fileName }),
+            variant: "destructive"
+        });
+        setItemToDelete(null);
+    }
+  };
+  
+  const handleRedownload = (item: DownloadItem) => {
+    setDownloadHistory(prev =>
+      prev.map(d =>
+        d.id === item.id
+          ? { ...d, status: 'In Progress', progress: 0 }
+          : d
+      )
+    );
+  };
+
+
   if (!currentUser) {
     return (
         <div className="space-y-6 md:space-y-8">
@@ -160,6 +194,7 @@ export default function DownloadsPage() {
   }
 
   return (
+    <>
     <div className="space-y-6 md:space-y-8">
        <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
         <Link href="/dashboard">
@@ -215,8 +250,8 @@ export default function DownloadsPage() {
                         <div className="flex items-center gap-1.5 text-muted-foreground">
                             {item.status === 'Completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
                             {item.status === 'Failed' && <X className="h-5 w-5 text-destructive" />}
-                            <Button variant="ghost" size="icon" className="h-8 w-8 transition-all active:scale-95"><Folder className="h-4 w-4"/></Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 transition-all active:scale-95"><Trash2 className="h-4 w-4 hover:text-destructive"/></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleRedownload(item)}><Download className="h-4 w-4"/></Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => setItemToDelete(item)}><Trash2 className="h-4 w-4 hover:text-destructive"/></Button>
                         </div>
                     </CardContent>
                   </Card>
@@ -232,5 +267,24 @@ export default function DownloadsPage() {
         )}
       </div>
     </div>
+     {itemToDelete && (
+        <AlertDialog open={!!itemToDelete} onOpenChange={() => setItemToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{t('downloads.delete_dialog.title')}</AlertDialogTitle>
+              <AlertDialogDescription>
+                {t('downloads.delete_dialog.description', { fileName: itemToDelete.fileName })}
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>{t('downloads.delete_dialog.cancel')}</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteItem} className="bg-destructive hover:bg-destructive/90">
+                {t('downloads.delete_dialog.confirm')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
+    </>
   );
 }
