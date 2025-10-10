@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
 import { useTaskData } from "@/hooks/use-task-data";
+import { useCurrentUser } from "@/app/(app)/layout";
+import { Skeleton } from "@/components/ui/skeleton";
 
 // Mock data for download history with progress
 const initialDownloadHistory = [
@@ -26,9 +28,12 @@ export default function DownloadsPage() {
   const { t } = useLanguage();
   const { toast } = useToast();
   const { addNotification } = useTaskData();
+  const { currentUser } = useCurrentUser();
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
 
   useEffect(() => {
+    if (!currentUser) return;
+
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
     if (itemInProgress) {
@@ -45,7 +50,7 @@ export default function DownloadsPage() {
                             });
                              addNotification({
                                 id: `notif-download-${Date.now()}`,
-                                userId: 'user-1', // Assuming a logged-in user
+                                userId: currentUser.id,
                                 message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
                                 type: 'SYSTEM_UPDATE',
                                 read: false,
@@ -62,7 +67,27 @@ export default function DownloadsPage() {
 
         return () => clearInterval(interval);
     }
-  }, [downloadHistory, t, toast, addNotification]);
+  }, [downloadHistory, t, toast, addNotification, currentUser]);
+  
+  if (!currentUser) {
+    return (
+        <div className="space-y-6 md:space-y-8">
+             <div>
+                <Skeleton className="h-8 w-1/3" />
+                <Skeleton className="h-4 w-1/2 mt-2" />
+             </div>
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/4" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-48 w-full" />
+                </CardContent>
+             </Card>
+        </div>
+    );
+  }
+
 
   return (
     <div className="space-y-6 md:space-y-8">
