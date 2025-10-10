@@ -86,7 +86,6 @@ export function useTaskData() {
     if (allTasks.length > 0 && users.length > 0) {
       const newLeaderboard = calculateLeaderboard(allTasks, users);
       setLeaderboardData(newLeaderboard);
-      // DO NOT save to localStorage here, as it can cause data loss on hydration
     }
   }, [allTasks, users]);
 
