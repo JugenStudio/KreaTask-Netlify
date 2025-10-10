@@ -687,16 +687,3 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
   .filter((item): item is DetailedReportEntry => item !== null);
 
     
-
-    
-
-    
-
-    
-
-    
-
-
-
-
-    

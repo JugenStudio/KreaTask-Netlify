@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useLanguage } from "@/providers/language-provider";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -68,6 +68,10 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [task, setTask] = useState(initialTask);
   const [submissionFiles, setSubmissionFiles] = useState<File[]>([]);
   const { currentUser } = useCurrentUser();
+
+  useEffect(() => {
+    setTask(initialTask);
+  }, [initialTask]);
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
     const updatedSubtasks = task.subtasks?.map(st => 
@@ -286,3 +290,5 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </Card>
   );
 }
+
+    
