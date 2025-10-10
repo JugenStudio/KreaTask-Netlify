@@ -2,51 +2,62 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Loader2, Send, X } from 'lucide-react';
+import { Bot, Loader2, Send, X, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import type { Task, User } from '@/lib/types';
 import { getKreaBotResponse } from '@/app/actions';
-import { useLanguage } from '@/providers/language-provider';
 import { useTaskData } from '@/hooks/use-task-data';
+import Image from 'next/image';
 
 interface Message {
   sender: 'user' | 'bot';
   text: string;
 }
 
+const quickStartPrompts = [
+    "Siapa karyawan terbaik bulan ini?",
+    "Tugas apa saja yang akan jatuh tempo minggu ini?",
+    "Berikan saya laporan status harian",
+]
+
 export function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const { t } = useLanguage();
   const { allTasks, users, isLoading: isTaskDataLoading } = useTaskData();
 
 
-  const handleSendMessage = async (e: React.FormEvent) => {
+  const handleSendMessage = async (e: React.FormEvent, query?: string) => {
     e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+    const messageText = query || inputValue;
+    if (!messageText.trim() || isLoading) return;
 
-    const userMessage: Message = { sender: 'user', text: inputValue };
+    const userMessage: Message = { sender: 'user', text: messageText };
     setMessages(prev => [...prev, userMessage]);
     setInputValue('');
     setIsLoading(true);
 
-    const { response, error } = await getKreaBotResponse(inputValue, allTasks, users);
+    const { response, error } = await getKreaBotResponse(messageText, allTasks, users);
     
     const botMessage: Message = {
       sender: 'bot',
-      text: error || response || "I'm not sure how to respond to that.",
+      text: error || response || "Maaf, saya tidak yakin bagaimana harus merespons.",
     };
     setMessages(prev => [...prev, botMessage]);
     setIsLoading(false);
   };
+  
+  const handleQuickStartClick = (prompt: string) => {
+    // We create a synthetic event object because handleSendMessage expects it
+    const syntheticEvent = { preventDefault: () => {} } as React.FormEvent;
+    handleSendMessage(syntheticEvent, prompt);
+  };
+
 
   useEffect(() => {
     // Auto-scroll to bottom
@@ -60,7 +71,7 @@ export function Chatbot() {
 
   const initialBotMessage: Message = {
     sender: 'bot',
-    text: "Hello! I'm KreaBot, your project assistant. How can I help you today? You can ask me about task statuses, deadlines, or who is the employee of the month!",
+    text: "Halo! Saya KreaBot. Tanyakan apa saja tentang tugas, progres tim, atau gunakan salah satu pertanyaan di bawah untuk memulai!",
   };
 
   useEffect(() => {
@@ -72,27 +83,32 @@ export function Chatbot() {
   return (
     <>
       <Button
-        className="fixed bottom-24 right-4 h-10 w-10 rounded-full shadow-lg z-50 md:bottom-6 md:right-6"
+        className="fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 md:bottom-6 md:right-6 bg-primary text-primary-foreground hover:bg-primary/90 transition-all active:scale-95"
         size="icon"
         onClick={() => setIsOpen(true)}
       >
-        <Bot className="h-5 w-5" />
+        <Bot className="h-7 w-7" />
       </Button>
 
       <div
         className={cn(
-          "fixed bottom-36 right-4 z-50 w-full max-w-xs rounded-xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-24 md:right-6 md:max-w-sm",
-          isExpanded ? "h-[500px] md:h-[600px]" : "h-[400px] md:h-[450px]",
+          "fixed bottom-36 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-24 md:right-6",
+          "h-[70vh] max-h-[600px]",
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
         )}
       >
         <div className="flex flex-col h-full">
-            <header className="flex items-center justify-between p-4 border-b">
+            <header className="p-4 border-b">
                 <div className="flex items-center gap-3">
-                    <Bot className="h-6 w-6 text-primary" />
-                    <h2 className="text-lg font-headline font-semibold">KreaBot Assistant</h2>
+                    <div className='p-1.5 bg-primary/20 rounded-lg'>
+                        <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={24} height={24} className="dark:filter-none"/>
+                    </div>
+                    <div>
+                        <h2 className="text-lg font-headline font-semibold">KreaBot</h2>
+                        <p className="text-xs text-muted-foreground -mt-1">Asisten Cerdas KreaTask</p>
+                    </div>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)}>
+                <Button variant="ghost" size="icon" onClick={() => setIsOpen(false)} className="absolute top-2 right-2 h-8 w-8">
                     <X className="h-5 w-5" />
                 </Button>
             </header>
@@ -123,18 +139,39 @@ export function Chatbot() {
                     </div>
                 )}
                 </div>
+                 {messages.length <= 1 && (
+                    <div className="mt-6">
+                        <div className="flex items-center gap-2 mb-3">
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            <h3 className="text-sm font-semibold">Quick Start</h3>
+                        </div>
+                        <div className="space-y-2">
+                            {quickStartPrompts.map((prompt) => (
+                                <Button 
+                                    key={prompt}
+                                    variant="outline"
+                                    size="sm"
+                                    className="w-full justify-start h-auto py-2 text-wrap"
+                                    onClick={() => handleQuickStartClick(prompt)}
+                                >
+                                    {prompt}
+                                </Button>
+                            ))}
+                        </div>
+                    </div>
+                 )}
             </ScrollArea>
-            <div className="p-4 border-t">
-                <form onSubmit={handleSendMessage} className="flex items-center gap-2">
+            <div className="p-4 border-t bg-background rounded-b-2xl">
+                <form onSubmit={handleSendMessage} className="relative">
                     <Input
                         value={inputValue}
                         onChange={(e) => setInputValue(e.target.value)}
-                        placeholder="Ask KreaBot..."
-                        className="flex-1"
+                        placeholder="Tanya KreaBot..."
+                        className="flex-1 pr-10"
                         disabled={isLoading || isTaskDataLoading}
                     />
-                    <Button type="submit" size="icon" disabled={isLoading || isTaskDataLoading || !inputValue.trim()}>
-                        <Send className="h-5 w-5" />
+                    <Button type="submit" size="icon" className="absolute right-1.5 top-1/2 -translate-y-1/2 h-7 w-7" disabled={isLoading || isTaskDataLoading || !inputValue.trim()}>
+                        <Send className="h-4 w-4" />
                     </Button>
                 </form>
             </div>
