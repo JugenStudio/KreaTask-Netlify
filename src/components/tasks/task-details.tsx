@@ -313,31 +313,36 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
       <Card className="h-full">
         <CardHeader>
           <div className="flex flex-col gap-4">
-              <div>
-                  <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
-                  <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
-              </div>
-              <div className="flex items-center justify-end gap-2">
-                <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
-                    <Edit className="h-4 w-4" />
-                    <span className="sr-only">Edit Task</span>
-                </Button>
-                <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
-                  <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
-                     <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Object.keys(statusColors).map(status => (
-                      <SelectItem key={status} value={status}>
-                        <div className="flex items-center gap-2">
-                          <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
-                          {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div>
+              <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
+              <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
+            </div>
+            <div className="flex items-center justify-end gap-2">
+              <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
+                <Edit className="h-4 w-4" />
+                <span className="sr-only">Edit Task</span>
+              </Button>
+              <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
+                <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
+                   <SelectValue>
+                     <div className="flex items-center gap-2">
+                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
+                        {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any)}
+                      </div>
+                   </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.keys(statusColors).map(status => (
+                    <SelectItem key={status} value={status}>
+                      <div className="flex items-center gap-2">
+                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
+                        {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 md:space-y-6">
