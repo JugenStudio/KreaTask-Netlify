@@ -31,6 +31,7 @@ import {
   Paperclip,
   Trash2,
   PlusCircle,
+  Edit,
 } from "lucide-react";
 import {
   Select,
@@ -61,6 +62,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useRouter } from "next/navigation";
+import { EditTaskModal } from "./edit-task-modal";
+
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -98,6 +101,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -313,26 +317,32 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                   <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
                   <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
               </div>
-              <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
-                <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
-                   <SelectValue>
-                      <div className="flex items-center gap-2">
-                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
-                        {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any)}
-                      </div>
-                    </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(statusColors).map(status => (
-                    <SelectItem key={status} value={status}>
-                      <div className="flex items-center gap-2">
-                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
-                        {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
+                    <Edit className="h-4 w-4" />
+                    <span className="sr-only">Edit Task</span>
+                </Button>
+                <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
+                  <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
+                     <SelectValue>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
+                          {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any)}
+                        </div>
+                      </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.keys(statusColors).map(status => (
+                      <SelectItem key={status} value={status}>
+                        <div className="flex items-center gap-2">
+                          <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
+                          {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 md:space-y-6">
@@ -511,6 +521,14 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         </CardContent>
       </Card>
       
+      {task && (
+        <EditTaskModal 
+            isOpen={isEditModalOpen}
+            onOpenChange={setIsEditModalOpen}
+            task={task}
+        />
+      )}
+
       <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>

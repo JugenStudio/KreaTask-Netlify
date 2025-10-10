@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Link from "next/link";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { EditTaskModal } from "@/components/tasks/edit-task-modal";
 
 
 export default function AllTasksPage() {
@@ -33,6 +34,15 @@ export default function AllTasksPage() {
   const [statusFilter, setStatusFilter] = useState<TaskStatus | "all">("all");
   const [assigneeFilter, setAssigneeFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"list" | "board">("board");
+
+  // State for the edit modal
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
+
+  const handleEditTask = (task: Task) => {
+    setTaskToEdit(task);
+    setIsEditModalOpen(true);
+  };
 
   useEffect(() => {
     setSearchTerm(query);
@@ -93,86 +103,97 @@ export default function AllTasksPage() {
   
 
   return (
-    <div className="space-y-6 md:space-y-8">
-      <Button variant="outline" size="sm" asChild className="w-fit transition-all active:scale-95">
-        <Link href="/dashboard">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          {t('common.back_to_home')}
-        </Link>
-      </Button>
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
-          <p className="text-muted-foreground text-sm md:text-base">
-            {t('all_tasks.description')}
-          </p>
-        </div>
-      </div>
-      
-      {/* Filters Section */}
-      <div className="flex flex-col sm:flex-row gap-2 w-full">
-          <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input 
-                placeholder={t('all_tasks.filter_placeholder')} 
-                className="w-full pl-8 h-10"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)} 
-              />
+    <>
+      <div className="space-y-6 md:space-y-8">
+        <Button variant="outline" size="sm" asChild className="w-fit transition-all active:scale-95">
+          <Link href="/dashboard">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            {t('common.back_to_home')}
+          </Link>
+        </Button>
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
+            <p className="text-muted-foreground text-sm md:text-base">
+              {t('all_tasks.description')}
+            </p>
           </div>
-          <div className="flex gap-2">
-            {!isUserEmployee && (
-               <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+        </div>
+        
+        {/* Filters Section */}
+        <div className="flex flex-col sm:flex-row gap-2 w-full">
+            <div className="relative flex-1">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input 
+                  placeholder={t('all_tasks.filter_placeholder')} 
+                  className="w-full pl-8 h-10"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)} 
+                />
+            </div>
+            <div className="flex gap-2">
+              {!isUserEmployee && (
+                 <Select value={assigneeFilter} onValueChange={setAssigneeFilter}>
+                    <SelectTrigger className="flex-1 sm:w-40 h-10">
+                        <SelectValue placeholder="All Assignees" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Assignees</SelectItem>
+                        {users.map(user => (
+                          <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+              )}
+              <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
                   <SelectTrigger className="flex-1 sm:w-40 h-10">
-                      <SelectValue placeholder="All Assignees" />
+                      <SelectValue placeholder={t('all_tasks.all_statuses')} />
                   </SelectTrigger>
                   <SelectContent>
-                      <SelectItem value="all">All Assignees</SelectItem>
-                      {users.map(user => (
-                        <SelectItem key={user.id} value={user.id}>{user.name}</SelectItem>
-                      ))}
+                      <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
+                      <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
+                      <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
+                      <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
+                      <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
+                      <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
                   </SelectContent>
               </Select>
-            )}
-            <Select value={statusFilter} onValueChange={(value: TaskStatus | "all") => setStatusFilter(value)}>
-                <SelectTrigger className="flex-1 sm:w-40 h-10">
-                    <SelectValue placeholder={t('all_tasks.all_statuses')} />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">{t('all_tasks.all_statuses')}</SelectItem>
-                    <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
-                    <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
-                    <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
-                    <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
-                    <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
-                </SelectContent>
-            </Select>
-            <div className="flex items-center gap-1 rounded-md bg-muted p-1">
-                <Button
-                    variant={viewMode === 'list' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="rounded-sm h-8 w-8"
-                    onClick={() => setViewMode('list')}
-                >
-                    <List className="h-4 w-4" />
-                </Button>
-                <Button
-                    variant={viewMode === 'board' ? 'secondary' : 'ghost'}
-                    size="icon"
-                    className="rounded-sm h-8 w-8"
-                    onClick={() => setViewMode('board')}
-                >
-                    <LayoutGrid className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center gap-1 rounded-md bg-muted p-1">
+                  <Button
+                      variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                      size="icon"
+                      className="rounded-sm h-8 w-8"
+                      onClick={() => setViewMode('list')}
+                  >
+                      <List className="h-4 w-4" />
+                  </Button>
+                  <Button
+                      variant={viewMode === 'board' ? 'secondary' : 'ghost'}
+                      size="icon"
+                      className="rounded-sm h-8 w-8"
+                      onClick={() => setViewMode('board')}
+                  >
+                      <LayoutGrid className="h-4 w-4" />
+                  </Button>
+              </div>
             </div>
-          </div>
-      </div>
+        </div>
 
-      {viewMode === 'list' ? (
-        <TaskTable tasks={filteredTasks} currentUser={currentUser} />
-      ) : (
-        <KanbanBoard tasks={filteredTasks} setTasks={setAllTasks} allTasks={allTasks} />
+        {viewMode === 'list' ? (
+          <TaskTable tasks={filteredTasks} currentUser={currentUser} onEdit={handleEditTask} />
+        ) : (
+          <KanbanBoard tasks={filteredTasks} setTasks={setAllTasks} allTasks={allTasks} />
+        )}
+      </div>
+      {taskToEdit && (
+        <EditTaskModal 
+          isOpen={isEditModalOpen} 
+          onOpenChange={setIsEditModalOpen} 
+          task={taskToEdit} 
+        />
       )}
-    </div>
+    </>
   );
 }
+
+    

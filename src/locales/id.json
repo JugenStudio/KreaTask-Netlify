@@ -120,6 +120,12 @@
           "success_desc": "{{count}} file telah ditambahkan ke pengiriman Anda."
         }
       }
+    },
+    "edit_modal": {
+      "title": "Ubah Tugas",
+      "description": "Buat perubahan pada detail tugas Anda di bawah ini.",
+      "cancel_button": "Batal",
+      "save_button": "Simpan Perubahan"
     }
   },
   "history": {
@@ -394,3 +400,5 @@
     }
   }
 }
+
+    

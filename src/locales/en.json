@@ -120,6 +120,12 @@
           "success_desc": "{{count}} file(s) have been added to your submission."
         }
       }
+    },
+    "edit_modal": {
+      "title": "Edit Task",
+      "description": "Make changes to your task details below.",
+      "cancel_button": "Cancel",
+      "save_button": "Save Changes"
     }
   },
   "history": {
@@ -394,3 +400,5 @@
     }
   }
 }
+
+    

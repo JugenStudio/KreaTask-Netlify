@@ -31,7 +31,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Trash2 } from "lucide-react";
+import { MoreHorizontal, Trash2, Edit } from "lucide-react";
 import type { Task, TaskStatus, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
@@ -51,9 +51,10 @@ const statusColors: Record<TaskStatus, string> = {
 interface TaskTableProps {
   tasks: Task[];
   currentUser: User;
+  onEdit: (task: Task) => void;
 }
 
-export function TaskTable({ tasks, currentUser }: TaskTableProps) {
+export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
   const { locale, t } = useLanguage();
   const { deleteTask } = useTaskData();
   const { toast } = useToast();
@@ -80,6 +81,11 @@ export function TaskTable({ tasks, currentUser }: TaskTableProps) {
       return task.status === 'To-do' || task.status === 'In Progress';
     }
     return false;
+  };
+  
+  const canEditTask = (task: Task): boolean => {
+    // Anyone can edit a task for now. More specific logic can be added here.
+    return true;
   };
 
   if (tasks.length === 0) {
@@ -143,7 +149,12 @@ export function TaskTable({ tasks, currentUser }: TaskTableProps) {
                       <DropdownMenuItem asChild>
                         <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
                       </DropdownMenuItem>
-                      <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
+                       {canEditTask(task) && (
+                        <DropdownMenuItem onClick={() => onEdit(task)}>
+                          <Edit className="mr-2 h-4 w-4" />
+                          <span>{t('all_tasks.actions.edit')}</span>
+                        </DropdownMenuItem>
+                       )}
                        {canDeleteTask(task) && (
                         <>
                           <DropdownMenuSeparator />
@@ -182,7 +193,12 @@ export function TaskTable({ tasks, currentUser }: TaskTableProps) {
                               <DropdownMenuItem asChild>
                                 <Link href={`/tasks/${task.id}`}>{t('all_tasks.actions.view')}</Link>
                               </DropdownMenuItem>
-                              <DropdownMenuItem>{t('all_tasks.actions.edit')}</DropdownMenuItem>
+                              {canEditTask(task) && (
+                                <DropdownMenuItem onClick={() => onEdit(task)}>
+                                  <Edit className="mr-2 h-4 w-4" />
+                                  <span>{t('all_tasks.actions.edit')}</span>
+                                </DropdownMenuItem>
+                              )}
                                {canDeleteTask(task) && (
                                 <>
                                   <DropdownMenuSeparator />
@@ -237,3 +253,5 @@ export function TaskTable({ tasks, currentUser }: TaskTableProps) {
     </>
   );
 }
+
+    
