@@ -27,28 +27,6 @@ export function BottomNav() {
           const isActive = item.href === "/dashboard" 
             ? pathname === "/" || pathname.startsWith(item.href)
             : pathname.startsWith(item.href);
-          
-          if (item.href === "/dashboard") {
-            return (
-               <Link
-                key={item.href}
-                href={item.href}
-                prefetch
-                className="group flex flex-col items-center justify-center p-1 rounded-lg text-muted-foreground transition-all active:scale-95"
-              >
-                <div className={cn(
-                  "flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 transform -translate-y-4 shadow-lg",
-                  isActive ? "bg-primary text-primary-foreground" : "bg-card border-4 border-background text-foreground group-hover:bg-muted"
-                )}>
-                  <Image src="/sounds/logo2.png" alt="Beranda" width={32} height={32} className="dark:filter dark:invert dark:brightness-0" />
-                </div>
-                <span className={cn(
-                  "text-xs font-medium -mt-3 w-full text-center truncate",
-                  isActive ? "text-primary font-bold" : "text-muted-foreground"
-                )}>{item.label}</span>
-              </Link>
-            )
-          }
             
           return (
             <Link
@@ -66,7 +44,7 @@ export function BottomNav() {
                 <item.icon className="h-5 w-5" />
               </div>
               <span className={cn(
-                "text-xs font-medium mt-1 w-full text-center truncate", // Added truncate and width
+                "text-xs font-medium mt-1 w-full text-center truncate",
                 isActive ? "text-primary font-bold" : "text-muted-foreground"
               )}>{item.label}</span>
             </Link>
