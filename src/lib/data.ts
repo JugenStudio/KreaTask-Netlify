@@ -69,7 +69,7 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-1-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600', size: '1.2 MB', note: "Initial draft with the blue theme." },
+      { id: 'file-1-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600&auto=format&fit=crop', size: '1.2 MB', note: "Initial draft with the blue theme." },
       { id: 'file-1-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '850 KB' },
     ],
     subtasks: [
@@ -308,7 +308,7 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-8-1', name: 'Infographic_Final.png', type: 'image', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600', size: '980 KB' },
+      { id: 'file-8-1', name: 'Infographic_Final.png', type: 'image', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600&auto=format&fit=crop', size: '980 KB' },
     ],
     subtasks: [],
   },
@@ -442,8 +442,8 @@ const allTasks: Task[] = [
         }
     ], 
     files: [
-      { id: 'file-12-1', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162617213-6ddef1e2ca3b?q=80&w=600', size: '2.5 MB', note: 'First concept, more corporate style.' },
-      { id: 'file-12-2', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?q=80&w=600', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
+      { id: 'file-12-1', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162617213-6ddef1e2ca3b?q=80&w=600&auto=format&fit=crop', size: '2.5 MB', note: 'First concept, more corporate style.' },
+      { id: 'file-12-2', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?q=80&w=600&auto=format&fit=crop', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
     ],
     subtasks: [],
   },
@@ -746,5 +746,6 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
 
 
     
+
 
 
