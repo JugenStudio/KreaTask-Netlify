@@ -40,7 +40,7 @@ export function BottomNav() {
                   "flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 transform -translate-y-4 shadow-lg",
                   isActive ? "bg-primary text-primary-foreground" : "bg-card border-4 border-background text-foreground group-hover:bg-muted"
                 )}>
-                  <Image src="/sounds/logo2.png" alt="Beranda" width={32} height={32} className="filter invert brightness-0" />
+                  <Image src="/sounds/logo2.png" alt="Beranda" width={32} height={32} className="dark:filter dark:invert dark:brightness-0" />
                 </div>
                 <span className={cn(
                   "text-xs font-medium -mt-3 w-full text-center truncate",
