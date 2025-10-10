@@ -114,15 +114,12 @@ export default function DownloadsPage() {
 
     if (itemInProgress) {
         const intervalId = `download-interval-${itemInProgress.id}`;
-        // Prevent multiple intervals for the same item
         if (window[intervalId as any]) {
             return;
         }
 
         const interval = setInterval(() => {
-            let completedItem: DownloadItem | null = null;
             setDownloadHistory(prevHistory => {
-                // Find the latest state of the item
                 const currentItem = prevHistory.find(d => d.id === itemInProgress.id);
                 if (!currentItem || currentItem.status !== 'In Progress') {
                     clearInterval(interval);
@@ -134,21 +131,14 @@ export default function DownloadsPage() {
                     if (item.id === itemInProgress.id) {
                         const newProgress = Math.min(item.progress + 20, 100);
                         if (newProgress >= 100) {
-                           const finishedItem = { ...item, status: "Completed" as const, progress: 100 };
-                           completedItem = finishedItem;
-                           return finishedItem;
+                           clearInterval(interval);
+                           delete window[intervalId as any];
+                           return { ...item, status: "Completed" as const, progress: 100 };
                         }
                         return { ...item, progress: newProgress };
                     }
                     return item;
                 });
-                
-                if (completedItem) {
-                    createDownloadNotification(completedItem);
-                    clearInterval(interval);
-                    delete window[intervalId as any];
-                }
-
                 return updatedHistory;
             });
         }, 500);
@@ -160,7 +150,21 @@ export default function DownloadsPage() {
             delete window[intervalId as any];
         };
     }
-  }, [downloadHistory, setDownloadHistory, createDownloadNotification]);
+  }, [downloadHistory, setDownloadHistory]);
+
+  // Separate useEffect to handle notifications for newly completed items
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
+    const newlyCompleted = downloadHistory.filter(
+      item => item.status === 'Completed' && !notifiedDownloads.has(item.id)
+    );
+
+    newlyCompleted.forEach(item => {
+      createDownloadNotification(item);
+    });
+  }, [downloadHistory, currentUser, createDownloadNotification]);
 
 
   const filteredDownloads = useMemo(() => {
