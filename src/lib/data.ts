@@ -500,13 +500,28 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-3', name: 'Script_v2.docx', type: 'document', url: '#', size: '128 KB' },
-      { id: 'file-4', name: 'Storyboard.pdf', type: 'document', url: '#', size: '2.1 MB' },
+      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: '#', size: '128 KB' },
+      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: '#', size: '2.1 MB' },
     ],
     subtasks: [
-      { id: 'sub-4-1', title: 'Write script', isCompleted: true },
-      { id: 'sub-4-2', title: 'Record voiceover', isCompleted: false },
-      { id: 'sub-4-3', title: 'Edit video footage', isCompleted: false },
+      { 
+        id: 'sub-4-1', 
+        title: 'Write script', 
+        isCompleted: false, // Set to false initially
+        linkedFileId: 'file-3' 
+      },
+      { 
+        id: 'sub-4-2', 
+        title: 'Record voiceover', 
+        isCompleted: false,
+        linkedFileId: null
+      },
+      { 
+        id: 'sub-4-3', 
+        title: 'Edit video footage', 
+        isCompleted: false,
+        linkedFileId: null
+      },
     ],
   },
   {

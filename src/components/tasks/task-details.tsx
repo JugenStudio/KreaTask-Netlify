@@ -16,7 +16,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import type { Task, TaskStatus, Notification } from "@/lib/types";
+import type { Task, TaskStatus, Notification, File as FileType } from "@/lib/types";
 import {
   CalendarDays,
   Download,
@@ -28,12 +28,13 @@ import {
   Send,
   UploadCloud,
   X,
-  Paperclip
+  Paperclip,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useLanguage } from "@/providers/language-provider";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Progress } from "@/components/ui/progress";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -56,7 +57,6 @@ const fileTypeIcons = {
   document: <FileIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
 };
 
-// Define a new type that extends the base File type to include a preview property.
 interface FileWithPreview extends File {
   preview: string;
 }
@@ -78,9 +78,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     setTask(initialTask);
   }, [initialTask]);
 
-  // Cleanup effect to revoke object URLs and prevent memory leaks.
   useEffect(() => {
-    // This function will run when the component unmounts.
     return () => {
         submissionFiles.forEach(file => {
             URL.revokeObjectURL(file.preview);
@@ -96,6 +94,24 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     setTask(updatedTask);
     onUpdateTask(task.id, { subtasks: updatedSubtasks });
   };
+  
+  const handleDeleteFile = (fileId: string, fileName: string) => {
+    const isConfirmed = window.confirm(t('task.attachments.delete_confirm_message', { fileName }));
+
+    if (isConfirmed) {
+      const updatedFiles = task.files?.filter(file => file.id !== fileId);
+      const updatedTask = { ...task, files: updatedFiles };
+      
+      setTask(updatedTask);
+      onUpdateTask(task.id, { files: updatedFiles });
+
+      toast({
+        title: t('task.attachments.delete_toast.success_title'),
+        description: t('task.attachments.delete_toast.success_desc', { fileName }),
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleSubmitForReview = () => {
     const updatedTask = { ...task, status: "In Review" as TaskStatus };
@@ -107,11 +123,9 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         description: t('task.submit.toast.success_desc', { title: task.title[locale] }),
     });
     
-    // Notify directors
-    // This is a simplification. In a real app, you'd find the user's manager.
     onAddNotification({
       id: `notif-review-${Date.now()}`,
-      userId: 'user-1', // Direktur Utama
+      userId: 'user-1',
       message: `${currentUser?.name} has submitted task "${task.title[locale]}" for review.`,
       type: 'VALIDATION_REQUEST',
       read: false,
@@ -152,6 +166,28 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
 
   const isAssignedToCurrentUser = currentUser && task.assignees.some(a => a.id === currentUser.id);
   const canSubmit = isEmployee(currentUser?.role || '') && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
+
+  const visibleFiles = useMemo(() => {
+    if (!task.files || !task.subtasks) {
+      return task.files || [];
+    }
+
+    const allLinkedFileIds = new Set(task.subtasks.map(st => st.linkedFileId).filter(Boolean));
+    const completedLinkedFileIds = new Set(
+      task.subtasks
+        .filter(st => st.isCompleted && st.linkedFileId)
+        .map(st => st.linkedFileId)
+    );
+
+    return task.files.filter(file => {
+      // If a file is not linked to any subtask, always show it.
+      if (!allLinkedFileIds.has(file.id)) {
+        return true;
+      }
+      // If a file is linked, only show it if the corresponding subtask is completed.
+      return completedLinkedFileIds.has(file.id);
+    });
+  }, [task.files, task.subtasks]);
 
 
   return (
@@ -275,10 +311,10 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         <Separator />
         <div className="space-y-4">
           <h4 className="font-semibold text-base md:text-lg">{t('task.attachments')}</h4>
-          {task.files && task.files.length > 0 ? (
+          {visibleFiles && visibleFiles.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {task.files.map((file) => (
-                <Card key={file.id} className="overflow-hidden rounded-xl">
+              {visibleFiles.map((file) => (
+                <Card key={file.id} className="overflow-hidden rounded-xl group">
                   <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
                     {file.type === 'image' || file.type === 'illustration' ? (
                        <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
@@ -287,16 +323,26 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                     )}
                   </a>
                   <div className="p-3">
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-start gap-2">
                       <div>
                         <p className="text-sm font-medium truncate">{file.name}</p>
                         <p className="text-xs text-muted-foreground">{file.size}</p>
                       </div>
-                      <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
-                        <a href={file.url} download={file.name}>
-                          <Download className="h-4 w-4" />
-                        </a>
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
+                          <a href={file.url} download={file.name}>
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
+                          className="h-8 w-8 transition-all active:scale-95"
+                          onClick={() => handleDeleteFile(file.id, file.name)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </Card>
@@ -310,5 +356,3 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </Card>
   );
 }
-
-    

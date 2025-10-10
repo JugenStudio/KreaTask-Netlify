@@ -44,7 +44,7 @@
     "no_notifications": "Tidak ada notifikasi baru",
     "unread_count": "{{count}} belum dibaca",
     "profile": "Profil",
-    "settings": "Pengaturan",
+settings": "Pengaturan",
     "logout": "Keluar"
   },
   "profile": {
@@ -93,6 +93,13 @@
           "success_title": "File Terunggah",
           "success_desc": "{{count}} file telah ditambahkan ke pengiriman Anda."
         }
+      }
+    },
+    "attachments": {
+      "delete_confirm_message": "Apakah Anda yakin ingin menghapus file \"{{fileName}}\"?",
+      "delete_toast": {
+        "success_title": "File Dihapus",
+        "success_desc": "\"{{fileName}}\" telah dihapus dari tugas ini."
       }
     }
   },
