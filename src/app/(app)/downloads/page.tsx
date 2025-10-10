@@ -37,6 +37,21 @@ type DownloadItem = {
   progress: number;
 };
 
+const getNotifiedDownloads = (): Set<number> => {
+    if (typeof window === 'undefined') {
+        return new Set();
+    }
+    const stored = localStorage.getItem('kreatask_notified_downloads');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+};
+
+const addNotifiedDownload = (id: number) => {
+    const notified = getNotifiedDownloads();
+    notified.add(id);
+    localStorage.setItem('kreatask_notified_downloads', JSON.stringify(Array.from(notified)));
+};
+
+
 const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') => {
   return downloads.reduce((acc, download) => {
     const downloadDate = new Date(download.date);
@@ -66,18 +81,6 @@ export default function DownloadsPage() {
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
-  
-  // Use a ref to keep track of notified items across renders without causing re-renders
-  const notifiedDownloadsRef = useRef<Set<number>>(new Set());
-
-  // Populate the notified set on initial load for items already completed
-  useEffect(() => {
-    downloadHistory.forEach(item => {
-      if (item.status === 'Completed') {
-        notifiedDownloadsRef.current.add(item.id);
-      }
-    });
-  }, []); // Empty dependency array means this runs only once on mount
 
   useEffect(() => {
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
@@ -111,9 +114,9 @@ export default function DownloadsPage() {
   useEffect(() => {
     if (!currentUser) return;
     
-    // Find downloads that just completed and haven't been notified yet
+    const notifiedDownloads = getNotifiedDownloads();
     const newlyCompleted = downloadHistory.filter(
-      (item) => item.status === 'Completed' && !notifiedDownloadsRef.current.has(item.id)
+      (item) => item.status === 'Completed' && !notifiedDownloads.has(item.id)
     );
 
     newlyCompleted.forEach(item => {
@@ -130,8 +133,8 @@ export default function DownloadsPage() {
             read: false,
             createdAt: new Date().toISOString(),
         });
-        // Add to the ref to prevent future notifications for this item
-        notifiedDownloadsRef.current.add(item.id);
+        // Add to persistent storage
+        addNotifiedDownload(item.id);
     });
 
   }, [downloadHistory, currentUser, t, toast, addNotification]);
@@ -167,8 +170,6 @@ export default function DownloadsPage() {
   };
   
   const handleRedownload = (item: DownloadItem) => {
-    // Also remove from notified ref so it can notify again on completion
-    notifiedDownloadsRef.current.delete(item.id);
     setDownloadHistory(
       downloadHistory.map(d =>
         d.id === item.id
