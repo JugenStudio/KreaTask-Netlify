@@ -22,6 +22,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,6 +48,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getTranslations } from "@/app/actions";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Image from 'next/image';
+import { Checkbox } from "../ui/checkbox";
 
 const subtaskSchema = z.object({
   id: z.string().optional(),
@@ -306,5 +308,3 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     </Dialog>
   );
 }
-
-    
