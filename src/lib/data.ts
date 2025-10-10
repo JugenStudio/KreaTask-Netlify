@@ -69,8 +69,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-1-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB', note: "Initial draft with the blue theme." },
-      { id: 'file-1-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB' },
+      { id: 'file-1-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=600', size: '1.2 MB', note: "Initial draft with the blue theme." },
+      { id: 'file-1-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '850 KB' },
     ],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
@@ -129,7 +129,7 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-       { id: 'file-3-1', name: 'Tech_Trends_Article_Draft.docx', type: 'document', url: 'https://picsum.photos/seed/article/600/400', size: '256 KB', note: 'Final Draft submitted' },
+       { id: 'file-3-1', name: 'Tech_Trends_Article_Draft.docx', type: 'document', url: 'https://file-examples.com/storage/fe52cb0c4862dc67d7da9a3/2017/02/file-sample_100kB.docx', size: '100 KB', note: 'Final Draft submitted' },
     ],
     subtasks: [],
   },
@@ -164,7 +164,7 @@ const allTasks: Task[] = [
         }
     ], 
     files: [
-        { id: 'file-15-1', name: 'Workflow_Analysis_Q4.pdf', type: 'document', url: 'https://picsum.photos/seed/workflow/600/400', size: '3.1 MB', note: 'Q4 operational workflow analysis.' },
+        { id: 'file-15-1', name: 'Workflow_Analysis_Q4.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '21 KB', note: 'Q4 operational workflow analysis.' },
     ],
     subtasks: [],
   },
@@ -233,7 +233,7 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-6-1', name: 'Social_Media_Plan.xlsx', type: 'document', url: 'https://picsum.photos/seed/socmed/600/400', size: '45 KB', note: 'Monthly content calendar' },
+      { id: 'file-6-1', name: 'Social_Media_Plan.xlsx', type: 'document', url: 'https://go.microsoft.com/fwlink/?LinkID=521962', size: '12 KB', note: 'Monthly content calendar' },
     ],
     subtasks: [],
   },
@@ -308,7 +308,7 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-8-1', name: 'Infographic_Final.png', type: 'image', url: 'https://picsum.photos/seed/infograph/600/400', size: '980 KB' },
+      { id: 'file-8-1', name: 'Infographic_Final.png', type: 'image', url: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=600', size: '980 KB' },
     ],
     subtasks: [],
   },
@@ -442,8 +442,8 @@ const allTasks: Task[] = [
         }
     ], 
     files: [
-      { id: 'file-12-1', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB', note: 'First concept, more corporate style.' },
-      { id: 'file-12-2', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
+      { id: 'file-12-1', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162617213-6ddef1e2ca3b?q=80&w=600', size: '2.5 MB', note: 'First concept, more corporate style.' },
+      { id: 'file-12-2', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://images.unsplash.com/photo-1611162616475-46b635cb6868?q=80&w=600', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
     ],
     subtasks: [],
   },
@@ -545,8 +545,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-4-1', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB', note: 'Final approved script.' },
-      { id: 'file-4-2', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB', note: 'Storyboard visuals for client review.' },
+      { id: 'file-4-1', name: 'Script_Final_v2.docx', type: 'document', url: 'https://file-examples.com/storage/fe52cb0c4862dc67d7da9a3/2017/02/file-sample_100kB.docx', size: '100 KB', note: 'Final approved script.' },
+      { id: 'file-4-2', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', size: '21 KB', note: 'Storyboard visuals for client review.' },
     ],
     subtasks: [
       { id: 'sub-4-1', title: 'Finalize script', isCompleted: true },
@@ -746,3 +746,4 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
 
 
     
+
