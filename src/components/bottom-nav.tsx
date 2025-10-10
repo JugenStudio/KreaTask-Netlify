@@ -18,7 +18,7 @@ export function BottomNav() {
     { href: "/submit", icon: PenSquare, label: "Submit" }, // Shortened label
     { href: "/dashboard", icon: Home, label: t('sidebar.home') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
-    { href: "/performance-report", icon: FileText, label: t('sidebar.performance_report') },
+    { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
   ];
 
   return (
@@ -63,7 +63,7 @@ export function BottomNav() {
             >
               <div className={cn(
                 "flex flex-col items-center justify-center gap-1 w-16 h-8 rounded-full transition-colors",
-                isActive ? "bg-primary text-primary-foreground" : "group-hover:bg-muted"
+                 isActive ? "bg-primary text-primary-foreground" : "group-hover:bg-muted"
               )}>
                 <item.icon className="h-5 w-5" />
               </div>
