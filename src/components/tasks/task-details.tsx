@@ -24,7 +24,6 @@ import {
   Film,
   Image as ImageIcon,
   Palette,
-  Check,
   ListChecks,
   Send,
   UploadCloud,
@@ -252,7 +251,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         <Separator />
         <div className="space-y-4">
           <h4 className="font-semibold text-base md:text-lg">{t('task.attachments')}</h4>
-          {task.files.length > 0 ? (
+          {task.files && task.files.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {task.files.map((file) => (
                 <Card key={file.id} className="overflow-hidden rounded-xl">
@@ -260,7 +259,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                     {file.type === 'image' || file.type === 'illustration' ? (
                        <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
                     ) : (
-                      fileTypeIcons[file.type]
+                      fileTypeIcons[file.type as keyof typeof fileTypeIcons]
                     )}
                   </a>
                   <div className="p-3">

@@ -575,5 +575,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    
