@@ -49,6 +49,7 @@ import { getTranslations } from "@/app/actions";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Image from 'next/image';
 import { Checkbox } from "../ui/checkbox";
+import { isEmployee } from "@/lib/roles";
 
 const subtaskSchema = z.object({
   id: z.string().optional(),
@@ -172,6 +173,8 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     }
   }
 
+  const canAssignTasks = currentUser && !isEmployee(currentUser.role);
+
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
@@ -192,7 +195,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
                 </FormItem>
               )}
             />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className={cn("grid grid-cols-1 md:gap-4", canAssignTasks ? "md:grid-cols-2" : "md:grid-cols-1")}>
               <FormField
                 control={form.control}
                 name="dueDate"
@@ -217,33 +220,35 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="assignees"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
-                    <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]}>
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {assignableUsers.map(user => (
-                          <SelectItem key={user.id} value={user.id}>
-                             <div className="flex items-center gap-2">
-                                <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
-                                <span>{user.name}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              {canAssignTasks && (
+                <FormField
+                  control={form.control}
+                  name="assignees"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
+                      <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {assignableUsers.map(user => (
+                            <SelectItem key={user.id} value={user.id}>
+                              <div className="flex items-center gap-2">
+                                  <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
+                                  <span>{user.name}</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
             </div>
              <FormField
                 control={form.control}
