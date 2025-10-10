@@ -71,7 +71,6 @@
     "attachments": {
       "title": "Lampiran",
       "no_attachments": "Tidak ada file terlampir.",
-      "delete_confirm_message": "Apakah Anda yakin ingin menghapus file \"{{fileName}}\"?",
       "delete_toast": {
         "success_title": "File Dihapus",
         "success_desc": "File \"{{fileName}}\" telah dihapus dari tugas ini."
@@ -81,6 +80,14 @@
         "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus file \"{{fileName}}\" secara permanen.",
         "cancel_button": "Batal",
         "confirm_button": "Hapus"
+      },
+      "upload_card": {
+        "title": "Tambah Lampiran",
+        "description": "Klik atau seret file"
+      },
+      "upload_toast": {
+        "success_title": "File Ditambahkan",
+        "success_desc": "{{count}} file baru telah dilampirkan pada tugas."
       }
     },
     "tabs": {

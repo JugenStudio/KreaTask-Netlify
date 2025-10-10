@@ -71,7 +71,6 @@
     "attachments": {
       "title": "Attachments",
       "no_attachments": "No files attached.",
-      "delete_confirm_message": "Are you sure you want to delete the file \"{{fileName}}\"?",
       "delete_toast": {
         "success_title": "File Deleted",
         "success_desc": "\"{{fileName}}\" has been removed from this task."
@@ -81,6 +80,14 @@
         "description": "This action cannot be undone. This will permanently delete the file \"{{fileName}}\".",
         "cancel_button": "Cancel",
         "confirm_button": "Delete"
+      },
+      "upload_card": {
+        "title": "Add Attachment",
+        "description": "Click or drag file here"
+      },
+      "upload_toast": {
+        "success_title": "Files Added",
+        "success_desc": "{{count}} new file(s) have been attached to the task."
       }
     },
     "tabs": {

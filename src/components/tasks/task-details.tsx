@@ -30,6 +30,7 @@ import {
   X,
   Paperclip,
   Trash2,
+  PlusCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
@@ -107,6 +108,10 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     onUpdateTask(task.id, { subtasks: updatedSubtasks });
   };
   
+  const handleDeleteFileClick = (file: FileType) => {
+    setFileToDelete(file);
+  };
+  
   const confirmDeleteFile = () => {
     if (!fileToDelete) return;
 
@@ -124,6 +129,44 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
 
     setFileToDelete(null); // Close the dialog
   };
+
+  const handleAddNewFiles = (newFiles: File[]) => {
+    const fileObjects: FileType[] = newFiles.map((file, index) => ({
+      id: `file-${task.id}-${Date.now() + index}`,
+      name: file.name,
+      size: `${(file.size / 1024).toFixed(1)} KB`,
+      url: URL.createObjectURL(file), // Create a temporary URL for preview
+      type: file.type.startsWith('image') ? 'image' : 'document',
+    }));
+
+    const updatedFiles = [...(task.files || []), ...fileObjects];
+    const updatedTask = { ...task, files: updatedFiles };
+    
+    setTask(updatedTask);
+    onUpdateTask(task.id, { files: updatedFiles });
+    
+    toast({
+      title: t('task.attachments.upload_toast.success_title'),
+      description: t('task.attachments.upload_toast.success_desc', { count: newFiles.length.toString() }),
+    });
+  };
+
+  const handleFileDrop = (event: React.DragEvent<HTMLLabelElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+      handleAddNewFiles(Array.from(event.dataTransfer.files));
+      event.dataTransfer.clearData();
+    }
+  };
+
+  const handleFileUploadChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      handleAddNewFiles(Array.from(event.target.files));
+      event.target.value = ''; // Reset input to allow re-uploading the same file
+    }
+  };
+
 
   const handleSubmitForReview = () => {
     const updatedTask = { ...task, status: "In Review" as TaskStatus };
@@ -147,7 +190,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     });
   };
 
-  function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+  function handleSubmissionFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
       const newFiles = Array.from(event.target.files).map(file => 
         Object.assign(file, {
@@ -162,7 +205,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     }
   }
 
-  function removeFile(fileName: string) {
+  function removeSubmissionFile(fileName: string) {
     setSubmissionFiles(prev => {
         const fileToRemove = prev.find(f => f.name === fileName);
         if (fileToRemove) {
@@ -188,7 +231,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         .map(st => st.linkedFileId)
     );
   
-    // Include files that are not linked to any subtask, OR are linked to a completed subtask.
     return task.files.filter(file => {
       const isLinkedToAnySubtask = task.subtasks?.some(st => st.linkedFileId === file.id);
       
@@ -234,7 +276,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                                   <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
                                   <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
                               </div>
-                              <input id="submission-file-upload" type="file" className="hidden" multiple onChange={handleFileChange} />
+                              <input id="submission-file-upload" type="file" className="hidden" multiple onChange={handleSubmissionFileChange} />
                           </label>
                       </div>
                       {submissionFiles.length > 0 && (
@@ -243,7 +285,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                                   <div key={file.name} className="relative group rounded-xl bg-background p-2">
                                       <Image src={file.preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
                                       <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                                          <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
+                                          <Button variant="destructive" size="icon" onClick={() => removeSubmissionFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
                                               <X className="h-4 w-4" />
                                           </Button>
                                       </div>
@@ -323,46 +365,60 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
           <Separator />
           <div className="space-y-4">
             <h4 className="font-semibold text-base md:text-lg">{t('task.attachments.title')}</h4>
-            {visibleFiles && visibleFiles.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {visibleFiles.map((file) => (
-                  <Card key={file.id} className="overflow-hidden rounded-xl group">
-                    <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
-                      {file.type === 'image' || file.type === 'illustration' ? (
-                         <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
-                      ) : (
-                        fileTypeIcons[file.type as keyof typeof fileTypeIcons]
-                      )}
-                    </a>
-                    <div className="p-3">
-                      <div className="flex justify-between items-start gap-2">
-                        <div>
-                          <p className="text-sm font-medium truncate">{file.name}</p>
-                          <p className="text-xs text-muted-foreground">{file.size}</p>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
-                            <a href={file.url} download={file.name}>
-                              <Download className="h-4 w-4" />
-                            </a>
-                          </Button>
-                          <Button 
-                            variant="destructive" 
-                            size="icon" 
-                            className="h-8 w-8 transition-all active:scale-95"
-                            onClick={() => setFileToDelete(file)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {visibleFiles && visibleFiles.map((file) => (
+                <Card key={file.id} className="overflow-hidden rounded-xl group">
+                  <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
+                    {file.type === 'image' || file.type === 'illustration' ? (
+                        <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
+                    ) : (
+                      fileTypeIcons[file.type as keyof typeof fileTypeIcons]
+                    )}
+                  </a>
+                  <div className="p-3">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <p className="text-sm font-medium truncate">{file.name}</p>
+                        <p className="text-xs text-muted-foreground">{file.size}</p>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
+                          <a href={file.url} download={file.name}>
+                            <Download className="h-4 w-4" />
+                          </a>
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="icon" 
+                          className="h-8 w-8 transition-all active:scale-95"
+                          onClick={() => handleDeleteFileClick(file)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-            ) : (
-              <p className="text-sm text-muted-foreground">{t('task.attachments.no_attachments')}</p>
-            )}
+                  </div>
+                </Card>
+              ))}
+              {/* Upload Card */}
+              <label 
+                htmlFor="attachment-upload-input"
+                className="flex flex-col items-center justify-center aspect-[16/9] w-full border-2 border-dashed rounded-xl bg-secondary/30 text-muted-foreground hover:bg-muted hover:border-primary hover:text-primary transition-colors cursor-pointer"
+                onDrop={handleFileDrop}
+                onDragOver={(e) => e.preventDefault()}
+              >
+                  <PlusCircle className="h-8 w-8 mb-2" />
+                  <span className="text-sm font-semibold">{t('task.attachments.upload_card.title')}</span>
+                  <span className="text-xs">{t('task.attachments.upload_card.description')}</span>
+              </label>
+              <input 
+                id="attachment-upload-input" 
+                type="file" 
+                className="hidden" 
+                multiple
+                onChange={handleFileUploadChange}
+              />
+            </div>
           </div>
         </CardContent>
       </Card>
