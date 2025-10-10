@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useMemo, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Download, FileText, HardDriveDownload, Search, X, Trash2, Folder, CheckCircle } from "lucide-react";
+import { Download, FileText, HardDriveDownload, Search, X, Trash2, Folder, CheckCircle, ArrowLeft } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { format, isToday, isYesterday } from "date-fns";
 import { id } from "date-fns/locale";
+import Link from "next/link";
 
 const initialDownloadHistory = [
     { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
@@ -160,6 +161,12 @@ export default function DownloadsPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
+       <Button variant="outline" size="sm" asChild className="mb-4 w-fit transition-all active:scale-95">
+        <Link href="/dashboard">
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          {t('common.back_to_home')}
+        </Link>
+      </Button>
       <div className="flex flex-col md:flex-row justify-between items-center gap-4">
         <div className="w-full">
           <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3">
