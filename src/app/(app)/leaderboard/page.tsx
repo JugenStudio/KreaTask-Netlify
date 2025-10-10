@@ -77,6 +77,7 @@ export default function LeaderboardPage() {
           title={t('leaderboard.total_tasks_completed')}
           value={totalTasks}
           icon={BookOpen}
+          href="/tasks"
         />
         <StatsCard title={t('leaderboard.average_score')} value={avgScore} icon={Trophy} />
       </div>
