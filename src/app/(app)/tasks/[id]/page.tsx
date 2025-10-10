@@ -31,13 +31,6 @@ export default function TaskDetailPage() {
   
   const { t } = useLanguage();
 
-  const handleAddComment = useCallback((newComment: CommentType) => {
-    if (task) {
-      const updatedComments = [...task.comments, newComment];
-      updateTask(task.id, { comments: updatedComments });
-    }
-  }, [task, updateTask]);
-  
   const handleUpdateComments = useCallback((updatedComments: CommentType[]) => {
     if (task) {
         updateTask(task.id, { comments: updatedComments });
@@ -85,7 +78,6 @@ export default function TaskDetailPage() {
                     taskId={task.id}
                     comments={task.comments} 
                     currentUser={currentUser} 
-                    onAddComment={handleAddComment}
                     onUpdateComments={handleUpdateComments}
                 />
             </TabsContent>

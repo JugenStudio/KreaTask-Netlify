@@ -24,7 +24,6 @@ interface CommentSectionProps {
   taskId: string;
   comments: CommentType[];
   currentUser: User;
-  onAddComment: (comment: CommentType) => void;
   onUpdateComments: (comments: CommentType[]) => void;
 }
 
@@ -53,7 +52,7 @@ function SummarizeButton() {
   );
 }
 
-export function CommentSection({ taskId, comments, currentUser, onAddComment, onUpdateComments }: CommentSectionProps) {
+export function CommentSection({ taskId, comments, currentUser, onUpdateComments }: CommentSectionProps) {
   const [localComments, setLocalComments] = useState<CommentType[]>(comments);
   const [newComment, setNewComment] = useState("");
   const [isPosting, setIsPosting] = useState(false);
@@ -83,8 +82,8 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
     };
     
     const updatedComments = [...localComments, comment];
-    setLocalComments(updatedComments);
-    onUpdateComments(updatedComments);
+    setLocalComments(updatedComments); // Update UI locally
+    onUpdateComments(updatedComments); // Propagate change to parent
     
     setNewComment("");
     setIsPosting(false);
@@ -229,7 +228,7 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
                     </div>
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm text-muted-foreground whitespace-pre-wrap">
                   {comment.content[locale]}
                 </p>
               )}
@@ -246,7 +245,5 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
     </div>
   );
 }
-
-    
 
     
