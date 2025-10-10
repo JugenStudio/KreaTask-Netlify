@@ -13,12 +13,12 @@ import { useTaskData } from "@/hooks/use-task-data";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { Skeleton } from "@/components/ui/skeleton";
 
-// Mock data for download history with progress
+// Mock data for download history. All items are initially completed or failed.
 const initialDownloadHistory = [
     { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: "2024-09-22", size: "1.2 MB", status: "Completed", progress: 100 },
     { id: 2, fileName: "Brand_Guidelines.pdf", taskName: "Desain Banner Promosi", date: "2024-09-22", size: "850 KB", status: "Completed", progress: 100 },
     { id: 3, fileName: "Script_Final_v2.docx", taskName: "Produksi Video Presentasi", date: "2024-09-21", size: "128 KB", status: "Completed", progress: 100 },
-    { id: 4, fileName: "Campaign_Concept_B.jpg", taskName: "Desain visual kampanye", date: "2024-09-20", size: "2.8 MB", status: "In Progress", progress: 0 },
+    { id: 4, fileName: "Campaign_Concept_B.jpg", taskName: "Desain visual kampanye", date: "2024-09-20", size: "2.8 MB", status: "Completed", progress: 100 },
     { id: 5, fileName: "Annual_Report_Q3.pdf", taskName: "Laporan Keuangan Kuartal 3", date: "2024-09-19", size: "5.4 MB", status: "Failed", progress: 0 },
 ];
 
@@ -32,6 +32,24 @@ export default function DownloadsPage() {
   const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>(initialDownloadHistory);
 
   useEffect(() => {
+    // One-time simulation trigger to demonstrate the progress bar.
+    // This will not re-run on every refresh.
+    const simulationTimeout = setTimeout(() => {
+      // Find an item to simulate downloading
+      const itemToDownload = downloadHistory.find(item => item.id === 4);
+      if (itemToDownload && itemToDownload.status === 'Completed') {
+        // Reset its state and start the download simulation
+        setDownloadHistory(prev => 
+          prev.map(item => item.id === 4 ? { ...item, status: 'In Progress', progress: 0 } : item)
+        );
+      }
+    }, 1000); // Start simulation 1 second after page load
+
+    return () => clearTimeout(simulationTimeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures this runs only once on mount.
+
+  useEffect(() => {
     if (!currentUser) return;
 
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
@@ -39,7 +57,7 @@ export default function DownloadsPage() {
     if (itemInProgress) {
         const interval = setInterval(() => {
             setDownloadHistory(prevHistory => {
-                return prevHistory.map(item => {
+                const updatedHistory = prevHistory.map(item => {
                     if (item.id === itemInProgress.id) {
                         const newProgress = Math.min(item.progress + 20, 100);
                         if (newProgress >= 100) {
@@ -62,6 +80,11 @@ export default function DownloadsPage() {
                     }
                     return item;
                 });
+                // Check if the item in progress still exists, otherwise clear interval
+                if (!updatedHistory.some(i => i.status === 'In Progress')) {
+                  clearInterval(interval);
+                }
+                return updatedHistory;
             });
         }, 500);
 
