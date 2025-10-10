@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect, useActionState } from "react";
@@ -81,10 +82,9 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment, on
       content: translationResult.data!,
     };
     
-    // This calls the parent hook to update the global state + localStorage
-    onAddComment(comment);
+    const updatedComments = [...localComments, comment];
+    onUpdateComments(updatedComments);
     
-    // We don't need to update local state here anymore because useEffect will sync it
     setNewComment("");
     setIsPosting(false);
   };
