@@ -62,12 +62,12 @@ const allTasks: Task[] = [
     ], 
     files: [
       { id: 'file-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB' },
-      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: '#', size: '850 KB' },
+      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB' },
     ],
     subtasks: [
-      { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
-      { id: 'sub-1-2', title: 'Create initial draft', isCompleted: true },
-      { id: 'sub-1-3', title: 'Finalize design', isCompleted: true },
+      { id: 'sub-1-1', title: 'Gather assets', isCompleted: true, linkedFileId: null },
+      { id: 'sub-1-2', title: 'Create initial draft', isCompleted: true, linkedFileId: 'file-1' },
+      { id: 'sub-1-3', title: 'Finalize design', isCompleted: true, linkedFileId: null },
     ],
   },
   {
@@ -500,14 +500,14 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: '#', size: '128 KB' },
-      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: '#', size: '2.1 MB' },
+      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB' },
+      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB' },
     ],
     subtasks: [
       { 
         id: 'sub-4-1', 
         title: 'Write script', 
-        isCompleted: false, // Set to false initially
+        isCompleted: false, 
         linkedFileId: 'file-3' 
       },
       { 
