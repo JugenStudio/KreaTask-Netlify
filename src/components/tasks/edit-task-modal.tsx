@@ -81,6 +81,8 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const assignableUsers = useMemo(() => users, [users]);
+  
+  const canAssignTasks = currentUser && !isEmployee(currentUser.role);
 
   const form = useForm<EditTaskFormValues>({
     resolver: zodResolver(editTaskFormSchema),
@@ -144,7 +146,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         title: titleTranslations,
         description: descriptionTranslations,
         dueDate: format(values.dueDate, 'yyyy-MM-dd'),
-        assignees: assignedUser ? [assignedUser] : [],
+        assignees: assignedUser ? [assignedUser] : task.assignees,
         category: values.category,
         subtasks: updatedSubtasks,
         revisions: [...task.revisions, newRevision],
@@ -173,11 +175,9 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     }
   }
 
-  const canAssignTasks = currentUser && !isEmployee(currentUser.role);
-
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-lg max-h-[90vh] overflow-y-auto rounded-lg">
         <DialogHeader>
           <DialogTitle className="font-headline text-2xl">{t('task.edit_modal.title')}</DialogTitle>
           <DialogDescription>{t('task.edit_modal.description')}</DialogDescription>
@@ -313,3 +313,5 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     </Dialog>
   );
 }
+
+    
