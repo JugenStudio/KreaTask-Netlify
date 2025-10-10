@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Home, ListTodo, PenSquare, Trophy, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
+import Image from "next/image";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -39,7 +40,7 @@ export function BottomNav() {
                   "flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 transform -translate-y-4 shadow-lg",
                   isActive ? "bg-primary text-primary-foreground" : "bg-card border-4 border-background text-foreground group-hover:bg-muted"
                 )}>
-                  <item.icon className="h-6 w-6" />
+                  <Image src="/sounds/logo2.png" alt="Beranda" width={32} height={32} className="filter invert brightness-0" />
                 </div>
                 <span className={cn(
                   "text-xs font-medium -mt-3 w-full text-center truncate",
