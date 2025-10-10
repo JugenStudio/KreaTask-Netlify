@@ -56,6 +56,11 @@ const fileTypeIcons = {
   document: <FileIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
 };
 
+// Define a new type that extends the base File type to include a preview property.
+interface FileWithPreview extends File {
+  preview: string;
+}
+
 interface TaskDetailsProps {
     task: Task;
     onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
@@ -66,12 +71,22 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const [task, setTask] = useState(initialTask);
-  const [submissionFiles, setSubmissionFiles] = useState<File[]>([]);
+  const [submissionFiles, setSubmissionFiles] = useState<FileWithPreview[]>([]);
   const { currentUser } = useCurrentUser();
 
   useEffect(() => {
     setTask(initialTask);
   }, [initialTask]);
+
+  // Cleanup effect to revoke object URLs and prevent memory leaks.
+  useEffect(() => {
+    // This function will run when the component unmounts.
+    return () => {
+        submissionFiles.forEach(file => {
+            URL.revokeObjectURL(file.preview);
+        });
+    };
+  }, [submissionFiles]);
 
   const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
     const updatedSubtasks = task.subtasks?.map(st => 
@@ -108,13 +123,12 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
 
   function handleFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     if (event.target.files) {
-      const newFiles = Array.from(event.target.files).map(file => {
-        const fileWithPreview = Object.assign(file, {
+      const newFiles = Array.from(event.target.files).map(file => 
+        Object.assign(file, {
           preview: URL.createObjectURL(file),
-        });
-        return fileWithPreview;
-      });
-      setSubmissionFiles(prev => [...prev, ...newFiles as any[]]);
+        })
+      );
+      setSubmissionFiles(prev => [...prev, ...newFiles]);
       toast({
         title: t('task.submit.upload.toast.success_title'),
         description: t('task.submit.upload.toast.success_desc', { count: newFiles.length.toString() })
@@ -123,7 +137,13 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   }
 
   function removeFile(fileName: string) {
-    setSubmissionFiles(prev => prev.filter(file => file.name !== fileName));
+    setSubmissionFiles(prev => {
+        const fileToRemove = prev.find(f => f.name === fileName);
+        if (fileToRemove) {
+            URL.revokeObjectURL(fileToRemove.preview);
+        }
+        return prev.filter(file => file.name !== fileName);
+    });
   }
   
   const completedSubtasks = task.subtasks?.filter(st => st.isCompleted).length || 0;
@@ -173,7 +193,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             {submissionFiles.map(file => (
                                 <div key={file.name} className="relative group rounded-xl bg-background p-2">
-                                    <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
+                                    <Image src={file.preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
                                     <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
                                         <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95 h-8 w-8">
                                             <X className="h-4 w-4" />
@@ -230,16 +250,16 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <h4 className="font-semibold">{t('task.assignees')}</h4>
-            <div className="flex items-center space-x-2">
-              {task.assignees.map((user) => (
-                <Avatar key={user.id} className="h-8 w-8">
-                  <AvatarImage src={user.avatarUrl} alt={user.name} />
-                  <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-              ))}
-              <div>
-                {task.assignees.map(user => <p key={user.id} className="text-sm font-medium">{user.name}</p>)}
-              </div>
+            <div className="flex flex-col space-y-2">
+                {task.assignees.map((user) => (
+                    <div key={user.id} className="flex items-center space-x-2">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={user.avatarUrl} alt={user.name} />
+                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <p className="text-sm font-medium">{user.name}</p>
+                    </div>
+                ))}
             </div>
           </div>
           <div className="space-y-2">
