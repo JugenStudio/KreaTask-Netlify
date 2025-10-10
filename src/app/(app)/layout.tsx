@@ -35,11 +35,7 @@ const UserContext = createContext<{ currentUser: User | null }>({
   currentUser: null,
 });
 
-export default function AppLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   const { 
@@ -188,14 +184,13 @@ export default function AppLayout({
   }, [isTaskDataLoading, users]);
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
-      return <LanguageProvider><>{children}</></LanguageProvider>
+      return <>{children}</>
   }
   
   const isLoading = isUserLoading || isTaskDataLoading;
 
   if (isLoading) {
     return (
-      <LanguageProvider>
         <div className="flex min-h-screen w-full bg-background">
            {!isMobile && (
              <div className="w-64 flex-col border-r border-border bg-card p-4">
@@ -220,12 +215,10 @@ export default function AppLayout({
             </main>
           </div>
         </div>
-      </LanguageProvider>
     )
   }
 
   return (
-    <LanguageProvider>
       <UserContext.Provider value={{ currentUser }}>
         <div className={cn("min-h-screen w-full bg-background")}>
           <div className="flex min-h-screen w-full">
@@ -250,6 +243,18 @@ export default function AppLayout({
           {isMobile && currentUser && <BottomNav />}
         </div>
       </UserContext.Provider>
+  );
+}
+
+export default function AppLayout({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
+    return <LanguageProvider>{children}</LanguageProvider>;
+  }
+  
+  return (
+    <LanguageProvider>
+      <AppLayoutContent>{children}</AppLayoutContent>
     </LanguageProvider>
   );
 }
