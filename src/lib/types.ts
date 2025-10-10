@@ -74,7 +74,7 @@ export interface Task {
   revisions: Revision[];
   comments: Comment[];
   files: File[];
-  subtasks?: Subtask[];
+  subtasks: Subtask[];
   createdAt: string;
   category: TaskCategory; // Priority: low, medium, high
   
