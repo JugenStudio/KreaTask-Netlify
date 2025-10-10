@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Home, ListTodo, PenSquare, Trophy, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
-import Image from "next/image";
+import { KreaTaskLogoIcon } from "@/components/icons/kreatask-logo-icon";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -15,7 +15,7 @@ export function BottomNav() {
   const navItems = [
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
-    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
+    { href: "/dashboard", icon: KreaTaskLogoIcon, label: t('sidebar.home') },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
   ];
