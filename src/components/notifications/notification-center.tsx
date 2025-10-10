@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Bell, BellOff, Check } from "lucide-react";
+import { Bell, BellOff, Check, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useTaskData } from "@/hooks/use-task-data";
@@ -78,6 +78,14 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
     );
     setNotifications(updatedNotifications);
   };
+  
+  const clearAllNotifications = () => {
+    const updatedNotifications = notifications.filter(
+      (n) => n.userId !== currentUser?.id
+    );
+    setNotifications(updatedNotifications);
+    setIsOpen(false);
+  };
 
   const handleNotificationClick = (notif: Notification) => {
     const updatedNotifications = notifications.map((n) => 
@@ -124,6 +132,15 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
               </Button>
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={markAllAsRead} disabled={unreadCount === 0}>
                 <Check className="h-4 w-4" />
+              </Button>
+               <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 text-destructive hover:text-destructive"
+                onClick={clearAllNotifications}
+                disabled={userNotifications.length === 0}
+              >
+                <Trash2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
