@@ -61,7 +61,6 @@ export interface Subtask {
   id: string;
   title: string;
   isCompleted: boolean;
-  linkedFileId?: string | null;
 }
 
 export type Evaluator = "AI" | "Direktur Operasional" | "Direktur Bisnis" | "Direktur Utama";
@@ -134,3 +133,5 @@ export interface Notification {
   taskId?: string;      // ID tugas jika terkait
   createdAt: string;
 }
+
+    

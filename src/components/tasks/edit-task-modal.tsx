@@ -52,7 +52,7 @@ import { Checkbox } from "../ui/checkbox";
 import { isEmployee } from "@/lib/roles";
 
 const subtaskSchema = z.object({
-  id: z.string().optional(),
+  id: z.string(),
   title: z.string().min(1, "Subtask title cannot be empty."),
   isCompleted: z.boolean(),
 });
@@ -285,7 +285,14 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
               <div className="mt-2 space-y-2">
                 {fields.map((field, index) => (
                   <div key={field.id} className="flex items-center gap-2">
-                     <Checkbox checked={field.isCompleted} disabled className="opacity-50" />
+                     <Checkbox 
+                        id={`subtasks.${index}.isCompleted`}
+                        {...form.register(`subtasks.${index}.isCompleted`)}
+                        checked={field.isCompleted}
+                        onCheckedChange={(checked) => {
+                            form.setValue(`subtasks.${index}.isCompleted`, !!checked);
+                        }}
+                     />
                     <Input
                       {...form.register(`subtasks.${index}.title`)}
                       className="h-9"
@@ -293,7 +300,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
                     <Button type="button" variant="ghost" size="icon" onClick={() => remove(index)}><Trash2 className="h-4 w-4" /></Button>
                   </div>
                 ))}
-                 <Button type="button" variant="outline" size="sm" onClick={() => append({ title: "", isCompleted: false })}>
+                 <Button type="button" variant="outline" size="sm" onClick={() => append({ id: `new-${fields.length}`, title: "", isCompleted: false })}>
                   <Plus className="mr-2 h-4 w-4" />
                   {t('submit.manual_form.checklist_add_button')}
                 </Button>

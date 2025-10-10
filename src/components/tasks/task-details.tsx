@@ -527,3 +527,5 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     </>
   );
 }
+
+    

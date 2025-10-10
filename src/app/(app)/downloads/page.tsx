@@ -37,17 +37,16 @@ type DownloadItem = {
   progress: number;
 };
 
+// Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
-    if (typeof window === 'undefined') {
-        return new Set();
-    }
+    if (typeof window === 'undefined') return new Set();
     const stored = localStorage.getItem(`kreatask_notified_downloads_${userId}`);
     return stored ? new Set(JSON.parse(stored)) : new Set();
 };
 
-const addNotifiedDownload = (id: number, userId: string) => {
+const addNotifiedDownload = (downloadId: number, userId: string) => {
     const notified = getNotifiedDownloads(userId);
-    notified.add(id);
+    notified.add(downloadId);
     localStorage.setItem(`kreatask_notified_downloads_${userId}`, JSON.stringify(Array.from(notified)));
 };
 
@@ -81,54 +80,56 @@ export default function DownloadsPage() {
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
-  const notifiedDownloadsRef = useRef<Set<number>>(new Set());
 
   const createDownloadNotification = useCallback((item: DownloadItem) => {
-    if (!currentUser || !item) return;
+    if (!currentUser) return;
 
-    // Pastikan notifikasi hanya dibuat satu kali per item.id
-    if (!notifiedDownloadsRef.current.has(item.id)) {
+    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
+    const newNotifId = `notif-download-${currentUser.id}-${item.id}`;
+    const notifExistsInGlobalState = notifications.some(n => n.id === newNotifId);
+
+    // Only proceed if this download has not been notified before (check localStorage)
+    // and a notification for it doesn't already exist in the global state
+    if (!notifiedDownloads.has(item.id) && !notifExistsInGlobalState) {
         toast({
             title: t('downloads.toast.completed_title'),
             description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
             duration: 5000,
         });
 
-        const newNotifId = `notif-download-${currentUser.id}-${item.id}`;
-        const notifExists = notifications.some(n => n.id === newNotifId);
-
-        if (!notifExists) {
-          addNotification({
-              id: newNotifId,
-              userId: currentUser.id,
-              message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-              type: 'SYSTEM_UPDATE',
-              read: false,
-              createdAt: new Date().toISOString(),
-          });
-        }
+        addNotification({
+            id: newNotifId,
+            userId: currentUser.id,
+            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            type: 'SYSTEM_UPDATE',
+            read: false,
+            createdAt: new Date().toISOString(),
+        });
         
-        // Catat ID notifikasi yang sudah dibuat
-        notifiedDownloadsRef.current.add(item.id);
+        // Record that this download has been notified in localStorage
+        addNotifiedDownload(item.id, currentUser.id);
     }
   }, [addNotification, currentUser, notifications, t, toast]);
 
-  useEffect(() => {
-    const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
-    // Handle notifications for items that are already completed on initial load/refresh
+  useEffect(() => {
+    // On initial load/refresh, check any items that are already completed
+    // and create notifications if they haven't been created before.
     downloadHistory.forEach(item => {
         if (item.status === "Completed") {
             createDownloadNotification(item);
         }
     });
 
+    // Find an item that is currently in progress to simulate its completion
+    const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
+
     if (itemInProgress) {
         const interval = setInterval(() => {
+            let completedItem: DownloadItem | null = null;
             setDownloadHistory(prevHistory => {
-                let completedItem: DownloadItem | null = null;
                 const updatedHistory = prevHistory.map(item => {
-                    if (item.id === itemInProgress.id) {
+                    if (item.id === itemInProgress.id && item.status === "In Progress") {
                         const newProgress = Math.min(item.progress + 20, 100);
                         if (newProgress >= 100) {
                            const finishedItem = { ...item, status: "Completed" as const, progress: 100 };
@@ -139,7 +140,8 @@ export default function DownloadsPage() {
                     }
                     return item;
                 });
-
+                
+                // If an item was completed in this update, trigger its notification
                 if (completedItem) {
                     createDownloadNotification(completedItem);
                     clearInterval(interval);
@@ -165,6 +167,9 @@ export default function DownloadsPage() {
   
   const clearHistory = () => {
     setDownloadHistory([]);
+    if(currentUser) {
+       localStorage.removeItem(`kreatask_notified_downloads_${currentUser.id}`);
+    }
     toast({
         title: t('downloads.toast.cleared_title'),
         description: t('downloads.toast.cleared_desc'),
@@ -185,6 +190,17 @@ export default function DownloadsPage() {
   };
   
   const handleRedownload = (item: DownloadItem) => {
+    // Check if another download is already in progress
+    const isDownloading = downloadHistory.some(d => d.status === 'In Progress');
+    if (isDownloading) {
+        toast({
+            title: "Download in Progress",
+            description: "Please wait for the current download to finish before starting a new one.",
+            variant: "destructive",
+            duration: 3000
+        });
+        return;
+    }
     setDownloadHistory(
       downloadHistory.map(d =>
         d.id === item.id
@@ -311,3 +327,5 @@ export default function DownloadsPage() {
     </>
   );
 }
+
+    
