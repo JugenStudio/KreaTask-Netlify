@@ -58,22 +58,6 @@ export default function DownloadsPage() {
   const notifiedDownloadsRef = useRef<Set<number>>(new Set());
 
   useEffect(() => {
-    // Only run this simulation once on mount if desired.
-    const simulationTimeout = setTimeout(() => {
-        const itemToDownload = downloadHistory.find(item => item.id === 4);
-        // We check status to prevent re-triggering if already in progress from a previous state update.
-        if (itemToDownload && itemToDownload.status === 'Completed') {
-            setDownloadHistory(prev =>
-                prev.map(item => item.id === 4 ? { ...item, status: 'In Progress', progress: 0 } : item)
-            );
-        }
-    }, 1000);
-
-    return () => clearTimeout(simulationTimeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
     if (itemInProgress) {
@@ -151,6 +135,7 @@ export default function DownloadsPage() {
     toast({
         title: t('downloads.toast.cleared_title'),
         description: t('downloads.toast.cleared_desc'),
+        duration: 5000,
     });
   }
 
