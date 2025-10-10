@@ -260,7 +260,7 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
 
   const handleDownloadClick = (file: FileType) => {
     // 1. Add to download manager to simulate progress
-    addToDownloadHistory({ name: file.name, size: file.size }, task.title[locale]);
+    addToDownloadHistory({ name: file.name, size: file.size, url: file.url }, task.title[locale]);
 
     // 2. Programmatically trigger the actual download
     const link = document.createElement('a');

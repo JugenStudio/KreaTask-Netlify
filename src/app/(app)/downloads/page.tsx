@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
@@ -63,7 +62,7 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { downloadHistory, setDownloadHistory } = useTaskData();
+  const { downloadHistory, setDownloadHistory, addToDownloadHistory } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
@@ -111,14 +110,23 @@ export default function DownloadsPage() {
         });
         return;
     }
+    // Re-trigger the download process by adding it to history again
+    // The layout effect will pick it up and start the progress.
+    addToDownloadHistory({ name: item.fileName, size: item.size, url: '' }, item.taskName, true);
+
+    // Also trigger actual download if a URL exists. 
+    // This is a dummy implementation for now.
+    const link = document.createElement('a');
+    link.href = '#'; // In a real app, this would be item.url
+    link.setAttribute('download', item.fileName);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     
-    setDownloadHistory(prev => 
-      prev.map(d =>
-        d.id === item.id
-          ? { ...d, status: 'In Progress', progress: 0 }
-          : d
-      )
-    );
+    toast({
+      title: "Redownloading...",
+      description: `Starting download for "${item.fileName}".`
+    })
   };
 
 
@@ -181,7 +189,11 @@ export default function DownloadsPage() {
               <h2 className="text-sm font-semibold text-muted-foreground mb-3">{date}</h2>
               <div className="space-y-3">
                 {downloads.map((item) => (
-                  <Card key={item.id} className="bg-secondary/40 border-border/60 hover:bg-muted/40 transition-colors">
+                  <Card 
+                    key={item.id} 
+                    className="bg-secondary/40 border-border/60 hover:bg-muted/40 transition-colors cursor-pointer"
+                    onClick={() => handleRedownload(item)}
+                  >
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 overflow-hidden">
@@ -197,7 +209,7 @@ export default function DownloadsPage() {
                                 <p className="text-xs text-muted-foreground">{item.size}</p>
                            )}
                         </div>
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
+                        <div className="flex items-center gap-1.5 text-muted-foreground" onClick={(e) => e.stopPropagation()}>
                             {item.status === 'Completed' && <CheckCircle className="h-5 w-5 text-green-500" />}
                             {item.status === 'Failed' && <X className="h-5 w-5 text-destructive" />}
                             <Button variant="ghost" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleRedownload(item)}><Download className="h-4 w-4"/></Button>

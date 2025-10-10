@@ -13,6 +13,7 @@ type DownloadItem = {
   taskName: string;
   date: string;
   size: string;
+  url: string;
   status: 'Completed' | 'In Progress' | 'Failed';
   progress: number;
 };
@@ -198,7 +199,7 @@ export function useTaskData() {
     });
   }, []);
 
-  const addToDownloadHistory = useCallback((file: { name: string; size: string }, taskName: string) => {
+  const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
     if (!currentUserId) return;
 
     const newDownloadItem: DownloadItem = {
@@ -207,11 +208,26 @@ export function useTaskData() {
       taskName: taskName,
       date: new Date().toISOString(),
       size: file.size,
+      url: file.url,
       status: 'In Progress',
       progress: 0,
     };
+    
+    // For redownloads, we replace the existing item to avoid duplicates in history
+    if (isRedownload) {
+      setDownloadHistory(prevHistory => {
+        const existingItemIndex = prevHistory.findIndex(item => item.fileName === file.name && item.taskName === taskName);
+        if (existingItemIndex > -1) {
+          const updatedHistory = [...prevHistory];
+          updatedHistory[existingItemIndex] = newDownloadItem;
+          return updatedHistory;
+        }
+        return [newDownloadItem, ...prevHistory];
+      });
+    } else {
+       setDownloadHistory(prevHistory => [newDownloadItem, ...prevHistory]);
+    }
 
-    setDownloadHistory(prevHistory => [newDownloadItem, ...prevHistory]);
   }, [currentUserId, setDownloadHistory]);
 
 
