@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useEffect, useActionState, useMemo } from "react";
+import { useState, useEffect, useActionState, useMemo, useRef } from "react";
 import { useFormStatus } from "react-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bot, Loader2, MoreVertical, Edit, Trash2, Pin, PinOff } from "lucide-react";
+import { Bot, Loader2, MoreVertical, Edit, Trash2, Pin, PinOff, MessageSquareReply } from "lucide-react";
 import type { Comment as CommentType, User } from "@/lib/types";
 import { getSummary } from "@/app/actions";
 import { Separator } from "../ui/separator";
@@ -61,6 +61,8 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
   const [editingText, setEditingText] = useState("");
   const [state, formAction] = useActionState(getSummary, initialState);
   const { locale, t } = useLanguage();
+  const newCommentRef = useRef<HTMLTextAreaElement>(null);
+
 
   useEffect(() => {
     setLocalComments(comments);
@@ -84,8 +86,8 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     };
     
     const updatedComments = [...localComments, comment];
-    setLocalComments(updatedComments);
     onUpdateComments(updatedComments);
+    setLocalComments(updatedComments);
     
     setNewComment("");
     setIsPosting(false);
@@ -93,8 +95,8 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
   
   const handleDeleteComment = (commentId: string) => {
     const updatedComments = localComments.filter(c => c.id !== commentId);
-    setLocalComments(updatedComments);
     onUpdateComments(updatedComments);
+    setLocalComments(updatedComments);
   };
   
   const handleEditComment = (comment: CommentType) => {
@@ -113,8 +115,8 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
       c.id === editingComment.id ? { ...c, content: finalContent, timestamp: new Date().toISOString() } : c
     );
     
-    setLocalComments(updatedComments);
     onUpdateComments(updatedComments);
+    setLocalComments(updatedComments);
 
     setEditingComment(null);
     setEditingText("");
@@ -125,9 +127,15 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     const updatedComments = localComments.map(c => 
         c.id === commentId ? { ...c, isPinned: !c.isPinned } : c
     );
-    setLocalComments(updatedComments);
     onUpdateComments(updatedComments);
+    setLocalComments(updatedComments);
   };
+  
+  const handleReply = (authorName: string) => {
+    const mention = `@${authorName} `;
+    setNewComment(prev => mention + prev);
+    newCommentRef.current?.focus();
+  }
 
 
   const formatCommentThread = () => {
@@ -178,6 +186,7 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
           </Avatar>
           <div className="w-full space-y-2">
             <Textarea
+              ref={newCommentRef}
               placeholder={t('comments.add_comment_placeholder')}
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
@@ -206,35 +215,42 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <p className="font-semibold text-sm">{comment.author.name}</p>
+                    <p className="text-xs text-muted-foreground">({t(`roles.${comment.author.role}`)})</p>
                     {comment.isPinned && <Pin className="h-4 w-4 text-primary" />}
                 </div>
                 <div className="flex items-center">
                     <p className="text-xs text-muted-foreground mr-2">
                     {new Date(comment.timestamp).toLocaleString()}
                     </p>
-                    {comment.author.id === currentUser.id && (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-6 w-6">
-                                    <MoreVertical className="h-4 w-4" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                                <DropdownMenuItem onClick={() => handleTogglePin(comment.id)}>
-                                    {comment.isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
-                                    <span>{comment.isPinned ? "Unpin" : "Pin"}</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleEditComment(comment)}>
-                                    <Edit className="mr-2 h-4 w-4" />
-                                    <span>Edit</span>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleDeleteComment(comment.id)} className="text-destructive">
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    <span>Delete</span>
-                                </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    )}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-6 w-6">
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => handleTogglePin(comment.id)}>
+                                {comment.isPinned ? <PinOff className="mr-2 h-4 w-4" /> : <Pin className="mr-2 h-4 w-4" />}
+                                <span>{comment.isPinned ? "Unpin" : "Pin"}</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleReply(comment.author.name)}>
+                                <MessageSquareReply className="mr-2 h-4 w-4" />
+                                <span>Reply</span>
+                            </DropdownMenuItem>
+                            {comment.author.id === currentUser.id && (
+                                <>
+                                    <DropdownMenuItem onClick={() => handleEditComment(comment)}>
+                                        <Edit className="mr-2 h-4 w-4" />
+                                        <span>Edit</span>
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={() => handleDeleteComment(comment.id)} className="text-destructive">
+                                        <Trash2 className="mr-2 h-4 w-4" />
+                                        <span>Delete</span>
+                                    </DropdownMenuItem>
+                                </>
+                            )}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
               </div>
               {editingComment?.id === comment.id ? (
