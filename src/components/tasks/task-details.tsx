@@ -285,25 +285,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const isAssignedToCurrentUser = currentUser && task.assignees.some(a => a.id === currentUser.id);
   const canSubmit = isEmployee(currentUser?.role || '') && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
 
-  const visibleFiles = useMemo(() => {
-    if (!task.files) return [];
-  
-    const completedLinkedFileIds = new Set(
-      task.subtasks
-        ?.filter(st => st.isCompleted && st.linkedFileId)
-        .map(st => st.linkedFileId)
-    );
-  
-    return task.files.filter(file => {
-      const isLinkedToAnySubtask = task.subtasks?.some(st => st.linkedFileId === file.id);
-      
-      if (!isLinkedToAnySubtask) {
-        return true;
-      }
-      
-      return completedLinkedFileIds.has(file.id);
-    });
-  }, [task.files, task.subtasks]);
+  const visibleFiles = useMemo(() => task.files || [], [task.files]);
 
 
   return (

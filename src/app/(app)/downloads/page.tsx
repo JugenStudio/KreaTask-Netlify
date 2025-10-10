@@ -66,8 +66,18 @@ export default function DownloadsPage() {
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
-  const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
+  
+  // Use a ref to keep track of notified items across renders without causing re-renders
   const notifiedDownloadsRef = useRef<Set<number>>(new Set());
+
+  // Populate the notified set on initial load for items already completed
+  useEffect(() => {
+    downloadHistory.forEach(item => {
+      if (item.status === 'Completed') {
+        notifiedDownloadsRef.current.add(item.id);
+      }
+    });
+  }, []); // Empty dependency array means this runs only once on mount
 
   useEffect(() => {
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
@@ -101,31 +111,28 @@ export default function DownloadsPage() {
   useEffect(() => {
     if (!currentUser) return;
     
-    const newlyCompleted = downloadHistory.filter(current => {
-        const previous = prevDownloadHistoryRef.current.find(p => p.id === current.id);
-        return current.status === 'Completed' && previous?.status !== 'Completed';
-    });
+    // Find downloads that just completed and haven't been notified yet
+    const newlyCompleted = downloadHistory.filter(
+      (item) => item.status === 'Completed' && !notifiedDownloadsRef.current.has(item.id)
+    );
 
     newlyCompleted.forEach(item => {
-        if (!notifiedDownloadsRef.current.has(item.id)) {
-            toast({
-                title: t('downloads.toast.completed_title'),
-                description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-                duration: 5000,
-            });
-            addNotification({
-                id: `notif-download-${item.id}`,
-                userId: currentUser.id,
-                message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-                type: 'SYSTEM_UPDATE',
-                read: false,
-                createdAt: new Date().toISOString(),
-            });
-            notifiedDownloadsRef.current.add(item.id);
-        }
+        toast({
+            title: t('downloads.toast.completed_title'),
+            description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            duration: 5000,
+        });
+        addNotification({
+            id: `notif-download-${item.id}`,
+            userId: currentUser.id,
+            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            type: 'SYSTEM_UPDATE',
+            read: false,
+            createdAt: new Date().toISOString(),
+        });
+        // Add to the ref to prevent future notifications for this item
+        notifiedDownloadsRef.current.add(item.id);
     });
-
-    prevDownloadHistoryRef.current = downloadHistory;
 
   }, [downloadHistory, currentUser, t, toast, addNotification]);
 
@@ -160,6 +167,8 @@ export default function DownloadsPage() {
   };
   
   const handleRedownload = (item: DownloadItem) => {
+    // Also remove from notified ref so it can notify again on completion
+    notifiedDownloadsRef.current.delete(item.id);
     setDownloadHistory(
       downloadHistory.map(d =>
         d.id === item.id
