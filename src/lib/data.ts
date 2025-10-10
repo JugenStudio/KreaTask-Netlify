@@ -60,7 +60,10 @@ const allTasks: Task[] = [
           content: { en: 'Sure, Deva. I will prepare two new options with more vibrant colors and send them over.', id: 'Tentu, Deva. Saya akan siapkan dua opsi baru dengan warna yang lebih cerah dan mengirimkannya.' },
         },
     ], 
-    files: [],
+    files: [
+      { id: 'file-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB' },
+      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: '#', size: '850 KB' },
+    ],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true },
       { id: 'sub-1-2', title: 'Create initial draft', isCompleted: true },
@@ -493,7 +496,10 @@ const allTasks: Task[] = [
             content: { en: 'Please prioritize this, Citra. The client is waiting.', id: 'Tolong prioritaskan ini, Citra. Klien sudah menunggu.' },
         },
     ], 
-    files: [],
+    files: [
+      { id: 'file-3', name: 'Script_v2.docx', type: 'document', url: '#', size: '128 KB' },
+      { id: 'file-4', name: 'Storyboard.pdf', type: 'document', url: '#', size: '2.1 MB' },
+    ],
     subtasks: [
       { id: 'sub-4-1', title: 'Write script', isCompleted: true },
       { id: 'sub-4-2', title: 'Record voiceover', isCompleted: false },

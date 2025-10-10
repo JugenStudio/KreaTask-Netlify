@@ -256,13 +256,13 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {task.files.map((file) => (
                 <Card key={file.id} className="overflow-hidden rounded-xl">
-                  <div className="aspect-[16/9] bg-muted flex items-center justify-center">
+                  <a href={file.url} download={file.name} className="block aspect-[16/9] bg-muted flex items-center justify-center">
                     {file.type === 'image' || file.type === 'illustration' ? (
                        <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
                     ) : (
                       fileTypeIcons[file.type]
                     )}
-                  </div>
+                  </a>
                   <div className="p-3">
                     <div className="flex justify-between items-center">
                       <div>
@@ -270,7 +270,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                         <p className="text-xs text-muted-foreground">{file.size}</p>
                       </div>
                       <Button variant="outline" size="icon" asChild className="h-8 w-8 transition-all active:scale-95">
-                        <a href={file.url} download>
+                        <a href={file.url} download={file.name}>
                           <Download className="h-4 w-4" />
                         </a>
                       </Button>

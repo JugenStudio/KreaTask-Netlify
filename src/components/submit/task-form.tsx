@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { useState, useMemo, useEffect } from "react";
-import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask } from "@/lib/types";
+import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions, getTranslations } from "@/app/actions";
@@ -143,6 +143,15 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           title: subtaskTitle,
           isCompleted: false,
         }));
+        
+        const newFiles: FileType[] = files.map((file, index) => ({
+            id: `file-${newTaskId}-${index}`,
+            name: file.name,
+            size: `${(file.size / 1024).toFixed(1)} KB`,
+            url: (file as any).preview,
+            type: file.type.startsWith('image') ? 'image' : 'document',
+        }));
+
 
         const newTask = {
           id: newTaskId,
@@ -159,7 +168,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           approvedBy: null,
           revisions: [],
           comments: [],
-          files: [],
+          files: newFiles,
           subtasks: newSubtasks,
         };
         
@@ -470,11 +479,11 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 />
                  
                 <FormItem>
-                    <FormLabel>Checklist</FormLabel>
+                    <FormLabel>{t('submit.manual_form.checklist_label')}</FormLabel>
                     <div className="flex gap-2">
                         <FormControl>
                             <Input 
-                                placeholder="Add a sub-task item..."
+                                placeholder={t('submit.manual_form.checklist_placeholder')}
                                 value={currentSubtask}
                                 onChange={(e) => setCurrentSubtask(e.target.value)}
                                 onKeyDown={(e) => {
@@ -487,7 +496,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                             />
                         </FormControl>
                         <Button type="button" onClick={handleAddSubtask} disabled={isSubmitting || !currentSubtask.trim()} className="transition-all active:scale-95">
-                            <Plus className="h-4 w-4 mr-2" /> Add
+                            <Plus className="h-4 w-4 mr-2" /> {t('submit.manual_form.checklist_add_button')}
                         </Button>
                     </div>
                      {subtasks.length > 0 && (
@@ -517,7 +526,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
                 <FormControl>
                     <div className="flex items-center justify-center w-full">
-                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
+                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary/50", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
                             <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
@@ -530,14 +539,16 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 {files.length > 0 && (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                     {files.map(file => (
-                        <Card key={file.name} className="relative group rounded-xl">
-                        <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover rounded-lg aspect-[4/3]" />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Card key={file.name} className="relative group rounded-xl overflow-hidden">
+                        <Image src={(file as any).preview} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>
                             <X className="h-4 w-4" />
                             </Button>
                         </div>
-                        <p className="text-xs p-2 truncate">{file.name}</p>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                           <p className="text-xs text-white truncate">{file.name}</p>
+                        </div>
                         </Card>
                     ))}
                     </div>
