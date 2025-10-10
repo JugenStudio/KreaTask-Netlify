@@ -54,7 +54,7 @@ export default function AboutPage() {
               width={48}
               height={48}
             />
-            <h2 className="text-3xl font-bold font-headline mt-2 text-primary">
+            <h2 className="text-3xl font-bold font-headline mt-2 text-foreground">
               KreaTask
             </h2>
           </div>
