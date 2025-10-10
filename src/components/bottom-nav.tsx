@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Home, ListTodo, PenSquare, Trophy, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
+import Image from "next/image";
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -14,7 +15,7 @@ export function BottomNav() {
   const navItems = [
     { href: "/tasks", icon: ListTodo, label: t('sidebar.all_tasks') },
     { href: "/submit", icon: PenSquare, label: t('sidebar.submit_task') },
-    { href: "/dashboard", icon: Home, label: t('sidebar.home') },
+    { href: "/dashboard", icon: Home, label: t('sidebar.home'), isLogo: true },
     { href: "/leaderboard", icon: Trophy, label: t('sidebar.leaderboard') },
     { href: "/performance-report", icon: History, label: t('sidebar.performance_report') },
   ];
@@ -40,7 +41,11 @@ export function BottomNav() {
                 "flex flex-col items-center justify-center gap-1 w-16 h-8 rounded-full transition-colors",
                  isActive ? "bg-primary text-primary-foreground" : "group-hover:bg-muted"
               )}>
-                <item.icon className="h-5 w-5" />
+                {item.isLogo ? (
+                  <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={20} height={20} className={cn(!isActive && "dark:invert-0 invert")}/>
+                ) : (
+                  <item.icon className="h-5 w-5" />
+                )}
               </div>
               <span className={cn(
                 "text-xs font-medium mt-1 w-full text-center truncate",
