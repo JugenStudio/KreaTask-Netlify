@@ -26,6 +26,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type DownloadItem = {
@@ -63,7 +69,7 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { downloadHistory, setDownloadHistory } = useTaskData();
+  const { downloadHistory, setDownloadHistory, addNotification } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
@@ -185,7 +191,16 @@ export default function DownloadsPage() {
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 overflow-hidden">
-                           <p className="font-medium truncate">{item.fileName}</p>
+                           <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p className="font-medium truncate cursor-pointer">{item.fileName}</p>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>{item.fileName}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
                            {item.status === 'In Progress' ? (
                                 <div className="flex items-center gap-2 mt-1">
                                     <Progress value={item.progress} className="h-1 flex-1" />
