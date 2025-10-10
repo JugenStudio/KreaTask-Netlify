@@ -34,10 +34,10 @@ export function BottomNav() {
                 key={item.href}
                 href={item.href}
                 prefetch
-                className="flex flex-col items-center justify-center -mt-6"
+                className="flex flex-col items-center justify-center -mt-4"
               >
-                <div className="flex items-center justify-center h-16 w-16 rounded-full bg-primary text-primary-foreground shadow-lg">
-                  <item.icon className="h-7 w-7" />
+                <div className="flex items-center justify-center h-14 w-14 rounded-full bg-primary text-primary-foreground shadow-md">
+                   <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={28} height={28} />
                 </div>
               </Link>
             )
