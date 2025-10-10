@@ -115,7 +115,20 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: "Direktur Utama",
-    revisions: [], comments: [], files: [],
+    revisions: [], comments: [
+        {
+            id: 'comment-deva-1',
+            author: users.find(u => u.name === 'Naufal')!,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString(),
+            content: { en: 'How is the progress on the workflow review?', id: 'Bagaimana progres tinjauan alur kerjanya?' },
+        },
+        {
+            id: 'comment-deva-2',
+            author: users.find(u => u.name === 'Deva')!,
+            timestamp: new Date(Date.now() - 1000 * 60 * 60 * 47).toISOString(),
+            content: { en: 'Almost done. Just finalizing the documentation. I will mark it as complete by EOD.', id: 'Hampir selesai. Tinggal finalisasi dokumentasi. Saya akan tandai selesai hari ini.' },
+        }
+    ], files: [],
     subtasks: [],
   },
   // Completed Tasks - Pending Validation
@@ -480,5 +493,7 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
+
+    
 
     
