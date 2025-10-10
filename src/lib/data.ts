@@ -669,20 +669,10 @@ const mockNotifications: Notification[] = [
   },
 ];
 
-const initialDownloadHistory = [
-    { id: 1, fileName: "Banner_Draft_v1.png", taskName: "Desain Banner Promosi", date: new Date().toISOString(), size: "1.2 MB", status: "Completed", progress: 100 },
-    { id: 2, fileName: "Brand_Guidelines.pdf", taskName: "Desain Banner Promosi", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), size: "850 KB", status: "Completed", progress: 100 },
-    { id: 3, fileName: "Script_Final_v2.docx", taskName: "Produksi Video Presentasi", date: new Date(new Date().setDate(new Date().getDate() - 1)).toISOString(), size: "128 KB", status: "Completed", progress: 100 },
-    { id: 4, fileName: "Campaign_Concept_B.jpg", taskName: "Desain visual kampanye", date: new Date().toISOString(), size: "2.8 MB", status: "Completed", progress: 100 },
-    { id: 5, fileName: "Annual_Report_Q3.pdf", taskName: "Laporan Keuangan Kuartal 3", date: new Date(new Date().setDate(new Date().getDate() - 5)).toISOString(), size: "5.4 MB", status: "Failed", progress: 0 },
-];
-
-
 export const initialData = {
     users,
     allTasks,
     mockNotifications,
-    initialDownloadHistory
 }
 
 // --- Duplicated data for other pages that might use it ---

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -117,6 +118,7 @@ export function useTaskData() {
     if (currentUserId) {
         try {
             const storedDownloads = localStorage.getItem(`kreatask_downloads_${currentUserId}`);
+            // If nothing is in storage, start with an empty array.
             const downloads = storedDownloads ? JSON.parse(storedDownloads) : [];
             setDownloadHistoryState(downloads);
         } catch (error) {
