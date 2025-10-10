@@ -39,6 +39,7 @@ export interface File {
   type: 'video' | 'image' | 'illustration' | 'document';
   url: string;
   size: string;
+  note?: string;
 }
 
 export interface Comment {

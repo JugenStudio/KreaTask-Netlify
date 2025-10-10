@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import Image from "next/image";
@@ -62,7 +63,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useRouter } from "next/navigation";
-import { EditTaskModal } from "./edit-task-modal";
+import { Input } from "../ui/input";
 
 
 const fileTypeIcons = {
@@ -93,6 +94,8 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
+  const [editingFileId, setEditingFileId] = useState<string | null>(null);
+  const [editingNote, setEditingNote] = useState('');
 
   useEffect(() => {
     setTask(initialTask);
@@ -197,6 +200,22 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
       handleAddNewFiles(Array.from(event.target.files));
       event.target.value = ''; // Reset input to allow re-uploading the same file
     }
+  };
+
+  const handleEditNote = (file: FileType) => {
+    setEditingFileId(file.id);
+    setEditingNote(file.note || '');
+  };
+
+  const handleSaveNote = (fileId: string) => {
+    const updatedFiles = task.files?.map(f => f.id === fileId ? { ...f, note: editingNote } : f);
+    const updatedTask = { ...task, files: updatedFiles };
+    
+    setTask(updatedTask);
+    onUpdateTask(task.id, { files: updatedFiles });
+
+    setEditingFileId(null);
+    setEditingNote('');
   };
 
   const handleSubmitForReview = () => {
@@ -417,24 +436,39 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                     )}
                   </div>
                   <div className="p-3">
-                    <div className="flex justify-between items-start gap-2">
-                      <div>
-                        <p className="text-sm font-medium truncate">{file.name}</p>
-                        <p className="text-xs text-muted-foreground">{file.size}</p>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleDownloadClick(file)}>
-                          <Download className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="icon" 
-                          className="h-8 w-8 transition-all active:scale-95"
-                          onClick={() => handleDeleteFileClick(file)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
+                    <p className="text-sm font-medium truncate">{file.name}</p>
+                    <p className="text-xs text-muted-foreground">{file.size}</p>
+                    {editingFileId === file.id ? (
+                        <div className="mt-2 space-y-2">
+                            <Input 
+                                value={editingNote} 
+                                onChange={(e) => setEditingNote(e.target.value)}
+                                placeholder="Add a note..."
+                                className="h-8 text-xs"
+                            />
+                            <div className="flex gap-2">
+                                <Button size="sm" className="h-7" onClick={() => handleSaveNote(file.id)}>Save</Button>
+                                <Button size="sm" variant="ghost" className="h-7" onClick={() => setEditingFileId(null)}>Cancel</Button>
+                            </div>
+                        </div>
+                    ) : (
+                       file.note && <p className="text-xs italic text-muted-foreground mt-1">"{file.note}"</p>
+                    )}
+                    <div className="flex justify-end items-center gap-1 mt-2">
+                      <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleDownloadClick(file)}>
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button variant="outline" size="icon" className="h-8 w-8 transition-all active:scale-95" onClick={() => handleEditNote(file)}>
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="icon" 
+                        className="h-8 w-8 transition-all active:scale-95"
+                        onClick={() => handleDeleteFileClick(file)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </div>
                   </div>
                 </Card>

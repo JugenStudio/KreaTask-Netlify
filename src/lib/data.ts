@@ -1,4 +1,5 @@
 
+
 import type { User, Task, LeaderboardEntry, DetailedReportEntry, Notification, Comment } from './types';
 import { TaskCategory, UserRole } from './types';
 
@@ -68,8 +69,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB' },
-      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB' },
+      { id: 'file-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB', note: "Initial draft with the blue theme." },
+      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB', note: "Latest brand guidelines as of Q3." },
     ],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true, linkedFileId: null },
@@ -433,8 +434,8 @@ const allTasks: Task[] = [
         }
     ], 
     files: [
-      { id: 'file-5', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB' },
-      { id: 'file-6', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB' },
+      { id: 'file-5', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB', note: 'First concept, more corporate style.' },
+      { id: 'file-6', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
     ],
     subtasks: [],
   },
@@ -536,8 +537,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB' },
-      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB' },
+      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB', note: 'Final approved script.' },
+      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB', note: 'Storyboard visuals for client review.' },
     ],
     subtasks: [
       { 
@@ -755,5 +756,6 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
   .filter((item): item is DetailedReportEntry => item !== null);
 
     
+
 
 
