@@ -98,7 +98,26 @@ const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: "Direktur Utama",
     revisions: [], 
-    comments: [mockComments[2], mockComments[3]], 
+    comments: [
+        {
+          id: 'comment-3-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-08-13T10:00:00Z').toISOString(),
+          content: { en: 'Agus, how is the progress on this article? The deadline is approaching.', id: 'Agus, bagaimana progres artikel ini? Batas waktunya sudah dekat.' },
+        },
+        {
+          id: 'comment-3-2',
+          author: users.find(u => u.name === 'Agus')!,
+          timestamp: new Date('2024-08-13T11:30:00Z').toISOString(),
+          content: { en: 'Hi Deva, the draft is 80% complete. I am just verifying some data with the research team. I will submit it tomorrow.', id: 'Halo Deva, drafnya sudah 80% selesai. Saya sedang memverifikasi beberapa data dengan tim riset. Akan saya kirim besok.' },
+        },
+        {
+          id: 'comment-3-3',
+          author: users.find(u => u.name === 'Naufal')!,
+          timestamp: new Date('2024-08-16T14:00:00Z').toISOString(),
+          content: { en: 'This is a very insightful article. Great work, Agus!', id: 'Ini artikel yang sangat berwawasan. Kerja bagus, Agus!' },
+        },
+    ], 
     files: [],
     subtasks: [],
   },
@@ -198,7 +217,20 @@ const allTasks: Task[] = [
     evaluator: "AI",
     approvedBy: null,
     revisions: [], 
-    comments: [mockComments[6]], 
+    comments: [
+        {
+          id: 'comment-8-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-09-20T09:00:00Z').toISOString(),
+          content: { en: 'Ariya, please make sure the infographic follows our latest brand guidelines.', id: 'Ariya, tolong pastikan infografisnya mengikuti pedoman merek terbaru kita.' },
+        },
+        {
+          id: 'comment-8-2',
+          author: users.find(u => u.name === 'Ariya')!,
+          timestamp: new Date('2024-09-20T14:00:00Z').toISOString(),
+          content: { en: 'Noted, Deva. I have completed the infographic and submitted it.', id: 'Baik, Deva. Saya telah menyelesaikan infografisnya dan sudah saya kirim.' },
+        },
+    ], 
     files: [],
     subtasks: [],
   },
@@ -263,7 +295,28 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+        {
+          id: 'comment-12-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-09-26T11:00:00Z').toISOString(),
+          content: { en: 'Ariya, how is the progress on the Q4 campaign visuals?', id: 'Ariya, bagaimana progres visual kampanye Q4?' },
+        },
+        {
+          id: 'comment-12-2',
+          author: users.find(u => u.name === 'Ariya')!,
+          timestamp: new Date('2024-09-26T15:30:00Z').toISOString(),
+          content: { en: 'Hi Deva, the initial concepts are ready. I\'ve uploaded them for you to see. Let me know what you think.', id: 'Halo Deva, konsep awalnya sudah siap. Sudah saya unggah untuk Anda lihat. Beri tahu saya pendapat Anda.' },
+        },
+         {
+          id: 'comment-12-3',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-09-27T10:00:00Z').toISOString(),
+          content: { en: 'Concept B looks promising. Please proceed with that one and finalize it.', id: 'Konsep B terlihat menjanjikan. Silakan lanjutkan dengan yang itu dan selesaikan.' },
+        }
+    ], 
+    files: [],
     subtasks: [],
   },
   {
@@ -295,7 +348,22 @@ const allTasks: Task[] = [
     value: 40,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+        {
+          id: 'comment-14-1',
+          author: users.find(u => u.name === 'Naufal')!,
+          timestamp: new Date('2024-09-25T16:00:00Z').toISOString(),
+          content: { en: 'Citra, please present your findings to the board next Monday.', id: 'Citra, tolong presentasikan temuanmu kepada dewan direksi Senin depan.' },
+        },
+        {
+          id: 'comment-14-2',
+          author: users.find(u => u.name === 'Citra')!,
+          timestamp: new Date('2024-09-26T09:00:00Z').toISOString(),
+          content: { en: 'Understood, Naufal. I have prepared the presentation slides.', id: 'Mengerti, Naufal. Saya sudah menyiapkan slide presentasinya.' },
+        }
+    ], 
+    files: [],
     subtasks: [],
   },
   // In-Progress / To-do Tasks
@@ -493,6 +561,8 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
+
+    
 
     
 
