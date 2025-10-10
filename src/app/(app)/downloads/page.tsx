@@ -57,20 +57,6 @@ export default function DownloadsPage() {
   const prevDownloadHistoryRef = useRef<DownloadItem[]>(downloadHistory);
 
   useEffect(() => {
-    const simulationTimeout = setTimeout(() => {
-      const itemToDownload = downloadHistory.find(item => item.id === 4);
-      if (itemToDownload && itemToDownload.status === 'Completed') {
-        setDownloadHistory(prev =>
-          prev.map(item => item.id === 4 ? { ...item, status: 'In Progress', progress: 0 } : item)
-        );
-      }
-    }, 1000);
-
-    return () => clearTimeout(simulationTimeout);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  useEffect(() => {
     const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
 
     if (itemInProgress) {
@@ -112,6 +98,7 @@ export default function DownloadsPage() {
         toast({
             title: t('downloads.toast.completed_title'),
             description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            duration: 5000,
         });
         addNotification({
             id: `notif-download-${Date.now()}-${item.id}`,
