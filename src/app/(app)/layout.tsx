@@ -9,11 +9,26 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BottomNav } from "@/components/bottom-nav";
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, createContext, useContext } from "react";
+import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/providers/language-provider";
+
+// Helper functions to manage notified downloads in localStorage
+const getNotifiedDownloads = (userId: string): Set<number> => {
+    if (typeof window === 'undefined') return new Set();
+    const stored = localStorage.getItem(`kreatask_notified_downloads_${userId}`);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+};
+
+const addNotifiedDownload = (downloadId: number, userId: string) => {
+    const notified = getNotifiedDownloads(userId);
+    notified.add(downloadId);
+    localStorage.setItem(`kreatask_notified_downloads_${userId}`, JSON.stringify(Array.from(notified)));
+};
 
 // 1. Create the context
 const UserContext = createContext<{ currentUser: User | null }>({
@@ -27,9 +42,103 @@ export default function AppLayout({
 }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
-  const { users, isLoading: isTaskDataLoading } = useTaskData();
+  const { 
+    users, 
+    isLoading: isTaskDataLoading, 
+    downloadHistory, 
+    setDownloadHistory, 
+    addNotification 
+  } = useTaskData();
   const isMobile = useIsMobile();
   const pathname = usePathname();
+  const { t } = useLanguage();
+  const { toast } = useToast();
+
+  // Background task for download progress
+  useEffect(() => {
+    const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
+
+    if (itemInProgress) {
+        const intervalId = `download-interval-${itemInProgress.id}`;
+        // Prevent multiple intervals for the same download
+        if (window[intervalId as any]) {
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setDownloadHistory(prevHistory => {
+                const currentItem = prevHistory.find(d => d.id === itemInProgress.id);
+                // Stop if item is gone or status changed
+                if (!currentItem || currentItem.status !== 'In Progress') {
+                    clearInterval(interval);
+                    delete window[intervalId as any];
+                    return prevHistory;
+                }
+
+                return prevHistory.map(item => {
+                    if (item.id === itemInProgress.id) {
+                        const newProgress = Math.min(item.progress + 20, 100);
+                        if (newProgress >= 100) {
+                           clearInterval(interval);
+                           delete window[intervalId as any];
+                           return { ...item, status: "Completed" as const, progress: 100 };
+                        }
+                        return { ...item, progress: newProgress };
+                    }
+                    return item;
+                });
+            });
+        }, 500);
+
+        (window as any)[intervalId] = interval;
+
+        return () => {
+            clearInterval(interval);
+            delete window[intervalId as any];
+        };
+    }
+  }, [downloadHistory, setDownloadHistory]);
+
+  const createDownloadNotification = useCallback((item: any) => { // Use 'any' for item to avoid type issues in this scope
+    if (!currentUser) return;
+
+    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
+
+    if (!notifiedDownloads.has(item.id)) {
+        toast({
+            title: t('downloads.toast.completed_title'),
+            description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            duration: 5000,
+        });
+
+        addNotification({
+            id: `notif-download-${currentUser.id}-${item.id}`,
+            userId: currentUser.id,
+            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
+            type: 'SYSTEM_UPDATE',
+            read: false,
+            createdAt: new Date().toISOString(),
+            link: '/downloads'
+        });
+        
+        addNotifiedDownload(item.id, currentUser.id);
+    }
+  }, [addNotification, currentUser, t, toast]);
+  
+  // Background task to create notifications for newly completed downloads
+  useEffect(() => {
+    if (!currentUser) return;
+    
+    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
+    const newlyCompleted = downloadHistory.filter(
+      item => item.status === 'Completed' && !notifiedDownloads.has(item.id)
+    );
+
+    newlyCompleted.forEach(item => {
+      createDownloadNotification(item);
+    });
+  }, [downloadHistory, currentUser, createDownloadNotification]);
+
 
   useEffect(() => {
     // Only run this logic once the user data from useTaskData is loaded
@@ -79,7 +188,7 @@ export default function AppLayout({
   }, [isTaskDataLoading, users]);
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
-      return <>{children}</>
+      return <LanguageProvider><>{children}</></LanguageProvider>
   }
   
   const isLoading = isUserLoading || isTaskDataLoading;
@@ -150,6 +259,11 @@ export const useCurrentUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error('useCurrentUser must be used within a AppLayout');
+  }
+  // This hook now also provides the language context implicitly via LanguageProvider wrapping it
+  const langContext = useLanguage();
+  if (langContext === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };

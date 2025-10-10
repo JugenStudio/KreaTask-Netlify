@@ -38,20 +38,6 @@ type DownloadItem = {
   progress: number;
 };
 
-// Helper functions to manage notified downloads in localStorage
-const getNotifiedDownloads = (userId: string): Set<number> => {
-    if (typeof window === 'undefined') return new Set();
-    const stored = localStorage.getItem(`kreatask_notified_downloads_${userId}`);
-    return stored ? new Set(JSON.parse(stored)) : new Set();
-};
-
-const addNotifiedDownload = (downloadId: number, userId: string) => {
-    const notified = getNotifiedDownloads(userId);
-    notified.add(downloadId);
-    localStorage.setItem(`kreatask_notified_downloads_${userId}`, JSON.stringify(Array.from(notified)));
-};
-
-
 const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') => {
   return downloads.reduce((acc, download) => {
     const downloadDate = new Date(download.date);
@@ -77,95 +63,10 @@ const groupDownloadsByDate = (downloads: DownloadItem[], locale: 'en' | 'id') =>
 export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
-  const { downloadHistory, setDownloadHistory, addNotification, notifications } = useTaskData();
+  const { downloadHistory, setDownloadHistory } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
-
-  const createDownloadNotification = useCallback((item: DownloadItem) => {
-    if (!currentUser) return;
-
-    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
-
-    if (!notifiedDownloads.has(item.id)) {
-        toast({
-            title: t('downloads.toast.completed_title'),
-            description: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-            duration: 5000,
-        });
-
-        addNotification({
-            id: `notif-download-${currentUser.id}-${item.id}`,
-            userId: currentUser.id,
-            message: t('downloads.toast.completed_desc', { fileName: item.fileName }),
-            type: 'SYSTEM_UPDATE',
-            read: false,
-            createdAt: new Date().toISOString(),
-            link: '/downloads'
-        });
-        
-        addNotifiedDownload(item.id, currentUser.id);
-    }
-  }, [addNotification, currentUser, t, toast]);
-
-
-  useEffect(() => {
-    const itemInProgress = downloadHistory.find(item => item.status === "In Progress");
-
-    if (itemInProgress) {
-        const intervalId = `download-interval-${itemInProgress.id}`;
-        if (window[intervalId as any]) {
-            return;
-        }
-
-        const interval = setInterval(() => {
-            setDownloadHistory(prevHistory => {
-                const currentItem = prevHistory.find(d => d.id === itemInProgress.id);
-                if (!currentItem || currentItem.status !== 'In Progress') {
-                    clearInterval(interval);
-                    delete window[intervalId as any];
-                    return prevHistory;
-                }
-
-                const updatedHistory = prevHistory.map(item => {
-                    if (item.id === itemInProgress.id) {
-                        const newProgress = Math.min(item.progress + 20, 100);
-                        if (newProgress >= 100) {
-                           clearInterval(interval);
-                           delete window[intervalId as any];
-                           return { ...item, status: "Completed" as const, progress: 100 };
-                        }
-                        return { ...item, progress: newProgress };
-                    }
-                    return item;
-                });
-                return updatedHistory;
-            });
-        }, 500);
-
-        (window as any)[intervalId] = interval;
-
-        return () => {
-            clearInterval(interval);
-            delete window[intervalId as any];
-        };
-    }
-  }, [downloadHistory, setDownloadHistory]);
-
-  // Separate useEffect to handle notifications for newly completed items
-  useEffect(() => {
-    if (!currentUser) return;
-    
-    const notifiedDownloads = getNotifiedDownloads(currentUser.id);
-    const newlyCompleted = downloadHistory.filter(
-      item => item.status === 'Completed' && !notifiedDownloads.has(item.id)
-    );
-
-    newlyCompleted.forEach(item => {
-      createDownloadNotification(item);
-    });
-  }, [downloadHistory, currentUser, createDownloadNotification]);
-
 
   const filteredDownloads = useMemo(() => {
     if (!downloadHistory) return [];
@@ -177,10 +78,9 @@ export default function DownloadsPage() {
   const groupedDownloads = useMemo(() => groupDownloadsByDate(filteredDownloads, locale), [filteredDownloads, locale]);
   
   const clearHistory = () => {
+    if(!currentUser) return;
     setDownloadHistory([]);
-    if(currentUser) {
-       localStorage.removeItem(`kreatask_notified_downloads_${currentUser.id}`);
-    }
+    localStorage.removeItem(`kreatask_notified_downloads_${currentUser.id}`);
     toast({
         title: t('downloads.toast.cleared_title'),
         description: t('downloads.toast.cleared_desc'),
@@ -190,7 +90,7 @@ export default function DownloadsPage() {
 
   const handleDeleteItem = () => {
     if (itemToDelete) {
-        setDownloadHistory(downloadHistory.filter(item => item.id !== itemToDelete.id));
+        setDownloadHistory(prev => prev.filter(item => item.id !== itemToDelete.id));
         toast({
             title: t('downloads.toast.item_deleted_title'),
             description: t('downloads.toast.item_deleted_desc', { fileName: itemToDelete.fileName }),
@@ -211,8 +111,9 @@ export default function DownloadsPage() {
         });
         return;
     }
-    setDownloadHistory(
-      downloadHistory.map(d =>
+    
+    setDownloadHistory(prev => 
+      prev.map(d =>
         d.id === item.id
           ? { ...d, status: 'In Progress', progress: 0 }
           : d
