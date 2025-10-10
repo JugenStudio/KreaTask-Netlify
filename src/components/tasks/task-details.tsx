@@ -65,14 +65,6 @@ import { useRouter } from "next/navigation";
 import { EditTaskModal } from "./edit-task-modal";
 
 
-const statusColors: Record<TaskStatus, string> = {
-  "To-do": "bg-gray-500",
-  "In Progress": "bg-blue-500",
-  "In Review": "bg-yellow-500",
-  Completed: "bg-green-500",
-  Blocked: "bg-red-500",
-};
-
 const fileTypeIcons = {
   video: <Film className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
   image: <ImageIcon className="h-8 w-8 md:h-10 md:w-10 text-muted-foreground" />,
@@ -101,8 +93,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
   const [fileToDelete, setFileToDelete] = useState<FileType | null>(null);
   const [isDeleteAlertOpen, setIsDeleteAlertOpen] = useState(false);
   const router = useRouter();
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-
 
   useEffect(() => {
     setTask(initialTask);
@@ -209,17 +199,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     }
   };
 
-  const handleStatusChange = (newStatus: TaskStatus) => {
-    const updatedTask = { ...task, status: newStatus };
-    setTask(updatedTask);
-    onUpdateTask(task.id, { status: newStatus });
-    toast({
-      title: t('task.status_change_toast.title'),
-      description: t('task.status_change_toast.description', { title: task.title[locale], status: t(`all_tasks.status.${newStatus.toLowerCase().replace(' ', '_')}`) }),
-    });
-  }
-
-
   const handleSubmitForReview = () => {
     const updatedTask = { ...task, status: "In Review" as TaskStatus };
     setTask(updatedTask);
@@ -316,32 +295,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
             <div className="flex-1">
               <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
               <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" onClick={() => setIsEditModalOpen(true)}>
-                <Edit className="h-4 w-4" />
-                <span className="sr-only">Edit Task</span>
-              </Button>
-              <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
-                <SelectTrigger className="w-fit min-w-[140px] text-xs md:text-sm font-semibold border-border bg-secondary hover:bg-muted focus:ring-ring gap-2">
-                   <SelectValue>
-                    <div className="flex items-center gap-2">
-                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[task.status])}></span>
-                        {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any)}
-                    </div>
-                   </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.keys(statusColors).map(status => (
-                    <SelectItem key={status} value={status}>
-                      <div className="flex items-center gap-2">
-                        <span className={cn("h-2.5 w-2.5 rounded-full", statusColors[status as TaskStatus])}></span>
-                        {t(`all_tasks.status.${status.toLowerCase().replace(' ', '_')}` as any)}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
             </div>
           </div>
         </CardHeader>
@@ -521,13 +474,6 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         </CardContent>
       </Card>
       
-      {task && (
-        <EditTaskModal 
-            isOpen={isEditModalOpen}
-            onOpenChange={setIsEditModalOpen}
-            task={task}
-        />
-      )}
 
       <AlertDialog open={!!fileToDelete} onOpenChange={() => setFileToDelete(null)}>
         <AlertDialogContent>
