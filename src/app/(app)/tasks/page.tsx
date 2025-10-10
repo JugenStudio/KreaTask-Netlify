@@ -23,7 +23,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
-  const { allTasks, users, isLoading } = useTaskData();
+  const { allTasks, users, isLoading, setAllTasks } = useTaskData();
   const searchParams = useSearchParams();
   const { t, locale } = useLanguage();
   const query = searchParams.get('q') || '';
@@ -171,7 +171,7 @@ export default function AllTasksPage() {
       {viewMode === 'list' ? (
         <TaskTable tasks={filteredTasks} currentUser={currentUser} />
       ) : (
-        <KanbanBoard tasks={filteredTasks} />
+        <KanbanBoard tasks={filteredTasks} setTasks={setAllTasks} allTasks={allTasks} />
       )}
     </div>
   );

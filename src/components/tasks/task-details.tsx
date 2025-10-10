@@ -32,6 +32,13 @@ import {
   Trash2,
   PlusCircle,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { Button } from "../ui/button";
 import { useLanguage } from "@/providers/language-provider";
@@ -169,6 +176,16 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
     }
   };
 
+  const handleStatusChange = (newStatus: TaskStatus) => {
+    const updatedTask = { ...task, status: newStatus };
+    setTask(updatedTask);
+    onUpdateTask(task.id, { status: newStatus });
+    toast({
+      title: t('task.status_change_toast.title'),
+      description: t('task.status_change_toast.description', { title: task.title[locale], status: t(`all_tasks.status.${newStatus.toLowerCase().replace(' ', '_')}`) }),
+    });
+  }
+
 
   const handleSubmitForReview = () => {
     const updatedTask = { ...task, status: "In Review" as TaskStatus };
@@ -267,9 +284,18 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
                   <CardTitle className="font-headline text-xl md:text-2xl">{task.title[locale]}</CardTitle>
                   <CardDescription className="text-sm md:text-base">{t('task.created_on', { date: new Date(task.createdAt).toLocaleDateString() })}</CardDescription>
               </div>
-              <Badge className={cn("text-white text-xs md:text-sm whitespace-nowrap", statusColors[task.status])}>
-                  {t(`all_tasks.status.${task.status.toLowerCase().replace(' ', '_')}` as any, {defaultValue: task.status})}
-              </Badge>
+              <Select value={task.status} onValueChange={(value: TaskStatus) => handleStatusChange(value)}>
+                <SelectTrigger className={cn("w-36 text-white text-xs md:text-sm font-bold border-none", statusColors[task.status])}>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="To-do">{t('all_tasks.status.to-do')}</SelectItem>
+                  <SelectItem value="In Progress">{t('all_tasks.status.in_progress')}</SelectItem>
+                  <SelectItem value="In Review">{t('all_tasks.status.in_review')}</SelectItem>
+                  <SelectItem value="Completed">{t('all_tasks.status.completed')}</SelectItem>
+                  <SelectItem value="Blocked">{t('all_tasks.status.blocked')}</SelectItem>
+                </SelectContent>
+              </Select>
           </div>
         </CardHeader>
         <CardContent className="space-y-4 md:space-y-6">

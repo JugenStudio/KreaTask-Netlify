@@ -69,6 +69,10 @@
     "description": "Deskripsi",
     "assignees": "Penerima Tugas",
     "due_date": "Batas Waktu",
+    "status_change_toast": {
+      "title": "Status Diperbarui",
+      "description": "Tugas \"{{title}}\" dipindahkan ke {{status}}."
+    },
     "attachments": {
       "title": "Lampiran",
       "no_attachments": "Tidak ada file terlampir.",

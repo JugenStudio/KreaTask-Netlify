@@ -69,6 +69,10 @@
     "description": "Description",
     "assignees": "Assignees",
     "due_date": "Due Date",
+    "status_change_toast": {
+      "title": "Status Updated",
+      "description": "Task \"{{title}}\" moved to {{status}}."
+    },
     "attachments": {
       "title": "Attachments",
       "no_attachments": "No files attached.",
