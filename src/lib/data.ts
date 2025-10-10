@@ -69,8 +69,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB', note: "Initial draft with the blue theme." },
-      { id: 'file-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB', note: "Latest brand guidelines as of Q3." },
+      { id: 'file-1-1', name: 'Banner_Draft_v1.png', type: 'image', url: 'https://picsum.photos/seed/promo1/600/400', size: '1.2 MB', note: "Initial draft with the blue theme." },
+      { id: 'file-1-2', name: 'Brand_Guidelines.pdf', type: 'document', url: 'https://picsum.photos/seed/guidelines/600/400', size: '850 KB' },
     ],
     subtasks: [
       { id: 'sub-1-1', title: 'Gather assets', isCompleted: true, linkedFileId: null },
@@ -128,7 +128,9 @@ const allTasks: Task[] = [
           content: { en: 'This is a very insightful article. The section on decentralized finance is particularly strong. Great work, Agus!', id: 'Ini artikel yang sangat berwawasan. Bagian tentang keuangan terdesentralisasi sangat kuat. Kerja bagus, Agus!' },
         },
     ], 
-    files: [],
+    files: [
+       { id: 'file-3-1', name: 'Tech_Trends_Article_Draft.docx', type: 'document', url: 'https://picsum.photos/seed/article/600/400', size: '256 KB', note: 'Final Draft submitted' },
+    ],
     subtasks: [],
   },
   {
@@ -161,7 +163,9 @@ const allTasks: Task[] = [
             content: { en: 'Almost done. Just finalizing the documentation. I have identified a significant delay in the content approval process. I will propose a new streamlined workflow.', id: 'Hampir selesai. Tinggal finalisasi dokumentasi. Saya telah mengidentifikasi penundaan signifikan dalam proses persetujuan konten. Saya akan mengusulkan alur kerja baru yang lebih ramping.' },
         }
     ], 
-    files: [],
+    files: [
+        { id: 'file-15-1', name: 'Workflow_Analysis_Q4.pdf', type: 'document', url: 'https://picsum.photos/seed/workflow/600/400', size: '3.1 MB', note: 'Q4 operational workflow analysis.' },
+    ],
     subtasks: [],
   },
   // Completed Tasks - Pending Validation
@@ -228,7 +232,9 @@ const allTasks: Task[] = [
           content: { en: 'Looks good, Sasi. The focus on video is a great strategy. Please proceed with the production. I have marked this as completed, pending final value approval.', id: 'Bagus, Sasi. Fokus pada video adalah strategi yang bagus. Silakan lanjutkan ke produksi. Saya sudah menandainya sebagai selesai, menunggu persetujuan nilai akhir.' },
         },
     ], 
-    files: [],
+    files: [
+      { id: 'file-6-1', name: 'Social_Media_Plan.xlsx', type: 'document', url: 'https://picsum.photos/seed/socmed/600/400', size: '45 KB', note: 'Monthly content calendar' },
+    ],
     subtasks: [],
   },
   {
@@ -301,7 +307,9 @@ const allTasks: Task[] = [
           content: { en: 'Noted, Deva. I have the new guidelines. I have completed the infographic and submitted it for review.', id: 'Baik, Deva. Saya sudah punya pedoman baru. Saya telah menyelesaikan infografisnya dan sudah saya kirim untuk ditinjau.' },
         },
     ], 
-    files: [],
+    files: [
+      { id: 'file-8-1', name: 'Infographic_Final.png', type: 'image', url: 'https://picsum.photos/seed/infograph/600/400', size: '980 KB' },
+    ],
     subtasks: [],
   },
   {
@@ -434,8 +442,8 @@ const allTasks: Task[] = [
         }
     ], 
     files: [
-      { id: 'file-5', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB', note: 'First concept, more corporate style.' },
-      { id: 'file-6', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
+      { id: 'file-12-1', name: 'Campaign_Concept_A.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptA/600/400', size: '2.5 MB', note: 'First concept, more corporate style.' },
+      { id: 'file-12-2', name: 'Campaign_Concept_B.jpg', type: 'image', url: 'https://picsum.photos/seed/conceptB/600/400', size: '2.8 MB', note: 'Second concept, more modern and colorful.' },
     ],
     subtasks: [],
   },
@@ -537,8 +545,8 @@ const allTasks: Task[] = [
         },
     ], 
     files: [
-      { id: 'file-3', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB', note: 'Final approved script.' },
-      { id: 'file-4', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB', note: 'Storyboard visuals for client review.' },
+      { id: 'file-4-1', name: 'Script_Final_v2.docx', type: 'document', url: 'https://picsum.photos/seed/script/600/400', size: '128 KB', note: 'Final approved script.' },
+      { id: 'file-4-2', name: 'Storyboard_Draft.pdf', type: 'document', url: 'https://picsum.photos/seed/storyboard/600/400', size: '2.1 MB', note: 'Storyboard visuals for client review.' },
     ],
     subtasks: [
       { 
@@ -756,6 +764,7 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
   .filter((item): item is DetailedReportEntry => item !== null);
 
     
+
 
 
 
