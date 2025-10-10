@@ -142,7 +142,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
           preview: URL.createObjectURL(file),
         })
       );
-      setSubmissionFiles(prev => [...prev, ...newFiles]);
+      setSubmissionFiles(prev => [...prev, ...newFiles as any[]]);
       toast({
         title: t('task.submit.upload.toast.success_title'),
         description: t('task.submit.upload.toast.success_desc', { count: newFiles.length.toString() })
@@ -178,13 +178,12 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         .filter(st => st.isCompleted && st.linkedFileId)
         .map(st => st.linkedFileId)
     );
-
+    
+    // Show files that are not linked to any subtask, OR are linked to a completed subtask.
     return task.files.filter(file => {
-      // If a file is not linked to any subtask, always show it.
       if (!allLinkedFileIds.has(file.id)) {
         return true;
       }
-      // If a file is linked, only show it if the corresponding subtask is completed.
       return completedLinkedFileIds.has(file.id);
     });
   }, [task.files, task.subtasks]);
@@ -286,7 +285,7 @@ export function TaskDetails({ task: initialTask, onUpdateTask, onAddNotification
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <h4 className="font-semibold">{t('task.assignees')}</h4>
-            <div className="flex flex-col space-y-2">
+             <div className="flex flex-col space-y-2">
                 {task.assignees.map((user) => (
                     <div key={user.id} className="flex items-center space-x-2">
                         <Avatar className="h-8 w-8">
