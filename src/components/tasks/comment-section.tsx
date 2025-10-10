@@ -132,7 +132,9 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment }: 
           </div>
         </div>
       </div>
+      
       <Separator />
+
       <div className="space-y-6">
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-3">
@@ -153,9 +155,13 @@ export function CommentSection({ taskId, comments, currentUser, onAddComment }: 
             </div>
           </div>
         ))}
+        {comments.length === 0 && (
+          <div className="text-center text-muted-foreground py-6">
+            <p className="text-sm">No comments yet.</p>
+            <p className="text-xs">Be the first to say something!</p>
+          </div>
+        )}
       </div>
     </div>
   );
 }
-
-    
