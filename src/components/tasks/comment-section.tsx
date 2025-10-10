@@ -245,5 +245,3 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     </div>
   );
 }
-
-    
