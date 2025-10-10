@@ -126,7 +126,6 @@ export default function DownloadsPage() {
             duration: 5000,
         });
 
-        // Use a more unique ID to avoid collisions
         const newNotifId = `notif-download-${currentUser.id}-${item.id}`;
         const notifExists = notifications.some(n => n.id === newNotifId);
 
@@ -304,5 +303,7 @@ export default function DownloadsPage() {
     </>
   );
 }
+
+    
 
     
