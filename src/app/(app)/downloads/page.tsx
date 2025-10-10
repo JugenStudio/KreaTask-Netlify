@@ -190,6 +190,7 @@ export default function DownloadsPage() {
       </div>
       
       <div className="space-y-6">
+        <TooltipProvider>
         {Object.keys(groupedDownloads).length > 0 ? (
           Object.entries(groupedDownloads).map(([date, downloads]) => (
             <div key={date}>
@@ -203,7 +204,6 @@ export default function DownloadsPage() {
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
                         <div className="flex-1 overflow-hidden">
-                           <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <p className="font-medium truncate cursor-pointer">{item.fileName}</p>
@@ -212,7 +212,6 @@ export default function DownloadsPage() {
                                   <p>{item.fileName}</p>
                                 </TooltipContent>
                               </Tooltip>
-                            </TooltipProvider>
                            {item.status === 'In Progress' ? (
                                 <div className="flex items-center gap-2 mt-1">
                                     <Progress value={item.progress} className="h-1 flex-1" />
@@ -242,6 +241,7 @@ export default function DownloadsPage() {
                 <p className="text-sm text-muted-foreground">{t('downloads.no_history_desc')}</p>
             </div>
         )}
+        </TooltipProvider>
       </div>
     </div>
      {itemToDelete && (
@@ -265,5 +265,3 @@ export default function DownloadsPage() {
     </>
   );
 }
-
-    
