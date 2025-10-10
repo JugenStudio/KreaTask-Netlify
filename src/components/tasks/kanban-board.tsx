@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult } from 'react-beautiful-dnd';
 import type { Task, TaskStatus } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
@@ -13,6 +13,24 @@ import { Plus } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTaskData } from "@/hooks/use-task-data";
+
+
+// Wrapper component to fix react-beautiful-dnd issue with React 18 Strict Mode
+const StrictDroppable = ({ children, ...props }: any) => {
+  const [enabled, setEnabled] = useState(false);
+  useEffect(() => {
+    const animation = requestAnimationFrame(() => setEnabled(true));
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
+  }, []);
+  if (!enabled) {
+    return null;
+  }
+  return <Droppable {...props}>{children}</Droppable>;
+};
+
 
 const statusColumns: TaskStatus[] = ["To-do", "In Progress", "In Review", "Completed", "Blocked"];
 
@@ -89,8 +107,8 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <Droppable droppableId={status}>
-                    {(provided, snapshot) => (
+                <StrictDroppable droppableId={status}>
+                    {(provided: any, snapshot: any) => (
                         <CardContent 
                             ref={provided.innerRef}
                             {...provided.droppableProps}
@@ -107,7 +125,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                             </div>
                         </CardContent>
                     )}
-                </Droppable>
+                </StrictDroppable>
             </div>
         </div>
     );
