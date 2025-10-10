@@ -2,8 +2,8 @@
 {
   "sidebar": {
     "home": "Home",
-    "all_tasks": "All Tasks",
-    "submit_task": "Submit Task",
+    "all_tasks": "Tasks",
+    "submit_task": "Upload",
     "leaderboard": "Leaderboard",
     "performance_report": "Report",
     "profile": "Profile",

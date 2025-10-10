@@ -2,8 +2,8 @@
 {
   "sidebar": {
     "home": "Beranda",
-    "all_tasks": "Semua Tugas",
-    "submit_task": "Kirim Tugas",
+    "all_tasks": "Tugas",
+    "submit_task": "Unggah",
     "leaderboard": "Peringkat",
     "performance_report": "Laporan",
     "profile": "Profil",
