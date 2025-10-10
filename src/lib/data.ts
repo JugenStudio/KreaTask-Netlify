@@ -192,7 +192,7 @@ const allTasks: Task[] = [
     title: { en: 'Analyze Competitor Keywords', id: 'Analisis Kata Kunci Kompetitor' },
     description: { en: 'Research and analyze the top keywords used by main competitors.', id: 'Riset dan analisis kata kunci utama yang digunakan oleh kompetitor utama.' },
     assignees: [users.find(u => u.role === UserRole.MARKETING)!],
-    status: 'Completed',
+    status: 'In Progress',
     category: TaskCategory.Medium,
     dueDate: '2024-09-22',
     createdAt: '2024-09-15',
@@ -200,7 +200,22 @@ const allTasks: Task[] = [
     value: 20,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+      {
+        id: 'comment-7-1',
+        author: users.find(u => u.name === 'Naufal')!,
+        timestamp: new Date('2024-09-20T10:00:00Z').toISOString(),
+        content: { en: 'Citra, please focus on SEO competitors from the SEA region.', id: 'Citra, tolong fokus pada kompetitor SEO dari wilayah Asia Tenggara.' },
+      },
+      {
+        id: 'comment-7-2',
+        author: users.find(u => u.name === 'Citra')!,
+        timestamp: new Date('2024-09-20T11:00:00Z').toISOString(),
+        content: { en: 'Understood, Mr. Naufal. I will adjust my research scope.', id: 'Mengerti, Pak Naufal. Saya akan menyesuaikan cakupan riset saya.' },
+      },
+    ], 
+    files: [],
     subtasks: [],
   },
   {
@@ -271,7 +286,7 @@ const allTasks: Task[] = [
     title: { en: 'Update Company Website FAQ', id: 'Perbarui FAQ Situs Web Perusahaan' },
     description: { en: 'Update the Frequently Asked Questions page on the company website with new information.', id: 'Perbarui halaman Pertanyaan yang Sering Diajukan di situs web perusahaan dengan informasi baru.' },
     assignees: [users.find(u => u.role === UserRole.JURNALIS)!],
-    status: 'Completed',
+    status: 'To-do',
     category: TaskCategory.Low,
     dueDate: '2024-09-25',
     createdAt: '2024-09-20',
@@ -279,7 +294,16 @@ const allTasks: Task[] = [
     value: 10,
     evaluator: "AI",
     approvedBy: null,
-    revisions: [], comments: [], files: [],
+    revisions: [], 
+    comments: [
+      {
+          id: 'comment-11-1',
+          author: users.find(u => u.name === 'Deva')!,
+          timestamp: new Date('2024-09-21T11:00:00Z').toISOString(),
+          content: { en: 'Agus, please add the new return policy to the FAQ.', id: 'Agus, tolong tambahkan kebijakan pengembalian baru ke FAQ.' },
+      },
+    ], 
+    files: [],
     subtasks: [],
   },
   {
@@ -287,7 +311,7 @@ const allTasks: Task[] = [
     title: { en: 'Design social media campaign visuals', id: 'Desain visual kampanye media sosial' },
     description: { en: 'Create visuals for the upcoming Q4 social media campaign.', id: 'Buat visual untuk kampanye media sosial Q4 mendatang.' },
     assignees: [users.find(u => u.role === UserRole.DESAIN_GRAFIS)!],
-    status: 'Completed',
+    status: 'In Review',
     category: TaskCategory.High,
     dueDate: '2024-09-28',
     createdAt: '2024-09-22',
@@ -340,7 +364,7 @@ const allTasks: Task[] = [
     title: { en: 'Research new marketing channels', id: 'Riset saluran pemasaran baru' },
     description: { en: 'Identify and research potential new marketing channels to reach a wider audience.', id: 'Identifikasi dan riset saluran pemasaran baru yang potensial untuk menjangkau audiens yang lebih luas.' },
     assignees: [users.find(u => u.role === UserRole.MARKETING)!],
-    status: 'Completed',
+    status: 'Blocked',
     category: TaskCategory.High,
     dueDate: '2024-09-26',
     createdAt: '2024-09-20',
@@ -360,7 +384,13 @@ const allTasks: Task[] = [
           id: 'comment-14-2',
           author: users.find(u => u.name === 'Citra')!,
           timestamp: new Date('2024-09-26T09:00:00Z').toISOString(),
-          content: { en: 'Understood, Naufal. I have prepared the presentation slides.', id: 'Mengerti, Naufal. Saya sudah menyiapkan slide presentasinya.' },
+          content: { en: 'Understood, Mr. Naufal. I have prepared the presentation slides.', id: 'Mengerti, Pak Naufal. Saya sudah menyiapkan slide presentasinya.' },
+        },
+        {
+          id: 'comment-14-3',
+          author: users.find(u => u.name === 'Citra')!,
+          timestamp: new Date('2024-09-27T14:00:00Z').toISOString(),
+          content: { en: 'This task is blocked. The budget for new channels has not been approved yet.', id: 'Tugas ini terhambat. Anggaran untuk saluran baru belum disetujui.' },
         }
     ], 
     files: [],
@@ -561,6 +591,8 @@ export const detailedReportData: DetailedReportEntry[] = allTasks
     };
   })
   .filter((item): item is DetailedReportEntry => item !== null);
+
+    
 
     
 
