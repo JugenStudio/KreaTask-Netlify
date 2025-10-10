@@ -202,7 +202,7 @@ export default function DownloadsPage() {
                   >
                     <CardContent className="p-3 flex items-center gap-4">
                         <FileText className="h-6 w-6 text-muted-foreground flex-shrink-0" />
-                        <div className="flex-1 overflow-hidden" onClick={() => handleRedownload(item)}>
+                        <div className="flex-1 overflow-hidden">
                            <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
@@ -265,3 +265,5 @@ export default function DownloadsPage() {
     </>
   );
 }
+
+    
