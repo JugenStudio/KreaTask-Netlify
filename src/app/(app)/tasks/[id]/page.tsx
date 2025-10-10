@@ -33,8 +33,14 @@ export default function TaskDetailPage() {
 
   const handleAddComment = useCallback((newComment: CommentType) => {
     if (task) {
-      const updatedComments = [newComment, ...task.comments];
+      const updatedComments = [...task.comments, newComment];
       updateTask(task.id, { comments: updatedComments });
+    }
+  }, [task, updateTask]);
+  
+  const handleUpdateComments = useCallback((updatedComments: CommentType[]) => {
+    if (task) {
+        updateTask(task.id, { comments: updatedComments });
     }
   }, [task, updateTask]);
 
@@ -80,6 +86,7 @@ export default function TaskDetailPage() {
                     comments={task.comments} 
                     currentUser={currentUser} 
                     onAddComment={handleAddComment}
+                    onUpdateComments={handleUpdateComments}
                 />
             </TabsContent>
             <TabsContent value="revisions" className="mt-4">
