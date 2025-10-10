@@ -44,7 +44,7 @@
     "no_notifications": "Tidak ada notifikasi baru",
     "unread_count": "{{count}} belum dibaca",
     "profile": "Profil",
-settings": "Pengaturan",
+    "settings": "Pengaturan",
     "logout": "Keluar"
   },
   "profile": {
@@ -341,3 +341,5 @@ settings": "Pengaturan",
     }
   }
 }
+
+    
