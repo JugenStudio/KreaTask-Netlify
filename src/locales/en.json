@@ -358,8 +358,11 @@
   "downloads": {
     "title": "Download Manager",
     "description": "View the progress and history of your file downloads.",
+    "search_placeholder": "Search downloads...",
+    "clear_all": "Clear all",
     "history": "Download History",
     "no_history": "You have no download history.",
+    "no_history_desc": "Downloads from tasks will appear here.",
     "table": {
       "fileName": "File Name",
       "task": "Related Task",
@@ -373,7 +376,9 @@
     },
     "toast": {
       "completed_title": "Download Complete",
-      "completed_desc": "File \"{{fileName}}\" has been successfully downloaded."
+      "completed_desc": "File \"{{fileName}}\" has been successfully downloaded.",
+      "cleared_title": "History Cleared",
+      "cleared_desc": "Your download history has been cleared."
     }
   }
 }

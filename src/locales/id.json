@@ -75,7 +75,7 @@
       "delete_confirm_message": "Apakah Anda yakin ingin menghapus file \"{{fileName}}\"?",
       "delete_toast": {
         "success_title": "File Dihapus",
-        "success_desc": "File \"{{fileName}}\" telah dihapus dari tugas ini."
+        "success_desc": "File \"{{fileName}}\" berhasil dihapus."
       },
       "delete_dialog": {
         "title": "Apakah Anda yakin?",
@@ -358,8 +358,11 @@
   "downloads": {
     "title": "Manajer Unduhan",
     "description": "Lihat progres dan riwayat unduhan file Anda.",
+    "search_placeholder": "Cari unduhan...",
+    "clear_all": "Hapus semua",
     "history": "Riwayat Unduhan",
     "no_history": "Anda tidak memiliki riwayat unduhan.",
+    "no_history_desc": "Unduhan dari tugas akan muncul di sini.",
     "table": {
       "fileName": "Nama File",
       "task": "Tugas Terkait",
@@ -373,7 +376,9 @@
     },
     "toast": {
       "completed_title": "Unduhan Selesai",
-      "completed_desc": "File \"{{fileName}}\" berhasil diunduh."
+      "completed_desc": "File \"{{fileName}}\" berhasil diunduh.",
+      "cleared_title": "Riwayat Dihapus",
+      "cleared_desc": "Riwayat unduhan Anda telah dihapus."
     }
   }
 }
