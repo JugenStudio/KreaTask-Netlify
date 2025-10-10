@@ -8,10 +8,7 @@ import {
   User as UserIcon,
   Settings,
   LogOut,
-  Sun,
-  Moon,
-  Laptop,
-  Languages,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,10 +19,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useLanguage } from "@/providers/language-provider";
@@ -127,6 +120,13 @@ export function Header() {
               <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>{t("header.settings")}</span>
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuItem asChild>
+              <Link href="/downloads">
+                <Download className="mr-2 h-4 w-4" />
+                <span>{t("header.downloads")}</span>
               </Link>
             </DropdownMenuItem>
             

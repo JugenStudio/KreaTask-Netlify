@@ -45,6 +45,7 @@
     "unread_count": "{{count}} unread",
     "profile": "Profile",
     "settings": "Settings",
+    "downloads": "Downloads",
     "logout": "Log out"
   },
   "profile": {
@@ -71,6 +72,7 @@
     "attachments": {
       "title": "Attachments",
       "no_attachments": "No files attached.",
+      "delete_confirm_message": "Are you sure you want to delete the file \"{{fileName}}\"?",
       "delete_toast": {
         "success_title": "File Deleted",
         "success_desc": "\"{{fileName}}\" has been removed from this task."
@@ -351,6 +353,23 @@
         "cancel": "Cancel",
         "confirm": "Delete User"
       }
+    }
+  },
+  "downloads": {
+    "title": "Download Manager",
+    "description": "View the progress and history of your file downloads.",
+    "history": "Download History",
+    "no_history": "You have no download history.",
+    "table": {
+      "fileName": "File Name",
+      "task": "Related Task",
+      "date": "Date",
+      "status": "Status"
+    },
+    "status": {
+      "completed": "Completed",
+      "in_progress": "In Progress",
+      "failed": "Failed"
     }
   }
 }

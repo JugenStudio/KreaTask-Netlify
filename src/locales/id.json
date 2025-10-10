@@ -45,6 +45,7 @@
     "unread_count": "{{count}} belum dibaca",
     "profile": "Profil",
     "settings": "Pengaturan",
+    "downloads": "Unduhan",
     "logout": "Keluar"
   },
   "profile": {
@@ -71,6 +72,7 @@
     "attachments": {
       "title": "Lampiran",
       "no_attachments": "Tidak ada file terlampir.",
+      "delete_confirm_message": "Apakah Anda yakin ingin menghapus file \"{{fileName}}\"?",
       "delete_toast": {
         "success_title": "File Dihapus",
         "success_desc": "File \"{{fileName}}\" telah dihapus dari tugas ini."
@@ -351,6 +353,23 @@
       "description": "Tindakan ini tidak dapat dibatalkan. Ini akan menghapus tugas \"{{title}}\" secara permanen.",
       "cancel": "Batal",
       "confirm": "Hapus"
+    }
+  },
+  "downloads": {
+    "title": "Manajer Unduhan",
+    "description": "Lihat progres dan riwayat unduhan file Anda.",
+    "history": "Riwayat Unduhan",
+    "no_history": "Anda tidak memiliki riwayat unduhan.",
+    "table": {
+      "fileName": "Nama File",
+      "task": "Tugas Terkait",
+      "date": "Tanggal",
+      "status": "Status"
+    },
+    "status": {
+      "completed": "Selesai",
+      "in_progress": "Sedang Berjalan",
+      "failed": "Gagal"
     }
   }
 }
