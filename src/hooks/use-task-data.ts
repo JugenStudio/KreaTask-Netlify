@@ -57,90 +57,27 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // Step 1: Fetch tasks for the current user.
-  // This is efficient as it targets a specific user's subcollection.
+  // Step 1: Fetch tasks and notifications for the current user.
   const tasksQuery = useMemoFirebase(() => {
-    if (isUserLoading || !authUser) {
-      return null;
-    }
+    if (!authUser) return null;
     return collection(firestore, 'users', authUser.uid, 'tasks');
-  }, [firestore, authUser, isUserLoading]);
+  }, [firestore, authUser]);
   const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksQuery);
   
-  // Step 2: Fetch notifications.
   const notificationsQuery = useMemoFirebase(() => {
-    if (isUserLoading || !authUser) {
-      return null;
-    }
+    if (!authUser) return null;
     return collection(firestore, 'users', authUser.uid, 'notifications');
-  }, [firestore, authUser, isUserLoading]);
+  }, [firestore, authUser]);
   const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
   
-  // Step 3: Fetch users dynamically based on tasks.
-  const [users, setUsersState] = useState<User[]>([]);
-  const [isUsersLoading, setIsUsersLoading] = useState(true);
-
-  useEffect(() => {
-    if (!allTasks || !firestore || !authUser) {
-      // If there are no tasks or auth is not ready, we might not need to fetch users.
-      // But we should at least have the current user.
-      if (authUser) {
-        setUsersState([authUser as User]);
-      }
-      setIsUsersLoading(isUserLoading); // Reflect auth loading state
-      return;
-    }
-
-    const fetchUsers = async () => {
-      setIsUsersLoading(true);
-      // Collect all unique user IDs from all task assignees.
-      const userIds = new Set<string>();
-      allTasks.forEach(task => {
-        task.assignees.forEach(assignee => userIds.add(assignee.id));
-      });
-      // Always include the current authenticated user.
-      userIds.add(authUser.uid);
-
-      if (userIds.size === 0) {
-        setUsersState([]);
-        setIsUsersLoading(false);
-        return;
-      }
-      
-      // Fetch user documents for the collected IDs.
-      // Firestore 'in' query is limited to 30 items per query.
-      const userIdsArray = Array.from(userIds);
-      const userPromises = [];
-      for (let i = 0; i < userIdsArray.length; i += 30) {
-        const chunk = userIdsArray.slice(i, i + 30);
-        const q = query(collection(firestore, "users"), where("id", "in", chunk));
-        userPromises.push(getDocs(q));
-      }
-
-      try {
-        const userSnapshots = await Promise.all(userPromises);
-        const fetchedUsers = userSnapshots.flatMap(snapshot => 
-          snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as User))
-        );
-        
-        // Ensure the current user is in the list, even if they have no tasks.
-        if (!fetchedUsers.some(u => u.id === authUser.uid)) {
-            fetchedUsers.push(authUser as User);
-        }
-
-        setUsersState(fetchedUsers);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-        // Fallback to at least the current user
-        setUsersState([authUser as User]);
-      } finally {
-        setIsUsersLoading(false);
-      }
-    };
-
-    fetchUsers();
-  }, [allTasks, firestore, authUser, isUserLoading]);
-
+  // Step 2: Fetch all users from the /users collection.
+  const usersQuery = useMemoFirebase(() => {
+    // Only fetch users after auth state is confirmed to avoid permission errors.
+    if (isUserLoading) return null;
+    return collection(firestore, 'users');
+  }, [firestore, isUserLoading]);
+  const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
+  
 
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
@@ -184,7 +121,6 @@ export function useTaskData() {
       const userRef = doc(firestore, 'users', user.id);
       updateDocumentNonBlocking(userRef, user);
     });
-    // The useCollection hook will update the state automatically, no need for setUsersState
   };
 
   const setNotifications = (newNotifications: Notification[]) => {
