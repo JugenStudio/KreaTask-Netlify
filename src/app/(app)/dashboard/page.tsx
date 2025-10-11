@@ -112,17 +112,17 @@ export default function DashboardPage() {
       <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {isLvl1 ? (
           <>
-            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" />
-            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" />
-            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" />
-            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" />
+            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" color="green" />
+            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" color="yellow" />
+            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
+            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
           </>
         ) : (
           <>
-            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+18% dari bulan lalu" href="/tasks" />
-            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+2 dari bulan lalu" href="/settings" />
-            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+5% dari bulan lalu" href="/leaderboard" />
-            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="-3 dari bulan lalu" href="/tasks" />
+            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+18% dari bulan lalu" href="/tasks" color="green" />
+            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+2 dari bulan lalu" href="/settings" color="blue" />
+            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+5% dari bulan lalu" href="/leaderboard" color="yellow" />
+            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="-3 dari bulan lalu" href="/tasks" color="purple" />
           </>
         )}
       </div>

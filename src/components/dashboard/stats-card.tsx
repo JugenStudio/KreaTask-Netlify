@@ -6,6 +6,13 @@ import type { LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+const colorVariants = {
+  blue: "bg-blue-500/10 text-blue-500",
+  green: "bg-green-500/10 text-green-500",
+  yellow: "bg-yellow-500/10 text-yellow-500",
+  purple: "bg-purple-500/10 text-purple-500",
+};
+
 interface StatsCardProps {
   title: string;
   value: string | number;
@@ -13,6 +20,7 @@ interface StatsCardProps {
   change?: string;
   changeType?: "positive" | "negative";
   href?: string;
+  color?: keyof typeof colorVariants;
 }
 
 export function StatsCard({ 
@@ -21,7 +29,8 @@ export function StatsCard({
     icon: Icon, 
     change, 
     changeType = "positive", 
-    href = "#" 
+    href = "#",
+    color = "blue"
 }: StatsCardProps) {
   const changeColor = changeType === 'positive' ? 'text-green-400' : 'text-red-400';
 
@@ -32,11 +41,13 @@ export function StatsCard({
           <div className="flex justify-between items-start">
             <div className="flex flex-col">
               <p className="text-sm text-muted-foreground">{title}</p>
+              <p className="text-2xl md:text-3xl font-bold text-foreground mt-2">{value}</p>
             </div>
-            <Icon className="h-5 w-5 text-muted-foreground" />
+            <div className={cn("p-2 rounded-lg", colorVariants[color])}>
+                <Icon className="h-6 w-6" />
+            </div>
           </div>
           <div>
-            <p className="text-2xl md:text-3xl font-bold text-foreground mt-2">{value}</p>
             {change && (
                 <p className={cn("text-xs md:text-sm font-semibold", changeColor)}>{change}</p>
             )}
