@@ -17,6 +17,8 @@ import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
+import MagicBento from '@/components/ui/magic-bento';
+
 
 export default function DashboardPage() {
   const { currentUser } = useCurrentUser();
@@ -109,23 +111,28 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {isLvl1 ? (
-          <>
-            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" color="green" />
-            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" color="yellow" />
-            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
-            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
-          </>
-        ) : (
-          <>
-            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+18% dari bulan lalu" href="/tasks" color="green" />
-            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+2 dari bulan lalu" href="/settings" color="blue" />
-            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+5% dari bulan lalu" href="/leaderboard" color="yellow" />
-            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="-3 dari bulan lalu" href="/tasks" color="purple" />
-          </>
-        )}
-      </div>
+      {isLvl1 ? (
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" color="green" />
+          <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" color="yellow" />
+          <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
+          <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
+        </div>
+      ) : (
+        <MagicBento 
+          textAutoHide={true}
+          enableStars={true}
+          enableSpotlight={true}
+          enableBorderGlow={true}
+          enableTilt={true}
+          enableMagnetism={true}
+          clickEffect={true}
+          spotlightRadius={300}
+          particleCount={12}
+          glowColor="163, 97%, 42%"
+        />
+      )}
+      
 
       {/* Main Content Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
