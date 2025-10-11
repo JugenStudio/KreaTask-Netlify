@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DragDropContext, Droppable, Draggable, type DropResult } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, type DropResult, type DroppableProps } from 'react-beautiful-dnd';
 import type { Task, TaskStatus } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +13,29 @@ import { Plus } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTaskData } from "@/hooks/use-task-data";
+
+/**
+ * StrictModeDroppable is a workaround for the `react-beautiful-dnd` library not being fully compatible
+ * with React 18's Strict Mode. This component delays the rendering of the Droppable component
+ * until after the initial double-render in development, preventing invariant errors.
+ */
+const StrictModeDroppable = ({ children, ...props }: DroppableProps) => {
+  const [enabled, setEnabled] = useState(false);
+
+  useEffect(() => {
+    const animation = requestAnimationFrame(() => setEnabled(true));
+    return () => {
+      cancelAnimationFrame(animation);
+      setEnabled(false);
+    };
+  }, []);
+
+  if (!enabled) {
+    return null;
+  }
+
+  return <Droppable {...props}>{children}</Droppable>;
+};
 
 
 const statusColumns: TaskStatus[] = ["To-do", "In Progress", "In Review", "Completed", "Blocked"];
@@ -90,7 +113,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <Droppable droppableId={status}>
+                <StrictModeDroppable droppableId={status}>
                     {(provided, snapshot) => (
                         <CardContent 
                             ref={provided.innerRef}
@@ -108,7 +131,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                             </div>
                         </CardContent>
                     )}
-                </Droppable>
+                </StrictModeDroppable>
             </div>
         </div>
     );
