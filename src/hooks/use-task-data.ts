@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { UserRole } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, getDoc } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
@@ -57,8 +57,8 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
-  const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
+  const [users, setUsersState] = useState<User[]>([]);
+  const [isUsersLoading, setIsUsersLoading] = useState(true);
 
   const tasksQuery = useMemoFirebase(() => {
     if (!authUser) return null;
@@ -71,6 +71,50 @@ export function useTaskData() {
     return collection(firestore, 'users', authUser.uid, 'notifications');
   }, [firestore, authUser]);
   const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (!allTasks || allTasks.length === 0) {
+        setIsUsersLoading(false);
+        return;
+      }
+      
+      setIsUsersLoading(true);
+      const userIds = new Set<string>();
+      allTasks.forEach(task => task.assignees.forEach(assignee => userIds.add(assignee.id)));
+
+      if (authUser) {
+          userIds.add(authUser.uid);
+      }
+
+      const userPromises = Array.from(userIds).map(id => getDoc(doc(firestore, 'users', id)));
+      
+      try {
+        const userDocs = await Promise.all(userPromises);
+        const fetchedUsers = userDocs
+          .filter(doc => doc.exists())
+          .map(doc => ({ id: doc.id, ...doc.data() } as User));
+        
+        // Ensure the current authenticated user is in the list, even if they have no tasks.
+        if (authUser && !fetchedUsers.some(u => u.id === authUser.id)) {
+            const authUserDoc = await getDoc(doc(firestore, 'users', authUser.uid));
+            if (authUserDoc.exists()) {
+                fetchedUsers.push({ id: authUserDoc.id, ...authUserDoc.data() } as User);
+            }
+        }
+        
+        setUsersState(fetchedUsers);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setIsUsersLoading(false);
+      }
+    };
+
+    if (!isTasksLoading) {
+        fetchUsers();
+    }
+  }, [allTasks, isTasksLoading, firestore, authUser]);
 
 
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
@@ -93,7 +137,7 @@ export function useTaskData() {
 
 
   useEffect(() => {
-    if (allTasks && users) {
+    if (allTasks && users.length > 0) {
       const newLeaderboard = calculateLeaderboard(allTasks, users);
       setLeaderboardData(newLeaderboard);
     }
@@ -111,11 +155,11 @@ export function useTaskData() {
   };
 
   const setUsers = (newUsers: User[]) => {
-    if (!users) return;
     newUsers.forEach(user => {
       const userRef = doc(firestore, 'users', user.id);
       updateDocumentNonBlocking(userRef, user);
     });
+    setUsersState(newUsers);
   };
 
   const setNotifications = (newNotifications: Notification[]) => {
