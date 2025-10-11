@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/app/(app)/layout";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 export default function SubmitPage() {
   const { t } = useLanguage();
@@ -30,7 +31,7 @@ export default function SubmitPage() {
       </div>
       
       {!currentUser ? (
-          <Card>
+          <Card className="card-glow">
             <CardContent className="p-4 md:p-6">
                 <div className="space-y-6 md:space-y-8">
                     <Skeleton className="h-10 w-full" />

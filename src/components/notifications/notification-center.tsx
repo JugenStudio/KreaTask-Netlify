@@ -117,7 +117,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
       </div>
 
       {isOpen && (
-        <Card className="absolute right-0 mt-2 w-80 sm:w-96 shadow-2xl border z-50 bg-popover rounded-2xl">
+        <Card className="absolute right-0 mt-2 w-80 sm:w-96 shadow-2xl border z-50 bg-popover rounded-2xl card-glow">
           <div className="flex justify-between items-center p-3 border-b">
             <h3 className="font-semibold text-popover-foreground">{t('header.notifications')}</h3>
             <div className="flex gap-1">

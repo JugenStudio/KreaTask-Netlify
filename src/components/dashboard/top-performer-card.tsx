@@ -9,11 +9,12 @@ import type { LeaderboardEntry } from "@/lib/types";
 import { Crown } from "lucide-react";
 import Link from "next/link";
 import { useLanguage } from "@/providers/language-provider";
+import { cn } from "@/lib/utils";
 
 export function TopPerformerCard({ performer }: { performer: LeaderboardEntry }) {
   const { t } = useLanguage();
   return (
-    <Card className="h-full">
+    <Card className={cn("h-full", "card-glow")}>
       <CardHeader>
         <CardTitle className="font-headline text-card-foreground">{t('dashboard.top_performer')}</CardTitle>
       </CardHeader>

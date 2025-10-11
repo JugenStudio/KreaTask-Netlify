@@ -216,7 +216,7 @@ export default function PerformanceReportPage() {
             {t('report.export_csv')}
           </Button>
         </div>
-        <Card>
+        <Card className="card-glow">
           <CardContent className="p-4 md:p-6">
             <ReportTable tasks={completedTasks} />
           </CardContent>
@@ -247,7 +247,7 @@ export default function PerformanceReportPage() {
           </div>
 
           {/* Validation Panel */}
-          <Card>
+          <Card className="card-glow">
               <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl md:text-2xl"><ThumbsUp className="h-5 w-5 md:h-6 md:h-6 text-primary"/> {t('report.validation_panel.title')}</CardTitle>
                   <CardDescription>{t('report.validation_panel.description')}</CardDescription>
@@ -368,7 +368,7 @@ export default function PerformanceReportPage() {
                       </p>
                   </div>
               </div>
-              <Card>
+              <Card className="card-glow">
                   <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b">
                       <div className="flex flex-wrap items-center justify-center gap-2">
                           <h4 className="text-base font-semibold flex-shrink-0">{t('report.history_panel.filter.title')}</h4>
