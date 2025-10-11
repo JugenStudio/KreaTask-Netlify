@@ -17,46 +17,12 @@ import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
-import Carousel from '@/components/ui/Carousel';
-import type { CarouselItem } from '@/components/ui/Carousel';
-
-const onboardingItems: CarouselItem[] = [
-  {
-    id: 1,
-    title: "Generate Tasks with AI",
-    description: "Click 'Upload' and use the AI generator to turn your goals into actionable tasks.",
-    icon: <WandSparkles className="carousel-icon" />,
-  },
-  {
-    id: 2,
-    title: "Track Your Progress",
-    description: "Check the 'Leaderboard' to see your rank and score based on completed tasks.",
-    icon: <Trophy className="carousel-icon" />,
-  },
-  {
-    id: 3,
-    title: "Manage Your Tasks",
-    description: "Go to the 'Tasks' page to view your assignments in a list or board view.",
-    icon: <ListChecks className="carousel-icon" />,
-  },
-];
-
 
 export default function DashboardPage() {
   const { currentUser } = useCurrentUser();
   const { allTasks, users, leaderboardData, isLoading: isTaskDataLoading } = useTaskData();
   const [currentUserLeaderboard, setCurrentUserLeaderboard] = useState<LeaderboardEntry | null>(null);
   const { t } = useLanguage();
-  const [showOnboarding, setShowOnboarding] = useState(false);
-
-  useEffect(() => {
-    // Show onboarding carousel only on first visit for the session
-    const hasVisited = sessionStorage.getItem('kreatask_visited_dashboard');
-    if (!hasVisited) {
-      setShowOnboarding(true);
-      sessionStorage.setItem('kreatask_visited_dashboard', 'true');
-    }
-  }, []);
 
   useEffect(() => {
     if (currentUser && leaderboardData.length > 0) {
@@ -132,21 +98,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6 md:space-y-8">
-       {showOnboarding && (
-         <div className="mb-8 p-4 bg-secondary/50 rounded-2xl">
-            <h2 className="text-xl font-headline font-bold text-center mb-4">Quick Guide</h2>
-            <div className="mx-auto w-fit">
-              <Carousel
-                items={onboardingItems}
-                baseWidth={280}
-                autoplay={true}
-                loop={true}
-                autoplayDelay={5000}
-              />
-            </div>
-         </div>
-      )}
-
       {/* Header Section */}
       <div>
         <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">

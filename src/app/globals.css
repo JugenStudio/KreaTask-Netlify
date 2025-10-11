@@ -1,5 +1,4 @@
 @import "./../components/Aurora.css";
-@import "./../components/ui/Carousel.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
