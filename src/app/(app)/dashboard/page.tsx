@@ -17,6 +17,7 @@ import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
+import SplitText from "@/components/SplitText";
 
 export default function DashboardPage() {
   const { currentUser } = useCurrentUser();
@@ -94,13 +95,23 @@ export default function DashboardPage() {
       (t) => new Date(t.dueDate) < new Date() && t.status !== "Completed"
     ).length;
 
+  const welcomeMessage = t("dashboard.welcome", { name: currentUser.name.split(" ")[0] });
+
   return (
     <div className="space-y-6 md:space-y-8">
       {/* Header Section */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
-          {t("dashboard.welcome", { name: currentUser.name.split(" ")[0] })}
-        </h1>
+        <SplitText
+            tag="h1"
+            text={welcomeMessage}
+            className="text-3xl md:text-4xl font-bold font-headline text-yellow-400"
+            delay={50}
+            duration={0.8}
+            ease="power3.out"
+            splitType="chars"
+            from={{ opacity: 0, y: 20 }}
+            to={{ opacity: 1, y: 0 }}
+        />
         <p className="text-muted-foreground text-base md:text-lg">
           {t("dashboard.description")}
         </p>
