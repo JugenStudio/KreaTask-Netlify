@@ -115,14 +115,14 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <StrictModeDroppable droppableId={status}>
+                <StrictModeDroppable droppableId={status} isDropDisabled={false}>
                     {(provided, snapshot) => (
                         <CardContent 
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                             className={cn(
                                 "p-1.5 pt-0 transition-colors",
-                                hasTasks ? "min-h-[150px]" : "min-h-[20px]", // Dynamic min-height
+                                hasTasks ? "min-h-[100px]" : "min-h-[20px]", // Dynamic min-height
                                 snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
