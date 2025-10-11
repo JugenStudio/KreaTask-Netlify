@@ -121,5 +121,19 @@
   ::-webkit-scrollbar-track {
     @apply bg-transparent;
   }
+
+  /* Card Spotlight Effect */
+  .card-spotlight {
+    position: relative;
+    overflow: hidden;
+    background:
+      radial-gradient(
+        25rem circle at var(--glow-x) var(--glow-y),
+        hsla(var(--glow-hue), 50%, 70%, var(--glow-intensity)),
+        transparent
+      ),
+      hsl(var(--card));
+    transition: background 0.3s ease-in-out;
+  }
 }
 

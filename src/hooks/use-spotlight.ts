@@ -1,123 +1,45 @@
-@import "./../components/Aurora.css";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 222.2 84% 4.9%; /* Deep Blue-Black */
-    --foreground: 210 40% 98%; /* Almost White */
+import { useEffect } from 'react';
 
-    --card: 222.2 84% 6.9%; /* Slightly Lighter Blue-Black for cards */
-    --card-foreground: 210 40% 98%;
+// A custom hook to manage the spotlight effect on cards
+export const useSpotlightEffect = () => {
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      const cards = document.querySelectorAll('.card-spotlight');
+      cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+        // Calculate distance from center to determine intensity
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const distance = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+        const maxDistance = Math.sqrt(centerX ** 2 + centerY ** 2);
+        
+        // Intensity is higher when the cursor is closer to the card
+        const intensity = Math.max(0, 1 - (distance / (maxDistance * 1.5)));
 
-    --primary: 163 97% 42%; /* KreaTask Green */
-    --primary-foreground: 210 40% 98%;
+        const htmlCard = card as HTMLElement;
+        htmlCard.style.setProperty('--glow-x', `${x}px`);
+        htmlCard.style.setProperty('--glow-y', `${y}px`);
+        htmlCard.style.setProperty('--glow-intensity', `${intensity * 0.15}`); // Adjust multiplier for brightness
+        htmlCard.style.setProperty('--glow-hue', `163`); // KreaTask Green
+      });
+    };
 
-    --secondary: 217.2 32.6% 17.5%; /* Darker Muted Blue */
-    --secondary-foreground: 210 40% 98%;
+    window.addEventListener('mousemove', handleMouseMove);
 
-    --muted: 217.2 32.6% 22.5%; /* Lighter Muted Blue */
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 27.5%; /* Brighter border for better visibility */
-    --input: 217.2 32.6% 17.5%;
-    --ring: 163 97% 42%;
-
-    --radius: 1rem;
-  }
-
-  .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    --card: 222.2 84% 6.9%;
-    --card-foreground: 210 40% 98%;
-
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-
-    --primary: 163 97% 42%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 22.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-
-    --border: 217.2 32.6% 27.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 163 97% 42%;
-  }
-
-  /* Professional Light Theme */
-  .light {
-    --background: 220 20% 97%; /* Lighter Gray */
-    --foreground: 222.2 47.4% 11.2%; /* Dark Blue-Black Text */
-
-    --card: 220 20% 100%; 
-    --card-foreground: 222.2 47.4% 11.2%;
-
-    --popover: 210 40% 100%;
-    --popover-foreground: 222.2 47.4% 11.2%;
-    
-    --primary: 163 97% 38%; /* Slightly darker green for light mode */
-    --primary-foreground: 0 0% 98%;
-    
-    --secondary: 220 20% 91%; /* Lighter secondary */
-    --secondary-foreground: 163 97% 38%;
-
-    --muted: 220 20% 91%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 220 20% 91%;
-    --accent-foreground: 163 97% 38%;
-    
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-
-    --border: 220 20% 85%;
-    --input: 220 20% 89%;
-    --ring: 163 97% 38%;
-  }
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  
-  /* Custom scrollbar styling */
-  ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-muted-foreground/30 rounded-full;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    @apply bg-muted-foreground/50;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-transparent;
-  }
-}
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      // Clean up styles when component unmounts
+      document.querySelectorAll('.card-spotlight').forEach(card => {
+        const htmlCard = card as HTMLElement;
+        htmlCard.style.removeProperty('--glow-x');
+        htmlCard.style.removeProperty('--glow-y');
+        htmlCard.style.removeProperty('--glow-intensity');
+        htmlCard.style.removeProperty('--glow-hue');
+      });
+    };
+  }, []);
+};
