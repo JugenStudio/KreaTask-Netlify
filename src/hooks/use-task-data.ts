@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { UserRole } from '@/lib/types';
 import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
 
 
@@ -57,24 +57,27 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const tasksQuery = useMemoFirebase(() => {
-    if (!authUser) return null;
-    return collection(firestore, 'users', authUser.uid, 'tasks');
-  }, [firestore, authUser]);
-  const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksQuery);
-  
-  const notificationsQuery = useMemoFirebase(() => {
-    if (!authUser) return null;
-    return collection(firestore, 'users', authUser.uid, 'notifications');
-  }, [firestore, authUser]);
-  const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
-  
-  // Wait for auth to finish before fetching all users to prevent permission errors.
+  // STEP 1: Fetch all users once authentication is complete.
   const usersQuery = useMemoFirebase(() => {
     if (isUserLoading) return null;
     return collection(firestore, 'users');
   }, [firestore, isUserLoading]);
   const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
+
+  // STEP 2: Fetch ALL tasks. This is needed for leaderboards/director views.
+  // This might be slow if there are many users/tasks.
+  // A more scalable approach would use aggregated data or more specific queries.
+  const allTasksQuery = useMemoFirebase(() => {
+    if (isUserLoading) return null;
+    return collection(firestore, 'tasks');
+  }, [firestore, isUserLoading]);
+  const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(allTasksQuery);
+
+  const notificationsQuery = useMemoFirebase(() => {
+    if (!authUser) return null;
+    return collection(firestore, 'users', authUser.uid, 'notifications');
+  }, [firestore, authUser]);
+  const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
   
 
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
@@ -141,19 +144,19 @@ export function useTaskData() {
   
   const addTask = (newTask: Omit<Task, 'id'>) => {
     if (!authUser) return;
-    const tasksColRef = collection(firestore, 'users', authUser.uid, 'tasks');
+    const tasksColRef = collection(firestore, 'tasks');
     addDocumentNonBlocking(tasksColRef, newTask);
   };
 
   const updateTask = (taskId: string, updates: Partial<Task>) => {
     if (!authUser) return;
-    const taskRef = doc(firestore, 'users', authUser.uid, 'tasks', taskId);
+    const taskRef = doc(firestore, 'tasks', taskId);
     updateDocumentNonBlocking(taskRef, updates);
   };
 
   const deleteTask = (taskId: string) => {
     if (!authUser) return;
-    const taskRef = doc(firestore, 'users', authUser.uid, 'tasks', taskId);
+    const taskRef = doc(firestore, 'tasks', taskId);
     deleteDocumentNonBlocking(taskRef);
   };
 
