@@ -17,7 +17,6 @@ import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
 import { initialData } from '@/lib/data';
 import { TaskDataContext, type TaskDataContextType } from "@/hooks/use-task-data";
-import { useSpotlightEffect } from "@/hooks/use-spotlight";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -253,10 +252,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { t } = useLanguage();
   const { toast } = useToast();
-
-  // Apply spotlight effect globally
-  useSpotlightEffect();
-
 
   // Background task for download progress
   useEffect(() => {

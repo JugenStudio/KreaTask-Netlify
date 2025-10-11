@@ -29,7 +29,7 @@ export function TaskCard({ task }: { task: Task }) {
   const { locale, t } = useLanguage();
 
   return (
-    <Card className={cn("bg-card transition-all hover:bg-white/10 active:scale-95 card-spotlight")}>
+    <Card className={cn("bg-card transition-all hover:bg-white/10 active:scale-95")}>
       <CardHeader>
         <div className="flex justify-between items-center">
             <Badge className={cn(categoryColors[task.category], "font-bold border-none")}>{t(`submit.manual_form.categories.${task.category.toLowerCase()}`)}</Badge>
@@ -63,5 +63,3 @@ export function TaskCard({ task }: { task: Task }) {
     </Card>
   );
 }
-
-    

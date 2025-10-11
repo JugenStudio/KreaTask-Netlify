@@ -1,70 +1,123 @@
+@import "./../components/Aurora.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-"use client";
+@layer base {
+  :root {
+    --background: 222.2 84% 4.9%; /* Deep Blue-Black */
+    --foreground: 210 40% 98%; /* Almost White */
 
-import { useEffect } from 'react';
-import { useIsMobile } from './use-mobile';
+    --card: 222.2 84% 6.9%; /* Slightly Lighter Blue-Black for cards */
+    --card-foreground: 210 40% 98%;
 
-const SPOTLIGHT_RADIUS = 400; // Radius of the spotlight effect
-const FADE_DISTANCE = SPOTLIGHT_RADIUS * 0.75; // Distance at which the glow starts to fade
-const PROXIMITY = SPOTLIGHT_RADIUS * 0.5; // Distance at which glow is at max
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
 
-/**
- * Custom hook to apply a spotlight glow effect to elements with the 'card-spotlight' class.
- * The glow follows the mouse cursor and intensifies when the cursor is near an element.
- * The effect is disabled on mobile devices.
- */
-export function useSpotlightEffect() {
-  const isMobile = useIsMobile();
+    --primary: 163 97% 42%; /* KreaTask Green */
+    --primary-foreground: 210 40% 98%;
 
-  useEffect(() => {
-    if (isMobile) {
-      return; // Do not apply effect on mobile devices
-    }
+    --secondary: 217.2 32.6% 17.5%; /* Darker Muted Blue */
+    --secondary-foreground: 210 40% 98%;
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const cards = document.querySelectorAll('.card-spotlight');
+    --muted: 217.2 32.6% 22.5%; /* Lighter Muted Blue */
+    --muted-foreground: 215 20.2% 65.1%;
 
-      cards.forEach(card => {
-        const cardElement = card as HTMLElement;
-        const rect = cardElement.getBoundingClientRect();
-        
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
 
-        const distance = Math.hypot(e.clientX - centerX, e.clientY - centerY);
-        const effectiveDistance = Math.max(0, distance - (Math.max(rect.width, rect.height) / 2));
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
 
-        let glowIntensity = 0;
-        if (effectiveDistance <= PROXIMITY) {
-          glowIntensity = 1;
-        } else if (effectiveDistance <= FADE_DISTANCE) {
-          glowIntensity = (FADE_DISTANCE - effectiveDistance) / (FADE_DISTANCE - PROXIMITY);
-        }
+    --border: 217.2 32.6% 27.5%; /* Brighter border for better visibility */
+    --input: 217.2 32.6% 17.5%;
+    --ring: 163 97% 42%;
 
-        const relativeX = ((e.clientX - rect.left) / rect.width) * 100;
-        const relativeY = ((e.clientY - rect.top) / rect.height) * 100;
+    --radius: 1rem;
+  }
 
-        cardElement.style.setProperty('--glow-x', `${relativeX}%`);
-        cardElement.style.setProperty('--glow-y', `${relativeY}%`);
-        cardElement.style.setProperty('--glow-intensity', glowIntensity.toString());
-        cardElement.style.setProperty('--glow-radius', `${SPOTLIGHT_RADIUS}px`);
-      });
-    };
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
 
-    window.addEventListener('mousemove', handleMouseMove);
+    --card: 222.2 84% 6.9%;
+    --card-foreground: 210 40% 98%;
 
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      // Clean up styles when the component unmounts or effect is disabled
-      document.querySelectorAll('.card-spotlight').forEach(card => {
-        const cardElement = card as HTMLElement;
-        cardElement.style.removeProperty('--glow-x');
-        cardElement.style.removeProperty('--glow-y');
-        cardElement.style.removeProperty('--glow-intensity');
-        cardElement.style.removeProperty('--glow-radius');
-      });
-    };
-  }, [isMobile]);
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 163 97% 42%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217.2 32.6% 22.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217.2 32.6% 27.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 163 97% 42%;
+  }
+
+  /* Professional Light Theme */
+  .light {
+    --background: 220 20% 97%; /* Lighter Gray */
+    --foreground: 222.2 47.4% 11.2%; /* Dark Blue-Black Text */
+
+    --card: 220 20% 100%; 
+    --card-foreground: 222.2 47.4% 11.2%;
+
+    --popover: 210 40% 100%;
+    --popover-foreground: 222.2 47.4% 11.2%;
+    
+    --primary: 163 97% 38%; /* Slightly darker green for light mode */
+    --primary-foreground: 0 0% 98%;
+    
+    --secondary: 220 20% 91%; /* Lighter secondary */
+    --secondary-foreground: 163 97% 38%;
+
+    --muted: 220 20% 91%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+
+    --accent: 220 20% 91%;
+    --accent-foreground: 163 97% 38%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 220 20% 85%;
+    --input: 220 20% 89%;
+    --ring: 163 97% 38%;
+  }
 }
 
-    
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Custom scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/30 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/50;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+}

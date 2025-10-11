@@ -289,7 +289,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
   return (
     <>
-      <Card className="card-spotlight">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-xl md:text-2xl">
             <WandSparkles className="h-6 w-6 text-primary" />
@@ -349,7 +349,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">{t('submit.separator')}</span>
       </div>
 
-      <Card className="card-spotlight">
+      <Card>
         <CardHeader>
             <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
         </CardHeader>
@@ -585,5 +585,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    

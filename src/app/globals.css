@@ -123,27 +123,3 @@
   }
 }
 
-@layer components {
-  .card-spotlight {
-    position: relative;
-    overflow: hidden;
-  }
-  .card-spotlight::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(
-      var(--glow-radius) circle at var(--glow-x, 50%) var(--glow-y, 50%),
-      hsla(var(--primary), calc(var(--glow-intensity, 0) * 0.2)),
-      transparent 70%
-    );
-    pointer-events: none;
-    transition: opacity 0.5s ease-out;
-    opacity: var(--glow-intensity, 0);
-  }
-}
-
-    
