@@ -4,10 +4,34 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/providers/language-provider";
-import { ArrowLeft, Info } from "lucide-react";
+import { ArrowLeft, Info, Cpu, Palette, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
+import Carousel from '@/components/ui/Carousel';
+import type { CarouselItem } from '@/components/ui/Carousel';
+
+const techItems: CarouselItem[] = [
+  {
+    id: 1,
+    title: "Next.js & React",
+    description: "Built with the latest features of Next.js for a fast, modern, and server-centric web application.",
+    icon: <Cpu className="carousel-icon" />,
+  },
+  {
+    id: 2,
+    title: "ShadCN & Tailwind",
+    description: "A beautiful and accessible UI component library, styled with Tailwind CSS for rapid development.",
+    icon: <Palette className="carousel-icon" />,
+  },
+  {
+    id: 3,
+    title: "Gamification Principles",
+    description: "Uses points, leaderboards, and performance tracking to motivate users and increase productivity.",
+    icon: <Users className="carousel-icon" />,
+  },
+];
+
 
 interface InfoRowProps {
   label: string;
@@ -44,6 +68,16 @@ export default function AboutPage() {
           {t("about.title")}
         </h1>
       </div>
+      
+      <div className='mx-auto w-fit'>
+         <Carousel
+          items={techItems}
+          baseWidth={340}
+          loop={true}
+          autoplay={true}
+        />
+      </div>
+
 
       <Card>
         <CardContent className="p-6 md:p-8">

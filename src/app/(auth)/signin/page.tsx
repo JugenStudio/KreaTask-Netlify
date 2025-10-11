@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -6,11 +5,35 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
-import { Mail, Lock, User } from 'lucide-react';
+import { Mail, Lock, User, WandSparkles, Trophy, ListChecks } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import Carousel from '@/components/ui/Carousel';
+import type { CarouselItem } from '@/components/ui/Carousel';
+
+const featureItems: CarouselItem[] = [
+  {
+    id: 1,
+    title: "AI-Powered Task Generation",
+    description: "Describe your goals and let our AI generate actionable tasks for you instantly.",
+    icon: <WandSparkles className="carousel-icon" />,
+  },
+  {
+    id: 2,
+    title: "Performance Leaderboard",
+    description: "Track team performance with a gamified leaderboard to boost motivation and productivity.",
+    icon: <Trophy className="carousel-icon" />,
+  },
+  {
+    id: 3,
+    title: "Interactive Checklists",
+    description: "Break down complex tasks into manageable sub-tasks with our interactive checklists.",
+    icon: <ListChecks className="carousel-icon" />,
+  },
+];
+
 
 export default function SignInPage() {
   const router = useRouter();
@@ -41,6 +64,15 @@ export default function SignInPage() {
         <h1 className="text-3xl font-headline font-bold text-foreground">
           KreaTask
         </h1>
+      </div>
+       <div className='mb-8'>
+         <Carousel
+          items={featureItems}
+          baseWidth={340}
+          loop={true}
+          autoplay={true}
+          autoplayDelay={4000}
+        />
       </div>
       <div className="w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden">
         <div className="p-8 space-y-6">
