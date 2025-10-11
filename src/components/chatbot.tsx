@@ -85,7 +85,7 @@ export function Chatbot() {
       <Button
         className={cn(
           "fixed bottom-20 right-4 h-12 w-12 rounded-full shadow-lg z-50 bg-yellow-500 text-black hover:bg-yellow-600 transition-all active:scale-95",
-           "md:bottom-4 md:right-4"
+           "md:bottom-6 md:right-6"
         )}
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
@@ -95,7 +95,7 @@ export function Chatbot() {
 
       <div
         className={cn(
-          "fixed bottom-36 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-20 md:right-4",
+          "fixed bottom-36 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-20 md:right-6",
           "h-[70vh] max-h-[600px]",
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
         )}
