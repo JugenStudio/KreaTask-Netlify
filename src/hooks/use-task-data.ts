@@ -57,8 +57,8 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const [users, setUsersState] = useState<User[]>([]);
-  const [isUsersLoading, setIsUsersLoading] = useState(true);
+  const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+  const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
 
   const tasksQuery = useMemoFirebase(() => {
     if (!authUser) return null;
@@ -71,51 +71,6 @@ export function useTaskData() {
     return collection(firestore, 'users', authUser.uid, 'notifications');
   }, [firestore, authUser]);
   const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
-
-  useEffect(() => {
-    const fetchUsers = async () => {
-      if (!allTasks || allTasks.length === 0) {
-        setIsUsersLoading(false);
-        return;
-      }
-      
-      setIsUsersLoading(true);
-      const userIds = new Set<string>();
-      allTasks.forEach(task => task.assignees.forEach(assignee => userIds.add(assignee.id)));
-
-      if (authUser) {
-          userIds.add(authUser.uid);
-      }
-
-      const userPromises = Array.from(userIds).map(id => getDoc(doc(firestore, 'users', id)));
-      
-      try {
-        const userDocs = await Promise.all(userPromises);
-        const fetchedUsers = userDocs
-          .filter(doc => doc.exists())
-          .map(doc => ({ id: doc.id, ...doc.data() } as User));
-        
-        // Ensure the current authenticated user is in the list, even if they have no tasks.
-        if (authUser && !fetchedUsers.some(u => u.id === authUser.id)) {
-            const authUserDoc = await getDoc(doc(firestore, 'users', authUser.uid));
-            if (authUserDoc.exists()) {
-                fetchedUsers.push({ id: authUserDoc.id, ...authUserDoc.data() } as User);
-            }
-        }
-        
-        setUsersState(fetchedUsers);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      } finally {
-        setIsUsersLoading(false);
-      }
-    };
-
-    if (!isTasksLoading) {
-        fetchUsers();
-    }
-  }, [allTasks, isTasksLoading, firestore, authUser]);
-
 
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
@@ -137,7 +92,7 @@ export function useTaskData() {
 
 
   useEffect(() => {
-    if (allTasks && users.length > 0) {
+    if (allTasks && users) {
       const newLeaderboard = calculateLeaderboard(allTasks, users);
       setLeaderboardData(newLeaderboard);
     }
@@ -159,7 +114,7 @@ export function useTaskData() {
       const userRef = doc(firestore, 'users', user.id);
       updateDocumentNonBlocking(userRef, user);
     });
-    setUsersState(newUsers);
+    // The useCollection hook will update the state automatically, no need for setUsersState
   };
 
   const setNotifications = (newNotifications: Notification[]) => {
