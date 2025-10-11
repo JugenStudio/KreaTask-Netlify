@@ -16,6 +16,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
+import Aurora from '@/components/Aurora';
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -219,6 +220,14 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   return (
       <UserContext.Provider value={{ currentUser }}>
         <div className={cn("min-h-screen w-full bg-background")}>
+           <div className="fixed top-0 left-0 w-full h-full z-[-1] opacity-30">
+            <Aurora
+              colorStops={["#172554", "#166534", "#172554"]}
+              blend={1}
+              amplitude={0.2}
+              speed={0.2}
+            />
+           </div>
           <div className="flex min-h-screen w-full">
             {!isMobile && currentUser && <AppSidebar user={currentUser} />}
             <div className="flex flex-1 flex-col bg-transparent">
