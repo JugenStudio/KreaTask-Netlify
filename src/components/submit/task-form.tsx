@@ -289,7 +289,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
   return (
     <>
-      <Card className="card-glow">
+      <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 font-headline text-xl md:text-2xl">
             <WandSparkles className="h-6 w-6 text-primary" />
@@ -323,7 +323,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     {suggestions.map((s, i) => (
                       <Card 
                         key={i} 
-                        className="bg-secondary/50 hover:bg-muted cursor-pointer transition-colors card-glow"
+                        className="bg-secondary/50 hover:bg-muted cursor-pointer transition-colors"
                         onClick={() => applySuggestion(s)}
                       >
                         <CardContent className="p-3">
@@ -349,7 +349,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">{t('submit.separator')}</span>
       </div>
 
-      <Card className="card-glow">
+      <Card>
         <CardHeader>
             <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
         </CardHeader>
@@ -549,7 +549,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 {files.length > 0 && (
                     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                     {files.map(file => (
-                        <Card key={file.name} className="relative group rounded-xl overflow-hidden card-glow">
+                        <Card key={file.name} className="relative group rounded-xl overflow-hidden">
                         <Image src={URL.createObjectURL(file)} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                             <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>

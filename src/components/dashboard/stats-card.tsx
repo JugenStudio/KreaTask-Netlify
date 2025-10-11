@@ -36,7 +36,7 @@ export function StatsCard({
 
   return (
     <Link href={href} className="flex group">
-      <Card className="rounded-xl md:rounded-2xl shadow-sm border-border/80 h-full w-full transition-all duration-300 bg-card/80 hover:border-primary/50 card-glow">
+      <Card className="rounded-xl md:rounded-2xl shadow-sm border-border/80 h-full w-full transition-all duration-300 bg-card/80 hover:border-primary/50">
         <CardContent className="p-4 md:p-5 h-full flex flex-col justify-between">
           <div className="flex justify-between items-start">
             <div className="flex flex-col">

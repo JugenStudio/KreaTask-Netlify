@@ -17,6 +17,7 @@ import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
 import { initialData } from '@/lib/data';
 import { TaskDataContext, type TaskDataContextType } from "@/hooks/use-task-data";
+import { Chatbot } from "@/components/chatbot";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -440,6 +441,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             </div>
           </div>
           {isMobile && currentUser && <BottomNav />}
+          {currentUser && <Chatbot />}
         </div>
       </UserContext.Provider>
   );

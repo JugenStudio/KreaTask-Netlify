@@ -216,7 +216,7 @@ export default function PerformanceReportPage() {
             {t('report.export_csv')}
           </Button>
         </div>
-        <Card className="card-glow">
+        <Card>
           <CardContent className="p-4 md:p-6">
             <ReportTable tasks={completedTasks} />
           </CardContent>
@@ -247,7 +247,7 @@ export default function PerformanceReportPage() {
           </div>
 
           {/* Validation Panel */}
-          <Card className="card-glow">
+          <Card>
               <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-xl md:text-2xl"><ThumbsUp className="h-5 w-5 md:h-6 md:h-6 text-primary"/> {t('report.validation_panel.title')}</CardTitle>
                   <CardDescription>{t('report.validation_panel.description')}</CardDescription>
@@ -324,7 +324,7 @@ export default function PerformanceReportPage() {
                               <Label htmlFor="mobile-select-all" className="text-sm font-medium">{t('report.validation_panel.buttons.select_all')}</Label>
                           </div>
                           {tasksToValidate.map(task => (
-                              <Card key={task.id} className="rounded-xl p-3 card-glow">
+                              <Card key={task.id} className="rounded-xl p-3">
                                 <div className="space-y-3">
                                   <div className="flex justify-between items-start gap-3">
                                     <div className="flex-1 flex items-start gap-3">
@@ -368,7 +368,7 @@ export default function PerformanceReportPage() {
                       </p>
                   </div>
               </div>
-              <Card className="card-glow">
+              <Card>
                   <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b">
                       <div className="flex flex-wrap items-center justify-center gap-2">
                           <h4 className="text-base font-semibold flex-shrink-0">{t('report.history_panel.filter.title')}</h4>

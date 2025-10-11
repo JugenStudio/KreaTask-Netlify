@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
         <div className="lg:col-span-2">
-          <Card className="card-glow">
+          <Card>
             <CardHeader>
               <CardTitle className="font-headline text-xl md:text-2xl">
                 {t('leaderboard.top_performers')}
@@ -104,7 +104,7 @@ export default function LeaderboardPage() {
           </Card>
         </div>
         <div className="lg:col-span-1">
-          <Card className="card-glow">
+          <Card>
             <CardHeader>
               <CardTitle className="font-headline text-xl md:text-2xl">{t('leaderboard.monthly_progress')}</CardTitle>
             </CardHeader>
