@@ -119,9 +119,9 @@ export function Chatbot() {
                 {messages.map((message, index) => (
                     <div key={index} className={cn("flex items-start gap-3", message.sender === 'user' && 'justify-end')}>
                     {message.sender === 'bot' && (
-                        <Avatar className="h-8 w-8 bg-primary text-primary-foreground">
-                        <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
-                        </Avatar>
+                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Bot className="h-5 w-5" />
+                        </div>
                     )}
                     <div className={cn("max-w-xs rounded-lg p-3 text-sm", 
                         message.sender === 'user' ? 'bg-primary text-primary-foreground' : 'bg-secondary'
@@ -132,9 +132,9 @@ export function Chatbot() {
                 ))}
                 {isLoading && (
                     <div className="flex items-start gap-3">
-                        <Avatar className="h-8 w-8 bg-primary text-primary-foreground">
-                            <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
-                        </Avatar>
+                         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                            <Bot className="h-5 w-5" />
+                        </div>
                         <div className="bg-secondary rounded-lg p-3">
                             <Loader2 className="h-5 w-5 animate-spin" />
                         </div>
