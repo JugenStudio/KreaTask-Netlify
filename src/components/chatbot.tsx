@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from 'react';
-import { Bot, Loader2, Send, X, Sparkles } from 'lucide-react';
+import { Bot, Loader2, Send, X, Sparkles, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Input } from '@/components/ui/input';
@@ -94,7 +94,7 @@ export function Chatbot() {
 
       <div
         className={cn(
-          "fixed bottom-36 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-24 md:right-6",
+          "fixed bottom-40 right-4 z-50 w-[calc(100vw-2rem)] max-w-sm rounded-2xl bg-card shadow-2xl border transition-all duration-300 ease-in-out md:bottom-24 md:right-6",
           "h-[70vh] max-h-[600px] card-glow",
           isOpen ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10 pointer-events-none"
         )}
@@ -102,8 +102,8 @@ export function Chatbot() {
         <div className="flex flex-col h-full">
             <header className="p-4 border-b">
                 <div className="flex items-center gap-3">
-                    <div className='p-1.5 bg-primary/20 rounded-lg'>
-                        <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={24} height={24} className="dark:filter-none"/>
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/20 text-primary">
+                        <CheckCircle className="h-6 w-6" />
                     </div>
                     <div>
                         <h2 className="text-lg font-headline font-semibold">KreaBot</h2>
