@@ -16,7 +16,7 @@ import { useTaskData } from "@/hooks/use-task-data";
 
 
 // Wrapper component to fix react-beautiful-dnd issue with React 18 Strict Mode
-const StrictDroppable = ({ children, ...props }: any) => {
+const StrictDroppable = ({ children, droppableId }: { children: React.ReactNode, droppableId: string }) => {
   const [enabled, setEnabled] = useState(false);
   useEffect(() => {
     const animation = requestAnimationFrame(() => setEnabled(true));
@@ -28,7 +28,7 @@ const StrictDroppable = ({ children, ...props }: any) => {
   if (!enabled) {
     return null;
   }
-  return <Droppable {...props}>{children}</Droppable>;
+  return <Droppable droppableId={droppableId}>{children}</Droppable>;
 };
 
 
