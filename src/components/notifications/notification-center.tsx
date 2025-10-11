@@ -117,53 +117,55 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
       </div>
 
       {isOpen && (
-        <Card className="absolute right-0 mt-2 w-80 sm:w-96 shadow-2xl border z-50 bg-popover rounded-2xl">
-          <div className="flex justify-between items-center p-3 border-b">
-            <h3 className="font-semibold text-popover-foreground">{t('header.notifications')}</h3>
-            <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleSilent}>
-                {isSilent ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
-              </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={markAllAsRead} disabled={unreadCount === 0}>
-                <Check className="h-4 w-4" />
-              </Button>
-               <Button
-                variant="ghost"
-                size="icon"
-                className="h-8 w-8 text-destructive hover:text-destructive"
-                onClick={clearAllNotifications}
-                disabled={userNotifications.length === 0}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-
-          {userNotifications.length === 0 ? (
-            <p className="text-muted-foreground text-sm text-center py-10">
-              {t('header.no_notifications')}
-            </p>
-          ) : (
-            <ul className="space-y-1 max-h-80 overflow-y-auto p-2 scroll-smooth">
-              {userNotifications.map((notif) => (
-                <li
-                  key={notif.id}
-                  onClick={() => handleNotificationClick(notif)}
-                  className={cn("p-3 rounded-lg cursor-pointer transition-colors",
-                    notif.read
-                      ? "hover:bg-muted/50"
-                      : "bg-primary/10 hover:bg-primary/20"
-                  )}
+        <div className="fixed top-16 right-4 sm:right-6 z-50">
+          <Card className="w-80 sm:w-96 shadow-2xl border bg-popover rounded-2xl">
+            <div className="flex justify-between items-center p-3 border-b">
+              <h3 className="font-semibold text-popover-foreground">{t('header.notifications')}</h3>
+              <div className="flex gap-1">
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleSilent}>
+                  {isSilent ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+                </Button>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={markAllAsRead} disabled={unreadCount === 0}>
+                  <Check className="h-4 w-4" />
+                </Button>
+                 <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 text-destructive hover:text-destructive"
+                  onClick={clearAllNotifications}
+                  disabled={userNotifications.length === 0}
                 >
-                  <p className={cn("text-sm text-popover-foreground", !notif.read && "font-semibold")}>{notif.message}</p>
-                  <span className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: locale === 'id' ? idLocale : undefined })}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+
+            {userNotifications.length === 0 ? (
+              <p className="text-muted-foreground text-sm text-center py-10">
+                {t('header.no_notifications')}
+              </p>
+            ) : (
+              <ul className="space-y-1 max-h-80 overflow-y-auto p-2 scroll-smooth">
+                {userNotifications.map((notif) => (
+                  <li
+                    key={notif.id}
+                    onClick={() => handleNotificationClick(notif)}
+                    className={cn("p-3 rounded-lg cursor-pointer transition-colors",
+                      notif.read
+                        ? "hover:bg-muted/50"
+                        : "bg-primary/10 hover:bg-primary/20"
+                    )}
+                  >
+                    <p className={cn("text-sm text-popover-foreground", !notif.read && "font-semibold")}>{notif.message}</p>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(notif.createdAt), { addSuffix: true, locale: locale === 'id' ? idLocale : undefined })}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Card>
+        </div>
       )}
     </div>
   );
