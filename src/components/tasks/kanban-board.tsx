@@ -28,7 +28,7 @@ const StrictDroppable = ({ children, ...props }: any) => {
   if (!enabled) {
     return null;
   }
-  return <Droppable {...props} isDropDisabled={false} isCombineEnabled={false}>{children}</Droppable>;
+  return <Droppable {...props}>{children}</Droppable>;
 };
 
 
