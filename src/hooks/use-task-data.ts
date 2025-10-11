@@ -57,7 +57,6 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  // Step 1: Fetch tasks and notifications for the current user.
   const tasksQuery = useMemoFirebase(() => {
     if (!authUser) return null;
     return collection(firestore, 'users', authUser.uid, 'tasks');
@@ -70,9 +69,8 @@ export function useTaskData() {
   }, [firestore, authUser]);
   const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
   
-  // Step 2: Fetch all users from the /users collection.
+  // Wait for auth to finish before fetching all users to prevent permission errors.
   const usersQuery = useMemoFirebase(() => {
-    // Only fetch users after auth state is confirmed to avoid permission errors.
     if (isUserLoading) return null;
     return collection(firestore, 'users');
   }, [firestore, isUserLoading]);
