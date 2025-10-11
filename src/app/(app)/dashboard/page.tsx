@@ -17,7 +17,6 @@ import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
-import MagicBento from '@/components/ui/magic-bento';
 
 
 export default function DashboardPage() {
@@ -119,18 +118,12 @@ export default function DashboardPage() {
           <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
         </div>
       ) : (
-        <MagicBento 
-          textAutoHide={true}
-          enableStars={true}
-          enableSpotlight={true}
-          enableBorderGlow={true}
-          enableTilt={true}
-          enableMagnetism={true}
-          clickEffect={true}
-          spotlightRadius={300}
-          particleCount={12}
-          glowColor="163, 97%, 42%"
-        />
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+5 dari bulan lalu" color="green" />
+            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+2% dari bulan lalu" color="yellow" />
+            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+1 anggota baru" color="purple" />
+            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="Berkurang 2" color="blue" />
+        </div>
       )}
       
 
