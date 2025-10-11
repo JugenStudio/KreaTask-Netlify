@@ -7,17 +7,16 @@ import { LanguageProvider } from "@/providers/language-provider";
 import { useTaskData } from "@/hooks/use-task-data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { BottomNav } from "@/components/bottom-nav";
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, createContext, useContext, useCallback } from "react";
 import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { FirebaseClientProvider } from "@/firebase";
+import { BottomNav } from "@/components/bottom-nav";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -234,17 +233,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             <div className="flex flex-1 flex-col bg-transparent">
               {currentUser && <Header />}
               <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={pathname}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                  >
-                    {children}
-                  </motion.div>
-                </AnimatePresence>
+                {children}
               </main>
             </div>
           </div>

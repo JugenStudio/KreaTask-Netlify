@@ -12,7 +12,6 @@ import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
 
 interface NotificationCenterProps {
     currentUser: User | null;
@@ -101,12 +100,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
 
   return (
     <div className="relative inline-block" ref={containerRef}>
-      <motion.div
-        animate={isAnimating ? {
-            rotate: [0, -15, 15, -10, 10, -5, 5, 0],
-            transition: { duration: 0.5, ease: "easeInOut" }
-        } : {}}
-      >
+      <div>
         <Button
             variant="ghost"
             size="icon"
@@ -120,7 +114,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
             </span>
             )}
         </Button>
-      </motion.div>
+      </div>
 
       {isOpen && (
         <Card className="absolute right-0 mt-2 w-80 sm:w-96 shadow-2xl border z-50 bg-popover rounded-2xl">
