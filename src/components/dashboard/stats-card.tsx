@@ -1,30 +1,46 @@
 
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import type { LucideIcon } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 
 interface StatsCardProps {
   title: string;
   value: string | number;
   icon: LucideIcon;
+  change?: string;
+  changeType?: "positive" | "negative";
   href?: string;
 }
 
-export function StatsCard({ title, value, icon: Icon, href = "#" }: StatsCardProps) {
+export function StatsCard({ 
+    title, 
+    value, 
+    icon: Icon, 
+    change, 
+    changeType = "positive", 
+    href = "#" 
+}: StatsCardProps) {
+  const changeColor = changeType === 'positive' ? 'text-green-400' : 'text-red-400';
 
   return (
-    <Link href={href} className="flex transition-all duration-200 active:scale-95">
-      <Card className="rounded-xl md:rounded-2xl shadow-none border-border h-full w-full transition-all hover:scale-[1.02] hover:shadow-lg bg-card">
-        <CardContent className="p-4 md:p-6 h-full flex flex-col justify-center items-center text-center">
-          <div className="p-3 rounded-full bg-secondary mb-2 md:mb-3">
-              <Icon className="h-5 w-5 md:h-6 md:w-6 text-primary" />
+    <Link href={href} className="flex group">
+      <Card className="rounded-xl md:rounded-2xl shadow-sm border-border/80 h-full w-full transition-all duration-300 bg-card/80 hover:border-primary/50 card-glow">
+        <CardContent className="p-4 md:p-5 h-full flex flex-col justify-between">
+          <div className="flex justify-between items-start">
+            <div className="flex flex-col">
+              <p className="text-sm text-muted-foreground">{title}</p>
+            </div>
+            <Icon className="h-5 w-5 text-muted-foreground" />
           </div>
-          <p className="text-xs md:text-sm text-muted-foreground mb-1">{title}</p>
-          <p className="text-2xl md:text-3xl font-bold text-foreground">{value}</p>
+          <div>
+            <p className="text-2xl md:text-3xl font-bold text-foreground mt-2">{value}</p>
+            {change && (
+                <p className={cn("text-xs md:text-sm font-semibold", changeColor)}>{change}</p>
+            )}
+          </div>
         </CardContent>
       </Card>
     </Link>

@@ -2,7 +2,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Trophy, BookOpen, ArrowLeft } from "lucide-react";
+import { Trophy, BookOpen, ArrowLeft, TrendingUp, Star } from "lucide-react";
 import { useTaskData } from "@/hooks/use-task-data";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
 import { useLanguage } from "@/providers/language-provider";
@@ -72,14 +72,20 @@ export default function LeaderboardPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 gap-4 md:gap-6">
         <StatsCard
           title={t('leaderboard.total_tasks_completed')}
           value={totalTasks}
-          icon={BookOpen}
+          icon={TrendingUp}
+          change="+12% dari bulan lalu"
           href="/tasks"
         />
-        <StatsCard title={t('leaderboard.average_score')} value={avgScore} icon={Trophy} />
+        <StatsCard 
+          title={t('leaderboard.average_score')} 
+          value={avgScore} 
+          icon={Star} 
+          change="+8% dari bulan lalu"
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">

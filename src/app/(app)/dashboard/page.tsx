@@ -7,7 +7,7 @@ import { TopPerformerCard } from "@/components/dashboard/top-performer-card";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { BookOpen, Trophy, Clock, Star, TrendingUp, WandSparkles, ListChecks } from "lucide-react";
+import { BookOpen, Trophy, Clock, Star, TrendingUp, CheckCircle, Target } from "lucide-react";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
@@ -109,20 +109,20 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-8">
+      <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {isLvl1 ? (
           <>
-            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={BookOpen} href="/tasks" />
-            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} href="/leaderboard" />
-            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} href="/leaderboard" />
-            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} href="/tasks" />
+            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" />
+            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" />
+            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" />
+            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" />
           </>
         ) : (
           <>
-            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={BookOpen} href="/tasks" />
-            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} href="/settings" />
-            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Trophy} href="/leaderboard" />
-            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} href="/tasks" />
+            <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+18% dari bulan lalu" href="/tasks" />
+            <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+2 dari bulan lalu" href="/settings" />
+            <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+5% dari bulan lalu" href="/leaderboard" />
+            <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="-3 dari bulan lalu" href="/tasks" />
           </>
         )}
       </div>
