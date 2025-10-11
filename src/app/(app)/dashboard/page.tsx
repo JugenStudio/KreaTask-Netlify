@@ -139,14 +139,14 @@ export default function DashboardPage() {
                        {completedTasks.map((task) => <TaskCard key={task.id} task={task} />)}
                        {/* If no tasks, show a placeholder */}
                        {todoTasks.length === 0 && inProgressTasks.length === 0 && completedTasks.length === 0 && (
-                          <Card className="md:col-span-2 flex items-center justify-center h-48 md:h-64">
+                          <Card className="md:col-span-2 flex items-center justify-center h-48 md:h-64 card-glow">
                             <p className="text-muted-foreground">{t('dashboard.no_active_tasks')}</p>
                           </Card>
                        )}
                     </div>
                 </div>
                 <div className="lg:col-span-1 space-y-6 md:space-y-8">
-                    <Card>
+                    <Card className="card-glow">
                         <CardHeader><CardTitle className="font-headline text-xl md:text-2xl text-foreground">{t('dashboard.my_monthly_progress')}</CardTitle></CardHeader>
                         <CardContent><ProgressChart currentUser={currentUser} /></CardContent>
                     </Card>
@@ -156,7 +156,7 @@ export default function DashboardPage() {
             <>
                 {/* Director View */}
                 <div className="lg:col-span-2 space-y-6 md:space-y-8">
-                    <Card>
+                    <Card className="card-glow">
                     <CardHeader>
                         <CardTitle className="font-headline text-xl md:text-2xl text-foreground">{t('dashboard.team_leaderboard')}</CardTitle>
                     </CardHeader>
@@ -187,7 +187,7 @@ export default function DashboardPage() {
             </div>
             </div>
             <div className="lg:col-span-1">
-            <Card>
+            <Card className="card-glow">
                 <CardHeader>
                 <CardTitle className="font-headline text-xl md:text-2xl text-foreground">
                     {t('dashboard.monthly_progress')}

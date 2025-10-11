@@ -13,7 +13,7 @@ import { useLanguage } from "@/providers/language-provider";
 export function TopPerformerCard({ performer }: { performer: LeaderboardEntry }) {
   const { t } = useLanguage();
   return (
-    <Card className="h-full">
+    <Card className="h-full card-glow">
       <CardHeader>
         <CardTitle className="font-headline text-card-foreground">{t('dashboard.top_performer')}</CardTitle>
       </CardHeader>
