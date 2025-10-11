@@ -200,6 +200,7 @@ export default function DashboardPage() {
             </div>
         </div>
       )}
+      {currentUser && <Chatbot />}
     </div>
   );
 }

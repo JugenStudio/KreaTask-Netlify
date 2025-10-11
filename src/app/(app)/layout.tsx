@@ -17,7 +17,6 @@ import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
 import { initialData } from '@/lib/data';
 import { TaskDataContext, type TaskDataContextType } from "@/hooks/use-task-data";
-import { Chatbot } from "@/components/chatbot";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -435,13 +434,12 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             {!isMobile && currentUser && <AppSidebar user={currentUser} />}
             <div className="flex flex-1 flex-col bg-transparent">
               {currentUser && <Header />}
-              <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6 lg:pb-8">
+              <main className="flex-1 p-4 md:p-6 lg:p-8 pb-24 md:pb-6">
                 {children}
               </main>
             </div>
           </div>
           {isMobile && currentUser && <BottomNav />}
-          {currentUser && <Chatbot />}
         </div>
       </UserContext.Provider>
   );
