@@ -17,6 +17,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
+import { FirebaseClientProvider } from "@/firebase";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -261,7 +262,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   return (
     <LanguageProvider>
-      <AppLayoutContent>{children}</AppLayoutContent>
+      <FirebaseClientProvider>
+        <AppLayoutContent>{children}</AppLayoutContent>
+      </FirebaseClientProvider>
     </LanguageProvider>
   );
 }
