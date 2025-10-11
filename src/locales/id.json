@@ -37,7 +37,7 @@
     "my_monthly_progress": "Progres Bulanan Saya",
     "team_leaderboard": "Peringkat Tim",
     "monthly_progress": "Progres Bulanan",
-    "top_performer": "Performer Teratas"
+    "top_performer": "Pegawai Terbaik"
   },
   "header": {
     "search_placeholder": "Cari tugas...",
@@ -148,7 +148,7 @@
     "description": "Lihat bagaimana kinerja anggota tim bulan ini.",
     "total_tasks_completed": "Total Tugas Selesai",
     "average_score": "Skor Rata-rata",
-    "top_performers": "Performer Teratas",
+    "top_performers": "Pegawai Terbaik",
     "monthly_progress": "Progres Bulanan",
     "view_report_button": "Lihat Laporan & Ekspor CSV",
     "top_performers_desc": "Berdasarkan poin yang terkumpul dari tugas yang diselesaikan.",
