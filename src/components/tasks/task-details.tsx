@@ -279,7 +279,7 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
 
   return (
     <>
-      <Card className="h-full">
+      <Card className="h-full card-glow">
         <CardHeader>
           <div className="flex justify-between items-start gap-4">
             <div className="flex-1">
@@ -291,7 +291,7 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
         <CardContent className="space-y-4 md:space-y-6">
 
           {canSubmit && (
-              <Card className="bg-secondary/50">
+              <Card className="bg-secondary/50 card-glow">
                   <CardHeader>
                       <CardTitle className="flex items-center gap-2 font-headline text-xl">
                           <UploadCloud className="h-6 w-6 text-primary" />
@@ -399,7 +399,7 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {task.files && task.files.length > 0 && (
                     task.files.map((file) => (
-                    <Card key={file.id} className="overflow-hidden rounded-xl group">
+                    <Card key={file.id} className="overflow-hidden rounded-xl group card-glow">
                         <div className="block aspect-[16/9] bg-muted flex items-center justify-center">
                         {file.type === 'image' || file.type === 'illustration' ? (
                             <Image data-ai-hint="abstract art" src={file.url} alt={file.name} width={300} height={168} className="object-cover w-full h-full" />
@@ -518,3 +518,5 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
     </>
   );
 }
+
+    
