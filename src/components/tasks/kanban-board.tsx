@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DragDropContext, Droppable, type DropResult, type DroppableProps } from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, type DropResult, type DroppableProps } from 'react-beautiful-dnd';
 import type { Task, TaskStatus } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -154,12 +154,30 @@ export function KanbanBoard({ tasks, setTasks, allTasks }: { tasks: Task[], setT
             return;
         }
 
-        if (source.droppableId === destination.droppableId && source.index === destination.index) {
-            return;
+        const startCol = tasksByStatus[source.droppableId as TaskStatus];
+        const endCol = tasksByStatus[destination.droppableId as TaskStatus];
+
+        if (source.droppableId === destination.droppableId) {
+            // Moving within the same column
+            const newTasks = Array.from(startCol);
+            const [reorderedItem] = newTasks.splice(source.index, 1);
+            newTasks.splice(destination.index, 0, reorderedItem);
+            
+            const updatedAllTasks = allTasks.map(t => {
+                if (t.status === source.droppableId) {
+                    const taskInNewOrder = newTasks.find(nt => nt.id === t.id);
+                    if (taskInNewOrder) return taskInNewOrder;
+                }
+                return t;
+            })
+            // This part is tricky with local state. 
+            // A better way is to update a global state or refetch.
+            // For now, we update the task status, and the visual reordering is local.
+        } else {
+            // Moving to a different column
+            const newStatus = destination.droppableId as TaskStatus;
+            updateTask(draggableId, { status: newStatus });
         }
-        
-        const newStatus = destination.droppableId as TaskStatus;
-        updateTask(draggableId, { status: newStatus });
     };
 
     if (tasks.length === 0) {

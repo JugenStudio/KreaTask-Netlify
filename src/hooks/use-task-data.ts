@@ -1,13 +1,10 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { UserRole } from '@/lib/types';
-import { useCollection, useFirestore, useUser, useMemoFirebase } from '@/firebase';
-import { collection, doc } from 'firebase/firestore';
-import { addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase/non-blocking-updates';
-
+import { initialData } from '@/lib/data';
 
 type DownloadItem = {
   id: number;
@@ -52,169 +49,195 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
     }));
 };
 
-
-export function useTaskData() {
-  const { user: authUser, isUserLoading } = useUser();
-  const firestore = useFirestore();
-
-  // STEP 1: Fetch all users once authentication is complete.
-  const usersQuery = useMemoFirebase(() => {
-    if (isUserLoading) return null;
-    return collection(firestore, 'users');
-  }, [firestore, isUserLoading]);
-  const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
-
-  // STEP 2: Fetch ALL tasks. This is needed for leaderboards/director views.
-  // This might be slow if there are many users/tasks.
-  // A more scalable approach would use aggregated data or more specific queries.
-  const allTasksQuery = useMemoFirebase(() => {
-    if (isUserLoading) return null;
-    return collection(firestore, 'tasks');
-  }, [firestore, isUserLoading]);
-  const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(allTasksQuery);
-
-  const notificationsQuery = useMemoFirebase(() => {
-    if (!authUser) return null;
-    return collection(firestore, 'users', authUser.uid, 'notifications');
-  }, [firestore, authUser]);
-  const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
-  
-
-  const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
-  const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
-
-  const isLoading = isUserLoading || isTasksLoading || isUsersLoading || isNotifsLoading;
-
-  useEffect(() => {
-    if (authUser?.uid) {
-        try {
-            const storedDownloads = localStorage.getItem(`kreatask_downloads_${authUser.uid}`);
-            const downloads = storedDownloads ? JSON.parse(storedDownloads) : [];
-            setDownloadHistoryState(downloads);
-        } catch (error) {
-            console.error("Failed to parse user-specific downloads from localStorage", error);
-            setDownloadHistoryState([]);
-        }
-    }
-  }, [authUser?.uid]);
-
-
-  useEffect(() => {
-    if (allTasks && users) {
-      const newLeaderboard = calculateLeaderboard(allTasks, users);
-      setLeaderboardData(newLeaderboard);
-    }
-  }, [allTasks, users]);
-
-
-  const updateLocalStorage = (key: string, data: any) => {
-      try {
-          if (typeof window !== 'undefined') {
-            localStorage.setItem(key, JSON.stringify(data));
-          }
-      } catch (error) {
-          console.error(`Failed to update localStorage for key: ${key}`, error);
-      }
-  };
-
-  const setUsers = (newUsers: User[]) => {
-    newUsers.forEach(user => {
-      const userRef = doc(firestore, 'users', user.id);
-      updateDocumentNonBlocking(userRef, user);
-    });
-  };
-
-  const setNotifications = (newNotifications: Notification[]) => {
-    if (!notifications || !authUser) return;
-    newNotifications.forEach(notification => {
-        const notifRef = doc(firestore, 'users', authUser.uid, 'notifications', notification.id);
-        updateDocumentNonBlocking(notifRef, notification);
-    });
-  };
-
-  const setDownloadHistory = useCallback((newHistory: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => {
-    if (authUser?.uid) {
-        setDownloadHistoryState(prevState => {
-            const updatedState = typeof newHistory === 'function' ? newHistory(prevState) : newHistory;
-            updateLocalStorage(`kreatask_downloads_${authUser.uid}`, updatedState);
-            return updatedState;
-        });
-    }
-  }, [authUser?.uid]);
-  
-  const addTask = (newTask: Omit<Task, 'id'>) => {
-    if (!authUser) return;
-    const tasksColRef = collection(firestore, 'tasks');
-    addDocumentNonBlocking(tasksColRef, newTask);
-  };
-
-  const updateTask = (taskId: string, updates: Partial<Task>) => {
-    if (!authUser) return;
-    const taskRef = doc(firestore, 'tasks', taskId);
-    updateDocumentNonBlocking(taskRef, updates);
-  };
-
-  const deleteTask = (taskId: string) => {
-    if (!authUser) return;
-    const taskRef = doc(firestore, 'tasks', taskId);
-    deleteDocumentNonBlocking(taskRef);
-  };
-
-  const addNotification = useCallback((newNotification: Omit<Notification, 'id'>) => {
-    if (!authUser) return;
-    const notifColRef = collection(firestore, 'users', newNotification.userId, 'notifications');
-    addDocumentNonBlocking(notifColRef, newNotification);
-  }, [firestore, authUser]);
-
-  const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
-    if (!authUser) return;
-
-    const newDownloadItem: DownloadItem = {
-      id: Date.now(),
-      fileName: file.name,
-      taskName: taskName,
-      date: new Date().toISOString(),
-      size: file.size,
-      url: file.url,
-      status: 'In Progress',
-      progress: 0,
-    };
-    
-    if (isRedownload) {
-      setDownloadHistory(prevHistory => {
-        const existingItemIndex = prevHistory.findIndex(item => item.fileName === file.name && item.taskName === taskName);
-        if (existingItemIndex > -1) {
-          const updatedHistory = [...prevHistory];
-          updatedHistory[existingItemIndex] = newDownloadItem;
-          return updatedHistory;
-        }
-        return [newDownloadItem, ...prevHistory];
-      });
-    } else {
-       setDownloadHistory(prevHistory => [newDownloadItem, ...prevHistory]);
-    }
-
-  }, [authUser, setDownloadHistory]);
-
-
-  return { 
-    isLoading, 
-    allTasks: allTasks || [], 
-    users: users || [],
-    leaderboardData, 
-    notifications: notifications || [],
-    downloadHistory,
-    setUsers,
-    setAllTasks: (tasks: Task[]) => { 
-        if(!authUser) return;
-        tasks.forEach(t => updateTask(t.id, t))
-    }, 
-    setNotifications,
-    setDownloadHistory,
-    addTask,
-    updateTask,
-    deleteTask,
-    addNotification,
-    addToDownloadHistory,
-  };
+interface TaskDataContextType {
+    isLoading: boolean;
+    allTasks: Task[];
+    users: User[];
+    leaderboardData: LeaderboardEntry[];
+    notifications: Notification[];
+    downloadHistory: DownloadItem[];
+    setUsers: (users: User[]) => void;
+    setAllTasks: (tasks: Task[]) => void;
+    setNotifications: (notifications: Notification[]) => void;
+    setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
+    addTask: (task: Task) => void;
+    updateTask: (taskId: string, updates: Partial<Task>) => void;
+    deleteTask: (taskId: string) => void;
+    addNotification: (notification: Notification) => void;
+    addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
 }
+
+const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
+
+export const TaskDataProvider = ({ children }: { children: ReactNode }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [allTasks, setAllTasks] = useState<Task[]>(initialData.allTasks);
+    const [users, setUsers] = useState<User[]>(initialData.users);
+    const [notifications, setNotifications] = useState<Notification[]>(initialData.mockNotifications);
+    const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
+    const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+    const [currentUser, setCurrentUser] = useState<User | null>(null);
+
+    useEffect(() => {
+      // Simulate fetching current user
+      const storedUser = sessionStorage.getItem('currentUser');
+      if (storedUser) {
+        try {
+          setCurrentUser(JSON.parse(storedUser));
+        } catch (e) {
+          console.error("Failed to parse user from session storage", e);
+        }
+      }
+    }, []);
+
+
+    useEffect(() => {
+        setIsLoading(true);
+        // Load data from localStorage or initialData
+        try {
+            const storedTasks = localStorage.getItem('kreatask_tasks');
+            const storedUsers = localStorage.getItem('kreatask_users');
+            const storedNotifications = localStorage.getItem('kreatask_notifications');
+            
+            setAllTasks(storedTasks ? JSON.parse(storedTasks) : initialData.allTasks);
+            setUsers(storedUsers ? JSON.parse(storedUsers) : initialData.users);
+            setNotifications(storedNotifications ? JSON.parse(storedNotifications) : initialData.mockNotifications);
+
+            if (currentUser?.id) {
+               const storedDownloads = localStorage.getItem(`kreatask_downloads_${currentUser.id}`);
+               setDownloadHistoryState(storedDownloads ? JSON.parse(storedDownloads) : []);
+            }
+
+        } catch (error) {
+            console.error("Failed to load data from localStorage", error);
+            // Fallback to initial data if parsing fails
+            setAllTasks(initialData.allTasks);
+            setUsers(initialData.users);
+            setNotifications(initialData.mockNotifications);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [currentUser?.id]);
+
+    useEffect(() => {
+        // Update leaderboard whenever tasks or users change
+        const newLeaderboard = calculateLeaderboard(allTasks, users);
+        setLeaderboardData(newLeaderboard);
+    }, [allTasks, users]);
+
+    const updateLocalStorage = (key: string, data: any) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+            console.error(`Failed to update localStorage for key: ${key}`, error);
+        }
+    };
+
+    const handleSetTasks = (newTasks: Task[]) => {
+        setAllTasks(newTasks);
+        updateLocalStorage('kreatask_tasks', newTasks);
+    };
+
+    const handleSetUsers = (newUsers: User[]) => {
+        setUsers(newUsers);
+        updateLocalStorage('kreatask_users', newUsers);
+    };
+
+    const handleSetNotifications = (newNotifications: Notification[]) => {
+        setNotifications(newNotifications);
+        updateLocalStorage('kreatask_notifications', newNotifications);
+    };
+
+    const setDownloadHistory = useCallback((newHistory: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => {
+      if (currentUser?.id) {
+          setDownloadHistoryState(prevState => {
+              const updatedState = typeof newHistory === 'function' ? newHistory(prevState) : newHistory;
+              updateLocalStorage(`kreatask_downloads_${currentUser.id}`, updatedState);
+              return updatedState;
+          });
+      }
+    }, [currentUser?.id]);
+
+    const addTask = (newTask: Task) => {
+        const updatedTasks = [...allTasks, newTask];
+        handleSetTasks(updatedTasks);
+    };
+
+    const updateTask = (taskId: string, updates: Partial<Task>) => {
+        const updatedTasks = allTasks.map(task =>
+            task.id === taskId ? { ...task, ...updates } : task
+        );
+        handleSetTasks(updatedTasks);
+    };
+
+    const deleteTask = (taskId: string) => {
+        const updatedTasks = allTasks.filter(task => task.id !== taskId);
+        handleSetTasks(updatedTasks);
+    };
+
+    const addNotification = useCallback((newNotification: Notification) => {
+        setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            updateLocalStorage('kreatask_notifications', updated);
+            return updated;
+        });
+    }, []);
+
+    const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
+      if (!currentUser) return;
+
+      const newDownloadItem: DownloadItem = {
+        id: Date.now(),
+        fileName: file.name,
+        taskName: taskName,
+        date: new Date().toISOString(),
+        size: file.size,
+        url: file.url,
+        status: 'In Progress',
+        progress: 0,
+      };
+      
+      if (isRedownload) {
+        setDownloadHistory(prevHistory => {
+          const existingItemIndex = prevHistory.findIndex(item => item.fileName === file.name && item.taskName === taskName);
+          if (existingItemIndex > -1) {
+            const updatedHistory = [...prevHistory];
+            updatedHistory[existingItemIndex] = newDownloadItem;
+            return updatedHistory;
+          }
+          return [newDownloadItem, ...prevHistory];
+        });
+      } else {
+         setDownloadHistory(prevHistory => [newDownloadItem, ...prevHistory]);
+      }
+
+    }, [currentUser, setDownloadHistory]);
+
+    const value = {
+        isLoading,
+        allTasks,
+        users,
+        leaderboardData,
+        notifications,
+        downloadHistory,
+        setUsers: handleSetUsers,
+        setAllTasks: handleSetTasks,
+        setNotifications: handleSetNotifications,
+        setDownloadHistory,
+        addTask,
+        updateTask,
+        deleteTask,
+        addNotification,
+        addToDownloadHistory,
+    };
+
+    return <TaskDataContext.Provider value={value}>{children}</TaskDataContext.Provider>;
+};
+
+export const useTaskData = () => {
+    const context = useContext(TaskDataContext);
+    if (context === undefined) {
+        throw new Error('useTaskData must be used within a TaskDataProvider');
+    }
+    return context;
+};

@@ -10,6 +10,84 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
+     * @description Manages access to user profiles.
+     * @path /users/{userId}
+     */
+    match /users/{userId} {
+      function isOwner() {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner() {
+        return isOwner() && resource != null;
+      }
+
+      allow get: if isOwner();
+      allow list: if false; // Prevent listing all users
+      allow create: if isOwner() && request.resource.data.id == userId;
+      allow update: if isExistingOwner() && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner();
+    }
+
+    /**
+     * @description Manages access to user notifications.
+     * @path /users/{userId}/notifications/{notificationId}
+     */
+    match /users/{userId}/notifications/{notificationId} {
+      function isOwner() {
+        return request.auth.uid == userId;
+      }
+
+      function isExistingOwner() {
+        return isOwner() && resource != null;
+      }
+
+      allow get: if isOwner();
+      allow list: if isOwner();
+      allow create: if isOwner();
+      allow update: if isExistingOwner();
+      allow delete: if isExistingOwner();
+    }
+
+    /**
+     * @description Manages access to main tasks collection.
+     * @path /tasks/{taskId}
+     * @principle Allows all authenticated users to read tasks for collaboration features like leaderboards
+     */
+    match /tasks/{taskId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isAdmin() {
+        return exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+      }
+
+      function isOwner() {
+        return request.auth.uid == request.resource.data.createdBy;
+      }
+
+      function isExistingOwner() {
+        return isOwner() && resource != null;
+      }
+
+      allow get: if isSignedIn();
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && (
+        request.resource.data.createdBy == request.auth.uid ||
+        isAdmin()
+      );
+      allow update: if isSignedIn() && (
+        isExistingOwner() ||
+        isAdmin()
+      );
+      allow delete: if isSignedIn() && (
+        isExistingOwner() ||
+        isAdmin()
+      );
+    }
+
+    /**
      * @description Manages access to user-specific task data.
      * @path /users/{userId}/tasks/{taskId}
      * @allow (create) - User 'user123' creates a new task with ID 'task456' under their user ID.
@@ -22,13 +100,13 @@ service cloud.firestore {
      */
     match /users/{userId}/tasks/{taskId} {
       // Helper function to check if the request is made by the owner of the task
-      function isOwner(userId) {
+      function isOwner() {
         return request.auth.uid == userId;
       }
 
       // Helper function to check if the request is made by the existing owner of the task and that the document exists
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+      function isExistingOwner() {
+        return isOwner() && resource != null;
       }
 
       // Helper function to validate task ownership on create
@@ -36,11 +114,11 @@ service cloud.firestore {
         return request.resource.data.id == userId;
       }
 
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && isValidTaskCreation();
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      allow get: if isOwner();
+      allow list: if isOwner();
+      allow create: if isOwner() && isValidTaskCreation();
+      allow update: if isExistingOwner() && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner();
     }
 
     /**
@@ -56,20 +134,20 @@ service cloud.firestore {
      */
     match /users/{userId}/tasks/{taskId}/revisions/{revisionId} {
       // Helper function to check if the request is made by the owner of the revision's task
-      function isOwner(userId) {
+      function isOwner() {
         return request.auth.uid == userId;
       }
 
       // Helper function to check if the request is made by the existing owner of the revision's task and that the document exists
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+      function isExistingOwner() {
+        return isOwner() && resource != null;
       }
 
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow get: if isOwner();
+      allow list: if isOwner();
+      allow create: if isOwner();
+      allow update: if isExistingOwner();
+      allow delete: if isExistingOwner();
     }
 
     /**
@@ -85,20 +163,20 @@ service cloud.firestore {
      */
     match /users/{userId}/tasks/{taskId}/comments/{commentId} {
       // Helper function to check if the request is made by the owner of the comment's task
-      function isOwner(userId) {
+      function isOwner() {
         return request.auth.uid == userId;
       }
 
       // Helper function to check if the request is made by the existing owner of the comment's task and that the document exists
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+      function isExistingOwner() {
+        return isOwner() && resource != null;
       }
 
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow get: if isOwner();
+      allow list: if isOwner();
+      allow create: if isOwner();
+      allow update: if isExistingOwner();
+      allow delete: if isExistingOwner();
     }
 
     /**

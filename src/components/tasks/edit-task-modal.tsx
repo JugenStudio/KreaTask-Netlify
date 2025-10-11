@@ -320,5 +320,3 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     </Dialog>
   );
 }
-
-    

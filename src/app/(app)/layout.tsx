@@ -4,7 +4,7 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
-import { useTaskData } from "@/hooks/use-task-data";
+import { TaskDataProvider } from "@/hooks/use-task-data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from 'next/navigation';
@@ -15,8 +15,9 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
-import { FirebaseClientProvider } from "@/firebase";
 import { BottomNav } from "@/components/bottom-nav";
+import { useTaskData } from "@/hooks/use-task-data";
+
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -251,9 +252,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   
   return (
     <LanguageProvider>
-      <FirebaseClientProvider>
+      <TaskDataProvider>
         <AppLayoutContent>{children}</AppLayoutContent>
-      </FirebaseClientProvider>
+      </TaskDataProvider>
     </LanguageProvider>
   );
 }

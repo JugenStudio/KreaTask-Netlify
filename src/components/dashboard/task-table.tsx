@@ -254,7 +254,3 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
     </>
   );
 }
-
-    
-
-    
