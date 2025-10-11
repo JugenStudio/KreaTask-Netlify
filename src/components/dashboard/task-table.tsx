@@ -39,7 +39,6 @@ import { Card, CardContent } from "../ui/card";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useToast } from "@/hooks/use-toast";
 import { isDirector, isEmployee } from "@/lib/roles";
-import { motion } from "framer-motion";
 
 
 const statusColors: Record<TaskStatus, string> = {
@@ -178,13 +177,7 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
           {tasks.map((task, index) => (
-             <motion.div
-                key={task.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-              <Card className="transition-all active:scale-95 rounded-xl">
+              <Card key={task.id} className="transition-all active:scale-95 rounded-xl">
                   <CardContent className="p-3">
                       <div className="flex justify-between items-start gap-3">
                           <Link href={`/tasks/${task.id}`} className="flex-1 pr-2">
@@ -237,7 +230,6 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
                       </div>
                   </CardContent>
               </Card>
-              </motion.div>
           ))}
       </div>
 
