@@ -65,7 +65,7 @@ function KanbanTaskCard({ task, index }: { task: Task, index: number }) {
                     className="mb-3"
                 >
                     <Card className={cn(
-                        "card-spotlight bg-card hover:bg-muted transition-colors rounded-xl hover:border-primary/50",
+                        "card-spotlight bg-card hover:border-primary/50 transition-colors rounded-xl",
                         snapshot.isDragging && "shadow-lg scale-105"
                     )}>
                         <Link href={`/tasks/${task.id}`}>
@@ -115,14 +115,19 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <StrictModeDroppable droppableId={status} isDropDisabled={false} isCombineEnabled={false}>
+                <StrictModeDroppable 
+                    droppableId={status} 
+                    isDropDisabled={false} 
+                    isCombineEnabled={false}
+                    ignoreContainerClipping={false}
+                >
                     {(provided, snapshot) => (
                         <CardContent 
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                             className={cn(
                                 "p-1.5 pt-0 transition-colors",
-                                hasTasks ? "min-h-[100px]" : "min-h-[20px]",
+                                hasTasks ? "min-h-[100px]" : "",
                                 snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
