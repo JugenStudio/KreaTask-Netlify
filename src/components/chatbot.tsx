@@ -84,8 +84,7 @@ export function Chatbot() {
     <>
       <Button
         className={cn(
-          "fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 md:bottom-6 md:right-6 bg-yellow-400 text-background hover:bg-yellow-400/90 transition-all active:scale-95",
-          "animate-pulse-glow"
+          "fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 md:bottom-6 md:right-6 bg-yellow-400 text-background hover:bg-yellow-400/90 transition-all active:scale-95"
         )}
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
