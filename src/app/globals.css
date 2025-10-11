@@ -138,9 +138,9 @@
     padding: 1px; /* The "border" width */
     background: linear-gradient(
       120deg,
-      hsla(var(--primary) / 0),
-      hsla(var(--primary) / 0.5),
-      hsla(var(--primary) / 0)
+      hsla(var(--primary) / 0.1),
+      hsla(var(--primary) / 0.6),
+      hsla(var(--primary) / 0.1)
     );
     -webkit-mask: 
       linear-gradient(#fff 0 0) content-box, 
@@ -148,15 +148,5 @@
     -webkit-mask-composite: xor;
     mask-composite: exclude;
     pointer-events: none;
-    animation: glow-spin 3s linear infinite;
-  }
-
-  @keyframes glow-spin {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
   }
 }
