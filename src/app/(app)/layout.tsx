@@ -4,20 +4,19 @@
 import { AppSidebar } from "@/components/app-sidebar";
 import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
-import { TaskDataProvider } from "@/hooks/use-task-data";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, createContext, useContext, useCallback } from "react";
-import type { User } from "@/lib/types";
+import { useEffect, useState, createContext, useContext, useCallback, ReactNode } from "react";
+import type { User, Task, LeaderboardEntry, Notification } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
-import { useTaskData } from "@/hooks/use-task-data";
-
+import { initialData } from '@/lib/data';
+import { TaskDataContext, type TaskDataContextType } from "@/hooks/use-task-data";
 
 // Helper functions to manage notified downloads in localStorage
 const getNotifiedDownloads = (userId: string): Set<number> => {
@@ -31,6 +30,208 @@ const addNotifiedDownload = (downloadId: number, userId: string) => {
     notified.add(downloadId);
     localStorage.setItem(`kreatask_notified_downloads_${userId}`, JSON.stringify(Array.from(notified)));
 };
+
+type DownloadItem = {
+  id: number;
+  fileName: string;
+  taskName: string;
+  date: string;
+  size: string;
+  url: string;
+  status: 'Completed' | 'In Progress' | 'Failed';
+  progress: number;
+};
+
+const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
+    if (!tasks || !users) return [];
+    const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: any; } } = {};
+
+    users.forEach(user => {
+      userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role };
+    });
+
+    tasks.forEach(task => {
+      if (task.status === 'Completed') {
+        task.assignees.forEach(assignee => {
+          if (assignee && userScores[assignee.id]) {
+            userScores[assignee.id].score += task.value;
+            userScores[assignee.id].tasksCompleted += 1;
+          }
+        });
+      }
+    });
+
+    const sortedUsers = Object.entries(userScores).sort(([, a], [, b]) => b.score - a.score);
+
+    return sortedUsers.map(([id, data], index) => ({
+      id,
+      rank: index + 1,
+      name: data.name,
+      score: data.score,
+      tasksCompleted: data.tasksCompleted,
+      avatarUrl: data.avatarUrl,
+      role: data.role,
+    }));
+};
+
+
+const TaskDataProvider = ({ children }: { children: ReactNode }) => {
+    const [isLoading, setIsLoading] = useState(true);
+    const [allTasks, setAllTasks] = useState<Task[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
+    const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
+    const [userForDownloads, setUserForDownloads] = useState<User | null>(null);
+
+    useEffect(() => {
+        const storedUser = sessionStorage.getItem('currentUser');
+        if (storedUser) {
+            try {
+                setUserForDownloads(JSON.parse(storedUser));
+            } catch (e) {
+                console.error("Failed to parse user from session storage", e);
+            }
+        }
+    }, []);
+
+    useEffect(() => {
+        setIsLoading(true);
+        try {
+            const storedTasks = localStorage.getItem('kreatask_tasks');
+            const storedUsers = localStorage.getItem('kreatask_users');
+            const storedNotifications = localStorage.getItem('kreatask_notifications');
+            
+            const tasks = storedTasks ? JSON.parse(storedTasks) : initialData.allTasks;
+            const users = storedUsers ? JSON.parse(storedUsers) : initialData.users;
+
+            setAllTasks(tasks);
+            setUsers(users);
+            setNotifications(storedNotifications ? JSON.parse(storedNotifications) : initialData.mockNotifications);
+            setLeaderboardData(calculateLeaderboard(tasks, users));
+            
+            if (userForDownloads?.id) {
+               const storedDownloads = localStorage.getItem(`kreatask_downloads_${userForDownloads.id}`);
+               setDownloadHistoryState(storedDownloads ? JSON.parse(storedDownloads) : []);
+            }
+
+        } catch (error) {
+            console.error("Failed to load data from localStorage", error);
+            setAllTasks(initialData.allTasks);
+            setUsers(initialData.users);
+            setNotifications(initialData.mockNotifications);
+            setLeaderboardData(calculateLeaderboard(initialData.allTasks, initialData.users));
+        } finally {
+            setIsLoading(false);
+        }
+    }, [userForDownloads?.id]);
+
+    const updateLocalStorage = (key: string, data: any) => {
+        try {
+            localStorage.setItem(key, JSON.stringify(data));
+        } catch (error) {
+            console.error(`Failed to update localStorage for key: ${key}`, error);
+        }
+    };
+
+    const handleSetTasks = (newTasks: Task[]) => {
+        setAllTasks(newTasks);
+        setLeaderboardData(calculateLeaderboard(newTasks, users));
+        updateLocalStorage('kreatask_tasks', newTasks);
+    };
+
+    const handleSetUsers = (newUsers: User[]) => {
+        setUsers(newUsers);
+        setLeaderboardData(calculateLeaderboard(allTasks, newUsers));
+        updateLocalStorage('kreatask_users', newUsers);
+    };
+
+    const handleSetNotifications = (newNotifications: Notification[]) => {
+        setNotifications(newNotifications);
+        updateLocalStorage('kreatask_notifications', newNotifications);
+    };
+
+    const setDownloadHistory = useCallback((newHistory: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => {
+      if (userForDownloads?.id) {
+          setDownloadHistoryState(prevState => {
+              const updatedState = typeof newHistory === 'function' ? newHistory(prevState) : newHistory;
+              updateLocalStorage(`kreatask_downloads_${userForDownloads.id}`, updatedState);
+              return updatedState;
+          });
+      }
+    }, [userForDownloads?.id]);
+
+    const addTask = (newTask: Task) => {
+        handleSetTasks([...allTasks, newTask]);
+    };
+
+    const updateTask = (taskId: string, updates: Partial<Task>) => {
+        const updatedTasks = allTasks.map(task =>
+            task.id === taskId ? { ...task, ...updates } : task
+        );
+        handleSetTasks(updatedTasks);
+    };
+
+    const deleteTask = (taskId: string) => {
+        const updatedTasks = allTasks.filter(task => task.id !== taskId);
+        handleSetTasks(updatedTasks);
+    };
+
+    const addNotification = useCallback((newNotification: Notification) => {
+        setNotifications(prev => {
+            const updated = [newNotification, ...prev];
+            updateLocalStorage('kreatask_notifications', updated);
+            return updated;
+        });
+    }, []);
+
+    const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
+      if (!userForDownloads) return;
+
+      const newDownloadItem: DownloadItem = {
+        id: Date.now(),
+        fileName: file.name,
+        taskName: taskName,
+        date: new Date().toISOString(),
+        size: file.size,
+        url: file.url,
+        status: 'In Progress',
+        progress: 0,
+      };
+      
+      setDownloadHistory(prevHistory => {
+        const existingItemIndex = prevHistory.findIndex(item => item.fileName === file.name && item.taskName === taskName);
+        if (isRedownload && existingItemIndex > -1) {
+            const updatedHistory = [...prevHistory];
+            updatedHistory[existingItemIndex] = newDownloadItem;
+            return updatedHistory;
+        }
+        return [newDownloadItem, ...prevHistory];
+      });
+
+    }, [userForDownloads, setDownloadHistory]);
+
+    const value: TaskDataContextType = {
+        isLoading,
+        allTasks,
+        users,
+        leaderboardData,
+        notifications,
+        downloadHistory,
+        setUsers: handleSetUsers,
+        setAllTasks: handleSetTasks,
+        setNotifications: handleSetNotifications,
+        setDownloadHistory,
+        addTask,
+        updateTask,
+        deleteTask,
+        addNotification,
+        addToDownloadHistory,
+    };
+
+    return <TaskDataContext.Provider value={value}>{children}</TaskDataContext.Provider>;
+};
+
 
 // 1. Create the context
 const UserContext = createContext<{ currentUser: User | null }>({
@@ -46,7 +247,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     downloadHistory, 
     setDownloadHistory, 
     addNotification 
-  } = useTaskData();
+  } = useContext(TaskDataContext)!;
   const isMobile = useIsMobile();
   const pathname = usePathname();
   const { t } = useLanguage();
