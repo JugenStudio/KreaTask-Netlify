@@ -53,9 +53,6 @@ export function TaskCard({ task }: { task: Task }) {
                   <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
                 </Avatar>
               ))}
-              <div className="flex items-center justify-center h-8 w-8 md:h-9 md:w-9 rounded-full bg-primary text-primary-foreground text-xs font-bold border-2 border-background/50">
-                5+
-              </div>
             </div>
             <Link href={`/tasks/${task.id}`} className="p-2 md:p-3 rounded-full bg-white/10 text-card-foreground cursor-pointer hover:bg-white/20 transition-colors">
                 <ArrowRight className="h-4 w-4 md:h-5 md:w-5" />

@@ -34,7 +34,7 @@ export default function DashboardPage() {
   if (isTaskDataLoading || !currentUser || !currentUserLeaderboard) {
     return (
         <div className="space-y-6 md:space-y-8">
-            <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
+            <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
                 <Skeleton className="h-10 md:h-12 w-1/2" />
             </h1>
             <div className="text-muted-foreground text-base md:text-lg">
@@ -100,7 +100,7 @@ export default function DashboardPage() {
     <div className="space-y-6 md:space-y-8">
       {/* Header Section */}
       <div>
-        <h1 className="text-3xl md:text-4xl font-bold font-headline text-yellow-400">
+        <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
             {welcomeMessage}
         </h1>
         <p className="text-muted-foreground text-base md:text-lg">
