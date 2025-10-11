@@ -115,7 +115,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <StrictModeDroppable droppableId={status} isDropDisabled={false}>
+                <StrictModeDroppable droppableId={status} isDropDisabled={false} isCombineEnabled={false}>
                     {(provided, snapshot) => (
                         <CardContent 
                             ref={provided.innerRef}
