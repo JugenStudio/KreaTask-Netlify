@@ -18,6 +18,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { cn } from "@/lib/utils";
+import BlurText from "@/components/ui/blur-text";
 
 
 export default function DashboardPage() {
@@ -103,9 +104,12 @@ export default function DashboardPage() {
       <div className="space-y-6 md:space-y-8">
         {/* Header Section */}
         <div>
-          <h1 className="text-3xl md:text-4xl font-bold font-headline text-primary">
-              {welcomeMessage}
-          </h1>
+          <BlurText
+            text={welcomeMessage}
+            delay={100}
+            animateBy="words"
+            className="text-3xl md:text-4xl font-bold font-headline text-primary"
+          />
           <p className="text-muted-foreground text-base md:text-lg">
             {t("dashboard.description")}
           </p>
