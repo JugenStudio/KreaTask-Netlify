@@ -15,23 +15,6 @@ import { cn } from "@/lib/utils";
 import { useTaskData } from "@/hooks/use-task-data";
 
 
-// Wrapper component to fix react-beautiful-dnd issue with React 18 Strict Mode
-const StrictDroppable = ({ children, droppableId }: { children: React.ReactNode, droppableId: string }) => {
-  const [enabled, setEnabled] = useState(false);
-  useEffect(() => {
-    const animation = requestAnimationFrame(() => setEnabled(true));
-    return () => {
-      cancelAnimationFrame(animation);
-      setEnabled(false);
-    };
-  }, []);
-  if (!enabled) {
-    return null;
-  }
-  return <Droppable droppableId={droppableId}>{children}</Droppable>;
-};
-
-
 const statusColumns: TaskStatus[] = ["To-do", "In Progress", "In Review", "Completed", "Blocked"];
 
 const statusColors: Record<TaskStatus, string> = {
@@ -107,8 +90,8 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                     </div>
                     <Badge variant="secondary" className="text-xs">{tasks.length}</Badge>
                 </CardHeader>
-                <StrictDroppable droppableId={status}>
-                    {(provided: any, snapshot: any) => (
+                <Droppable droppableId={status}>
+                    {(provided, snapshot) => (
                         <CardContent 
                             ref={provided.innerRef}
                             {...provided.droppableProps}
@@ -125,7 +108,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                             </div>
                         </CardContent>
                     )}
-                </StrictDroppable>
+                </Droppable>
             </div>
         </div>
     );
