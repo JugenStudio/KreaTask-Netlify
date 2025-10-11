@@ -101,6 +101,7 @@ function KanbanTaskCard({ task, index }: { task: Task, index: number }) {
 
 function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) {
     const { t } = useLanguage();
+    const hasTasks = tasks.length > 0;
 
     return (
         <div className="w-full md:w-72 flex-shrink-0">
@@ -120,7 +121,8 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
                             ref={provided.innerRef}
                             {...provided.droppableProps}
                             className={cn(
-                                "p-1.5 pt-0 min-h-[150px] transition-colors",
+                                "p-1.5 pt-0 transition-colors",
+                                hasTasks ? "min-h-[150px]" : "min-h-[20px]", // Dynamic min-height
                                 snapshot.isDraggingOver && "bg-primary/10"
                             )}
                         >
