@@ -116,7 +116,7 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
           </TableHeader>
           <TableBody>
             {tasks.map((task) => (
-              <TableRow key={task.id}>
+              <TableRow key={task.id} className="hover:border-primary/50 transition-colors">
                 <TableCell className="font-medium">
                   <Link href={`/tasks/${task.id}`} className="hover:underline break-words transition-all active:scale-95">
                     {task.title[locale]}
