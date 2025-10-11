@@ -72,7 +72,7 @@ export default function AboutPage() {
       <div className='mx-auto w-fit'>
          <Carousel
           items={techItems}
-          baseWidth={340}
+          baseWidth={320}
           loop={true}
           autoplay={true}
         />

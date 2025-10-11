@@ -68,7 +68,7 @@ export default function SignInPage() {
        <div className='mb-8'>
          <Carousel
           items={featureItems}
-          baseWidth={340}
+          baseWidth={280}
           loop={true}
           autoplay={true}
           autoplayDelay={4000}

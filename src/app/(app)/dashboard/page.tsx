@@ -138,7 +138,7 @@ export default function DashboardPage() {
             <div className="mx-auto w-fit">
               <Carousel
                 items={onboardingItems}
-                baseWidth={320}
+                baseWidth={280}
                 autoplay={true}
                 loop={true}
                 autoplayDelay={5000}
