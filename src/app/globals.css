@@ -136,7 +136,7 @@
     width: 100%;
     height: 100%;
     background: radial-gradient(
-      circle 300px at var(--glow-x, 50%) var(--glow-y, 50%),
+      var(--glow-radius) circle at var(--glow-x, 50%) var(--glow-y, 50%),
       hsla(var(--primary), calc(var(--glow-intensity, 0) * 0.2)),
       transparent 70%
     );

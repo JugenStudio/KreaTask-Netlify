@@ -47,6 +47,7 @@ export function useSpotlightEffect() {
         cardElement.style.setProperty('--glow-x', `${relativeX}%`);
         cardElement.style.setProperty('--glow-y', `${relativeY}%`);
         cardElement.style.setProperty('--glow-intensity', glowIntensity.toString());
+        cardElement.style.setProperty('--glow-radius', `${SPOTLIGHT_RADIUS}px`);
       });
     };
 
@@ -60,6 +61,7 @@ export function useSpotlightEffect() {
         cardElement.style.removeProperty('--glow-x');
         cardElement.style.removeProperty('--glow-y');
         cardElement.style.removeProperty('--glow-intensity');
+        cardElement.style.removeProperty('--glow-radius');
       });
     };
   }, [isMobile]);
