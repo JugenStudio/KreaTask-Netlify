@@ -57,25 +57,45 @@ export function useTaskData() {
   const { user: authUser, isUserLoading } = useUser();
   const firestore = useFirestore();
 
-  const usersQuery = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
-  const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
+  const usersQuery = useMemoFirebase(() => {
+    // IMPORTANT: Wait for auth to be loaded and for an authUser to exist.
+    if (isUserLoading || !authUser) {
+      return null;
+    }
+    return collection(firestore, 'users');
+  }, [firestore, authUser, isUserLoading]);
+  const { data: usersData, isLoading: isUsersLoading } = useCollection<User>(usersQuery);
 
   const tasksQuery = useMemoFirebase(() => {
-    if (!authUser) return null;
+    if (isUserLoading || !authUser) {
+      return null;
+    }
     return collection(firestore, 'users', authUser.uid, 'tasks');
-  }, [firestore, authUser]);
+  }, [firestore, authUser, isUserLoading]);
   const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksQuery);
   
   const notificationsQuery = useMemoFirebase(() => {
-    if (!authUser) return null;
+    if (isUserLoading || !authUser) {
+      return null;
+    }
     return collection(firestore, 'users', authUser.uid, 'notifications');
-  }, [firestore, authUser]);
+  }, [firestore, authUser, isUserLoading]);
   const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsQuery);
 
   const [downloadHistory, setDownloadHistoryState] = useState<DownloadItem[]>([]);
   const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
 
   const isLoading = isUserLoading || isUsersLoading || isTasksLoading || isNotifsLoading;
+
+  // Add authUser to usersData if not present
+  const users = useMemo(() => {
+    if (!usersData) return authUser ? [authUser as User] : [];
+    const userExists = usersData.some(u => u.id === authUser?.id);
+    if (authUser && !userExists) {
+      return [...usersData, authUser as User];
+    }
+    return usersData;
+  }, [usersData, authUser]);
 
   useEffect(() => {
     if (authUser?.uid) {
