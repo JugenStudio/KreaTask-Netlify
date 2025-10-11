@@ -31,7 +31,7 @@ export default function SubmitPage() {
       </div>
       
       {!currentUser ? (
-          <Card>
+          <Card className="card-spotlight hover:border-primary/50 transition-colors">
             <CardContent className="p-4 md:p-6">
                 <div className="space-y-6 md:space-y-8">
                     <Skeleton className="h-10 w-full" />

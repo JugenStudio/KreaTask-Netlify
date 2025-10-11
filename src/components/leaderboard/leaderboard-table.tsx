@@ -81,7 +81,7 @@ export function LeaderboardTable({
     {/* Mobile View */}
     <div className="block md:hidden space-y-2">
       {leaderboardData.map((entry) => (
-        <Card key={entry.id} className="rounded-xl">
+        <Card key={entry.id} className="card-spotlight hover:border-primary/50 transition-colors rounded-xl">
           <CardContent className="p-3 flex items-center gap-3">
             <div className="w-8 flex justify-center">
               <RankIcon rank={entry.rank} />
