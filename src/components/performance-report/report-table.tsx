@@ -91,7 +91,7 @@ export function ReportTable({ tasks }: ReportTableProps) {
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
         {tasks.map((task) => (
-          <Card key={task.id} className="transition-all active:scale-95 rounded-xl">
+          <Card key={task.id} className="transition-all active:scale-95 rounded-xl card-spotlight">
             <Link href={`/tasks/${task.id}`}>
               <CardContent className="p-3">
                 <div className="flex justify-between items-start gap-3">
@@ -122,3 +122,5 @@ export function ReportTable({ tasks }: ReportTableProps) {
     </>
   );
 }
+
+    

@@ -64,7 +64,7 @@ function KanbanTaskCard({ task, index }: { task: Task, index: number }) {
                     className="mb-3"
                 >
                     <Card className={cn(
-                        "bg-card hover:bg-muted transition-colors rounded-xl card-glow",
+                        "bg-card hover:bg-muted transition-colors rounded-xl card-spotlight",
                         snapshot.isDragging && "shadow-lg scale-105"
                     )}>
                         <Link href={`/tasks/${task.id}`}>

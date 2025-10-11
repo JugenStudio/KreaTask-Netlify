@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 export function TopPerformerCard({ performer }: { performer: LeaderboardEntry }) {
   const { t } = useLanguage();
   return (
-    <Card className={cn("h-full", "card-glow")}>
+    <Card className={cn("h-full", "card-spotlight")}>
       <CardHeader>
         <CardTitle className="font-headline text-card-foreground">{t('dashboard.top_performer')}</CardTitle>
       </CardHeader>
@@ -38,3 +38,5 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
     </Card>
   );
 }
+
+    
