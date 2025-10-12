@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { UserRole } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -42,7 +43,7 @@ export default function SignInPage() {
         </h1>
       </div>
       
-      <div className="w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden">
+      <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden card-spotlight hover:border-primary/50 transition-colors")}>
         <div className="p-8 space-y-6">
           <div className="text-center space-y-2">
             <h2 className="text-2xl font-bold font-headline">Simulasi Login</h2>
