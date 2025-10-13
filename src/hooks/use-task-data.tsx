@@ -7,7 +7,7 @@ import { initialUsers, initialTasks } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
-import { isDirector } from '@/lib/roles';
+import { isDirector, isEmployee } from '@/lib/roles';
 
 type DownloadItem = {
   id: number;
@@ -74,9 +74,8 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     
-    // Seed data function
     const seedInitialData = useCallback(async () => {
         if (!firestore) return;
         console.log("Checking if seeding is needed...");
@@ -88,9 +87,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
                 console.log("Database is empty. Seeding initial data...");
                 const batch = writeBatch(firestore);
 
-                initialUsers.forEach(user => {
-                    const userRef = doc(firestore, 'users', user.id);
-                    batch.set(userRef, user);
+                initialUsers.forEach(userDoc => {
+                    const userRef = doc(firestore, 'users', userDoc.id);
+                    batch.set(userRef, userDoc);
                 });
                 
                 initialTasks.forEach(task => {
@@ -114,50 +113,25 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
     }, [firestore, seedInitialData]);
 
-    const usersCollectionRef = useMemoFirebase(() => 
-        firestore ? collection(firestore, 'users') : null, 
-        [firestore]
-    );
-    const { data: usersData, isLoading: isUsersLoading, error: usersError } = useCollection<User>(usersCollectionRef);
+    const usersCollectionRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return collection(firestore, 'users');
+    }, [firestore, user]);
+    const { data: usersData, isLoading: isUsersDataLoading } = useCollection<User>(usersCollectionRef);
     const users = useMemo(() => usersData || [], [usersData]);
 
     const tasksCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        
-        const tasksCollection = collection(firestore, 'tasks');
-        
-        // Find the current user's role from the fetched users list
-        const currentUserFromDb = users.find(u => u.id === user.uid);
-        
-        // This check is important, but we must allow fetching all tasks for directors.
-        if (!currentUserFromDb && users.length > 0) {
-            // Still loading or user not found, wait.
-            return null; 
-        }
-
-        // If user is a director, fetch all tasks. Otherwise, only fetch their assigned tasks.
-        if (currentUserFromDb && isDirector(currentUserFromDb.role)) {
-            return tasksCollection;
-        } else if (currentUserFromDb) { // Employee
-             return query(tasksCollection, where('assignees', 'array-contains', {
-                id: currentUserFromDb.id,
-                name: currentUserFromDb.name,
-                avatarUrl: currentUserFromDb.avatarUrl,
-                role: currentUserFromDb.role
-            }));
-        }
-        
-        return null; // Don't fetch if no user or role is determined yet.
-    }, [firestore, user, users]);
-    
-    const { data: tasksData, isLoading: isTasksLoading, error: tasksError } = useCollection<Task>(tasksCollectionRef);
+        if (!firestore || !user) return null; // Wait for user
+        return collection(firestore, 'tasks');
+    }, [firestore, user]);
+    const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
     const allTasks = useMemo(() => tasksData || [], [tasksData]);
     
     const notificationsCollectionRef = useMemoFirebase(() => 
-        firestore && user ? query(collection(firestore, 'notifications'), where('userId', '==', user.uid)) : null,
+        (firestore && user) ? query(collection(firestore, 'notifications'), where('userId', '==', user.uid)) : null,
         [firestore, user]
     );
-    const { data: notificationsData, isLoading: isNotifsLoading, error: notifsError } = useCollection<Notification>(notificationsCollectionRef);
+    const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
@@ -244,15 +218,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, []);
     
     const setAllTasks = (newTasks: Task[]) => {
-      // This function is now more complex as direct setting is not ideal with Firestore.
-      // For drag-n-drop, we only update the status of the moved task.
-      // The full list re-render will be handled by the onSnapshot listener.
-      console.warn("setAllTasks is not meant for direct state manipulation with Firestore backend.");
+      console.warn("setAllTasks is a no-op with a real-time Firestore backend.");
     };
 
-
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isTasksLoading || isUsersLoading || isNotifsLoading,
+        isLoading: isUserLoading || isUsersDataLoading || isTasksDataLoading || isNotifsLoading,
         allTasks,
         users,
         leaderboardData,
@@ -268,7 +238,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addToDownloadHistory,
         setAllTasks,
     }), [
-        isTasksLoading, isUsersLoading, isNotifsLoading, 
+        isUserLoading, isUsersDataLoading, isTasksDataLoading, isNotifsLoading, 
         allTasks, users, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
