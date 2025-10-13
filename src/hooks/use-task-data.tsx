@@ -6,10 +6,8 @@ import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { initialUsers, initialTasks } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { useCurrentUser } from '@/app/(app)/layout';
-import { isDirector, isEmployee } from '@/lib/roles';
 import { useUser } from '@/firebase/provider';
-
+import { isDirector } from '@/lib/roles';
 
 type DownloadItem = {
   id: number;
@@ -76,34 +74,37 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { user } = useUser();
-    const [allTasks, setAllTasks] = useState<Task[]>([]);
+    const { user } = useUser(); // Get user status from Firebase Auth
     
     // Seed data function
     const seedInitialData = useCallback(async () => {
         if (!firestore) return;
         console.log("Checking if seeding is needed...");
-        const usersCollection = collection(firestore, 'users');
-        const usersSnapshot = await getDocs(usersCollection);
-        
-        if (usersSnapshot.empty) {
-            console.log("Database is empty. Seeding initial data...");
-            const batch = writeBatch(firestore);
-
-            initialUsers.forEach(user => {
-                const userRef = doc(firestore, 'users', user.id);
-                batch.set(userRef, user);
-            });
+        try {
+            const usersCollection = collection(firestore, 'users');
+            const usersSnapshot = await getDocs(usersCollection);
             
-            initialTasks.forEach(task => {
-                const taskRef = doc(firestore, 'tasks', task.id);
-                batch.set(taskRef, task);
-            })
+            if (usersSnapshot.empty) {
+                console.log("Database is empty. Seeding initial data...");
+                const batch = writeBatch(firestore);
 
-            await batch.commit();
-            console.log("Initial data seeded successfully.");
-        } else {
-            console.log("Data already exists. Skipping seed.");
+                initialUsers.forEach(user => {
+                    const userRef = doc(firestore, 'users', user.id);
+                    batch.set(userRef, user);
+                });
+                
+                initialTasks.forEach(task => {
+                    const taskRef = doc(firestore, 'tasks', task.id);
+                    batch.set(taskRef, task);
+                });
+
+                await batch.commit();
+                console.log("Initial data seeded successfully.");
+            } else {
+                console.log("Data already exists. Skipping seed.");
+            }
+        } catch (error) {
+            console.error("Error seeding data:", error);
         }
     }, [firestore]);
 
@@ -118,41 +119,44 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         [firestore, user]
     );
     const { data: usersData, isLoading: isUsersLoading, error: usersError } = useCollection<User>(usersCollectionRef);
-    const users = usersData || [];
-
-    const isUserDirector = user ? isDirector((users.find(u => u.id === user.uid) as User)?.role) : false;
+    const users = useMemo(() => usersData || [], [usersData]);
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
+        
         const tasksCollection = collection(firestore, 'tasks');
-        if (isUserDirector) {
+        
+        // Find the current user's role from the fetched users list
+        const currentUserFromDb = users.find(u => u.id === user.uid);
+        
+        if (!currentUserFromDb) {
+            // If user's role is not yet known, don't fetch tasks yet
+            return null; 
+        }
+
+        // If user is a director, fetch all tasks. Otherwise, only fetch their assigned tasks.
+        if (isDirector(currentUserFromDb.role)) {
             return tasksCollection;
         }
-        const currentUserData = users.find(u => u.id === user.uid);
-        if (!currentUserData) return null;
-
+        
         return query(tasksCollection, where('assignees', 'array-contains', {
-            id: currentUserData.id,
-            name: currentUserData.name,
-            avatarUrl: currentUserData.avatarUrl,
-            role: currentUserData.role
+            id: currentUserFromDb.id,
+            name: currentUserFromDb.name,
+            avatarUrl: currentUserFromDb.avatarUrl,
+            role: currentUserFromDb.role
         }));
-    }, [firestore, user, users, isUserDirector]);
+    }, [firestore, user, users]);
     
     const { data: tasksData, isLoading: isTasksLoading, error: tasksError } = useCollection<Task>(tasksCollectionRef);
-
-    useEffect(() => {
-        if (tasksData) {
-            setAllTasks(tasksData);
-        }
-    }, [tasksData]);
+    const allTasks = useMemo(() => tasksData || [], [tasksData]);
     
     const notificationsCollectionRef = useMemoFirebase(() => 
         firestore && user ? query(collection(firestore, 'notifications'), where('userId', '==', user.uid)) : null,
         [firestore, user]
     );
-    const { data: notifications, isLoading: isNotifsLoading, error: notifsError } = useCollection<Notification>(notificationsCollectionRef);
-    
+    const { data: notificationsData, isLoading: isNotifsLoading, error: notifsError } = useCollection<Notification>(notificationsCollectionRef);
+    const notifications = useMemo(() => notificationsData || [], [notificationsData]);
+
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
     useEffect(() => {
@@ -170,7 +174,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
     }, [downloadHistory]);
 
-    const leaderboardData = useMemo(() => calculateLeaderboard(allTasks || [], users || []), [allTasks, users]);
+    const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
 
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore) return;
@@ -238,10 +242,10 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const value: TaskDataContextType = useMemo(() => ({
         isLoading: isTasksLoading || isUsersLoading || isNotifsLoading,
-        allTasks: allTasks || [],
-        users: users || [],
+        allTasks,
+        users,
         leaderboardData,
-        notifications: notifications || [],
+        notifications,
         downloadHistory,
         setDownloadHistory,
         addTask,
@@ -251,7 +255,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         updateUserRole,
         deleteUser,
         addToDownloadHistory,
-        setAllTasks,
+        setAllTasks: () => {}, // This is a placeholder, as the state is managed internally now
     }), [
         isTasksLoading, isUsersLoading, isNotifsLoading, 
         allTasks, users, leaderboardData, notifications, 

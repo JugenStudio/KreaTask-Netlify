@@ -7,15 +7,13 @@ import { LanguageProvider } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname } from 'next/navigation';
-import { useEffect, useState, createContext, useContext, useCallback, ReactNode } from "react";
-import type { User, Task, LeaderboardEntry, Notification } from "@/lib/types";
+import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/use-toast";
-import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider, TaskDataContext } from "@/hooks/use-task-data.tsx";
+import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data.tsx";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -28,9 +26,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isUserLoading, setIsUserLoading] = useState(true);
   
-  // Data logic is now in useTaskData hook via context
-  const taskDataContext = useContext(TaskDataContext);
-  const { users, isLoading: isUsersLoading } = taskDataContext ?? { users: [], isLoading: true };
+  const { users, isLoading: isUsersLoading } = useTaskData();
 
   const isMobile = useIsMobile();
   const pathname = usePathname();
@@ -97,6 +93,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     setIsUserLoading(false);
 
   }, [isUsersLoading, users]);
+
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
       return <>{children}</>
