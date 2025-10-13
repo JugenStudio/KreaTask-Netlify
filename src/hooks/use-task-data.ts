@@ -106,7 +106,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
     }, [tasksData, usersData]);
 
-    const addTask = async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
+    const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
         const taskWithTimestamp = {
             ...newTaskData,
             createdAt: new Date().toISOString(),
@@ -116,27 +116,27 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
             subtasks: [],
         };
         await addDoc(tasksCollectionRef, taskWithTimestamp);
-    };
+    }, [tasksCollectionRef]);
 
-    const updateTask = async (taskId: string, updates: Partial<Task>) => {
+    const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
         const taskDocRef = doc(firestore, 'tasks', taskId);
         await updateDoc(taskDocRef, updates);
-    };
+    }, [firestore]);
 
-    const deleteTask = async (taskId: string) => {
+    const deleteTask = useCallback(async (taskId: string) => {
         const taskDocRef = doc(firestore, 'tasks', taskId);
         await deleteDoc(taskDocRef);
-    };
+    }, [firestore]);
 
-    const addNotification = async (newNotificationData: Omit<Notification, 'id' | 'createdAt'>) => {
+    const addNotification = useCallback(async (newNotificationData: Omit<Notification, 'id' | 'createdAt'>) => {
         const notificationWithTimestamp = {
             ...newNotificationData,
             createdAt: new Date().toISOString(),
         };
         await addDoc(notificationsCollectionRef, notificationWithTimestamp);
-    };
+    }, [notificationsCollectionRef]);
 
-    const addToDownloadHistory = (file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
+    const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
         id: Date.now(),
         fileName: file.name,
@@ -157,7 +157,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
         return [newDownloadItem, ...prevHistory];
       });
-    };
+    }, []);
 
     const value: TaskDataContextType = useMemo(() => ({
         isLoading,
