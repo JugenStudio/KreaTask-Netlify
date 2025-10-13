@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, createContext, useContext, Rea
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { useUser } from '@/app/(app)/layout';
+import { useCurrentUser } from '@/app/(app)/layout';
 
 type DownloadItem = {
   id: number;
@@ -57,14 +57,14 @@ export interface TaskDataContextType {
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     downloadHistory: DownloadItem[];
-    setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void; // Kept for settings page
-    setAllTasks: (tasks: Task[] | ((prevTasks: Task[]) => Task[])) => void; // Kept for kanban
+    setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
+    setAllTasks: (tasks: Task[] | ((prevTasks: Task[]) => Task[])) => void;
     setNotifications: (notifications: Notification[] | ((prevNotifications: Notification[]) => Notification[])) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
-    addTask: (task: Task) => Promise<void>;
+    addTask: (task: Omit<Task, 'id' | 'createdAt'>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
-    addNotification: (notification: Omit<Notification, 'id'>) => Promise<void>;
+    addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
 }
 
@@ -72,36 +72,19 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { currentUser } = useUser();
+    const { currentUser } = useCurrentUser();
 
-    // Directly fetch data from Firebase
     const tasksCollection = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
-    const { data: tasksData, isLoading: isTasksLoading } = useCollection<Task>(tasksCollection);
+    const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksCollection);
 
     const usersCollection = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
-    const { data: usersData, isLoading: isUsersLoading } = useCollection<User>(usersCollection);
+    const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersCollection);
 
     const notificationsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'notifications') : null, [firestore]);
-    const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollection);
+    const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollection);
 
-    // Local state for non-firestore data or data that needs manipulation client-side
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
-    // States that are still needed for client-side modifications (like settings & kanban)
-    const [allTasks, setAllTasks] = useState<Task[]>([]);
-    const [users, setUsers] = useState<User[]>([]);
-
-    useEffect(() => {
-        if (tasksData) setAllTasks(tasksData);
-    }, [tasksData]);
-
-    useEffect(() => {
-        if (usersData) setUsers(usersData);
-    }, [usersData]);
-
-    const isLoading = isTasksLoading || isUsersLoading || isNotifsLoading;
-
-    // Persist downloads to localStorage
     useEffect(() => {
         try {
             const savedDownloads = localStorage.getItem('kreatask_downloads');
@@ -117,12 +100,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
     }, [downloadHistory]);
 
-    const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
+    const leaderboardData = useMemo(() => calculateLeaderboard(allTasks || [], users || []), [allTasks, users]);
 
-    const addTask = useCallback(async (newTask: Task) => {
+    const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt'>) => {
         if (!firestore) return;
-        const taskRef = doc(firestore, 'tasks', newTask.id);
-        await setDoc(taskRef, newTask);
+        await addDoc(collection(firestore, 'tasks'), {
+            ...newTaskData,
+            createdAt: serverTimestamp(),
+        });
     }, [firestore]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
@@ -136,7 +121,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         await deleteDoc(doc(firestore, 'tasks', taskId));
     }, [firestore]);
 
-    const addNotification = useCallback(async (newNotificationData: Omit<Notification, 'id'>) => {
+    const addNotification = useCallback(async (newNotificationData: Omit<Notification, 'id' | 'createdAt'>) => {
         if (!firestore) return;
         await addDoc(collection(firestore, 'notifications'), {
             ...newNotificationData,
@@ -144,7 +129,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         });
     }, [firestore]);
     
-    // This remains a local state management function
     const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
         id: Date.now(),
@@ -169,15 +153,15 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading,
-        allTasks,
-        users,
+        isLoading: isTasksLoading || isUsersLoading || isNotifsLoading,
+        allTasks: allTasks || [],
+        users: users || [],
         leaderboardData,
-        notifications: notificationsData || [],
+        notifications: notifications || [],
         downloadHistory,
-        setUsers, // Pass down the setter for the settings page
-        setAllTasks, // Pass down the setter for Kanban optimistic updates
-        setNotifications: () => {}, // This is now read-only from Firebase
+        setUsers: () => console.warn("setUsers is deprecated. Update Firestore directly."),
+        setAllTasks: () => console.warn("setAllTasks is deprecated. Update Firestore directly."),
+        setNotifications: () => console.warn("setNotifications is deprecated. Update Firestore directly."),
         setDownloadHistory,
         addTask,
         updateTask,
@@ -185,17 +169,10 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addNotification,
         addToDownloadHistory,
     }), [
-        isLoading, 
-        allTasks, 
-        users, 
-        leaderboardData, 
-        notificationsData, 
-        downloadHistory, 
-        addTask, 
-        updateTask, 
-        deleteTask, 
-        addNotification, 
-        addToDownloadHistory
+        isTasksLoading, isUsersLoading, isNotifsLoading, 
+        allTasks, users, leaderboardData, notifications, 
+        downloadHistory, addTask, updateTask, deleteTask, 
+        addNotification, addToDownloadHistory
     ]);
 
     return (
