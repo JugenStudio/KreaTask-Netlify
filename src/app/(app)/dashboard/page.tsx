@@ -125,10 +125,10 @@ export default function DashboardPage() {
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+5 dari bulan lalu" color="green" />
-              <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+2% dari bulan lalu" color="yellow" />
-              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+1 anggota baru" color="purple" />
-              <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="Berkurang 2" color="blue" />
+              <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+5 dari bulan lalu" href="/performance-report" color="green" />
+              <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+2% dari bulan lalu" href="/leaderboard" color="yellow" />
+              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+1 anggota baru" href="/settings" color="purple" />
+              <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="Berkurang 2" href="/tasks" color="blue" />
           </div>
         )}
         
