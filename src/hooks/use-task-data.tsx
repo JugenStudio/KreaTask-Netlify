@@ -22,10 +22,10 @@ type DownloadItem = {
 
 const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
     if (!tasks || !users) return [];
-    const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: any; } } = {};
+    const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: any; jabatan?: string; } } = {};
 
     users.forEach(user => {
-      userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role };
+      userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role, jabatan: user.jabatan };
     });
 
     tasks.forEach(task => {
@@ -49,6 +49,7 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
       tasksCompleted: data.tasksCompleted,
       avatarUrl: data.avatarUrl,
       role: data.role,
+      jabatan: data.jabatan,
     }));
 };
 
@@ -60,6 +61,7 @@ export interface TaskDataContextType {
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     downloadHistory: DownloadItem[];
+    setUsers: (users: User[]) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addTask: (task: Partial<Task>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
@@ -77,6 +79,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
+    // State to hold users, since we're fetching them conditionally
+    const [users, setUsers] = useState<User[]>([]);
+
     const seedInitialData = useCallback(async () => {
         if (!firestore) return;
         console.log("Checking if seeding is needed...");
@@ -110,17 +115,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         if (firestore) {
-            seedInitialData();
+            // seedInitialData(); // Seeding can be temporarily disabled if data exists
         }
     }, [firestore, seedInitialData]);
-
-    const usersCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return collection(firestore, 'users');
-    }, [firestore, user]);
-
-    const { data: usersData, isLoading: isUsersDataLoading } = useCollection<User>(usersCollectionRef);
-    const users = useMemo(() => usersData || [], [usersData]);
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null; // Wait for user
@@ -141,7 +138,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         return doc(firestore, 'users', user.uid);
     }, [firestore, user]);
     const { data: currentUserData, isLoading: isCurrentUserDataLoading } = useDoc<User>(currentUserDocRef);
-
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -188,7 +184,21 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const deleteUser = useCallback(async (userId: string) => {
         if (!firestore) return;
-        await deleteDoc(doc(firestore, 'users', userId));
+        // Also remove user from any tasks they are assigned to
+        const batch = writeBatch(firestore);
+        const userRef = doc(firestore, 'users', userId);
+        batch.delete(userRef);
+
+        const tasksQuery = query(collection(firestore, 'tasks'), where('assignees', 'array-contains', { id: userId }));
+        const tasksSnapshot = await getDocs(tasksQuery);
+        tasksSnapshot.forEach(taskDoc => {
+            const taskData = taskDoc.data() as Task;
+            const updatedAssignees = taskData.assignees.filter(a => a.id !== userId);
+            batch.update(taskDoc.ref, { assignees: updatedAssignees });
+        });
+        
+        await batch.commit();
+
     }, [firestore]);
 
     const addNotification = useCallback(async (newNotificationData: Partial<Notification>) => {
@@ -231,13 +241,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     };
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isUsersDataLoading || isTasksDataLoading || isNotifsLoading || isCurrentUserDataLoading,
+        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isCurrentUserDataLoading,
         allTasks,
-        users,
+        users, // Pass stateful users
         currentUserData,
         leaderboardData,
         notifications,
         downloadHistory,
+        setUsers, // Provide setter
         setDownloadHistory,
         addTask,
         updateTask,
@@ -248,9 +259,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addToDownloadHistory,
         setAllTasks,
     }), [
-        isUserLoading, isUsersDataLoading, isTasksDataLoading, isNotifsLoading, isCurrentUserDataLoading,
+        isUserLoading, isTasksDataLoading, isNotifsLoading, isCurrentUserDataLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
-        downloadHistory, addTask, updateTask, deleteTask, 
+        downloadHistory, setUsers, setDownloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
     ]);
 

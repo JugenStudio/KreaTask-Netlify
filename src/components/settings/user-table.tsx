@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Table,
   TableBody,
@@ -37,25 +37,30 @@ import { Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
 import { useTaskData } from "@/hooks/use-task-data";
+import { useCollection, useFirestore } from "@/firebase";
+import { collection } from "firebase/firestore";
+import { Skeleton } from "../ui/skeleton";
 
 const roles: UserRole[] = Object.values(UserRole);
 
 interface UserTableProps {
-  initialUsers: User[];
   currentUser: User;
-  setUsers: (users: User[]) => void; // This prop is kept for now but logic is moved
 }
 
-export function UserTable({ initialUsers, currentUser }: UserTableProps) {
+export function UserTable({ currentUser }: UserTableProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
   const { updateUserRole, deleteUser } = useTaskData();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
+  const firestore = useFirestore();
+  const usersCollectionRef = collection(firestore, 'users');
+  const { data: users, isLoading } = useCollection<User>(usersCollectionRef);
+
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
     await updateUserRole(userId, newRole);
 
-    const user = initialUsers.find((u) => u.id === userId);
+    const user = users?.find((u) => u.id === userId);
     toast({
       title: t("settings.user_management.toast.role_updated_title"),
       description: t("settings.user_management.toast.role_updated_desc", {
@@ -100,6 +105,16 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
      }
      return false;
   }
+  
+  if (isLoading || !users) {
+      return (
+          <div className="space-y-4">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+          </div>
+      )
+  }
 
   return (
     <>
@@ -115,7 +130,7 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {initialUsers.map((user) => (
+            {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell>
                   <div className="flex items-center gap-3">
@@ -162,7 +177,7 @@ export function UserTable({ initialUsers, currentUser }: UserTableProps) {
 
       {/* Mobile View */}
       <div className="block md:hidden space-y-3">
-        {initialUsers.map((user) => (
+        {users.map((user) => (
           <Card key={user.id} className="rounded-xl">
             <CardContent className="p-3">
               <div className="flex items-center gap-3 mb-3">
