@@ -86,7 +86,8 @@ export default function DownloadsPage() {
   const clearHistory = () => {
     if(!currentUser) return;
     setDownloadHistory([]);
-    localStorage.removeItem(`kreatask_notified_downloads_${currentUser.id}`);
+    // The key is now user-specific, so it's cleared correctly in useTaskData hook.
+    // We can also explicitly remove it here if needed, but state management should handle it.
     toast({
         title: t('downloads.toast.cleared_title'),
         description: t('downloads.toast.cleared_desc'),
@@ -137,7 +138,7 @@ export default function DownloadsPage() {
   };
 
 
-  if (!currentUser) {
+  if (!currentUser || !downloadHistory) {
     return (
         <div className="space-y-6 md:space-y-8">
              <div>

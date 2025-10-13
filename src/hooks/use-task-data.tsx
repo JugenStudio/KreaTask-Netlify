@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { initialUsers } from '@/lib/data';
+import { initialUsers, initialTasks } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
@@ -78,8 +78,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { user, isUserLoading } = useUser();
     
     const [users, setUsers] = useState<User[]>([]);
-    const [isUsersLoading, setIsUsersLoading] = useState(true);
-
+    
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         return collection(firestore, 'users', user.uid, 'tasks');
@@ -95,45 +94,38 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
     const currentUserData: User | null = useMemo(() => {
-        if (!user || users.length === 0) return null;
-        return users.find(u => u.id === user.uid) || null;
-    }, [user, users]);
-
-    useEffect(() => {
-        if (user && firestore) {
-            setIsUsersLoading(true);
-            getDocs(collection(firestore, 'users')).then(snapshot => {
-                const fetchedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as User[];
-                setUsers(fetchedUsers);
-                setIsUsersLoading(false);
-            }).catch(err => {
-                console.error("Failed to fetch users list:", err);
-                setIsUsersLoading(false);
-            });
-        } else if (!user) {
-            setUsers([]);
-            setIsUsersLoading(false);
-        }
-    }, [user, firestore]);
+        if (!user) return null;
+        return {
+            id: user.uid,
+            name: user.displayName || 'Anonymous',
+            email: user.email || '',
+            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+            role: (user as any).role || null, // This will be filled later
+        };
+    }, [user]);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
     useEffect(() => {
-        try {
-            const savedDownloads = localStorage.getItem('kreatask_downloads');
+        if (currentUserData?.id) {
+          try {
+            const savedDownloads = localStorage.getItem(`kreatask_downloads_${currentUserData.id}`);
             if (savedDownloads) {
                 setDownloadHistory(JSON.parse(savedDownloads));
+            } else {
+                setDownloadHistory([]); // Reset for new user
             }
-        } catch (error) {
-            console.error("Failed to load downloads from localStorage:", error);
+          } catch (error) {
+              console.error("Failed to load downloads from localStorage:", error);
+          }
         }
-    }, []);
+    }, [currentUserData?.id]);
 
     useEffect(() => {
-      if (downloadHistory.length > 0) {
-        localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
+      if (currentUserData?.id) {
+        localStorage.setItem(`kreatask_downloads_${currentUserData.id}`, JSON.stringify(downloadHistory));
       }
-    }, [downloadHistory]);
+    }, [downloadHistory, currentUserData?.id]);
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
 
@@ -206,7 +198,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     };
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isUsersLoading,
+        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading,
         allTasks,
         users,
         currentUserData,
@@ -223,7 +215,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addToDownloadHistory,
         setAllTasks,
     }), [
-        isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading,
+        isUserLoading, isTasksDataLoading, isNotifsLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
