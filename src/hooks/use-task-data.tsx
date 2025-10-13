@@ -66,7 +66,7 @@ export interface TaskDataContextType {
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
     addNotification: (notification: Partial<Notification>) => Promise<void>;
-    updateUserRole: (userId: string, role: UserRole) => Promise<void>;
+    updateUserInFirestore: (userId: string, data: Partial<User>) => Promise<void>;
     deleteUser: (userId: string) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
     setAllTasks: (tasks: Task[]) => void;
@@ -84,9 +84,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { data: usersDataFromDB, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
     const users = useMemo(() => usersDataFromDB || [], [usersDataFromDB]);
     
+    // Fetch tasks where the current user is an assignee
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        // This query fetches tasks where the current user is an assignee.
         return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
     }, [firestore, user]);
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
@@ -94,7 +94,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     
     const notificationsCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        // Query only notifications for the current user
         return query(collection(firestore, 'notifications'), where("userId", "==", user.uid));
     }, [firestore, user]);
 
@@ -105,11 +104,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
     );
     
-    // Create a simplified currentUserData from the auth object, and enrich it when the doc loads.
     const currentUserData = useMemo<User | null>(() => {
         if (currentUserDoc) return currentUserDoc;
         if (user) {
-            // Provide a fallback based on the auth user object while the full doc is loading.
             return {
                 id: user.uid,
                 email: user.email || '',
@@ -131,7 +128,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
             if (savedDownloads) {
                 setDownloadHistory(JSON.parse(savedDownloads));
             } else {
-                setDownloadHistory([]); // Reset for new user
+                setDownloadHistory([]);
             }
           } catch (error) {
               console.error("Failed to load downloads from localStorage:", error);
@@ -149,25 +146,18 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore || !user) return;
-        
-        // Ensure assignees are stored as an array of UIDs
         const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? a : a.id);
         const docWithAssigneeUids = { ...newTaskData, assignees };
-        
-        // Add the new task to the top-level 'tasks' collection
         await addDoc(collection(firestore, 'tasks'), docWithAssigneeUids);
     }, [firestore, user]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
         if (!firestore || !user) return;
         const taskRef = doc(firestore, 'tasks', taskId);
-        
         const updatePayload: Partial<Task> = { ...updates };
-        // Ensure assignees are stored as an array of UIDs if updated
         if (updates.assignees) {
             updatePayload.assignees = updates.assignees.map(a => typeof a === 'string' ? a : a.id);
         }
-        
         await updateDoc(taskRef, updatePayload as any);
     }, [firestore, user]);
 
@@ -176,10 +166,10 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         await deleteDoc(doc(firestore, 'tasks', taskId));
     }, [firestore, user]);
     
-    const updateUserRole = useCallback(async (userId: string, role: UserRole) => {
+    const updateUserInFirestore = useCallback(async (userId: string, data: Partial<User>) => {
         if (!firestore) return;
         const userRef = doc(firestore, 'users', userId);
-        await updateDoc(userRef, { role });
+        await updateDoc(userRef, data);
     }, [firestore]);
 
     const deleteUser = useCallback(async (userId: string) => {
@@ -243,7 +233,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         updateTask,
         deleteTask,
         addNotification,
-        updateUserRole,
+        updateUserInFirestore,
         deleteUser,
         addToDownloadHistory,
         setAllTasks,
@@ -252,7 +242,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading, isCurrentUserLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
-        addNotification, updateUserRole, deleteUser, addToDownloadHistory
+        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory
     ]);
 
     return (

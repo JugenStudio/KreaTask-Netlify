@@ -1,67 +1,94 @@
-
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions to check user roles based on the 'role' field in their user document.
-    // This is more efficient and matches our application's data structure.
-    function getRole(userId) {
-      return get(/databases/$(database)/documents/users/$(userId)).data.role;
-    }
-
-    function isAdmin() {
-      return getRole(request.auth.uid) == 'roles_admin';
-    }
-
-    function isTeamLeader() {
-      return getRole(request.auth.uid) == 'roles_team_leader';
-    }
-
-    // ============================
-    // Users Collection
-    // ============================
+    /////////////////////////
+    // USERS COLLECTION
+    /////////////////////////
     match /users/{userId} {
-      function isOwner() {
-        return request.auth.uid == userId;
+      // Everyone can get their own user data
+      allow get: if request.auth != null && request.auth.uid == userId;
+      // Listing all users restricted to Admin only
+      allow list: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      
+      // Users can update their own data except role
+      allow update: if request.auth != null 
+                      && request.auth.uid == userId
+                      && !(request.resource.data.keys().hasAny(['role'])); 
+
+      // Only Admin can set roles or delete users
+      allow delete, create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+    }
+
+    /////////////////////////
+    // TASKS COLLECTION
+    /////////////////////////
+    match /tasks/{taskId} {
+      function isAssignee() {
+        return request.auth != null && request.resource.data.assignees.hasAny([request.auth.uid]);
       }
 
-      // Read: Admin & Team Leader can list all users. Members can only get their own document.
-      allow list: if request.auth != null && (isAdmin() || isTeamLeader());
-      allow get: if request.auth != null && (isAdmin() || isTeamLeader() || isOwner());
+      function isAdmin() {
+        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      }
 
-      // Write: A user can only create, update, or delete their own document.
-      allow create, update, delete: if request.auth != null && isOwner();
+      // Anyone assigned can read
+      allow get: if request.auth != null && resource.data.assignees.hasAny([request.auth.uid]);
+      allow list: if request.auth != null; // query restricted with where("assignees", "array-contains", uid)
+
+      // Assignee can create task for themselves (optional)
+      allow create: if request.auth != null && request.resource.data.assignees.hasAny([request.auth.uid]);
+      // Assignee can update task if assigned
+      allow update: if request.auth != null && resource.data.assignees.hasAny([request.auth.uid]);
+      // Only Admin can delete
+      allow delete: if isAdmin();
     }
 
-    // ============================
-    // Tasks Collection
-    // ============================
-    match /tasks/{taskId} {
-        // A user is a task owner if their UID is in the `assignees` array field.
-        function isTaskAssignee() {
-          return request.auth.uid in resource.data.assignees;
-        }
-
-        // Read: Admin and Team Leader can see all tasks. Members can only see tasks assigned to them.
-        allow get: if request.auth != null && (isAdmin() || isTeamLeader() || isTaskAssignee());
-        allow list: if request.auth != null; // 'list' is required for 'where' queries. The query itself must be secured in the app.
-
-        // Write: Admin/Leader can create/update any task. Members can only modify tasks assigned to them.
-        allow create: if request.auth != null; // Allow any authenticated user to create a task.
-        allow update: if request.auth != null && (isAdmin() || isTeamLeader() || isTaskAssignee());
-        allow delete: if request.auth != null && (isAdmin() || isTeamLeader() || isTaskAssignee());
+    /////////////////////////
+    // ROLES COLLECTIONS
+    /////////////////////////
+    match /roles_team_member/{userId} {
+      function isAdmin() {
+        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
-    // ============================
-    // Notifications Collection
-    // ============================
+    match /roles_team_leader/{userId} {
+      function isAdmin() {
+        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    match /roles_admin/{userId} {
+      function isAdmin() {
+        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    /////////////////////////
+    // NOTIFICATIONS COLLECTION
+    /////////////////////////
     match /notifications/{notificationId} {
-        // A user can read or create a notification only if the 'userId' field in the document matches their own UID.
-        allow get, list: if request.auth != null && get(/databases/$(database)/documents/notifications/$(notificationId)).data.userId == request.auth.uid;
-        allow create: if request.auth != null && request.resource.data.userId == request.auth.uid;
-
-        // Nobody can update or delete notifications from the client-side for data integrity.
-        allow update, delete: if false;
+      allow get: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow list: if request.auth != null; // needed for queries with where("userId", "==", uid)
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
     }
+
   }
 }

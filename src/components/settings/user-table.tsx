@@ -50,7 +50,7 @@ interface UserTableProps {
 export function UserTable({ currentUser }: UserTableProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { updateUserRole, deleteUser } = useTaskData();
+  const { updateUserInFirestore, deleteUser } = useTaskData();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const firestore = useFirestore();
@@ -58,7 +58,7 @@ export function UserTable({ currentUser }: UserTableProps) {
   const { data: users, isLoading } = useCollection<User>(usersCollectionRef);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    await updateUserRole(userId, newRole);
+    await updateUserInFirestore(userId, { role: newRole });
 
     const user = users?.find((u) => u.id === userId);
     toast({
