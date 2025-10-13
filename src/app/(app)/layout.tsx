@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider } from "@/hooks/use-task-data";
+import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data.tsx";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -155,7 +155,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <FirebaseClientProvider>
       <LanguageProvider>
+        <TaskDataProvider>
           <AppLayoutContent>{children}</AppLayoutContent>
+        </TaskDataProvider>
       </LanguageProvider>
     </FirebaseClientProvider>
   );

@@ -1,10 +1,11 @@
 
 "use client";
 
-import { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { initialData } from '@/lib/data';
 
 type DownloadItem = {
   id: number;
@@ -70,71 +71,107 @@ export interface TaskDataContextType {
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
-    const firestore = useFirestore();
-    
-    const tasksCollectionRef = useMemoFirebase(() => collection(firestore, 'tasks'), [firestore]);
-    const usersCollectionRef = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
-    const notificationsCollectionRef = useMemoFirebase(() => collection(firestore, 'notifications'), [firestore]);
-
-    const { data: tasksData, isLoading: tasksLoading } = useCollection<Task>(tasksCollectionRef);
-    const { data: usersData, isLoading: usersLoading } = useCollection<User>(usersCollectionRef);
-    const { data: notificationsData, isLoading: notificationsLoading } = useCollection<Notification>(notificationsCollectionRef);
-
     const [allTasks, setAllTasks] = useState<Task[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [leaderboardData, setLeaderboardData] = useState<LeaderboardEntry[]>([]);
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const isLoading = tasksLoading || usersLoading || notificationsLoading;
+    // Simulate initial data loading from a "local" source
+    useEffect(() => {
+        const loadData = () => {
+            try {
+                // Simulate loading from localStorage or initialData
+                const savedTasks = localStorage.getItem('kreatask_tasks');
+                const savedUsers = localStorage.getItem('kreatask_users');
+                const savedNotifs = localStorage.getItem('kreatask_notifications');
+                const savedDownloads = localStorage.getItem('kreatask_downloads');
+                
+                const tasks = savedTasks ? JSON.parse(savedTasks) : initialData.allTasks;
+                const users = savedUsers ? JSON.parse(savedUsers) : initialData.users;
+                const notifs = savedNotifs ? JSON.parse(savedNotifs) : initialData.mockNotifications;
+                const downloads = savedDownloads ? JSON.parse(savedDownloads) : [];
+
+                setAllTasks(tasks);
+                setUsers(users);
+                setNotifications(notifs);
+                setDownloadHistory(downloads);
+                setLeaderboardData(calculateLeaderboard(tasks, users));
+            } catch (error) {
+                console.error("Failed to load data:", error);
+                // Fallback to initial data if localStorage fails
+                setAllTasks(initialData.allTasks);
+                setUsers(initialData.users);
+                setNotifications(initialData.mockNotifications);
+                setLeaderboardData(calculateLeaderboard(initialData.allTasks, initialData.users));
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
+    }, []);
+
+    // Persist data to localStorage whenever it changes
+    useEffect(() => {
+        if (!isLoading) localStorage.setItem('kreatask_tasks', JSON.stringify(allTasks));
+    }, [allTasks, isLoading]);
 
     useEffect(() => {
-        if (tasksData) setAllTasks(tasksData);
-    }, [tasksData]);
+        if (!isLoading) localStorage.setItem('kreatask_users', JSON.stringify(users));
+    }, [users, isLoading]);
 
     useEffect(() => {
-        if (usersData) setUsers(usersData);
-    }, [usersData]);
+        if (!isLoading) localStorage.setItem('kreatask_notifications', JSON.stringify(notifications));
+    }, [notifications, isLoading]);
 
     useEffect(() => {
-        if (notificationsData) setNotifications(notificationsData);
-    }, [notificationsData]);
-
+      if (!isLoading) localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
+    }, [downloadHistory, isLoading]);
+    
+    // Recalculate leaderboard when tasks or users change
     useEffect(() => {
-        if (tasksData && usersData) {
-            setLeaderboardData(calculateLeaderboard(tasksData, usersData));
-        }
-    }, [tasksData, usersData]);
+        setLeaderboardData(calculateLeaderboard(allTasks, users));
+    }, [allTasks, users]);
+
 
     const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
-        const taskWithTimestamp = {
-            ...newTaskData,
-            createdAt: new Date().toISOString(),
-            revisions: [],
-            comments: [],
-            files: [],
-            subtasks: [],
-        };
-        await addDoc(tasksCollectionRef, taskWithTimestamp);
-    }, [tasksCollectionRef]);
+        setAllTasks(prevTasks => {
+            const fullTask: Task = {
+                id: `task-${Date.now()}`,
+                ...newTaskData,
+                createdAt: new Date().toISOString(),
+                revisions: [],
+                comments: [],
+                files: newTaskData.files || [],
+                subtasks: newTaskData.subtasks || [],
+            };
+            return [...prevTasks, fullTask];
+        });
+    }, []);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
-        const taskDocRef = doc(firestore, 'tasks', taskId);
-        await updateDoc(taskDocRef, updates);
-    }, [firestore]);
+        setAllTasks(prevTasks =>
+            prevTasks.map(task =>
+                task.id === taskId ? { ...task, ...updates } : task
+            )
+        );
+    }, []);
 
     const deleteTask = useCallback(async (taskId: string) => {
-        const taskDocRef = doc(firestore, 'tasks', taskId);
-        await deleteDoc(taskDocRef);
-    }, [firestore]);
+        setAllTasks(prevTasks => prevTasks.filter(task => task.id !== taskId));
+    }, []);
 
     const addNotification = useCallback(async (newNotificationData: Omit<Notification, 'id' | 'createdAt'>) => {
-        const notificationWithTimestamp = {
-            ...newNotificationData,
-            createdAt: new Date().toISOString(),
-        };
-        await addDoc(notificationsCollectionRef, notificationWithTimestamp);
-    }, [notificationsCollectionRef]);
+        setNotifications(prev => {
+            const fullNotif = {
+                ...newNotificationData,
+                id: `notif-${Date.now()}`,
+                createdAt: new Date().toISOString(),
+            };
+            return [fullNotif, ...prev];
+        });
+    }, []);
 
     const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
