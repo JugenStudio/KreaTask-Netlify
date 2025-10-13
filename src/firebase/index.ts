@@ -7,13 +7,13 @@ import { getFirestore } from 'firebase/firestore';
 // This is the primary configuration object for Firebase services.
 // It pulls values from environment variables, which is the recommended approach.
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "YOUR_API_KEY",
+  authDomain: "kreatask-b5a52.firebaseapp.com",
+  projectId: "kreatask-b5a52",
+  storageBucket: "kreatask-b5a52.appspot.com",
+  messagingSenderId: "36780287498",
+  appId: "1:36780287498:web:75bf3d2b27429147573f0c",
+  measurementId: "G-FKE0H1PSN4",
 };
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
