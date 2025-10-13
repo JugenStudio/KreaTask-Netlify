@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { initialUsers, initialTasks } from '@/lib/data';
+import { initialUsers } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
@@ -77,8 +77,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    const [users, setUsers] = useState<User[]>([]);
-    
+    // Fetch all users - needed for assignees, leaderboard, etc.
+    const usersCollectionRef = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
+    const { data: usersData, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
+    const users = useMemo(() => usersData || [], [usersData]);
+
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         return collection(firestore, 'users', user.uid, 'tasks');
@@ -93,16 +96,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
-    const currentUserData: User | null = useMemo(() => {
-        if (!user) return null;
-        return {
-            id: user.uid,
-            name: user.displayName || 'Anonymous',
-            email: user.email || '',
-            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-            role: (user as any).role || null, // This will be filled later
-        };
-    }, [user]);
+    const currentUserDocRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return doc(firestore, 'users', user.uid);
+    }, [firestore, user]);
+    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -198,7 +196,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     };
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading,
+        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isUsersLoading || isCurrentUserLoading,
         allTasks,
         users,
         currentUserData,
@@ -215,7 +213,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addToDownloadHistory,
         setAllTasks,
     }), [
-        isUserLoading, isTasksDataLoading, isNotifsLoading,
+        isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading, isCurrentUserLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
@@ -235,3 +233,5 @@ export const useTaskData = () => {
     }
     return context;
 };
+
+    
