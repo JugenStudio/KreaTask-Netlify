@@ -5,7 +5,7 @@ import React, { useState, useEffect, useCallback, createContext, useContext, Rea
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { initialUsers, initialTasks } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
 import { isDirector, isEmployee } from '@/lib/roles';
 
@@ -56,6 +56,7 @@ export interface TaskDataContextType {
     isLoading: boolean;
     allTasks: Task[];
     users: User[];
+    currentUserData: User | null;
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     downloadHistory: DownloadItem[];
@@ -117,6 +118,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         if (!firestore || !user) return null;
         return collection(firestore, 'users');
     }, [firestore, user]);
+
     const { data: usersData, isLoading: isUsersDataLoading } = useCollection<User>(usersCollectionRef);
     const users = useMemo(() => usersData || [], [usersData]);
 
@@ -133,6 +135,13 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     );
     const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
+
+    const currentUserDocRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        return doc(firestore, 'users', user.uid);
+    }, [firestore, user]);
+    const { data: currentUserData, isLoading: isCurrentUserDataLoading } = useDoc<User>(currentUserDocRef);
+
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -222,9 +231,10 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     };
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isUsersDataLoading || isTasksDataLoading || isNotifsLoading,
+        isLoading: isUserLoading || isUsersDataLoading || isTasksDataLoading || isNotifsLoading || isCurrentUserDataLoading,
         allTasks,
         users,
+        currentUserData,
         leaderboardData,
         notifications,
         downloadHistory,
@@ -238,8 +248,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addToDownloadHistory,
         setAllTasks,
     }), [
-        isUserLoading, isUsersDataLoading, isTasksDataLoading, isNotifsLoading, 
-        allTasks, users, leaderboardData, notifications, 
+        isUserLoading, isUsersDataLoading, isTasksDataLoading, isNotifsLoading, isCurrentUserDataLoading,
+        allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
     ]);
@@ -258,5 +268,3 @@ export const useTaskData = () => {
     }
     return context;
 };
-
-    
