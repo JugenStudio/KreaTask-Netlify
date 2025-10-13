@@ -36,25 +36,24 @@ import { isEmployee, isDirector } from "@/lib/roles";
 import { Trash2 } from "lucide-react";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
+import { useTaskData } from "@/hooks/use-task-data";
 
 const roles: UserRole[] = Object.values(UserRole);
 
 interface UserTableProps {
   initialUsers: User[];
   currentUser: User;
-  setUsers: (users: User[]) => void;
+  setUsers: (users: User[]) => void; // This prop is kept for now but logic is moved
 }
 
-export function UserTable({ initialUsers, currentUser, setUsers }: UserTableProps) {
+export function UserTable({ initialUsers, currentUser }: UserTableProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
+  const { updateUserRole, deleteUser } = useTaskData();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
-  const handleRoleChange = (userId: string, newRole: UserRole) => {
-    const updatedUsers = initialUsers.map((user) =>
-      user.id === userId ? { ...user, role: newRole } : user
-    );
-    setUsers(updatedUsers);
+  const handleRoleChange = async (userId: string, newRole: UserRole) => {
+    await updateUserRole(userId, newRole);
 
     const user = initialUsers.find((u) => u.id === userId);
     toast({
@@ -70,11 +69,10 @@ export function UserTable({ initialUsers, currentUser, setUsers }: UserTableProp
     setUserToDelete(user);
   };
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!userToDelete) return;
-
-    const updatedUsers = initialUsers.filter((user) => user.id !== userToDelete.id);
-    setUsers(updatedUsers);
+    
+    await deleteUser(userToDelete.id);
 
     toast({
       title: t("settings.user_management.toast.user_deleted_title"),
