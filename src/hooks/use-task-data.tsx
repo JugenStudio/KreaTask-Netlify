@@ -74,7 +74,7 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { user } = useUser(); // Get user status from Firebase Auth
+    const { user } = useUser();
     
     // Seed data function
     const seedInitialData = useCallback(async () => {
@@ -115,8 +115,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, [firestore, seedInitialData]);
 
     const usersCollectionRef = useMemoFirebase(() => 
-        firestore && user ? collection(firestore, 'users') : null, 
-        [firestore, user]
+        firestore ? collection(firestore, 'users') : null, 
+        [firestore]
     );
     const { data: usersData, isLoading: isUsersLoading, error: usersError } = useCollection<User>(usersCollectionRef);
     const users = useMemo(() => usersData || [], [usersData]);
@@ -129,22 +129,25 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         // Find the current user's role from the fetched users list
         const currentUserFromDb = users.find(u => u.id === user.uid);
         
-        if (!currentUserFromDb) {
-            // If user's role is not yet known, don't fetch tasks yet
+        // This check is important, but we must allow fetching all tasks for directors.
+        if (!currentUserFromDb && users.length > 0) {
+            // Still loading or user not found, wait.
             return null; 
         }
 
         // If user is a director, fetch all tasks. Otherwise, only fetch their assigned tasks.
-        if (isDirector(currentUserFromDb.role)) {
+        if (currentUserFromDb && isDirector(currentUserFromDb.role)) {
             return tasksCollection;
+        } else if (currentUserFromDb) { // Employee
+             return query(tasksCollection, where('assignees', 'array-contains', {
+                id: currentUserFromDb.id,
+                name: currentUserFromDb.name,
+                avatarUrl: currentUserFromDb.avatarUrl,
+                role: currentUserFromDb.role
+            }));
         }
         
-        return query(tasksCollection, where('assignees', 'array-contains', {
-            id: currentUserFromDb.id,
-            name: currentUserFromDb.name,
-            avatarUrl: currentUserFromDb.avatarUrl,
-            role: currentUserFromDb.role
-        }));
+        return null; // Don't fetch if no user or role is determined yet.
     }, [firestore, user, users]);
     
     const { data: tasksData, isLoading: isTasksLoading, error: tasksError } = useCollection<Task>(tasksCollectionRef);
@@ -178,9 +181,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore) return;
-        await addDoc(collection(firestore, 'tasks'), {
-            ...newTaskData,
-        });
+        const tasksCollection = collection(firestore, 'tasks');
+        const docRef = doc(tasksCollection, newTaskData.id);
+        await setDoc(docRef, newTaskData);
     }, [firestore]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
@@ -239,6 +242,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         return [newDownloadItem, ...prevHistory];
       });
     }, []);
+    
+    const setAllTasks = (newTasks: Task[]) => {
+      // This function is now more complex as direct setting is not ideal with Firestore.
+      // For drag-n-drop, we only update the status of the moved task.
+      // The full list re-render will be handled by the onSnapshot listener.
+      console.warn("setAllTasks is not meant for direct state manipulation with Firestore backend.");
+    };
+
 
     const value: TaskDataContextType = useMemo(() => ({
         isLoading: isTasksLoading || isUsersLoading || isNotifsLoading,
@@ -255,7 +266,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         updateUserRole,
         deleteUser,
         addToDownloadHistory,
-        setAllTasks: () => {}, // This is a placeholder, as the state is managed internally now
+        setAllTasks,
     }), [
         isTasksLoading, isUsersLoading, isNotifsLoading, 
         allTasks, users, leaderboardData, notifications, 
@@ -277,3 +288,5 @@ export const useTaskData = () => {
     }
     return context;
 };
+
+    
