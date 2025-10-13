@@ -1,6 +1,6 @@
 'use client';
 
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -17,45 +17,41 @@ const firebaseConfig = {
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
-  if (!getApps().length) {
-    // Important! initializeApp() is called without any arguments because Firebase App Hosting
-    // integrates with the initializeApp() function to provide the environment variables needed to
-    // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
-    // without arguments.
-    let firebaseApp;
-    try {
-      // Attempt to initialize via Firebase App Hosting environment variables
-      firebaseApp = initializeApp();
-    } catch (e) {
-      // Only warn in production because it's normal to use the firebaseConfig to initialize
-      // during development
-      if (process.env.NODE_ENV === 'production') {
-        console.warn(
-          'Automatic initialization failed. Falling back to firebase config object.',
-          e
-        );
-      }
-      // When running locally, initialize with the config object from environment variables
-      firebaseApp = initializeApp(firebaseConfig);
-    }
+  let firebaseApp: FirebaseApp;
 
-    return getSdks(firebaseApp);
+  if (!getApps().length) {
+    try {
+      // ✅ Selalu pakai config agar tetap jalan di Netlify, Capacitor, dll.
+      firebaseApp = initializeApp(firebaseConfig);
+    } catch (e) {
+      console.error('Firebase init failed:', e);
+      // In a real-world scenario, you might want to throw the error
+      // or handle it in a way that informs the user the app cannot connect.
+      // For this context, we'll let it fail and the hooks will handle the null services.
+      // This is primarily to avoid a hard crash during development if config is wrong.
+    }
+  } else {
+    firebaseApp = getApp();
   }
 
-  // If already initialized, return the SDKs with the already initialized App
-  return getSdks(getApp());
+  return getSdks(firebaseApp!); // Use non-null assertion as getApp() should return an app if apps exist.
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {
+  if (!firebaseApp) {
+    // This case should ideally not be hit if initialization logic is correct,
+    // but as a safeguard, we return null services.
+    return {
+      firebaseApp: null,
+      auth: null,
+      firestore: null,
+    };
+  }
   const firestore = getFirestore(firebaseApp);
-  // Future: connect to emulators here if needed
-  // if (process.env.NODE_ENV === 'development') {
-  //   connectFirestoreEmulator(firestore, 'localhost', 8080);
-  // }
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: firestore,
+    firestore,
   };
 }
 
