@@ -3,10 +3,13 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query } from 'firebase/firestore';
+import { initialUsers, initialTasks } from '@/lib/data';
+import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useCurrentUser } from '@/app/(app)/layout';
-import { isDirector } from '@/lib/roles';
+import { isDirector, isEmployee } from '@/lib/roles';
+import { useUser } from '@/firebase/provider';
+
 
 type DownloadItem = {
   id: number;
@@ -66,62 +69,90 @@ export interface TaskDataContextType {
     updateUserRole: (userId: string, role: string) => Promise<void>;
     deleteUser: (userId: string) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
+    setAllTasks: (tasks: Task[]) => void;
 }
 
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { currentUser } = useCurrentUser();
-
-    // Determine if the current user is a director.
-    const isUserDirector = currentUser ? isDirector(currentUser.role) : false;
-
-    // --- Data Fetching Logic based on Role ---
-
-    // 1. Fetch ALL users only if the current user is a Director/Admin
-    const usersCollectionRef = useMemoFirebase(() => 
-        firestore && isUserDirector ? collection(firestore, 'users') : null, 
-        [firestore, isUserDirector]
-    );
-    const { data: allUsers, isLoading: isUsersLoading, error: usersError } = useCollection<User>(usersCollectionRef);
-
-    // If the user is not a director, we manually add them to the list so they can see their own info.
-    const users = useMemo(() => {
-        if (isUserDirector) {
-            return allUsers || [];
-        }
-        return currentUser ? [currentUser] : [];
-    }, [isUserDirector, allUsers, currentUser]);
-
-    // 2. Fetch tasks based on role.
-    const tasksCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !currentUser) return null;
-        const tasksCollection = collection(firestore, 'tasks');
+    const { user } = useUser();
+    const [allTasks, setAllTasks] = useState<Task[]>([]);
+    
+    // Seed data function
+    const seedInitialData = useCallback(async () => {
+        if (!firestore) return;
+        console.log("Checking if seeding is needed...");
+        const usersCollection = collection(firestore, 'users');
+        const usersSnapshot = await getDocs(usersCollection);
         
-        // Directors see all tasks
+        if (usersSnapshot.empty) {
+            console.log("Database is empty. Seeding initial data...");
+            const batch = writeBatch(firestore);
+
+            initialUsers.forEach(user => {
+                const userRef = doc(firestore, 'users', user.id);
+                batch.set(userRef, user);
+            });
+            
+            initialTasks.forEach(task => {
+                const taskRef = doc(firestore, 'tasks', task.id);
+                batch.set(taskRef, task);
+            })
+
+            await batch.commit();
+            console.log("Initial data seeded successfully.");
+        } else {
+            console.log("Data already exists. Skipping seed.");
+        }
+    }, [firestore]);
+
+    useEffect(() => {
+        if (firestore) {
+            seedInitialData();
+        }
+    }, [firestore, seedInitialData]);
+
+    const usersCollectionRef = useMemoFirebase(() => 
+        firestore && user ? collection(firestore, 'users') : null, 
+        [firestore, user]
+    );
+    const { data: usersData, isLoading: isUsersLoading, error: usersError } = useCollection<User>(usersCollectionRef);
+    const users = usersData || [];
+
+    const isUserDirector = user ? isDirector((users.find(u => u.id === user.uid) as User)?.role) : false;
+
+    const tasksCollectionRef = useMemoFirebase(() => {
+        if (!firestore || !user) return null;
+        const tasksCollection = collection(firestore, 'tasks');
         if (isUserDirector) {
             return tasksCollection;
         }
-        
-        // Employees only see tasks assigned to them
-        return query(tasksCollection, where('assignees', 'array-contains', {
-            id: currentUser.id,
-            name: currentUser.name,
-            avatarUrl: currentUser.avatarUrl,
-            role: currentUser.role
-        }));
-    }, [firestore, currentUser, isUserDirector]);
-    const { data: allTasks, isLoading: isTasksLoading, error: tasksError } = useCollection<Task>(tasksCollectionRef);
+        const currentUserData = users.find(u => u.id === user.uid);
+        if (!currentUserData) return null;
 
-    // 3. Fetch notifications for the current user
+        return query(tasksCollection, where('assignees', 'array-contains', {
+            id: currentUserData.id,
+            name: currentUserData.name,
+            avatarUrl: currentUserData.avatarUrl,
+            role: currentUserData.role
+        }));
+    }, [firestore, user, users, isUserDirector]);
+    
+    const { data: tasksData, isLoading: isTasksLoading, error: tasksError } = useCollection<Task>(tasksCollectionRef);
+
+    useEffect(() => {
+        if (tasksData) {
+            setAllTasks(tasksData);
+        }
+    }, [tasksData]);
+    
     const notificationsCollectionRef = useMemoFirebase(() => 
-        firestore && currentUser ? collection(firestore, 'notifications') : null, 
-        [firestore, currentUser]
+        firestore && user ? query(collection(firestore, 'notifications'), where('userId', '==', user.uid)) : null,
+        [firestore, user]
     );
     const { data: notifications, isLoading: isNotifsLoading, error: notifsError } = useCollection<Notification>(notificationsCollectionRef);
     
-    // --- Local State for Download History ---
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
     useEffect(() => {
@@ -139,10 +170,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
       localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
     }, [downloadHistory]);
 
-    // --- Derived Data ---
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks || [], users || []), [allTasks, users]);
 
-    // --- Firestore Write Operations ---
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore) return;
         await addDoc(collection(firestore, 'tasks'), {
@@ -222,6 +251,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         updateUserRole,
         deleteUser,
         addToDownloadHistory,
+        setAllTasks,
     }), [
         isTasksLoading, isUsersLoading, isNotifsLoading, 
         allTasks, users, leaderboardData, notifications, 
