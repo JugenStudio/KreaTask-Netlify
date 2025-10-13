@@ -30,8 +30,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   
   // Data logic is now in useTaskData hook via context
   const taskDataContext = useContext(TaskDataContext);
-  const isTaskDataLoading = taskDataContext?.isLoading ?? true;
-  const users = taskDataContext?.users ?? [];
+  const { users, isLoading: isUsersLoading } = taskDataContext ?? { users: [], isLoading: true };
 
   const isMobile = useIsMobile();
   const pathname = usePathname();
@@ -39,10 +38,16 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 
   useEffect(() => {
-    // Only run this logic once the user data from useTaskData is loaded
-    if (isTaskDataLoading) return;
-
+    // This effect handles setting the current simulated user.
+    // It should only run when the user list from Firestore is available.
+    if (isUsersLoading) {
+      console.log("Waiting for user data from Firestore...");
+      return; // Wait until users are loaded
+    }
+    
+    console.log("User data has loaded. Users found:", users.length);
     let userToSet: User | null = null;
+    
     // sessionStorage is used for session-specific info like the currently simulated user
     const storedUser = sessionStorage.getItem('currentUser');
     
@@ -53,6 +58,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             if (users.find(u => u.id === parsedUser.id)) {
                  userToSet = parsedUser;
             } else {
+                 console.warn("User from session storage is invalid. Clearing.");
                  sessionStorage.removeItem('currentUser'); // Clear invalid user
             }
         } catch (e) {
@@ -62,11 +68,13 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
     } 
     
     if (!userToSet) {
+        // If no valid user from session, determine based on selected role or default
         const selectedRole = sessionStorage.getItem('selectedRole') as UserRole | null;
         if (selectedRole) {
             userToSet = users.find(u => u.role === selectedRole) || null;
             if (!userToSet && users.length > 0) {
-              // Fallback to the first user if the role isn't found for some reason
+              // Fallback to the first user if the role isn't found
+              console.warn(`Role "${selectedRole}" not found in users. Defaulting.`);
               userToSet = users[0];
             }
         } else if (users.length > 0) {
@@ -81,15 +89,21 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (userToSet) {
         setCurrentUser(userToSet);
+    } else if (users.length === 0) {
+        console.warn("No users available in Firestore. Can't set a current user.");
     }
+    
+    // We are done trying to load a user, so stop the loading state.
     setIsUserLoading(false);
-  }, [isTaskDataLoading, users]);
+
+  }, [isUsersLoading, users]);
 
   if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
       return <>{children}</>
   }
   
-  const isLoading = isUserLoading || isTaskDataLoading;
+  // The main loading state now only depends on the user loading process
+  const isLoading = isUserLoading;
 
   if (isLoading) {
     return (
