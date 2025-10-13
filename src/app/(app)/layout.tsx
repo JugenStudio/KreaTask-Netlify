@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data.tsx";
+import { TaskDataProvider, TaskDataContext } from "@/hooks/use-task-data";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -29,7 +29,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const [isUserLoading, setIsUserLoading] = useState(true);
   
   // Data logic is now in useTaskData hook via context
-  const taskDataContext = useContext(TaskDataProvider);
+  const taskDataContext = useContext(TaskDataContext);
   const isTaskDataLoading = taskDataContext?.isLoading ?? true;
   const users = taskDataContext?.users ?? [];
 

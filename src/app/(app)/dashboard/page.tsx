@@ -62,7 +62,7 @@ export default function DashboardPage() {
       task.assignees.some(assignee => assignee.id === currentUser.id)
     );
   } else {
-    // Direktur & Super User see all tasks
+    // Direktur & Super User see all tasks from Firebase
     visibleTasks = allTasks;
   }
 
