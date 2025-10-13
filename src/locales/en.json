@@ -13,6 +13,9 @@
     "back_to_home": "Back to Home"
   },
   "roles": {
+    "roles_admin": "Main Director",
+    "roles_team_leader": "Operational Director",
+    "roles_team_member": "Journalist",
     "Direktur Utama": "Main Director",
     "Direktur Operasional": "Operational Director",
     "Jurnalis": "Journalist",
@@ -387,12 +390,6 @@
     "history": "Download History",
     "no_history": "You have no download history.",
     "no_history_desc": "Downloads from tasks will appear here.",
-    "table": {
-      "fileName": "File Name",
-      "task": "Related Task",
-      "date": "Date",
-      "status": "Status"
-    },
     "status": {
       "completed": "Completed",
       "in_progress": "In Progress",

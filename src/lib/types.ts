@@ -1,14 +1,14 @@
 
 
 export enum UserRole {
-  DIREKTUR_UTAMA = "Direktur Utama",
-  DIREKTUR_OPERASIONAL = "Direktur Operasional",
-  JURNALIS = "Jurnalis",
-  SOCIAL_MEDIA_OFFICER = "Social Media Officer",
-  DESAIN_GRAFIS = "Desain Grafis",
-  MARKETING = "Marketing",
-  FINANCE = "Finance",
-  UNASSIGNED = "Unassigned",
+  DIREKTUR_UTAMA = "roles_admin",
+  DIREKTUR_OPERASIONAL = "roles_team_leader",
+  JURNALIS = "roles_team_member",
+  SOCIAL_MEDIA_OFFICER = "Social Media Officer", // Keeping as is if not in seed script
+  DESAIN_GRAFIS = "Desain Grafis",             // Keeping as is if not in seed script
+  MARKETING = "Marketing",                       // Keeping as is if not in seed script
+  FINANCE = "Finance",                           // Keeping as is if not in seed script
+  UNASSIGNED = "Unassigned",                     // Keeping as is if not in seed script
 }
 
 export enum TaskCategory {
@@ -31,6 +31,7 @@ export interface User {
   email: string;
   avatarUrl: string;
   role: UserRole;
+  jabatan?: string; // Add optional jabatan field
 }
 
 export interface File {
@@ -94,6 +95,7 @@ export interface LeaderboardEntry {
     tasksCompleted: number;
     avatarUrl: string;
     role: UserRole;
+    jabatan?: string;
 }
 
 export interface DetailedReportEntry {
@@ -133,5 +135,3 @@ export interface Notification {
   taskId?: string;      // ID tugas jika terkait
   createdAt: string;
 }
-
-    

@@ -29,7 +29,7 @@ export function TopPerformerCard({ performer }: { performer: LeaderboardEntry })
           </div>
         </div>
         <h3 className="text-xl font-bold text-card-foreground">{performer.name}</h3>
-        <p className="text-sm text-muted-foreground mb-2">{t(`roles.${performer.role}` as any, { defaultValue: performer.role })}</p>
+        <p className="text-sm text-muted-foreground mb-2">{performer.jabatan || t(`roles.${performer.role}` as any)}</p>
         <p className="text-sm text-muted-foreground mb-2">{t('leaderboard.table.total_score')}: {performer.score}</p>
         <Badge className="bg-primary/10 text-primary hover:bg-primary/20 mb-4 font-semibold border-none">
           {t('leaderboard.tasks_completed_badge', { count: performer.tasksCompleted.toString() })}

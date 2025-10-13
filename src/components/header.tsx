@@ -100,7 +100,7 @@ export function Header() {
                     <p className="text-sm font-medium leading-none">
                     {currentUser.name}
                     </p>
-                    <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">{t(`roles.${currentUser.role}` as any)}</Badge>
+                    <Badge variant="secondary" className="px-1.5 py-0.5 text-xs">{currentUser.jabatan || t(`roles.${currentUser.role}` as any)}</Badge>
                 </div>
                 <p className="text-xs leading-none text-muted-foreground">
                   {currentUser.email}

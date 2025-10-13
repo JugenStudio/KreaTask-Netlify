@@ -13,6 +13,9 @@
     "back_to_home": "Kembali ke Beranda"
   },
   "roles": {
+    "roles_admin": "Direktur Utama",
+    "roles_team_leader": "Direktur Operasional",
+    "roles_team_member": "Jurnalis",
     "Direktur Utama": "Direktur Utama",
     "Direktur Operasional": "Direktur Operasional",
     "Jurnalis": "Jurnalis",
