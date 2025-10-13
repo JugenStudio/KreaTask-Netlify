@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
@@ -6,7 +7,7 @@ import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
-import { initialUsers } from '@/lib/data';
+import { UserRole } from '@/lib/types';
 
 type DownloadItem = {
   id: number;
@@ -65,7 +66,7 @@ export interface TaskDataContextType {
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
     addNotification: (notification: Partial<Notification>) => Promise<void>;
-    updateUserRole: (userId: string, role: string) => Promise<void>;
+    updateUserRole: (userId: string, role: UserRole) => Promise<void>;
     deleteUser: (userId: string) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
     setAllTasks: (tasks: Task[]) => void;
@@ -86,8 +87,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         // This fetches tasks where the current user is an assignee.
-        // For a more complex role-based system (e.g., managers seeing team tasks),
-        // this query would need to be adjusted or multiple queries made.
+        // This query requires a composite index on the `assignees` array field.
         return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
     }, [firestore, user]);
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
@@ -95,16 +95,32 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     
     const notificationsCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        // CORRECT: Query only notifications for the current user.
         return query(collection(firestore, 'notifications'), where("userId", "==", user.uid));
     }, [firestore, user]);
 
     const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
-    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(
+    const { data: currentUserDoc, isLoading: isCurrentUserLoading } = useDoc<User>(
         useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
     );
+    
+    // Create a simplified currentUserData from the auth object, and enrich it when the doc loads.
+    const currentUserData = useMemo<User | null>(() => {
+        if (currentUserDoc) return currentUserDoc;
+        if (user) {
+            // Provide a fallback based on the auth user object while the full doc is loading.
+            return {
+                id: user.uid,
+                email: user.email || '',
+                name: user.displayName || 'KreaTask User',
+                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+                role: UserRole.UNASSIGNED, 
+                jabatan: 'Unassigned',
+            };
+        }
+        return null;
+    }, [user, currentUserDoc]);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -136,21 +152,23 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         const tasksCollection = collection(firestore, 'tasks');
         const docRef = doc(tasksCollection, newTaskData.id);
         
-        const assigneesWithUIDs = (newTaskData.assignees || []).map(a => a.id);
+        // Ensure assignees are stored as an array of UIDs
+        const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? a : a.id);
         
-        await setDoc(docRef, { ...newTaskData, assignees: assigneesWithUIDs });
+        await setDoc(docRef, { ...newTaskData, assignees });
     }, [firestore, user]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
         if (!firestore || !user) return;
         const taskRef = doc(firestore, 'tasks', taskId);
         
-        const updatePayload = { ...updates };
+        const updatePayload: Partial<Task> = { ...updates };
+        // Ensure assignees are stored as an array of UIDs if updated
         if (updates.assignees) {
-            updatePayload.assignees = updates.assignees.map(a => a.id);
+            updatePayload.assignees = updates.assignees.map(a => typeof a === 'string' ? a : a.id);
         }
         
-        await updateDoc(taskRef, updatePayload);
+        await updateDoc(taskRef, updatePayload as any);
     }, [firestore, user]);
 
     const deleteTask = useCallback(async (taskId: string) => {
@@ -158,7 +176,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         await deleteDoc(doc(firestore, 'tasks', taskId));
     }, [firestore, user]);
     
-    const updateUserRole = useCallback(async (userId: string, role: string) => {
+    const updateUserRole = useCallback(async (userId: string, role: UserRole) => {
         if (!firestore) return;
         const userRef = doc(firestore, 'users', userId);
         await updateDoc(userRef, { role });

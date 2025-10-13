@@ -2,63 +2,92 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // --- Helper Functions ---
-    // Checks if a user is signed in.
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    // Gets the role of the currently signed-in user from the 'users' collection.
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
-    // Checks if the user is a Super User (Direktur Utama).
-    function isAdmin() {
-      return isSignedIn() && getUserRole() == 'Direktur Utama';
-    }
-
-    // Checks if the user is a Director (Direktur Operasional or Utama).
-    function isDirector() {
-      return isSignedIn() && (getUserRole() == 'Direktur Operasional' || getUserRole() == 'Direktur Utama');
-    }
-
-    // Checks if the user is an assignee of a specific task.
-    function isAssignee(task) {
-      return isSignedIn() && request.auth.uid in task.assignees.map(a => a.id);
-    }
-    
-    // --- Collection Rules ---
-
-    // USERS Collection
-    // Users can read their own profile.
-    // Directors can read all user profiles.
-    // Only admins can create, update, or delete users.
+    // ============================
+    // Users Collection
+    // ============================
     match /users/{userId} {
-      allow read: if isSignedIn() && (request.auth.uid == userId || isDirector());
-      allow list: if isDirector();
-      allow create, update, delete: if isAdmin();
+
+      function getRole() {
+        return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+      }
+
+      function isAdmin() {
+        return getRole() == "roles_admin";
+      }
+
+      function isTeamLeader() {
+        return getRole() == "roles_team_leader";
+      }
+
+      function isOwner() {
+        return request.auth.uid == userId;
+      }
+
+      // Read: Admin & Team Leader bisa lihat semua, Member cuma dirinya
+      allow get, list: if request.auth != null &&
+        (isAdmin() || isTeamLeader() || isOwner());
+
+      // Write: hanya owner bisa update/create/delete datanya sendiri
+      allow create: if request.auth != null && isOwner();
+      allow update, delete: if request.auth != null && isOwner();
+
+      // ============================
+      // Tasks Subcollection
+      // ============================
+      match /tasks/{taskId} {
+        function isTaskOwner() {
+          return request.auth.uid == userId;
+        }
+
+        allow get, list: if request.auth != null &&
+          (isAdmin() || isTeamLeader() || isTaskOwner());
+        allow create: if request.auth != null && isTaskOwner();
+        allow update, delete: if request.auth != null && isTaskOwner();
+
+        // Revisions Subcollection
+        match /revisions/{revisionId} {
+          allow get, list: if request.auth != null &&
+            (isAdmin() || isTeamLeader() || isTaskOwner());
+          allow create, update, delete: if request.auth != null && isTaskOwner();
+        }
+
+        // Comments Subcollection
+        match /comments/{commentId} {
+          allow get, list: if request.auth != null &&
+            (isAdmin() || isTeamLeader() || isTaskOwner());
+          allow create, update, delete: if request.auth != null && isTaskOwner();
+        }
+      }
     }
 
-    // TASKS Collection (Global)
-    // Employees can only read tasks assigned to them.
-    // Directors can read all tasks.
-    // Any signed-in user can create a task.
-    // Employees can only update tasks assigned to them.
-    // Directors and Admins can update any task.
-    // Only Admins can delete tasks.
-    match /tasks/{taskId} {
-      allow read: if (isAssignee(resource.data)) || isDirector();
-      allow list: if isDirector(); // Allow directors to list all tasks, employees filter on client-side
-      allow create: if isSignedIn();
-      allow update: if (isAssignee(resource.data)) || isDirector();
-      allow delete: if isAdmin();
+    // ============================
+    // Roles Collections
+    // ============================
+    match /roles_team_member/{userId} {
+      function isAdmin() { return get(/databases/$(database)/documents/roles_admin/$(request.auth.uid)).exists(); }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin() && resource != null;
     }
-    
-    // NOTIFICATIONS Collection
-    // Users can only access notifications intended for them.
-    match /notifications/{notificationId} {
-      allow read, list, create, update, delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+
+    match /roles_team_leader/{userId} {
+      function isAdmin() { return get(/databases/$(database)/documents/roles_admin/$(request.auth.uid)).exists(); }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    match /roles_admin/{userId} {
+      function isAdmin() { return get(/databases/$(database)/documents/roles_admin/$(request.auth.uid)).exists(); }
+      allow get: if request.auth != null;
+      allow list: if false;
+      allow create: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin() && resource != null;
     }
   }
 }
