@@ -4,15 +4,15 @@
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 
 type DownloadItem = {
   id: number;
   fileName: string;
   taskName: string;
   date: string;
-  size: string;
   url: string;
+  size: string;
   status: 'Completed' | 'In Progress' | 'Failed';
   progress: number;
 };
@@ -60,10 +60,10 @@ export interface TaskDataContextType {
     setAllTasks: (tasks: Task[] | ((prevTasks: Task[]) => Task[])) => void;
     setNotifications: (notifications: Notification[] | ((prevNotifications: Notification[]) => Notification[])) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
-    addTask: (task: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => Promise<void>;
+    addTask: (task: Partial<Task>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
-    addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>;
+    addNotification: (notification: Partial<Notification>) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
 }
 
@@ -71,16 +71,18 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
+    const { user, isUserLoading: isAuthLoading } = useUser();
 
-    const tasksCollection = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
+    // IMPORTANT: Only create collection references if firestore and user are available.
+    const tasksCollection = useMemoFirebase(() => firestore && user ? collection(firestore, 'tasks') : null, [firestore, user]);
     const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksCollection);
 
-    const usersCollection = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
+    const usersCollection = useMemoFirebase(() => firestore && user ? collection(firestore, 'users') : null, [firestore, user]);
     const { data: users, isLoading: isUsersLoading } = useCollection<User>(usersCollection);
 
-    const notificationsCollection = useMemoFirebase(() => firestore ? collection(firestore, 'notifications') : null, [firestore]);
+    const notificationsCollection = useMemoFirebase(() => firestore && user ? collection(firestore, 'notifications') : null, [firestore, user]);
     const { data: notifications, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollection);
-
+    
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
     useEffect(() => {
@@ -100,15 +102,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks || [], users || []), [allTasks, users]);
 
-    const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
+    const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore) return;
         await addDoc(collection(firestore, 'tasks'), {
             ...newTaskData,
-            createdAt: serverTimestamp(),
-            revisions: [],
-            comments: [],
-            files: [],
-            subtasks: [],
+            createdAt: new Date().toISOString(),
         });
     }, [firestore]);
 
@@ -123,11 +121,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         await deleteDoc(doc(firestore, 'tasks', taskId));
     }, [firestore]);
 
-    const addNotification = useCallback(async (newNotificationData: Omit<Notification, 'id' | 'createdAt'>) => {
+    const addNotification = useCallback(async (newNotificationData: Partial<Notification>) => {
         if (!firestore) return;
         await addDoc(collection(firestore, 'notifications'), {
             ...newNotificationData,
-            createdAt: serverTimestamp(),
+            createdAt: new Date().toISOString(),
         });
     }, [firestore]);
     
@@ -155,7 +153,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isTasksLoading || isUsersLoading || isNotifsLoading,
+        isLoading: isAuthLoading || isTasksLoading || isUsersLoading || isNotifsLoading,
         allTasks: allTasks || [],
         users: users || [],
         leaderboardData,
@@ -171,7 +169,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         addNotification,
         addToDownloadHistory,
     }), [
-        isTasksLoading, isUsersLoading, isNotifsLoading, 
+        isAuthLoading, isTasksLoading, isUsersLoading, isNotifsLoading, 
         allTasks, users, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, addToDownloadHistory
