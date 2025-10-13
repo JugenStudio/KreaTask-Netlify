@@ -3,10 +3,10 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { initialUsers } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
+import { initialUsers } from '@/lib/data';
 
 type DownloadItem = {
   id: number;
@@ -77,10 +77,17 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    // Fetch all users - needed for assignees, leaderboard, etc.
-    const usersCollectionRef = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
-    const { data: usersData, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
-    const users = useMemo(() => usersData || [], [usersData]);
+    const [users, setUsers] = useState<User[]>(initialUsers); // Fallback to initial data
+    const { data: usersDataFromDB, isLoading: isUsersLoading } = useCollection<User>(
+        useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore])
+    );
+    
+    useEffect(() => {
+        if (usersDataFromDB) {
+            setUsers(usersDataFromDB);
+        }
+    }, [usersDataFromDB]);
+
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
@@ -96,11 +103,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
-    const currentUserDocRef = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return doc(firestore, 'users', user.uid);
-    }, [firestore, user]);
-    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
+    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(
+        useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
+    );
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
