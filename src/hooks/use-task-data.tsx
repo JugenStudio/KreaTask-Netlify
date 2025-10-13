@@ -3,11 +3,10 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { initialUsers, initialTasks } from '@/lib/data';
+import { initialUsers } from '@/lib/data';
 import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
-import { isDirector, isEmployee } from '@/lib/roles';
 
 type DownloadItem = {
   id: number;
@@ -61,7 +60,6 @@ export interface TaskDataContextType {
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     downloadHistory: DownloadItem[];
-    setUsers: (users: User[]) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addTask: (task: Partial<Task>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
@@ -79,52 +77,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    // This fetches ALL users and is likely causing the permission error.
-    // We will get the list of users only when needed, e.g., in the settings page.
-    // const usersCollectionRef = useMemoFirebase(() => {
-    //     if (!firestore || !user) return null;
-    //     return collection(firestore, 'users');
-    // }, [firestore, user]);
-    // const { data: usersData, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
     const [users, setUsers] = useState<User[]>([]);
     const [isUsersLoading, setIsUsersLoading] = useState(true);
-
-    const seedInitialData = useCallback(async () => {
-        if (!firestore) return;
-        console.log("Checking if user collection exists and needs seeding...");
-        try {
-            const usersSnapshot = await getDocs(collection(firestore, 'users'));
-            
-            if (usersSnapshot.empty) {
-                console.log("Database is empty. Seeding initial users...");
-                const batch = writeBatch(firestore);
-
-                initialUsers.forEach(userToSeed => {
-                    const userRef = doc(firestore, 'users', userToSeed.id);
-                    batch.set(userRef, {
-                      name: userToSeed.name,
-                      email: userToSeed.email,
-                      avatarUrl: userToSeed.avatarUrl,
-                      role: userToSeed.role,
-                      jabatan: userToSeed.jabatan || '',
-                    });
-                });
-
-                await batch.commit();
-                console.log("Initial users seeded successfully.");
-            } else {
-                console.log("Users collection is not empty. Skipping seed.");
-            }
-        } catch (error) {
-            console.error("Error seeding user data:", error);
-        }
-    }, [firestore]);
-
-    useEffect(() => {
-      if (firestore) {
-        seedInitialData();
-      }
-    }, [firestore, seedInitialData]);
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
@@ -140,27 +94,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
     const notifications = useMemo(() => notificationsData || [], [notificationsData]);
 
-    // DERIVE currentUserData from the authenticated 'user' object instead of a separate fetch
     const currentUserData: User | null = useMemo(() => {
-        if (!user) return null;
-        // Find the full user data from the `users` state if it's available
-        const fullData = users.find(u => u.id === user.uid);
-        if (fullData) return fullData;
-
-        // Fallback to basic info from auth object if full data isn't loaded yet
-        return {
-            id: user.uid,
-            name: user.displayName || 'KreaTask User',
-            email: user.email || '',
-            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-            // The role will be missing here initially, but that's okay for the layout to render
-            role: 'Unassigned' as any,
-        };
+        if (!user || users.length === 0) return null;
+        return users.find(u => u.id === user.uid) || null;
     }, [user, users]);
 
     useEffect(() => {
-        if (user) {
-            const userDocRef = doc(firestore, 'users', user.uid);
+        if (user && firestore) {
+            setIsUsersLoading(true);
             getDocs(collection(firestore, 'users')).then(snapshot => {
                 const fetchedUsers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as User[];
                 setUsers(fetchedUsers);
@@ -169,7 +110,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
                 console.error("Failed to fetch users list:", err);
                 setIsUsersLoading(false);
             });
-        } else {
+        } else if (!user) {
             setUsers([]);
             setIsUsersLoading(false);
         }
@@ -189,7 +130,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, []);
 
     useEffect(() => {
-      localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
+      if (downloadHistory.length > 0) {
+        localStorage.setItem('kreatask_downloads', JSON.stringify(downloadHistory));
+      }
     }, [downloadHistory]);
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
@@ -203,9 +146,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
         if (!firestore || !user) return;
-        // This assumes a user can only update their own tasks.
-        // For directors updating others' tasks, this logic needs adjustment.
-        // For now, let's assume it operates on the logged-in user's task subcollection.
         const taskRef = doc(firestore, 'users', user.uid, 'tasks', taskId);
         await updateDoc(taskRef, updates);
     }, [firestore, user]);
@@ -273,7 +213,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         leaderboardData,
         notifications,
         downloadHistory,
-        setUsers,
         setDownloadHistory,
         addTask,
         updateTask,
@@ -286,7 +225,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }), [
         isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
-        downloadHistory, setUsers, setDownloadHistory, addTask, updateTask, deleteTask, 
+        downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserRole, deleteUser, addToDownloadHistory
     ]);
 

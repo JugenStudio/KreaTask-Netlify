@@ -215,7 +215,7 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <p className="font-semibold text-sm">{comment.author.name}</p>
-                    <p className="text-xs text-muted-foreground">({comment.author.jabatan || t(`roles.${comment.author.role}`)})</p>
+                    <p className="text-xs text-muted-foreground">({t(`roles.${comment.author.role}`)})</p>
                     {comment.isPinned && <Pin className="h-4 w-4 text-primary" />}
                 </div>
                 <div className="flex items-center">

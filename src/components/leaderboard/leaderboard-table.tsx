@@ -64,7 +64,7 @@ export function LeaderboardTable({
                   </Avatar>
                   <div>
                       <div className="font-bold text-card-foreground">{entry.name}</div>
-                      <div className="text-sm text-muted-foreground">{entry.jabatan || t(`roles.${entry.role}` as any)}</div>
+                      <div className="text-sm text-muted-foreground">{t(`roles.${entry.role}` as any)}</div>
                   </div>
                 </div>
               </TableCell>
