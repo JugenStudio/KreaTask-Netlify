@@ -7,13 +7,13 @@ import { getFirestore } from 'firebase/firestore';
 // This is the primary configuration object for Firebase services.
 // It pulls values from environment variables, which is the recommended approach.
 const firebaseConfig = {
-  projectId: "kreatask-backup-56531938-324cb",
-  appId: "1:615077435379:web:e4283cf3d19117a695a486",
-  apiKey: "AIzaSyCcjQwBIkcJjkusHY9knsASOYa0uzrbeFo",
-  authDomain: "kreatask-backup-56531938-324cb.firebaseapp.com",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: "615077435379",
-  measurementId: "",
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
@@ -48,10 +48,15 @@ export function initializeFirebase() {
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {
+  const firestore = getFirestore(firebaseApp);
+  // Future: connect to emulators here if needed
+  // if (process.env.NODE_ENV === 'development') {
+  //   connectFirestoreEmulator(firestore, 'localhost', 8080);
+  // }
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp),
+    firestore: firestore,
   };
 }
 
