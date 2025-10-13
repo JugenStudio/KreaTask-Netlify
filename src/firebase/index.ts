@@ -7,7 +7,7 @@ import { getFirestore } from 'firebase/firestore';
 // This is the primary configuration object for Firebase services.
 // It pulls values from environment variables, which is the recommended approach.
 const firebaseConfig = {
-  apiKey: "AlzaSyCcjQwBlkcJjkusHY9knsASOYaOuzrbeFo",
+  apiKey: "AIzaSyCcjQwBIkcJjkusHY9knsASOYaOuzrbeFo",
   authDomain: "kreatask-backup-56531938-324cb.firebaseapp.com",
   projectId: "kreatask-backup-56531938-324cb",
   storageBucket: "kreatask-backup-56531938-324cb.appspot.com",
