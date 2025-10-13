@@ -15,7 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/providers/language-provider";
 import Aurora from '@/components/Aurora';
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider, TaskDataContext } from "@/hooks/use-task-data";
+import { TaskDataProvider, TaskDataContext } from "@/hooks/use-task-data.tsx";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -89,7 +89,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
     if (userToSet) {
         setCurrentUser(userToSet);
-    } else if (users.length === 0) {
+    } else if (users.length === 0 && !isUsersLoading) {
         console.warn("No users available in Firestore. Can't set a current user.");
     }
     
@@ -182,11 +182,6 @@ export const useCurrentUser = () => {
   const context = useContext(UserContext);
   if (context === undefined) {
     throw new Error('useCurrentUser must be used within a AppLayout');
-  }
-  // This hook now also provides the language context implicitly via LanguageProvider wrapping it
-  const langContext = useLanguage();
-  if (langContext === undefined) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;
 };

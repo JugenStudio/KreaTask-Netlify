@@ -5,7 +5,6 @@ import React, { useState, useEffect, useCallback, createContext, useContext, Rea
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, setDoc } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { useCurrentUser } from '@/app/(app)/layout';
 
 type DownloadItem = {
   id: number;
@@ -61,7 +60,7 @@ export interface TaskDataContextType {
     setAllTasks: (tasks: Task[] | ((prevTasks: Task[]) => Task[])) => void;
     setNotifications: (notifications: Notification[] | ((prevNotifications: Notification[]) => Notification[])) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
-    addTask: (task: Omit<Task, 'id' | 'createdAt'>) => Promise<void>;
+    addTask: (task: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
     addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>;
@@ -72,7 +71,6 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
-    const { currentUser } = useCurrentUser();
 
     const tasksCollection = useMemoFirebase(() => firestore ? collection(firestore, 'tasks') : null, [firestore]);
     const { data: allTasks, isLoading: isTasksLoading } = useCollection<Task>(tasksCollection);
@@ -102,11 +100,15 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks || [], users || []), [allTasks, users]);
 
-    const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const addTask = useCallback(async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
         if (!firestore) return;
         await addDoc(collection(firestore, 'tasks'), {
             ...newTaskData,
             createdAt: serverTimestamp(),
+            revisions: [],
+            comments: [],
+            files: [],
+            subtasks: [],
         });
     }, [firestore]);
 
