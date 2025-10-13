@@ -1,32 +1,71 @@
+
 'use client';
 
-import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Input } from '@/components/ui/input';
-import { Mail, Lock, User, WandSparkles, Trophy, ListChecks } from 'lucide-react';
+import { Mail, Lock } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { UserRole } from '@/lib/types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/firebase';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SignInPage() {
   const router = useRouter();
-  const [role, setRole] = useState<UserRole>(UserRole.DIREKTUR_UTAMA);
+  const auth = useAuth();
+  const { toast } = useToast();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Clear only session-level user data, keep persistent data in localStorage
+    // Clear session-level user data on page load
     sessionStorage.removeItem('currentUser');
     sessionStorage.removeItem('selectedRole');
   }, []);
 
-  const handleSignIn = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Store the newly selected role in session storage to be picked up by the layout
-    sessionStorage.setItem('selectedRole', role);
-    router.push('/dashboard');
+    if (!auth) {
+      setError("Layanan autentikasi tidak tersedia.");
+      return;
+    }
+    
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      // After successful sign-in, the onAuthStateChanged listener in the
+      // provider will handle user state, and the layout will redirect to dashboard.
+      router.push('/dashboard');
+    } catch (firebaseError: any) {
+      let errorMessage = "Terjadi kesalahan saat login. Silakan coba lagi.";
+      switch (firebaseError.code) {
+        case 'auth/user-not-found':
+        case 'auth/wrong-password':
+        case 'auth/invalid-credential':
+          errorMessage = 'Email atau password yang Anda masukkan salah.';
+          break;
+        case 'auth/invalid-email':
+          errorMessage = 'Format email tidak valid.';
+          break;
+        default:
+          console.error("Firebase sign-in error:", firebaseError);
+      }
+      setError(errorMessage);
+      toast({
+        variant: "destructive",
+        title: "Login Gagal",
+        description: errorMessage,
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -44,54 +83,54 @@ export default function SignInPage() {
       </div>
       
       <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden card-spotlight hover:border-primary/50 transition-colors")}>
-        <div className="p-8 space-y-6">
-          <div className="text-center space-y-2">
-            <h2 className="text-2xl font-bold font-headline">Simulasi Login</h2>
-            <p className="text-sm text-muted-foreground">
-              Pilih peran untuk melihat dasbor yang sesuai.
-            </p>
-          </div>
-
-          <div className="space-y-4">
-            {/* Role Selector for Simulation */}
-            <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
-                <Select value={role} onValueChange={(value: UserRole) => setRole(value)}>
-                    <SelectTrigger className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground">
-                        <SelectValue placeholder="Pilih peran untuk simulasi" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value={UserRole.JURNALIS}>Level 1: Jurnalis (Karyawan)</SelectItem>
-                        <SelectItem value={UserRole.DIREKTUR_OPERASIONAL}>Level 2: Direktur Operasional</SelectItem>
-                        <SelectItem value={UserRole.DIREKTUR_UTAMA}>Level 3: Direktur Utama (Super User)</SelectItem>
-                    </SelectContent>
-                </Select>
+        <form onSubmit={handleSignIn}>
+          <div className="p-8 space-y-6">
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-bold font-headline">Selamat Datang</h2>
+              <p className="text-sm text-muted-foreground">
+                Masukkan email dan password Anda untuk masuk.
+              </p>
             </div>
 
-            <Button
-              onClick={handleSignIn}
-              className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg"
-            >
-              Masuk
-            </Button>
+            <div className="space-y-4">
+              <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                  <Input
+                  type="email"
+                  placeholder="Email"
+                  className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  />
+              </div>
+
+              <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
+                  <Input
+                  type="password"
+                  placeholder="Password"
+                  className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={isLoading}
+                  />
+              </div>
+              
+              {error && <p className="text-sm text-center text-destructive">{error}</p>}
+
+              <Button
+                type="submit"
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Loading...' : 'Masuk'}
+              </Button>
+            </div>
           </div>
-
-           <Card className="bg-secondary/50 border-none mt-6">
-            <CardHeader className='p-4'>
-              <CardTitle className="text-sm text-center">Informasi Akun Simulasi</CardTitle>
-            </CardHeader>
-            <CardContent className='p-4 pt-0 text-xs text-muted-foreground space-y-2'>
-                <p><span className='font-bold'>Level 3 (Super User):</span> Direktur Utama</p>
-                <p><span className='font-bold'>Email:</span> naufal@kreatask.com</p>
-                <p><span className='font-bold'>Level 2 (Direktur):</span> Direktur Operasional</p>
-                 <p><span className='font-bold'>Email:</span> deva@kreatask.com</p>
-                <p><span className='font-bold'>Level 1 (Karyawan):</span> Jurnalis</p>
-                <p><span className='font-bold'>Email:</span> agus@kreatask.com</p>
-                <p className='pt-2'>*Gunakan dropdown di atas untuk memilih peran. Email & password tidak diperlukan untuk simulasi ini.</p>
-            </CardContent>
-           </Card>
-
-        </div>
+        </form>
       </div>
     </div>
   );
