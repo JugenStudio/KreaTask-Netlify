@@ -86,8 +86,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        // This fetches tasks where the current user is an assignee.
-        // This query requires a composite index on the `assignees` array field.
+        // This query fetches tasks where the current user is an assignee.
         return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
     }, [firestore, user]);
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
@@ -95,6 +94,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     
     const notificationsCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
+        // Query only notifications for the current user
         return query(collection(firestore, 'notifications'), where("userId", "==", user.uid));
     }, [firestore, user]);
 
@@ -149,13 +149,13 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore || !user) return;
-        const tasksCollection = collection(firestore, 'tasks');
-        const docRef = doc(tasksCollection, newTaskData.id);
         
         // Ensure assignees are stored as an array of UIDs
         const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? a : a.id);
+        const docWithAssigneeUids = { ...newTaskData, assignees };
         
-        await setDoc(docRef, { ...newTaskData, assignees });
+        // Add the new task to the top-level 'tasks' collection
+        await addDoc(collection(firestore, 'tasks'), docWithAssigneeUids);
     }, [firestore, user]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
