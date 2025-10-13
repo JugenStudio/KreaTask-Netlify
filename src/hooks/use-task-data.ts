@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { collection, doc, addDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 
 type DownloadItem = {
@@ -56,11 +56,11 @@ export interface TaskDataContextType {
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     downloadHistory: DownloadItem[];
-    setUsers: (users: User[]) => void;
-    setAllTasks: (tasks: Task[]) => void;
-    setNotifications: (notifications: Notification[]) => void;
+    setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
+    setAllTasks: (tasks: Task[] | ((prevTasks: Task[]) => Task[])) => void;
+    setNotifications: (notifications: Notification[] | ((prevNotifications: Notification[]) => Notification[])) => void;
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
-    addTask: (task: Omit<Task, 'id' | 'createdAt'>) => Promise<void>;
+    addTask: (task: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => Promise<void>;
     updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
     deleteTask: (taskId: string) => Promise<void>;
     addNotification: (notification: Omit<Notification, 'id' | 'createdAt'>) => Promise<void>;
@@ -72,12 +72,10 @@ export const TaskDataContext = createContext<TaskDataContextType | undefined>(un
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     
-    // Memoize collection references
     const tasksCollectionRef = useMemoFirebase(() => collection(firestore, 'tasks'), [firestore]);
     const usersCollectionRef = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
     const notificationsCollectionRef = useMemoFirebase(() => collection(firestore, 'notifications'), [firestore]);
 
-    // Fetch data from Firestore
     const { data: tasksData, isLoading: tasksLoading } = useCollection<Task>(tasksCollectionRef);
     const { data: usersData, isLoading: usersLoading } = useCollection<User>(usersCollectionRef);
     const { data: notificationsData, isLoading: notificationsLoading } = useCollection<Notification>(notificationsCollectionRef);
@@ -108,10 +106,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
     }, [tasksData, usersData]);
 
-    const addTask = async (newTaskData: Omit<Task, 'id' | 'createdAt'>) => {
+    const addTask = async (newTaskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments' | 'files' | 'subtasks'>) => {
         const taskWithTimestamp = {
             ...newTaskData,
             createdAt: new Date().toISOString(),
+            revisions: [],
+            comments: [],
+            files: [],
+            subtasks: [],
         };
         await addDoc(tasksCollectionRef, taskWithTimestamp);
     };
@@ -157,23 +159,23 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
       });
     };
 
-    const value: TaskDataContextType = {
+    const value: TaskDataContextType = useMemo(() => ({
         isLoading,
         allTasks,
         users,
         leaderboardData,
         notifications,
         downloadHistory,
-        setUsers: () => console.warn("setUsers is not implemented for Firestore"),
-        setAllTasks: () => console.warn("setAllTasks is not implemented for Firestore"),
-        setNotifications: () => console.warn("setNotifications is not implemented for Firestore"),
+        setUsers,
+        setAllTasks,
+        setNotifications,
         setDownloadHistory,
         addTask,
         updateTask,
         deleteTask,
         addNotification,
         addToDownloadHistory,
-    };
+    }), [isLoading, allTasks, users, leaderboardData, notifications, downloadHistory, addTask, updateTask, deleteTask, addNotification, addToDownloadHistory]);
 
     return (
         <TaskDataContext.Provider value={value}>
@@ -181,7 +183,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         </TaskDataContext.Provider>
     );
 }
-
 
 export const useTaskData = () => {
     const context = useContext(TaskDataContext);
