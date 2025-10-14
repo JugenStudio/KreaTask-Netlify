@@ -120,15 +120,15 @@ export default function SignInPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                     <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-                        <Link href="/auth/signup">Daftar</Link>
+                        <Link href="/auth/signup">{t('signin.signup_button')}</Link>
                     </Button>
                     <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
-                        <Link href="/auth/signin">Masuk</Link>
+                        <Link href="/auth/signin">{t('signin.signin_button')}</Link>
                     </Button>
                 </div>
 
                 <div className="text-center space-y-2">
-                    <h1 className="text-2xl font-bold font-headline">Selamat Datang Kembali!</h1>
+                    <h1 className="text-xl font-bold font-headline">{t('signin.title')}</h1>
                 </div>
 
                 <div className="space-y-4">
@@ -136,7 +136,7 @@ export default function SignInPage() {
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                         <Input
                         type="email"
-                        placeholder="Masukkan email Anda"
+                        placeholder={t('signin.email_placeholder')}
                         className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
@@ -149,7 +149,7 @@ export default function SignInPage() {
                         <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                         <Input
                         type={showPassword ? "text" : "password"}
-                        placeholder="Masukkan password"
+                        placeholder={t('signin.password_placeholder')}
                         className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
@@ -168,7 +168,7 @@ export default function SignInPage() {
                         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
                         disabled={isLoading || isGoogleLoading}
                     >
-                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Masuk'}
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('signin.submit_button')}
                     </Button>
                 </div>
 
@@ -178,7 +178,7 @@ export default function SignInPage() {
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-card px-2 text-muted-foreground">
-                        ATAU
+                        {t('signin.separator')}
                         </span>
                     </div>
                 </div>
@@ -195,7 +195,7 @@ export default function SignInPage() {
                     ) : (
                         <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
                     )}
-                    Login Menggunakan Google
+                    {t('signin.google_button')}
                 </Button>
             </div>
         </form>
@@ -203,3 +203,4 @@ export default function SignInPage() {
     </div>
   );
 }
+

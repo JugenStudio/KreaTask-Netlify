@@ -297,6 +297,29 @@
       "link_text": "Tentang Aplikasi Ini"
     }
   },
+  "signin": {
+    "title": "Selamat Datang Kembali!",
+    "signup_button": "Daftar",
+    "signin_button": "Masuk",
+    "email_placeholder": "Masukkan email Anda",
+    "password_placeholder": "Masukkan password",
+    "submit_button": "Masuk",
+    "separator": "ATAU",
+    "google_button": "Masuk dengan Google"
+  },
+  "signup": {
+    "title": "Buat Akun Baru",
+    "signup_button": "Daftar",
+    "signin_button": "Masuk",
+    "name_placeholder": "Nama Lengkap",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "confirm_password_placeholder": "Konfirmasi Password",
+    "submit_button": "Buat Akun",
+    "separator": "ATAU",
+    "google_button": "Daftar dengan Google",
+    "terms": "Dengan membuat akun, Anda menyetujui Syarat & Ketentuan kami."
+  },
   "submit": {
     "title": "Kirim Tugas Baru",
     "description": "Isi detail di bawah ini untuk membuat tugas baru.",

@@ -256,6 +256,29 @@
       "save_button": "Save & Approve"
     }
   },
+  "signin": {
+    "title": "Welcome Back!",
+    "signup_button": "Sign up",
+    "signin_button": "Sign in",
+    "email_placeholder": "Enter your email",
+    "password_placeholder": "Enter your password",
+    "submit_button": "Sign In",
+    "separator": "OR",
+    "google_button": "Sign in with Google"
+  },
+  "signup": {
+    "title": "Create a New Account",
+    "signup_button": "Sign up",
+    "signin_button": "Sign in",
+    "name_placeholder": "Full Name",
+    "email_placeholder": "Email",
+    "password_placeholder": "Password",
+    "confirm_password_placeholder": "Confirm Password",
+    "submit_button": "Create Account",
+    "separator": "OR",
+    "google_button": "Sign up with Google",
+    "terms": "By creating an account, you agree to our Terms & Conditions."
+  },
   "submit": {
     "title": "Submit a New Task",
     "description": "Fill out the details below to create a new task.",
@@ -339,47 +362,6 @@
       "description": "This action cannot be undone. This will permanently delete the task \"{{title}}\".",
       "cancel": "Cancel",
       "confirm": "Delete"
-    }
-  },
-  "settings": {
-    "title": "Settings",
-    "description": "Manage your team and application settings.",
-    "appearance": {
-      "title": "Appearance",
-      "description": "Customize the look and feel of the application.",
-      "theme_label": "Theme",
-      "light": "Light",
-      "dark": "Dark",
-      "system": "System",
-      "language_label": "Language"
-    },
-    "user_management": {
-      "title": "User Management",
-      "description": "Manage user roles, permissions, and remove users from the team.",
-      "table": {
-        "user": "User",
-        "email": "Email",
-        "role": "Role",
-        "actions": "Actions",
-        "select_role": "Select role"
-      },
-      "toast": {
-        "role_updated_title": "User Role Updated",
-        "role_updated_desc": "{{name}}'s role has been changed to {{role}}.",
-        "user_deleted_title": "User Deleted",
-        "user_deleted_desc": "{{name}} has been removed from the team."
-      },
-      "delete_dialog": {
-        "title": "Are you sure you want to delete {{name}}?",
-        "description": "This action cannot be undone. This will permanently delete the user and their associated data from the system.",
-        "cancel": "Cancel",
-        "confirm": "Delete User"
-      }
-    },
-    "about": {
-      "title": "About Application",
-      "description": "View information about this application.",
-      "link_text": "About This Application"
     }
   },
   "downloads": {
