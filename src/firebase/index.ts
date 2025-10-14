@@ -1,57 +1,42 @@
 'use client';
 
-import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
+import { firebaseConfig } from '@/firebase/config';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
-import { getFirestore } from 'firebase/firestore';
-
-// This is the primary configuration object for Firebase services.
-// It pulls values from environment variables, which is the recommended approach.
-const firebaseConfig = {
-  apiKey: "AIzaSyCcjQwBIkcJjkusHY9knsASOYaOuzrbeFo",
-  authDomain: "kreatask-backup-56531938-324cb.firebaseapp.com",
-  projectId: "kreatask-backup-56531938-324cb",
-  storageBucket: "kreatask-backup-56531938-324cb.appspot.com",
-  messagingSenderId: "615077435379",
-  appId: "1:615077435379:web:e4283cf3d19117a695a486",
-};
+import { getFirestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
 export function initializeFirebase() {
-  let firebaseApp: FirebaseApp;
-
   if (!getApps().length) {
+    // Important! initializeApp() is called without any arguments because Firebase App Hosting
+    // integrates with the initializeApp() function to provide the environment variables needed to
+    // populate the FirebaseOptions in production. It is critical that we attempt to call initializeApp()
+    // without arguments.
+    let firebaseApp;
     try {
-      // ✅ Selalu pakai config agar tetap jalan di Netlify, Capacitor, dll.
-      firebaseApp = initializeApp(firebaseConfig);
+      // Attempt to initialize via Firebase App Hosting environment variables
+      firebaseApp = initializeApp();
     } catch (e) {
-      console.error('Firebase init failed:', e);
-      // In a real-world scenario, you might want to throw the error
-      // or handle it in a way that informs the user the app cannot connect.
-      // For this context, we'll let it fail and the hooks will handle the null services.
-      // This is primarily to avoid a hard crash during development if config is wrong.
+      // Only warn in production because it's normal to use the firebaseConfig to initialize
+      // during development
+      if (process.env.NODE_ENV === "production") {
+        console.warn('Automatic initialization failed. Falling back to firebase config object.', e);
+      }
+      firebaseApp = initializeApp(firebaseConfig);
     }
-  } else {
-    firebaseApp = getApp();
+
+    return getSdks(firebaseApp);
   }
 
-  return getSdks(firebaseApp!); // Use non-null assertion as getApp() should return an app if apps exist.
+  // If already initialized, return the SDKs with the already initialized App
+  return getSdks(getApp());
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {
-  if (!firebaseApp) {
-    // This case should ideally not be hit if initialization logic is correct,
-    // but as a safeguard, we return null services.
-    return {
-      firebaseApp: null,
-      auth: null,
-      firestore: null,
-    };
-  }
-  const firestore = getFirestore(firebaseApp);
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore,
+    firestore: getFirestore(firebaseApp)
   };
 }
 

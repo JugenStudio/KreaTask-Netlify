@@ -1,0 +1,380 @@
+{
+  "entities": {
+    "Task": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Task",
+      "type": "object",
+      "description": "Represents a task within the KreaTask application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Task entity."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the task."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the task."
+        },
+        "status": {
+          "type": "string",
+          "description": "Current status of the task (e.g., 'Open', 'In Progress', 'Completed')."
+        },
+        "submittedDate": {
+          "type": "string",
+          "description": "Date and time when the task was submitted.",
+          "format": "date-time"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "Date and time when the task is due.",
+          "format": "date-time"
+        },
+        "assigneeId": {
+          "type": "string",
+          "description": "Reference to User assigned to the task. (Relationship: User 1:N Task)"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "description",
+        "status",
+        "submittedDate",
+        "dueDate",
+        "assigneeId"
+      ]
+    },
+    "User": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User",
+      "type": "object",
+      "description": "Represents a user within the KreaTask application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the User entity."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "First name of the user."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "Last name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the user.",
+          "format": "email"
+        },
+        "role": {
+          "type": "string",
+          "description": "Role of the user (e.g., 'Team Member', 'Team Leader', 'Administrator')."
+        }
+      },
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "role"
+      ]
+    },
+    "FileAsset": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "FileAsset",
+      "type": "object",
+      "description": "Represents a file asset associated with a task.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the FileAsset entity."
+        },
+        "taskId": {
+          "type": "string",
+          "description": "Reference to Task this file is associated with. (Relationship: Task 1:N FileAsset)"
+        },
+        "fileName": {
+          "type": "string",
+          "description": "Name of the file."
+        },
+        "fileType": {
+          "type": "string",
+          "description": "Type of the file (e.g., 'video', 'illustration')."
+        },
+        "fileUrl": {
+          "type": "string",
+          "description": "URL of the file.",
+          "format": "uri"
+        },
+        "uploadDate": {
+          "type": "string",
+          "description": "Date and time when the file was uploaded.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "taskId",
+        "fileName",
+        "fileType",
+        "fileUrl",
+        "uploadDate"
+      ]
+    },
+    "Revision": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Revision",
+      "type": "object",
+      "description": "Represents a revision made to a task.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Revision entity."
+        },
+        "taskId": {
+          "type": "string",
+          "description": "Reference to Task that this revision belongs to. (Relationship: Task 1:N Revision)"
+        },
+        "revisionDate": {
+          "type": "string",
+          "description": "Date and time when the revision was made.",
+          "format": "date-time"
+        },
+        "comment": {
+          "type": "string",
+          "description": "Comment associated with the revision."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to User who created the revision. (Relationship: User 1:N Revision)"
+        }
+      },
+      "required": [
+        "id",
+        "taskId",
+        "revisionDate",
+        "comment",
+        "authorId"
+      ]
+    },
+    "Notification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Notification",
+      "type": "object",
+      "description": "Represents a notification sent to a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Notification entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to User the notification is for. (Relationship: User 1:N Notification)"
+        },
+        "taskId": {
+          "type": "string",
+          "description": "Reference to Task this notification is related to. (Relationship: Task 1:N Notification)"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message of the notification."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Date and time when the notification was sent.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "taskId",
+        "message",
+        "timestamp"
+      ]
+    },
+    "Comment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Comment",
+      "type": "object",
+      "description": "Represents a comment within a task revision.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Comment entity."
+        },
+        "revisionId": {
+          "type": "string",
+          "description": "Reference to Revision that this comment belongs to. (Relationship: Revision 1:N Comment)"
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to User who created the comment. (Relationship: User 1:N Comment)"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text content of the comment."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Date and time when the comment was created.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "revisionId",
+        "authorId",
+        "text",
+        "timestamp"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "User",
+          "schema": {
+            "$ref": "#/backend/entities/User"
+          },
+          "description": "Stores user profiles. Access is restricted to the user identified by {userId}.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}",
+        "definition": {
+          "entityName": "Task",
+          "schema": {
+            "$ref": "#/backend/entities/Task"
+          },
+          "description": "Stores tasks owned by the user identified by {userId}.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier of the task."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}/fileAssets/{fileAssetId}",
+        "definition": {
+          "entityName": "FileAsset",
+          "schema": {
+            "$ref": "#/backend/entities/FileAsset"
+          },
+          "description": "Stores file assets associated with a task owned by the user. Access is restricted to the user and task.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier of the task."
+            },
+            {
+              "name": "fileAssetId",
+              "description": "The unique identifier of the file asset."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}/revisions/{revisionId}",
+        "definition": {
+          "entityName": "Revision",
+          "schema": {
+            "$ref": "#/backend/entities/Revision"
+          },
+          "description": "Stores revisions for a task owned by the user.  Access is restricted to the user and task.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier of the task."
+            },
+            {
+              "name": "revisionId",
+              "description": "The unique identifier of the revision."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/notifications/{notificationId}",
+        "definition": {
+          "entityName": "Notification",
+          "schema": {
+            "$ref": "#/backend/entities/Notification"
+          },
+          "description": "Stores notifications for the user. Access is restricted to the user.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "notificationId",
+              "description": "The unique identifier of the notification."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/tasks/{taskId}/revisions/{revisionId}/comments/{commentId}",
+        "definition": {
+          "entityName": "Comment",
+          "schema": {
+            "$ref": "#/backend/entities/Comment"
+          },
+          "description": "Stores comments for a revision of a task owned by the user. Access is restricted to the user, task, and revision.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "taskId",
+              "description": "The unique identifier of the task."
+            },
+            {
+              "name": "revisionId",
+              "description": "The unique identifier of the revision."
+            },
+            {
+              "name": "commentId",
+              "description": "The unique identifier of the comment."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, adhering to the core principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). It leverages denormalization for authorization and structural segregation to simplify security rules.\n\n1.  **Users Collection (`/users/{userId}`):** Stores user profiles. This collection uses path-based ownership, ensuring that only the user can access their data. No denormalization is needed here as access is solely based on `request.auth.uid`.\n\n2.  **Tasks Collection (`/users/{userId}/tasks/{taskId}`):** Each task is owned by a user, indicated by the hierarchical path. This structure supports straightforward security rules based on user ID. No denormalization is needed as access is solely based on the path.\n\n3.  **FileAssets Collection (`/users/{userId}/tasks/{taskId}/fileAssets/{fileAssetId}`):** File assets are stored as subcollections of tasks, maintaining the ownership hierarchy. Again, access control is managed through the path.\n\n4.  **Revisions Collection (`/users/{userId}/tasks/{taskId}/revisions/{revisionId}`):** Revisions are nested under tasks, following the ownership pattern. This structure makes it easy to manage and secure revisions related to a specific task.\n\n5.  **Notifications Collection (`/users/{userId}/notifications/{notificationId}`):** Notifications are stored as a subcollection of users. Each user can only access their notifications.\n\n6.  **Comments Collection (`/users/{userId}/tasks/{taskId}/revisions/{revisionId}/comments/{commentId}`):** Comments are nested under revisions, tasks, and users, reflecting the hierarchy and ownership.\n\n**Authorization Independence (Denormalization):**\n\nThe structure avoids `get()` calls in security rules by ensuring that access control is determined solely by the document path. For instance, tasks, file assets, revisions, notifications and comments inherit ownership from the user via the path. This eliminates the need to fetch parent documents to validate access, enabling atomic operations and simplifying security rules.\n\n**QAPs (Rules are not Filters):**\n\nThe structure enables secure `list` operations.  For example, listing tasks is done within the `/users/{userId}/tasks` collection. The security rules can easily enforce that only the authenticated user (matching `{userId}`) can list tasks in that collection, preventing unauthorized access to other users' tasks."
+  }
+}

@@ -1,94 +1,176 @@
+/**
+ * @file Firestore Security Rules for KreaTask Application
+ *
+ * @description This ruleset enforces a strict user-ownership model for all data within the application.
+ *   All data is nested under `/users/{userId}`, and access is granted based on the authenticated user's ID matching the `{userId}` path parameter.
+ *   This structure avoids the need for complex `get()` calls or database queries within the rules, improving performance and security.
+ *
+ * @dataStructure
+ *   - `/users/{userId}`: Stores user profiles.
+ *   - `/users/{userId}/tasks/{taskId}`: Stores tasks owned by the user.
+ *   - `/users/{userId}/tasks/{taskId}/fileAssets/{fileAssetId}`: Stores file assets associated with a task.
+ *   - `/users/{userId}/tasks/{taskId}/revisions/{revisionId}`: Stores task revisions.
+ *   - `/users/{userId}/notifications/{notificationId}`: Stores user notifications.
+ *   - `/users/{userId}/tasks/{taskId}/revisions/{revisionId}/comments/{commentId}`: Stores comments on task revisions.
+ *
+ * @keySecurityDecisions
+ *   - **Ownership Enforcement**:  All data is strictly owned by the user identified in the path.
+ *   - **No User Listing**: Listing all users is disallowed for privacy and security reasons.
+ *   - **Path-Based Authorization**: Authorization decisions are based solely on the Firestore path, avoiding the need for costly `get()` calls.
+ *   - **No Data Validation (Prototyping)**: This ruleset prioritizes authorization and does not enforce strict data validation beyond ownership.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /////////////////////////
-    // USERS COLLECTION
-    /////////////////////////
+    /**
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (create) - User with UID 'user_abc' can create their own profile if request.auth.uid == 'user_abc'.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete their own profile.
+     * @deny (create) - User with UID 'user_xyz' cannot create a profile for 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete the profile for 'user_abc'.
+     * @principle Enforces document ownership for all operations on user profiles.
+     */
     match /users/{userId} {
-      // Everyone can get their own user data
-      allow get: if request.auth != null && request.auth.uid == userId;
-      // Listing all users restricted to Admin only
-      allow list: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
-      
-      // Users can update their own data except role
-      allow update: if request.auth != null 
-                      && request.auth.uid == userId
-                      && !(request.resource.data.keys().hasAny(['role'])); 
-
-      // Only Admin can set roles or delete users
-      allow delete, create: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
-    }
-
-    /////////////////////////
-    // TASKS COLLECTION
-    /////////////////////////
-    match /tasks/{taskId} {
-      function isAssignee() {
-        return request.auth != null && request.resource.data.assignees.hasAny([request.auth.uid]);
+      function isSignedIn() {
+        return request.auth != null;
       }
 
-      function isAdmin() {
-        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+      function isOwner(userId) {
+        return request.auth.uid == userId;
       }
 
-      // Anyone assigned can read
-      allow get: if request.auth != null && resource.data.assignees.hasAny([request.auth.uid]);
-      allow list: if request.auth != null; // query restricted with where("assignees", "array-contains", uid)
-
-      // Assignee can create task for themselves (optional)
-      allow create: if request.auth != null && request.resource.data.assignees.hasAny([request.auth.uid]);
-      // Assignee can update task if assigned
-      allow update: if request.auth != null && resource.data.assignees.hasAny([request.auth.uid]);
-      // Only Admin can delete
-      allow delete: if isAdmin();
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if false; // Do not allow listing of all users.
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
 
-    /////////////////////////
-    // ROLES COLLECTIONS
-    /////////////////////////
-    match /roles_team_member/{userId} {
-      function isAdmin() {
-        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
-      }
-      allow get: if request.auth != null;
-      allow list: if false;
-      allow create: if isAdmin();
-      allow update: if false;
-      allow delete: if isAdmin();
+    /**
+     * @description Controls access to task documents for a specific user.
+     * @path /users/{userId}/tasks/{taskId}
+     * @allow (create) - User with UID 'user_abc' can create a task under their user ID.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete tasks under their user ID.
+     * @deny (create) - User with UID 'user_xyz' cannot create a task under the user ID 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete a task under the user ID 'user_abc'.
+     * @principle Enforces user-specific ownership for tasks.
+     */
+    match /users/{userId}/tasks/{taskId} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function isOwner(userId) {
+          return request.auth.uid == userId;
+        }
+
+        allow get: if isSignedIn() && isOwner(userId);
+        allow list: if false;
+        allow create: if isSignedIn() && isOwner(userId);
+        allow update: if isSignedIn() && isOwner(userId);
+        allow delete: if isSignedIn() && isOwner(userId);
     }
 
-    match /roles_team_leader/{userId} {
-      function isAdmin() {
-        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
-      }
-      allow get: if request.auth != null;
-      allow list: if false;
-      allow create: if isAdmin();
-      allow update: if false;
-      allow delete: if isAdmin();
+    /**
+     * @description Controls access to file asset documents for a specific task and user.
+     * @path /users/{userId}/tasks/{taskId}/fileAssets/{fileAssetId}
+     * @allow (create) - User with UID 'user_abc' can create a file asset under their task and user ID.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete file assets under their task and user ID.
+     * @deny (create) - User with UID 'user_xyz' cannot create a file asset under the task and user ID of 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete a file asset under the task and user ID of 'user_abc'.
+     * @principle Enforces user and task-specific ownership for file assets.
+     */
+    match /users/{userId}/tasks/{taskId}/fileAssets/{fileAssetId} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function isOwner(userId) {
+          return request.auth.uid == userId;
+        }
+
+        allow get: if isSignedIn() && isOwner(userId);
+        allow list: if false;
+        allow create: if isSignedIn() && isOwner(userId);
+        allow update: if isSignedIn() && isOwner(userId);
+        allow delete: if isSignedIn() && isOwner(userId);
     }
 
-    match /roles_admin/{userId} {
-      function isAdmin() {
-        return request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
-      }
-      allow get: if request.auth != null;
-      allow list: if false;
-      allow create: if isAdmin();
-      allow update: if false;
-      allow delete: if isAdmin();
+    /**
+     * @description Controls access to revision documents for a specific task and user.
+     * @path /users/{userId}/tasks/{taskId}/revisions/{revisionId}
+     * @allow (create) - User with UID 'user_abc' can create a revision under their task and user ID.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete revisions under their task and user ID.
+     * @deny (create) - User with UID 'user_xyz' cannot create a revision under the task and user ID of 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete a revision under the task and user ID of 'user_abc'.
+     * @principle Enforces user and task-specific ownership for revisions.
+     */
+    match /users/{userId}/tasks/{taskId}/revisions/{revisionId} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function isOwner(userId) {
+          return request.auth.uid == userId;
+        }
+
+        allow get: if isSignedIn() && isOwner(userId);
+        allow list: if false;
+        allow create: if isSignedIn() && isOwner(userId);
+        allow update: if isSignedIn() && isOwner(userId);
+        allow delete: if isSignedIn() && isOwner(userId);
     }
 
-    /////////////////////////
-    // NOTIFICATIONS COLLECTION
-    /////////////////////////
-    match /notifications/{notificationId} {
-      allow get: if request.auth != null && request.auth.uid == resource.data.userId;
-      allow list: if request.auth != null; // needed for queries with where("userId", "==", uid)
-      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
-      allow update, delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "roles_admin";
+    /**
+     * @description Controls access to notification documents for a specific user.
+     * @path /users/{userId}/notifications/{notificationId}
+     * @allow (create) - User with UID 'user_abc' can create a notification under their user ID.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete notifications under their user ID.
+     * @deny (create) - User with UID 'user_xyz' cannot create a notification under the user ID of 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete a notification under the user ID of 'user_abc'.
+     * @principle Enforces user-specific ownership for notifications.
+     */
+    match /users/{userId}/notifications/{notificationId} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function isOwner(userId) {
+          return request.auth.uid == userId;
+        }
+
+        allow get: if isSignedIn() && isOwner(userId);
+        allow list: if false;
+        allow create: if isSignedIn() && isOwner(userId);
+        allow update: if isSignedIn() && isOwner(userId);
+        allow delete: if isSignedIn() && isOwner(userId);
     }
 
+    /**
+     * @description Controls access to comment documents for a specific revision, task, and user.
+     * @path /users/{userId}/tasks/{taskId}/revisions/{revisionId}/comments/{commentId}
+     * @allow (create) - User with UID 'user_abc' can create a comment under their revision, task, and user ID.
+     * @allow (get, list, update, delete) - User with UID 'user_abc' can read, update, and delete comments under their revision, task, and user ID.
+     * @deny (create) - User with UID 'user_xyz' cannot create a comment under the revision, task, and user ID of 'user_abc'.
+     * @deny (update, delete) - User with UID 'user_xyz' cannot update or delete a comment under the revision, task, and user ID of 'user_abc'.
+     * @principle Enforces user, task, and revision-specific ownership for comments.
+     */
+    match /users/{userId}/tasks/{taskId}/revisions/{revisionId}/comments/{commentId} {
+        function isSignedIn() {
+          return request.auth != null;
+        }
+
+        function isOwner(userId) {
+          return request.auth.uid == userId;
+        }
+
+        allow get: if isSignedIn() && isOwner(userId);
+        allow list: if false;
+        allow create: if isSignedIn() && isOwner(userId);
+        allow update: if isSignedIn() && isOwner(userId);
+        allow delete: if isSignedIn() && isOwner(userId);
+    }
   }
 }
