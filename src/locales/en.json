@@ -40,7 +40,9 @@
     "my_monthly_progress": "My Monthly Progress",
     "team_leaderboard": "Team Leaderboard",
     "monthly_progress": "Monthly Progress",
-    "top_performer": "Top Performer"
+    "top_performer": "Top Performer",
+    "no_top_performer_title": "No Top Performer",
+    "no_top_performer_desc": "No employee has completed any tasks yet."
   },
   "header": {
     "search_placeholder": "Search tasks...",

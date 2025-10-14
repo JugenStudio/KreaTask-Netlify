@@ -40,7 +40,9 @@
     "my_monthly_progress": "Progres Bulanan Saya",
     "team_leaderboard": "Peringkat Tim",
     "monthly_progress": "Progres Bulanan",
-    "top_performer": "Pegawai Terbaik"
+    "top_performer": "Pegawai Terbaik",
+    "no_top_performer_title": "Tidak Ada Pegawai Terbaik",
+    "no_top_performer_desc": "Belum ada karyawan yang menyelesaikan tugas."
   },
   "header": {
     "search_placeholder": "Cari tugas...",

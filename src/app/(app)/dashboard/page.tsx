@@ -120,17 +120,17 @@ export default function DashboardPage() {
         {/* Stats Overview */}
         {isLvl1 ? (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" color="green" />
-            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" color="yellow" />
-            <StatsCard title={t('dashboard.my_rank')} value={currentUserLeaderboard.rank > 0 ? `#${currentUserLeaderboard.rank}` : 'N/A'} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
-            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
+            <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} href="/tasks" color="green" />
+            <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} href="/leaderboard" color="yellow" />
+            <StatsCard title={t('dashboard.my_rank')} value={currentUserLeaderboard.rank > 0 ? `#${currentUserLeaderboard.rank}` : 'N/A'} icon={Trophy} href="/leaderboard" color="purple" />
+            <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} href="/tasks" color="blue" />
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-              <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} change="+5 dari bulan lalu" href="/performance-report" color="green" />
-              <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} change="+2% dari bulan lalu" href="/leaderboard" color="yellow" />
-              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} change="+1 anggota baru" href="/settings" color="purple" />
-              <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} change="Berkurang 2" href="/tasks" color="blue" />
+              <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} href="/performance-report" color="green" />
+              <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} href="/leaderboard" color="yellow" />
+              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} href="/settings" color="purple" />
+              <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} href="/tasks" color="blue" />
           </div>
         )}
         
@@ -179,9 +179,9 @@ export default function DashboardPage() {
                       ) : (
                         <Card className="h-full flex flex-col items-center justify-center text-center p-6">
                            <UserX className="h-16 w-16 text-muted-foreground mb-4" />
-                           <CardTitle className="text-lg font-bold">No Top Performer</CardTitle>
+                           <CardTitle className="text-lg font-bold">{t('dashboard.no_top_performer_title')}</CardTitle>
                            <CardContent className="p-0 mt-2">
-                            <p className="text-sm text-muted-foreground">No employee has completed any tasks yet.</p>
+                            <p className="text-sm text-muted-foreground">{t('dashboard.no_top_performer_desc')}</p>
                            </CardContent>
                         </Card>
                       )}
