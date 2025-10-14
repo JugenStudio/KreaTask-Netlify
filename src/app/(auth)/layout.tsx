@@ -1,8 +1,11 @@
 
 import { ReactNode } from 'react';
+import Link from 'next/link';
 import { LanguageProvider } from '@/providers/language-provider';
 import Aurora from '@/components/Aurora';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { Button } from '@/components/ui/button';
+import { X } from 'lucide-react';
 
 export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
@@ -18,6 +21,16 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             />
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
+          
+          <div className="absolute top-4 right-4 z-20">
+            <Button variant="ghost" size="icon" asChild className="rounded-full bg-black/20 hover:bg-black/40 text-muted-foreground hover:text-foreground">
+                <Link href="/">
+                    <X className="h-5 w-5" />
+                    <span className="sr-only">Kembali ke Landing Page</span>
+                </Link>
+            </Button>
+          </div>
+
           <div className="relative z-10 w-full">
               {children}
           </div>
