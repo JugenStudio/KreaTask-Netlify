@@ -5,35 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Aurora from "@/components/Aurora";
-import MetallicPaint, { parseLogoImage } from "@/components/ui/MetallicPaint";
-import { useState, useEffect } from 'react';
 
 export default function LandingPage() {
   const router = useRouter();
-  const [imageData, setImageData] = useState<ImageData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    async function loadLogo() {
-      try {
-        const response = await fetch('/logo-kreatask-new.svg');
-        if (!response.ok) {
-            throw new Error(`Failed to fetch logo: ${response.statusText}`);
-        }
-        const blob = await response.blob();
-        const file = new File([blob], "logo-kreatask-new.svg", { type: 'image/svg+xml' });
-
-        const parsedData = await parseLogoImage(file);
-        setImageData(parsedData?.imageData ?? null);
-      } catch (err) {
-        console.error("Error loading logo:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadLogo();
-  }, []);
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
@@ -48,23 +22,6 @@ export default function LandingPage() {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       
       <main className="relative z-10 flex flex-col items-center justify-center text-center p-8">
-        
-        <div className="w-64 h-64 md:w-80 md:h-80 mb-8">
-          {isLoading ? (
-            <div className="w-full h-full flex items-center justify-center">
-              <p className="text-muted-foreground">Loading Logo...</p>
-            </div>
-          ) : imageData ? (
-            <MetallicPaint 
-              imageData={imageData} 
-              params={{ edge: 2, patternBlur: 0.005, patternScale: 2, refraction: 0.015, speed: 0.3, liquid: 0.07 }} 
-            />
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <p className="text-destructive">Failed to load logo.</p>
-            </div>
-          )}
-        </div>
         
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground mb-4">
           Selamat Datang di KreaTask
@@ -90,6 +47,16 @@ export default function LandingPage() {
           </Button>
         </div>
       </main>
+
+      <div className="absolute bottom-6 left-6 z-10">
+        <Image
+          src="/sounds/logo.png"
+          alt="KreaTask Logo"
+          width={40}
+          height={40}
+          className="rounded-full"
+        />
+      </div>
     </div>
   );
 }
