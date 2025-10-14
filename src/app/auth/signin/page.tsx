@@ -16,12 +16,14 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import type { User } from '@/lib/types';
 import { UserRole } from '@/lib/types';
+import { useLanguage } from '@/providers/language-provider';
 
 export default function SignInPage() {
   const router = useRouter();
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -118,10 +120,10 @@ export default function SignInPage() {
             <div className="p-8 space-y-6">
                 <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                     <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-                        <Link href="/auth/signup">Sign up</Link>
+                        <Link href="/auth/signup">Daftar</Link>
                     </Button>
                     <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
-                        <Link href="/auth/signin">Sign in</Link>
+                        <Link href="/auth/signin">Masuk</Link>
                     </Button>
                 </div>
 
@@ -166,7 +168,7 @@ export default function SignInPage() {
                         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
                         disabled={isLoading || isGoogleLoading}
                     >
-                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Sign In'}
+                        {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : 'Masuk'}
                     </Button>
                 </div>
 

@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
+import { useLanguage } from '@/providers/language-provider';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -32,6 +33,7 @@ export default function SignUpPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -156,10 +158,10 @@ export default function SignUpPage() {
                 <div className="p-8 space-y-6">
                     <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
-                            <Link href="/auth/signup">Sign up</Link>
+                            <Link href="/auth/signup">Daftar</Link>
                         </Button>
                         <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-                            <Link href="/auth/signin">Sign in</Link>
+                            <Link href="/auth/signin">Masuk</Link>
                         </Button>
                     </div>
 
