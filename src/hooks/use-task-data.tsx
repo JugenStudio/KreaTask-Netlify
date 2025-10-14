@@ -8,6 +8,7 @@ import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, ge
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
 import { UserRole } from '@/lib/types';
+import { isEmployee } from '@/lib/roles';
 
 type DownloadItem = {
   id: number;
@@ -22,9 +23,14 @@ type DownloadItem = {
 
 const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
     if (!tasks || !users) return [];
+    
+    // Filter to include only team members (employees)
+    const teamMembers = users.filter(user => isEmployee(user.role));
+    if (teamMembers.length === 0) return [];
+
     const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: any; jabatan?: string; } } = {};
 
-    users.forEach(user => {
+    teamMembers.forEach(user => {
       userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role, jabatan: user.jabatan };
     });
 
@@ -265,4 +271,3 @@ export const useTaskData = () => {
     }
     return context;
 };
-

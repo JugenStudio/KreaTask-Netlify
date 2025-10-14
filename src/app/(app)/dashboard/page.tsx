@@ -7,7 +7,7 @@ import { TopPerformerCard } from "@/components/dashboard/top-performer-card";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useLanguage } from "@/providers/language-provider";
 import { StatsCard } from "@/components/dashboard/stats-card";
-import { BookOpen, Trophy, Clock, Star, TrendingUp, CheckCircle, Target } from "lucide-react";
+import { BookOpen, Trophy, Clock, Star, TrendingUp, CheckCircle, Target, UserX } from "lucide-react";
 import { ProgressChart } from "@/components/leaderboard/progress-chart";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { LeaderboardTable } from "@/components/leaderboard/leaderboard-table";
@@ -30,7 +30,9 @@ export default function DashboardPage() {
   useEffect(() => {
     if (currentUser && leaderboardData.length > 0) {
       const leaderboardEntry = leaderboardData.find(entry => entry.id === currentUser.id);
-      setCurrentUserLeaderboard(leaderboardEntry || null);
+      setCurrentUserLeaderboard(leaderboardEntry || { ...currentUser, rank: 0, score: 0, tasksCompleted: 0 });
+    } else if (currentUser) {
+       setCurrentUserLeaderboard({ ...currentUser, rank: 0, score: 0, tasksCompleted: 0 });
     }
   }, [currentUser, leaderboardData]);
 
@@ -78,7 +80,7 @@ export default function DashboardPage() {
     (sum, user) => sum + user.tasksCompleted,
     0
   );
-  const totalTeamMembers = users.length;
+  const totalTeamMembers = users.filter(u => isEmployee(u.role)).length;
   const avgScoreTeam =
     leaderboardData.length > 0
       ? Math.round(
@@ -120,7 +122,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             <StatsCard title={t('dashboard.my_tasks_completed')} value={myTasksCompleted} icon={CheckCircle} change="+2 dari bulan lalu" href="/tasks" color="green" />
             <StatsCard title={t('dashboard.my_score')} value={myScore} icon={Star} change="+10% dari bulan lalu" href="/leaderboard" color="yellow" />
-            <StatsCard title={t('dashboard.my_rank')} value={`#${currentUserLeaderboard.rank}`} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
+            <StatsCard title={t('dashboard.my_rank')} value={currentUserLeaderboard.rank > 0 ? `#${currentUserLeaderboard.rank}` : 'N/A'} icon={Trophy} change="Naik 1 peringkat" href="/leaderboard" color="purple" />
             <StatsCard title={t('dashboard.overdue_tasks')} value={myOverdueTasks} icon={Clock} change="Tetap" href="/tasks" color="blue" />
           </div>
         ) : (
@@ -172,7 +174,17 @@ export default function DashboardPage() {
                       </Card>
                   </div>
                   <div className="lg:col-span-1">
-                      {topPerformer && <TopPerformerCard performer={topPerformer} />}
+                      {topPerformer ? (
+                        <TopPerformerCard performer={topPerformer} />
+                      ) : (
+                        <Card className="h-full flex flex-col items-center justify-center text-center p-6">
+                           <UserX className="h-16 w-16 text-muted-foreground mb-4" />
+                           <CardTitle className="text-lg font-bold">No Top Performer</CardTitle>
+                           <CardContent className="p-0 mt-2">
+                            <p className="text-sm text-muted-foreground">No employee has completed any tasks yet.</p>
+                           </CardContent>
+                        </Card>
+                      )}
                   </div>
               </>
           )}
