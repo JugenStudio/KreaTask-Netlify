@@ -26,8 +26,8 @@ export default function LandingPage() {
         <Image
           src="/sounds/logo2.png"
           alt="KreaTask Logo"
-          width={80}
-          height={80}
+          width={120}
+          height={120}
           className="mb-8"
         />
         
