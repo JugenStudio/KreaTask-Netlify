@@ -1,5 +1,4 @@
 
-
 import { ReactNode } from 'react';
 import Link from 'next/link';
 import { LanguageProvider } from '@/providers/language-provider';
@@ -40,4 +39,3 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     </FirebaseClientProvider>
   );
 }
-
