@@ -5,33 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Aurora from "@/components/Aurora";
-import MetallicPaint, { parseLogoImage } from "@/components/MetallicPaint";
-import { useState, useEffect } from "react";
 
 export default function LandingPage() {
   const router = useRouter();
-  const [imageData, setImageData] = useState<ImageData | null>(null);
-  const [isLoadingLogo, setIsLoadingLogo] = useState(true);
-
-  useEffect(() => {
-    async function loadLogo() {
-      setIsLoadingLogo(true);
-      try {
-        const response = await fetch('/logo-kreatask.svg');
-        const blob = await response.blob();
-        const file = new File([blob], "logo.svg", { type: blob.type });
-
-        const parsedData = await parseLogoImage(file);
-        setImageData(parsedData?.imageData ?? null);
-      } catch (err) {
-        console.error("Error loading logo:", err);
-      } finally {
-        setIsLoadingLogo(false);
-      }
-    }
-
-    loadLogo();
-  }, []);
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
@@ -46,25 +22,6 @@ export default function LandingPage() {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       
       <main className="relative z-10 flex flex-col items-center justify-center text-center p-8">
-        <div className="mb-8 w-24 h-24">
-          {isLoadingLogo ? (
-            <div className="w-24 h-24 bg-muted/20 rounded-full animate-pulse"></div>
-          ) : imageData ? (
-             <MetallicPaint 
-                imageData={imageData} 
-                params={{ edge: 2, patternBlur: 0.005, patternScale: 2, refraction: 0.015, speed: 0.3, liquid: 0.07 }} 
-              />
-          ) : (
-            <Image
-                src="/sounds/logo2.png"
-                alt="KreaTask Logo"
-                width={80}
-                height={80}
-                className="mx-auto"
-            />
-          )}
-        </div>
-        
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground mb-4">
           Selamat Datang di KreaTask
         </h1>
@@ -89,6 +46,12 @@ export default function LandingPage() {
           </Button>
         </div>
       </main>
+
+      <div className="absolute bottom-4 left-4 z-10">
+        <div className="flex items-center justify-center w-10 h-10 rounded-full bg-black/50">
+          <span className="font-bold text-lg text-white">N</span>
+        </div>
+      </div>
     </div>
   );
 }
