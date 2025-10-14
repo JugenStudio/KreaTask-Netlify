@@ -16,12 +16,12 @@ export default function LandingPage() {
   useEffect(() => {
     async function loadLogo() {
       try {
-        const response = await fetch('/logo-kreatask-new.svg');
+        const response = await fetch('/logo-kreatask-filled.svg');
         if (!response.ok) {
             throw new Error(`Failed to fetch logo: ${response.statusText}`);
         }
         const blob = await response.blob();
-        const file = new File([blob], "logo-kreatask-new.svg", { type: 'image/svg+xml' });
+        const file = new File([blob], "logo-kreatask-filled.svg", { type: 'image/svg+xml' });
 
         const parsedData = await parseLogoImage(file);
         setImageData(parsedData?.imageData ?? null);
