@@ -4,23 +4,12 @@
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import Aurora from "@/components/Aurora";
 
 export default function LandingPage() {
   const router = useRouter();
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
-      <div className="absolute inset-0 z-0">
-        <Aurora
-            colorStops={["#172554", "#166534", "#172554"]}
-            blend={0.5}
-            amplitude={1.0}
-            speed={0.5}
-        />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
-      
       <main className="relative z-10 flex flex-col items-center justify-center text-center p-8">
         
         <Image
