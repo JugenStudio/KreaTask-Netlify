@@ -1,5 +1,4 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -25,17 +24,13 @@ service cloud.firestore {
       return isUserAuthenticated() && getUserRole(request.auth.uid) == 'roles_team_member';
     }
 
-    function isUnassigned() {
-      return isUserAuthenticated() && getUserRole(request.auth.uid) == 'roles_unassigned';
-    }
-
     function isOwner(userId) {
       return isUserAuthenticated() && request.auth.uid == userId;
     }
 
     // USERS COLLECTION
     match /users/{userId} {
-      allow get: if isUserAuthenticated() && request.auth.uid == userId;
+      allow get: if isOwner(userId);
       allow list: if isUserAuthenticated();
       allow create, update: if isOwner(userId);
       allow delete: if (isAdmin() || isTeamLeader()) && request.auth.uid != userId;
@@ -43,34 +38,21 @@ service cloud.firestore {
 
     // TASKS COLLECTION
     match /tasks/{taskId} {
-      allow get: if isUserAuthenticated() && (
-        isAdmin() ||
-        isTeamLeader() ||
-        (isTeamMember() && request.auth.uid in resource.data.assigneesIds)
-      );
 
-      allow list: if isUserAuthenticated() && (
-        isAdmin() ||
-        isTeamLeader() ||
-        isTeamMember() ||
-        isUnassigned()
-      );
+      // ✅ Admin bisa akses semua
+      allow read, list, create, update, delete: if isAdmin();
 
-      allow create: if isUserAuthenticated() && (
-        isAdmin() ||
-        isTeamLeader() ||
-        (isTeamMember() &&
-          request.resource.data.assigneesIds.size() == 1 &&
-          request.auth.uid in request.resource.data.assigneesIds)
-      );
+      // Team Leader
+      allow read, list, create, update, delete: if isTeamLeader();
 
-      allow update: if isUserAuthenticated() && (
-        isAdmin() ||
-        isTeamLeader() ||
-        (isTeamMember() && request.auth.uid in resource.data.assigneesIds)
-      );
-
-      allow delete: if isUserAuthenticated() && (isAdmin() || isTeamLeader());
+      // Team Member: akses terbatas
+      allow read: if isTeamMember() && request.auth.uid in resource.data.assigneesIds;
+      allow list: if isTeamMember();
+      allow create: if isTeamMember() &&
+                      request.resource.data.assigneesIds.size() == 1 &&
+                      request.auth.uid in request.resource.data.assigneesIds;
+      allow update: if isTeamMember() && request.auth.uid in resource.data.assigneesIds;
+      // Team Member tidak boleh delete
     }
 
     // NOTIFICATIONS COLLECTION

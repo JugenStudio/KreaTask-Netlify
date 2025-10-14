@@ -29,12 +29,15 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { NotificationCenter } from "@/components/notifications/notification-center";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function Header() {
   const { currentUser } = useCurrentUser();
   const { locale, t, setLocale } = useLanguage();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
+  const isMobile = useIsMobile();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -58,6 +61,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full items-center gap-4 border-b border-border bg-background/80 px-4 md:px-6 backdrop-blur-lg">
+      {isMobile && (
+        <Link href="/dashboard" className="flex items-center gap-2 md:hidden">
+          <Image src="/sounds/logo2.png" alt="KreaTask Logo" width={32} height={32} />
+        </Link>
+      )}
+
       {/* Search bar */}
       <form onSubmit={handleSearch} className="relative flex-1 md:grow-0">
         <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
