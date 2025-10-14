@@ -1,3 +1,4 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,14 @@ export default function LandingPage() {
       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
       
       <main className="relative z-10 flex flex-col items-center justify-center text-center p-8">
+        
+        <Image
+          src="/sounds/logo2.png"
+          alt="KreaTask Logo"
+          width={80}
+          height={80}
+          className="mb-8"
+        />
         
         <h1 className="text-4xl md:text-5xl font-bold font-headline text-foreground mb-4">
           Selamat Datang di KreaTask
