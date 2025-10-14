@@ -46,16 +46,6 @@ export default function LandingPage() {
           </Button>
         </div>
       </main>
-
-      <div className="absolute bottom-6 left-6 z-10">
-        <Image
-          src="/logo.png"
-          alt="KreaTask Logo"
-          width={40}
-          height={40}
-          className="rounded-full"
-        />
-      </div>
     </div>
   );
 }
