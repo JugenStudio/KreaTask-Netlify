@@ -23,7 +23,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </div>
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent"></div>
           
-          <div className="absolute top-4 right-4 z-20">
+          <div className="absolute top-4 left-4 z-20">
             <Button variant="ghost" size="icon" asChild className="rounded-full bg-black/20 hover:bg-black/40 text-muted-foreground hover:text-foreground">
                 <Link href="/">
                     <ArrowLeft className="h-5 w-5" />
