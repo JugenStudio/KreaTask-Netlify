@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -50,7 +49,7 @@ export default function LandingPage() {
 
       <div className="absolute bottom-6 left-6 z-10">
         <Image
-          src="/sounds/logo.png"
+          src="/logo.png"
           alt="KreaTask Logo"
           width={40}
           height={40}
