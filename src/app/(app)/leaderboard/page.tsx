@@ -18,7 +18,7 @@ import { cn } from "@/lib/utils";
 export default function LeaderboardPage() {
   const { t } = useLanguage();
   const { currentUser } = useCurrentUser();
-  const { leaderboardData, isLoading } = useTaskData();
+  const { allTasks, leaderboardData, isLoading } = useTaskData();
 
   const totalTasks = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
@@ -110,7 +110,7 @@ export default function LeaderboardPage() {
               <CardTitle className="font-headline text-xl md:text-2xl">{t('leaderboard.monthly_progress')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ProgressChart currentUser={currentUser} />
+              <ProgressChart currentUser={currentUser} allTasks={allTasks} />
             </CardContent>
           </Card>
         </div>

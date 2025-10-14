@@ -1,9 +1,11 @@
+
 "use client"
 
 import * as React from "react"
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
-import type { User } from "@/lib/types"
+import type { Task, User } from "@/lib/types"
 import { isEmployee } from "@/lib/roles"
+import { format } from "date-fns"
 
 import {
   ChartContainer,
@@ -12,39 +14,52 @@ import {
 } from "@/components/ui/chart"
 import { Skeleton } from "../ui/skeleton"
 
-const allMonthsData = {
-    May: { lessons: 23 },
-    June: { lessons: 44 },
-    July: { lessons: 14 },
-    August: { lessons: 38 },
-    September: { lessons: 25 },
-};
-
-const employeeMonthsData = {
-    May: { lessons: 5 },
-    June: { lessons: 12 },
-    July: { lessons: 3 },
-    August: { lessons: 8 },
-    September: { lessons: 6 },
-};
-
 const chartConfig = {
-  lessons: {
+  tasks: {
     label: "Tasks",
+    color: "hsl(var(--primary))",
   },
+} satisfies React.ComponentProps<typeof ChartContainer>["config"];
+
+interface ProgressChartProps {
+    currentUser?: User | null;
+    allTasks: Task[];
 }
 
-export function ProgressChart({ currentUser }: { currentUser?: User | null }) {
+export function ProgressChart({ currentUser, allTasks }: ProgressChartProps) {
+  const chartData = React.useMemo(() => {
+    if (!currentUser) return [];
+
+    const tasksToConsider = isEmployee(currentUser.role)
+      ? allTasks.filter(task => task.assignees.some(a => a.id === currentUser.id))
+      : allTasks;
+      
+    const completedTasks = tasksToConsider.filter(task => task.status === 'Completed' && task.approvedBy);
+
+    const tasksByMonth: { [key: string]: number } = {};
+
+    completedTasks.forEach(task => {
+        // Assuming dueDate is the completion date for simplicity
+        const month = format(new Date(task.dueDate), "MMM");
+        tasksByMonth[month] = (tasksByMonth[month] || 0) + 1;
+    });
+
+    const monthOrder = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    // Create data for the last 6 months, even if there are no tasks
+    const recentMonths = monthOrder.slice(-6);
+    
+    return recentMonths.map(month => ({
+        month,
+        tasks: tasksByMonth[month] || 0,
+    }));
+
+  }, [currentUser, allTasks]);
+
+
   if (!currentUser) {
     return <Skeleton className="h-[200px] w-full" />
   }
-
-  const dataToShow = isEmployee(currentUser.role) ? employeeMonthsData : allMonthsData;
-  const chartData = Object.entries(dataToShow).map(([month, values]) => ({
-      month: month.slice(0, 3),
-      ...values,
-      fill: "hsl(var(--primary))"
-  }));
 
   return (
       <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
@@ -64,13 +79,15 @@ export function ProgressChart({ currentUser }: { currentUser?: User | null }) {
             tickLine={false}
             tickMargin={10}
             axisLine={false}
+            stroke="hsl(var(--muted-foreground))"
+            tickFormatter={(value) => value.slice(0, 3)}
           />
           <YAxis hide={true} />
           <ChartTooltip
             cursor={false}
             content={<ChartTooltipContent indicator="dot" />}
           />
-          <Bar dataKey="lessons" radius={[16, 16, 16, 16]} />
+          <Bar dataKey="tasks" fill="var(--color-tasks)" radius={[16, 16, 16, 16]} />
         </BarChart>
       </ChartContainer>
   )

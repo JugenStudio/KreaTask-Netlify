@@ -154,7 +154,7 @@ export default function DashboardPage() {
                   <div className="lg:col-span-1 space-y-6 md:space-y-8">
                       <Card className="card-spotlight hover:border-primary/50 transition-colors">
                           <CardHeader><CardTitle className="font-headline text-xl md:text-2xl text-foreground">{t('dashboard.my_monthly_progress')}</CardTitle></CardHeader>
-                          <CardContent><ProgressChart currentUser={currentUser} /></CardContent>
+                          <CardContent><ProgressChart currentUser={currentUser} allTasks={allTasks} /></CardContent>
                       </Card>
                   </div>
               </>
@@ -200,7 +200,7 @@ export default function DashboardPage() {
                   </CardTitle>
                   </CardHeader>
                   <CardContent>
-                  <ProgressChart currentUser={currentUser} />
+                    <ProgressChart currentUser={currentUser} allTasks={allTasks} />
                   </CardContent>
               </Card>
               </div>
