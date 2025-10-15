@@ -3,6 +3,7 @@
 
 import { motion, type Transition } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 type BlurTextProps = {
   text?: string;
@@ -91,7 +92,7 @@ const BlurText: React.FC<BlurTextProps> = ({
   const times = Array.from({ length: stepCount }, (_, i) => (stepCount === 1 ? 0 : i / (stepCount - 1)));
 
   return (
-    <p ref={ref} className={className} style={{ display: 'flex', flexWrap: 'wrap' }}>
+    <p ref={ref} className={cn("flex flex-wrap justify-center md:justify-start", className)}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
