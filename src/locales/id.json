@@ -330,7 +330,7 @@
     "separator": "ATAU",
     "ai_generator": {
       "title": "Generator Tugas AI",
-      "placeholder": "Jelaskan tujuan proyek Anda, mis., 'Luncurkan kampanye pemasaran baru untuk Q4'",
+      "placeholder": "mis: Buat konten Instagram untuk 1 minggu",
       "button": "Buat Saran Tugas",
       "loading_button": "Membuat...",
       "suggestions_title": "Saran Tugas:"
@@ -338,7 +338,7 @@
     "manual_form": {
       "title": "Buat Tugas Manual",
       "task_title_label": "Judul Tugas",
-      "task_title_placeholder": "mis., Buat animasi bagian hero baru",
+      "task_title_placeholder": "mis: Tulis artikel tentang tren AI 2024",
       "category_label": "Kategori",
       "category_placeholder": "Pilih kategori",
       "categories": {
@@ -350,7 +350,7 @@
       "due_date_label": "Batas Waktu",
       "due_date_placeholder": "Pilih tanggal",
       "assign_to_label": "Tugaskan Kepada",
-      "assign_to_placeholder": "Pilih karyawan atau direktur",
+      "assign_to_placeholder": "Pilih penerima tugas",
       "description_label": "Deskripsi",
       "description_placeholder": "Tambahkan deskripsi detail untuk tugas...",
       "attachments_label": "Lampiran",

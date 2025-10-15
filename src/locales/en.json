@@ -289,7 +289,7 @@
     "separator": "OR",
     "ai_generator": {
       "title": "AI Task Generator",
-      "placeholder": "Describe your project goal, e.g., 'Launch a new marketing campaign for Q4'",
+      "placeholder": "e.g: Create Instagram content for 1 week",
       "button": "Generate Task Suggestions",
       "loading_button": "Generating...",
       "suggestions_title": "Suggested Tasks:"
@@ -297,7 +297,7 @@
     "manual_form": {
       "title": "Create Task Manually",
       "task_title_label": "Task Title",
-      "task_title_placeholder": "e.g., Animate new hero section",
+      "task_title_placeholder": "e.g: Write an article about 2024 AI trends",
       "category_label": "Category",
       "category_placeholder": "Select a category",
       "categories": {
@@ -309,7 +309,7 @@
       "due_date_label": "Due Date",
       "due_date_placeholder": "Pick a date",
       "assign_to_label": "Assign To",
-      "assign_to_placeholder": "Select an employee or director",
+      "assign_to_placeholder": "Select an assignee",
       "description_label": "Description",
       "description_placeholder": "Add a detailed description for the task...",
       "attachments_label": "Attachments",
