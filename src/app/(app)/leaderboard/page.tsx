@@ -78,7 +78,6 @@ export default function LeaderboardPage() {
           title={t('leaderboard.total_tasks_completed')}
           value={totalTasks}
           icon={TrendingUp}
-          change="+12% dari bulan lalu"
           href="/tasks"
           color="green"
         />
@@ -86,7 +85,6 @@ export default function LeaderboardPage() {
           title={t('leaderboard.average_score')} 
           value={avgScore} 
           icon={Star} 
-          change="+8% dari bulan lalu"
           color="yellow"
         />
       </div>
