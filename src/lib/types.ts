@@ -65,6 +65,8 @@ export interface Subtask {
 }
 
 export type Evaluator = "AI" | "Direktur Operasional" | "Direktur Bisnis" | "Direktur Utama";
+export type ValueCategory = "Rendah" | "Menengah" | "Tinggi" | "Kritis";
+
 
 export interface Task {
   id: string;
@@ -81,7 +83,7 @@ export interface Task {
   category: TaskCategory; // Priority: low, medium, high
   
   // New performance value system
-  valueCategory: "Rendah" | "Menengah" | "Tinggi";
+  valueCategory: ValueCategory;
   value: number; // 10, 20, 40
   evaluator: Evaluator;
   approvedBy: "Direktur Utama" | null;

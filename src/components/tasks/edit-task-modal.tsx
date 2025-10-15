@@ -42,7 +42,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useTaskData } from "@/hooks/use-task-data";
 import { Calendar } from "@/components/ui/calendar";
-import { TaskCategory, type Task, type User, type Subtask, type LocalizedString } from "@/lib/types";
+import { TaskCategory, type Task, type User, type Subtask, type LocalizedString, type ValueCategory } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
 import { useEffect, useMemo, useState } from "react";
 import { getTranslations } from "@/app/actions";
@@ -73,6 +73,22 @@ interface EditTaskModalProps {
   onOpenChange: (isOpen: boolean) => void;
   task: Task;
 }
+
+const getScoringFromCategory = (category: TaskCategory): { value: number; valueCategory: ValueCategory } => {
+  switch (category) {
+    case TaskCategory.Critical:
+      return { value: 50, valueCategory: 'Kritis' };
+    case TaskCategory.High:
+      return { value: 40, valueCategory: 'Tinggi' };
+    case TaskCategory.Medium:
+      return { value: 20, valueCategory: 'Menengah' };
+    case TaskCategory.Low:
+      return { value: 10, valueCategory: 'Rendah' };
+    default:
+      return { value: 10, valueCategory: 'Rendah' };
+  }
+};
+
 
 export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps) {
   const { t, locale } = useLanguage();
@@ -142,6 +158,8 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         id: st.id || `subtask-${task.id}-${Date.now()}-${Math.random()}`,
       })) as Subtask[];
 
+      const { value, valueCategory } = getScoringFromCategory(values.category);
+
       const updates: Partial<Task> = {
         title: titleTranslations,
         description: descriptionTranslations,
@@ -150,6 +168,8 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         category: values.category,
         subtasks: updatedSubtasks,
         revisions: [...task.revisions, newRevision],
+        value: value,
+        valueCategory: valueCategory,
       };
 
       updateTask(task.id, updates);
@@ -260,7 +280,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
                         <FormControl><SelectTrigger><SelectValue placeholder={t('submit.manual_form.category_placeholder')} /></SelectTrigger></FormControl>
                         <SelectContent>
                         {Object.values(TaskCategory).map((category) => (
-                            <SelectItem key={category} value={category}>{category}</SelectItem>
+                            <SelectItem key={category} value={category}>{t(`submit.manual_form.categories.${category.toLowerCase()}`)}</SelectItem>
                         ))}
                         </SelectContent>
                     </Select>

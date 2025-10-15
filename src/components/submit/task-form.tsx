@@ -36,7 +36,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { useState, useMemo, useEffect } from "react";
-import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType } from "@/lib/types";
+import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTaskSuggestions, getTranslations } from "@/app/actions";
@@ -75,6 +75,22 @@ const fileToDataUri = (file: File): Promise<string> => {
         reader.readAsDataURL(file);
     });
 };
+
+const getScoringFromCategory = (category: TaskCategory): { value: number; valueCategory: ValueCategory } => {
+  switch (category) {
+    case TaskCategory.Critical:
+      return { value: 50, valueCategory: 'Kritis' };
+    case TaskCategory.High:
+      return { value: 40, valueCategory: 'Tinggi' };
+    case TaskCategory.Medium:
+      return { value: 20, valueCategory: 'Menengah' };
+    case TaskCategory.Low:
+      return { value: 10, valueCategory: 'Rendah' };
+    default:
+      return { value: 10, valueCategory: 'Rendah' };
+  }
+};
+
 
 export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
@@ -168,6 +184,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
         const newFiles = await Promise.all(newFilesPromises);
 
+        const { value, valueCategory } = getScoringFromCategory(values.category);
 
         const newTask = {
           id: newTaskId,
@@ -178,8 +195,8 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           dueDate: format(values.dueDate, 'yyyy-MM-dd'),
           createdAt: new Date().toISOString(),
           category: values.category,
-          value: 0,
-          valueCategory: 'Rendah' as const,
+          value: value,
+          valueCategory: valueCategory,
           evaluator: 'AI' as const,
           approvedBy: null,
           revisions: [],
