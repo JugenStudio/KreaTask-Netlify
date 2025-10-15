@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -271,8 +270,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     const { taskData, error } = await getTaskFromAI(aiCommand, assignableUserNames);
 
     if (error) {
-        setError(error);
-        toast({ variant: "destructive", title: "AI Error", description: error });
+        const translatedError = t(error);
+        setError(translatedError);
+        toast({ variant: "destructive", title: t('submit.toast.ai_error_title'), description: translatedError });
     } else if (taskData) {
         // Apply the AI data to the form
         if (taskData.title) form.setValue("title", taskData.title);
@@ -584,5 +584,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         </CardContent>
       </Card>
     </>
-  );
-}

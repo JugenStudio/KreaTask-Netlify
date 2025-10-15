@@ -72,9 +72,9 @@ export async function getTaskFromAI(command: string, assignableUsers: string[]) 
   } catch (error) {
     console.error("Generate Task from Prompt action error:", error);
     if (error instanceof z.ZodError) {
-      return { taskData: null, error: "Invalid command provided." };
+      return { taskData: null, error: "submit.toast.ai_error_invalid" };
     }
-    return { taskData: null, error: "Sorry, I couldn't understand the command right now." };
+    return { taskData: null, error: "submit.toast.ai_error_generic" };
   }
 }
 
@@ -103,4 +103,3 @@ export async function getTranslations(text: string): Promise<{ data: TranslateCo
     }
     return { data: null, error: "Sorry, I couldn't translate the content right now." };
   }
-}

@@ -6,7 +6,7 @@
  *
  * - generateTaskFromPrompt - A function that handles the task parsing process.
  * - GenerateTaskFromPromptInput - The input type for the function.
- * - GenerateTaskFromPromptOutput - The return type for the function.
+ * - GenerateTaskFrom-prompt-output - The return type for the function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -42,22 +42,30 @@ const prompt = ai.definePrompt({
   name: 'generateTaskFromPrompt',
   input: {schema: GenerateTaskFromPromptInputSchema},
   output: {schema: GenerateTaskFromPromptOutputSchema},
-  prompt: `You are an AI assistant for the KreaTask app. Your job is to parse a user's natural language command and extract structured information to pre-fill a new task form.
+  prompt: `You are a powerful AI assistant for the KreaTask app. Your primary function is to parse a user's natural language command and intelligently extract structured information to pre-fill a new task form. Be flexible and forgiving with user input, such as typos.
 
-  Today's date is ${new Date().toISOString().split('T')[0]}. Use this as a reference for relative dates.
+  Today's date is ${new Date().toISOString().split('T')[0]}. Use this as the reference point for any relative date calculations.
 
-  Analyze the user's command and extract the following entities:
-  1.  **title**: The main goal of the task.
-  2.  **description**: Any additional details, instructions, or context.
-  3.  **category**: Identify the priority. Keywords like "prioritas tinggi", "sangat penting", "urgent" should map to "High" or "Critical". Keywords like "prioritas sedang", "biasa", "tidak urgent" should map to "Low" or "Medium".
-  4.  **dueDate**: Identify the deadline. You must understand relative dates like "today", "tomorrow", "next Friday", or specific dates. Convert it to 'YYYY-MM-DD' format.
-  5.  **assigneeName**: Identify the person the task is for. The name MUST exactly match one of the names from the provided \`assignableUsers\` list. If the command says "untuk saya" (for me), leave it empty as the app will handle it. If no matching name is found, leave it empty.
-  6.  **subtasks**: If the command mentions multiple steps or a checklist, extract them as an array of strings.
+  **Instructions:**
+  Analyze the user's command and extract the following entities. Use your reasoning to infer the user's intent even if the language isn't perfect.
 
-  Here is the list of users you can assign tasks to:
+  1.  **title**: Identify the main goal or objective of the task.
+  2.  **description**: Extract any additional details, context, or specific instructions that should be included in the description.
+  3.  **category**: Determine the task's priority level. Use the following keywords as a guide:
+      -   "Low" or "Rendah": Keywords like "prioritas rendah", "tidak penting", "santai".
+      -   "Medium" or "Menengah": Keywords like "prioritas sedang", "biasa", "standar", "normal".
+      -   "High" or "Tinggi": Keywords like "prioritas tinggi", "penting", "agak mendesak".
+      -   "Critical" or "Kritis": Keywords like "sangat penting", "urgent", "mendesak", "segera", "kritis".
+  4.  **dueDate**: Identify the deadline. You must understand relative dates (e.g., "today", "tomorrow", "besok", "lusa", "next Friday", "Jumat depan") and specific dates. Convert the final date into 'YYYY-MM-DD' format.
+  5.  **assigneeName**: Determine who the task is for. The name MUST exactly match one of the names from the provided \`assignableUsers\` list. If the command says "untuk saya" or implies the user themselves, leave this field empty. If you cannot find a matching name, leave it empty.
+  6.  **subtasks**: If the command mentions multiple steps, a checklist, or a breakdown of work, extract these as an array of strings.
+
+  **Available Users for Assignment:**
   {{#each assignableUsers}}- {{this}}{{/each}}
 
+  ---
   User Command: "{{command}}"
+  ---
   `,
 });
 
