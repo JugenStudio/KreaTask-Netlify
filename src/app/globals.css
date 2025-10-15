@@ -5,7 +5,7 @@
 
 @layer base {
   :root {
-    /* Based on Material Design Dark Theme */
+    /* Based on Material Design Dark Theme with a new blue primary */
     --background: 220 14% 7%; /* #121212 */
     --foreground: 0 0% 100%; /* White */
 
@@ -15,16 +15,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 165 80% 40%; /* New Teal/Cyan accent */
+    --primary: 213 57% 41%; /* New Blue: #2b60a4 */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 165 80% 20%; /* Darker Teal/Cyan for secondary elements */
+    --secondary: 213 57% 21%; /* Darker version of the new blue */
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 165 80% 25%;
+    --accent: 213 57% 26%; /* Accent version of the new blue */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -32,15 +32,15 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 165 80% 40%;
+    --ring: 213 57% 41%; /* New Blue */
 
     --radius: 1rem;
   }
   
   .dark {
     /* Ensure dark theme variables are identical to root for consistency */
-    --background: 220 14% 7%; /* #121212 */
-    --foreground: 0 0% 100%; /* White */
+    --background: 220 14% 7%;
+    --foreground: 0 0% 100%;
 
     --card: 220 14% 11%;
     --card-foreground: 0 0% 100%;
@@ -48,16 +48,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 165 80% 40%;
+    --primary: 213 57% 41%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 165 80% 20%;
+    --secondary: 213 57% 21%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 165 80% 25%;
+    --accent: 213 57% 26%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -65,10 +65,10 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 165 80% 40%;
+    --ring: 213 57% 41%;
   }
 
-  /* Material Design Light Theme */
+  /* Material Design Light Theme adapted for the new blue */
   .light {
     --background: 0 0% 100%; /* #FFFFFF */
     --foreground: 222 47% 11%; /* Almost Black */
@@ -79,7 +79,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 165 75% 38%; /* Brighter, saturated Teal/Cyan */
+    --primary: 213 57% 41%; /* New Blue */
     --primary-foreground: 0 0% 100%;
     
     --secondary: 220 13% 91%; 
@@ -96,7 +96,7 @@
 
     --border: 220 13% 89%;
     --input: 220 13% 91%;
-    --ring: 165 75% 38%;
+    --ring: 213 57% 41%; /* New Blue */
   }
 }
 
