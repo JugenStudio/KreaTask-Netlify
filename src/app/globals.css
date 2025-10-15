@@ -15,16 +15,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 213 57% 41%; /* New Blue: #2b60a4 */
+    --primary: 213 57% 48%; /* New Lighter Blue */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 213 57% 21%; /* Darker version of the new blue */
+    --secondary: 213 57% 28%; /* Lighter version of the new blue */
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 213 57% 26%; /* Accent version of the new blue */
+    --accent: 213 57% 33%; /* Lighter accent version of the new blue */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -32,7 +32,7 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 213 57% 41%; /* New Blue */
+    --ring: 213 57% 48%; /* New Lighter Blue */
 
     --radius: 1rem;
   }
@@ -48,16 +48,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 213 57% 41%;
+    --primary: 213 57% 48%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 213 57% 21%;
+    --secondary: 213 57% 28%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 213 57% 26%;
+    --accent: 213 57% 33%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -65,7 +65,7 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 213 57% 41%;
+    --ring: 213 57% 48%;
   }
 
   /* Material Design Light Theme adapted for the new blue */
@@ -79,7 +79,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 213 57% 41%; /* New Blue */
+    --primary: 213 57% 48%; /* New Lighter Blue */
     --primary-foreground: 0 0% 100%;
     
     --secondary: 220 13% 91%; 
@@ -96,7 +96,7 @@
 
     --border: 220 13% 89%;
     --input: 220 13% 91%;
-    --ring: 213 57% 41%; /* New Blue */
+    --ring: 213 57% 48%; /* New Lighter Blue */
   }
 }
 
