@@ -260,6 +260,47 @@
       "save_button": "Save & Approve"
     }
   },
+  "settings": {
+    "title": "Settings",
+    "description": "Manage your team and application settings.",
+    "appearance": {
+      "title": "Appearance",
+      "description": "Customize the look and feel of the application.",
+      "theme_label": "Theme",
+      "light": "Light",
+      "dark": "Dark",
+      "system": "System",
+      "language_label": "Language"
+    },
+    "user_management": {
+      "title": "User Management",
+      "description": "Manage user roles, permissions, and remove users from the team.",
+      "table": {
+        "user": "User",
+        "email": "Email",
+        "role": "Role",
+        "actions": "Actions",
+        "select_role": "Select a role"
+      },
+      "toast": {
+        "role_updated_title": "User Role Updated",
+        "role_updated_desc": "{{name}}'s role has been changed to {{role}}.",
+        "user_deleted_title": "User Deleted",
+        "user_deleted_desc": "{{name}} has been removed from the team."
+      },
+      "delete_dialog": {
+        "title": "Are you sure you want to delete {{name}}?",
+        "description": "This action cannot be undone. This will permanently delete the user and their associated data from the system.",
+        "cancel": "Cancel",
+        "confirm": "Delete User"
+      }
+    },
+    "about": {
+      "title": "About Application",
+      "description": "View information about this application.",
+      "link_text": "About This App"
+    }
+  },
   "signin": {
     "title": "Welcome Back!",
     "signup_button": "Sign up",
