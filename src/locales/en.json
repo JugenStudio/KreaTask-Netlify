@@ -309,7 +309,9 @@
     "password_placeholder": "Enter your password",
     "submit_button": "Sign In",
     "separator": "OR",
-    "google_button": "Sign in with Google"
+    "google_button": "Sign in with Google",
+    "google_success_title": "Google Sign-In Successful",
+    "google_success_desc": "Welcome, {{name}}!"
   },
   "signup": {
     "title": "Create a New Account",
@@ -322,7 +324,9 @@
     "submit_button": "Create Account",
     "separator": "OR",
     "google_button": "Sign up with Google",
-    "terms": "By creating an account, you agree to our Terms & Conditions."
+    "terms": "By creating an account, you agree to our Terms & Conditions.",
+    "google_success_title": "Google Sign-Up Successful",
+    "google_success_desc": "Welcome, {{name}}!"
   },
   "submit": {
     "title": "Submit a New Task",

@@ -220,7 +220,7 @@
     },
     "history_panel": {
       "title": "Riwayat Semua Tugas Selesai",
-      "description": "Lihat riwayat tugas yang telah selesai dari seluruh tim.",
+      "description": "Lihat riwayat semua tugas yang diselesaikan oleh tim.",
       "empty_title": "Tidak Ada Tugas Ditemukan",
       "empty_desc": "Tidak ada tugas selesai untuk ditampilkan saat ini.",
       "filter": {
@@ -309,7 +309,9 @@
     "password_placeholder": "Masukkan password",
     "submit_button": "Masuk",
     "separator": "ATAU",
-    "google_button": "Masuk dengan Google"
+    "google_button": "Masuk dengan Google",
+    "google_success_title": "Login Google Berhasil",
+    "google_success_desc": "Selamat datang, {{name}}!"
   },
   "signup": {
     "title": "Buat Akun Baru",
@@ -322,7 +324,9 @@
     "submit_button": "Buat Akun",
     "separator": "ATAU",
     "google_button": "Daftar dengan Google",
-    "terms": "Dengan membuat akun, Anda menyetujui Syarat & Ketentuan kami."
+    "terms": "Dengan membuat akun, Anda menyetujui Syarat & Ketentuan kami.",
+    "google_success_title": "Pendaftaran Google Berhasil",
+    "google_success_desc": "Selamat datang, {{name}}!"
   },
   "submit": {
     "title": "Kirim Tugas Baru",

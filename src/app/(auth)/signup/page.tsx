@@ -134,8 +134,8 @@ export default function SignUpPage() {
         await setDoc(userDocRef, newUser);
       }
       toast({
-        title: "Login Google Berhasil",
-        description: `Selamat datang, ${user.displayName}!`,
+        title: t('signup.google_success_title'),
+        description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
       });
       router.push('/dashboard');
     } catch (error: any) {
