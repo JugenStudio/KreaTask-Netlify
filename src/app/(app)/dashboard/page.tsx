@@ -19,6 +19,7 @@ import { isEmployee, isDirector } from "@/lib/roles";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { cn } from "@/lib/utils";
 import BlurText from "@/components/ui/blur-text";
+import { useBackPressExit } from "@/hooks/use-back-press-exit";
 
 
 export default function DashboardPage() {
@@ -26,6 +27,9 @@ export default function DashboardPage() {
   const { allTasks, users, leaderboardData, isLoading: isTaskDataLoading } = useTaskData();
   const [currentUserLeaderboard, setCurrentUserLeaderboard] = useState<LeaderboardEntry | null>(null);
   const { t } = useLanguage();
+
+  // Activate the "press back again to exit" feature
+  useBackPressExit();
 
   useEffect(() => {
     if (currentUser && leaderboardData.length > 0) {

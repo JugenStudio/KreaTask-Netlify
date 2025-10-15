@@ -10,7 +10,8 @@
     "settings": "Settings"
   },
   "common": {
-    "back_to_home": "Back to Home"
+    "back_to_home": "Back to Home",
+    "exit_prompt": "Press back again to exit"
   },
   "roles": {
     "roles_super_admin": "Admin",

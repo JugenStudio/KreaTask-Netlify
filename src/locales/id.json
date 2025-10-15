@@ -10,7 +10,8 @@
     "settings": "Pengaturan"
   },
   "common": {
-    "back_to_home": "Kembali ke Beranda"
+    "back_to_home": "Kembali ke Beranda",
+    "exit_prompt": "Tekan sekali lagi untuk keluar"
   },
   "roles": {
     "roles_super_admin": "Admin",
