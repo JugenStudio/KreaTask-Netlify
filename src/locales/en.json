@@ -288,11 +288,10 @@
     "description": "Fill out the details below to create a new task.",
     "separator": "OR",
     "ai_generator": {
-      "title": "AI Task Generator",
-      "placeholder": "What would you like to work on?",
-      "button": "Generate Task Suggestions",
-      "loading_button": "Generating...",
-      "suggestions_title": "Suggested Tasks:"
+      "title": "AI Smart Assistant",
+      "placeholder": "e.g: Create social media report for October, high priority, deadline next Friday for Sasi",
+      "button": "Create with AI",
+      "loading_button": "Thinking..."
     },
     "manual_form": {
       "title": "Create Task Manually",
@@ -326,8 +325,8 @@
     "toast": {
       "success_title": "Task Submitted",
       "success_desc": "\"{{title}}\" has been created.",
-      "suggestion_applied_title": "Suggestion Applied",
-      "suggestion_applied_desc": "Task details have been filled from the AI suggestion."
+      "suggestion_applied_title": "Form Filled by AI",
+      "suggestion_applied_desc": "Task details have been filled automatically. Please review."
     }
   },
   "all_tasks": {

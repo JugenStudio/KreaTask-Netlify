@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon, Paperclip, X, WandSparkles, Loader2, Lightbulb, Plus, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { useTaskData } from "@/hooks/use-task-data";
 import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
@@ -39,7 +39,7 @@ import { useState, useMemo, useEffect } from "react";
 import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
-import { getTaskSuggestions, getTranslations } from "@/app/actions";
+import { getTaskFromAI, getTranslations } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { useRouter } from "next/navigation";
@@ -59,11 +59,6 @@ type TaskFormValues = z.infer<typeof taskFormSchema>;
 
 interface TaskFormProps {
     currentUser: User;
-}
-
-interface Suggestion {
-    title: string;
-    description: string;
 }
 
 // Helper to convert File to Data URI
@@ -97,8 +92,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const router = useRouter();
   const { users, addTask, addNotification } = useTaskData();
   const [files, setFiles] = useState<File[]>([]);
-  const [aiGoal, setAiGoal] = useState("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [aiCommand, setAiCommand] = useState("");
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -128,7 +122,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     if (isEmployee(currentUser.role)) {
       return [currentUser];
     }
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA || currentUser.role === UserRole.ADMIN) {
       return users;
     }
     if (isDirector(currentUser.role)) {
@@ -239,8 +233,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         form.reset();
         setFiles([]);
         setSubtasks([]);
-        setSuggestions([]);
-        setAiGoal("");
+        setAiCommand("");
         router.push('/tasks');
 
     } catch (e) {
@@ -269,29 +262,44 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   
   const canAssignTasks = !isEmployee(currentUser.role);
 
-  const handleGenerateSuggestions = async () => {
-    if (!aiGoal.trim()) return;
+  const handleSmartFill = async () => {
+    if (!aiCommand.trim()) return;
     setIsGenerating(true);
     setError(null);
-    setSuggestions([]);
-    const result = await getTaskSuggestions(aiGoal);
-    if (result.error) {
-      setError(result.error);
-    } else if (result.suggestions) {
-      setSuggestions(result.suggestions);
+
+    const assignableUserNames = assignableUsers.map(u => u.name);
+    const { taskData, error } = await getTaskFromAI(aiCommand, assignableUserNames);
+
+    if (error) {
+        setError(error);
+        toast({ variant: "destructive", title: "AI Error", description: error });
+    } else if (taskData) {
+        // Apply the AI data to the form
+        if (taskData.title) form.setValue("title", taskData.title);
+        if (taskData.description) form.setValue("description", taskData.description);
+        if (taskData.category) form.setValue("category", taskData.category);
+        if (taskData.dueDate) {
+            // Ensure date is parsed correctly, even with timezone differences
+            const date = parseISO(taskData.dueDate);
+            form.setValue("dueDate", date);
+        }
+        if (taskData.assigneeName) {
+            const assignedUser = assignableUsers.find(u => u.name === taskData.assigneeName);
+            if (assignedUser) {
+                form.setValue("assignees", [assignedUser.id]);
+            }
+        }
+        if (taskData.subtasks) {
+            setSubtasks(taskData.subtasks);
+        }
+        toast({
+          title: t('submit.toast.suggestion_applied_title'),
+          description: t('submit.toast.suggestion_applied_desc'),
+        });
     }
     setIsGenerating(false);
   };
   
-  const applySuggestion = (suggestion: Suggestion) => {
-    form.setValue("title", suggestion.title);
-    form.setValue("description", suggestion.description);
-    toast({
-      title: t('submit.toast.suggestion_applied_title'),
-      description: t('submit.toast.suggestion_applied_desc'),
-    });
-  };
-
   const handleAddSubtask = () => {
     if (currentSubtask.trim() !== "") {
       setSubtasks([...subtasks, currentSubtask.trim()]);
@@ -317,12 +325,12 @@ export function TaskForm({ currentUser }: TaskFormProps) {
           <div className="space-y-3">
             <Textarea
               placeholder={t('submit.ai_generator.placeholder')}
-              value={aiGoal}
-              onChange={(e) => setAiGoal(e.target.value)}
-              className="h-20"
+              value={aiCommand}
+              onChange={(e) => setAiCommand(e.target.value)}
+              className="h-24"
               disabled={isGenerating}
             />
-            <Button onClick={handleGenerateSuggestions} disabled={isGenerating || !aiGoal.trim()}>
+            <Button onClick={handleSmartFill} disabled={isGenerating || !aiCommand.trim()}>
               {isGenerating ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -333,30 +341,6 @@ export function TaskForm({ currentUser }: TaskFormProps) {
               )}
             </Button>
             {error && <p className="text-sm text-destructive">{error}</p>}
-            {suggestions.length > 0 && (
-              <div className="space-y-3 pt-4">
-                 <h4 className="font-semibold text-md">{t('submit.ai_generator.suggestions_title')}</h4>
-                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {suggestions.map((s, i) => (
-                      <Card 
-                        key={i} 
-                        className="bg-secondary/50 hover:bg-muted cursor-pointer transition-colors card-spotlight hover:border-primary/50"
-                        onClick={() => applySuggestion(s)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-start gap-3">
-                             <Lightbulb className="h-5 w-5 mt-1 text-yellow-400" />
-                             <div>
-                                <p className="font-semibold text-sm">{s.title}</p>
-                                <p className="text-xs text-muted-foreground line-clamp-2">{s.description}</p>
-                             </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                 </div>
-              </div>
-            )}
           </div>
         </CardContent>
       </Card>
@@ -446,7 +430,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                                 mode="single"
                                 selected={field.value}
                                 onSelect={field.onChange}
-                                disabled={(date) => date < new Date() || date < new Date("1900-01-01")}
+                                disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) }
                                 initialFocus
                             />
                             </PopoverContent>

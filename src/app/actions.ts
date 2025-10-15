@@ -3,7 +3,7 @@
 
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
-import { generateTaskSuggestions } from "@/ai/flows/generate-tasks-flow";
+import { generateTaskFromPrompt } from "@/ai/flows/generate-tasks-flow";
 import { translateContent } from "@/ai/flows/translate-content-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
@@ -59,21 +59,22 @@ export async function getKreaBotResponse(
   }
 }
 
-const GenerateTasksSchema = z.object({
-  goal: z.string(),
+const GenerateTaskSchema = z.object({
+  command: z.string(),
+  assignableUsers: z.array(z.string()),
 });
 
-export async function getTaskSuggestions(goal: string) {
+export async function getTaskFromAI(command: string, assignableUsers: string[]) {
   try {
-    const validatedData = GenerateTasksSchema.parse({ goal });
-    const result = await generateTaskSuggestions(validatedData);
-    return { suggestions: result.suggestions, error: null };
+    const validatedData = GenerateTaskSchema.parse({ command, assignableUsers });
+    const result = await generateTaskFromPrompt(validatedData);
+    return { taskData: result, error: null };
   } catch (error) {
-    console.error("Generate Tasks action error:", error);
+    console.error("Generate Task from Prompt action error:", error);
     if (error instanceof z.ZodError) {
-      return { suggestions: null, error: "Invalid goal provided." };
+      return { taskData: null, error: "Invalid command provided." };
     }
-    return { suggestions: null, error: "Sorry, I couldn't generate task suggestions right now." };
+    return { taskData: null, error: "Sorry, I couldn't understand the command right now." };
   }
 }
 

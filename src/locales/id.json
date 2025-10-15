@@ -329,11 +329,10 @@
     "description": "Isi detail di bawah ini untuk membuat tugas baru.",
     "separator": "ATAU",
     "ai_generator": {
-      "title": "Generator Tugas AI",
-      "placeholder": "Apa yang ingin Anda kerjakan?",
-      "button": "Buat Saran Tugas",
-      "loading_button": "Membuat...",
-      "suggestions_title": "Saran Tugas:"
+      "title": "Asisten Cerdas AI",
+      "placeholder": "mis: Buat laporan medsos Oktober, prioritas tinggi, deadline Jumat ini untuk Sasi",
+      "button": "Buat dengan AI",
+      "loading_button": "Memproses..."
     },
     "manual_form": {
       "title": "Buat Tugas Manual",
@@ -367,8 +366,8 @@
     "toast": {
       "success_title": "Tugas Terkirim",
       "success_desc": "\"{{title}}\" telah berhasil dibuat.",
-      "suggestion_applied_title": "Saran Diterapkan",
-      "suggestion_applied_desc": "Detail tugas telah diisi dari saran AI."
+      "suggestion_applied_title": "Form Diisi oleh AI",
+      "suggestion_applied_desc": "Detail tugas telah diisi otomatis. Silakan periksa kembali."
     }
   },
   "all_tasks": {
