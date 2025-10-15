@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import Link from 'next/link';
@@ -114,6 +115,12 @@ export default function SignInPage() {
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         console.log("Google sign-in cancelled by user.");
+      } else if (error.code === 'auth/popup-blocked') {
+        toast({
+          variant: "destructive",
+          title: "Popup Diblokir",
+          description: "Browser Anda memblokir popup login. Harap izinkan popup untuk situs ini dan coba lagi.",
+        });
       } else {
           console.error("Google sign-in error:", error);
           toast({
@@ -218,3 +225,5 @@ export default function SignInPage() {
     </div>
   );
 }
+
+    

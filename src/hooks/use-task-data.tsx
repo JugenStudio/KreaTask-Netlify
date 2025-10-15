@@ -88,17 +88,16 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    // Fetch user data needed based on role
-    const { data: currentUserDoc, isLoading: isCurrentUserLoading } = useDoc<User>(
-        useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
-    );
-
-    // Directors and Admins need all users for management tasks
+    // Fetch current user's data first
+    const currentUserDocRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
+    
+    // Conditionally fetch all users only if the current user has the permission
     const shouldFetchAllUsers = useMemo(() => {
-        if (!currentUserDoc) return false;
-        return isDirector(currentUserDoc.role) || currentUserDoc.role === UserRole.ADMIN;
-    }, [currentUserDoc]);
-
+        if (!currentUserData) return false;
+        return isDirector(currentUserData.role) || currentUserData.role === UserRole.ADMIN;
+    }, [currentUserData]);
+    
     const usersCollectionRef = useMemoFirebase(() => {
         if (firestore && shouldFetchAllUsers) {
             return collection(firestore, 'users');
@@ -106,26 +105,26 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         return null;
     }, [firestore, shouldFetchAllUsers]);
 
-    const { data: allUsersFromDB, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
+    const { data: allUsersFromDB, isLoading: isAllUsersLoading } = useCollection<User>(usersCollectionRef);
 
+    // The final `users` array depends on whether all users were fetched or just the current user
     const users = useMemo(() => {
-        if (shouldFetchAllUsers) {
-            return allUsersFromDB || [];
+        if (shouldFetchAllUsers && allUsersFromDB) {
+            return allUsersFromDB;
         }
-        return currentUserDoc ? [currentUserDoc] : [];
-    }, [shouldFetchAllUsers, allUsersFromDB, currentUserDoc]);
+        if (currentUserData) {
+            return [currentUserData];
+        }
+        return [];
+    }, [shouldFetchAllUsers, allUsersFromDB, currentUserData]);
 
-
-    // Fetch all tasks for directors, or only assigned tasks for employees
     const tasksCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !currentUserDoc) return null;
-        if (isEmployee(currentUserDoc.role)) {
-            // Employees see only tasks where their ID is in the 'assignees' array field.
-            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', currentUserDoc.id));
+        if (!firestore || !currentUserData) return null;
+        if (isEmployee(currentUserData.role)) {
+            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', currentUserData.id));
         }
-        // Directors and Admins see all tasks.
         return collection(firestore, 'tasks');
-    }, [firestore, currentUserDoc]);
+    }, [firestore, currentUserData]);
 
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
     const allTasks = useMemo(() => tasksData || [], [tasksData]);
@@ -143,21 +142,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
     }, [notificationsDataFromDB]);
     
-
-    const currentUserData = useMemo<User | null>(() => {
-        if (currentUserDoc) return currentUserDoc;
-        if (user) {
-            return {
-                id: user.uid,
-                email: user.email || '',
-                name: user.displayName || 'KreaTask User',
-                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-                role: UserRole.UNASSIGNED,
-                jabatan: 'Unassigned',
-            };
-        }
-        return null;
-    }, [user, currentUserDoc]);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -239,7 +223,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         });
 
         await batch.commit();
-        // The real-time listener will automatically update the state, but we can update it locally for immediate UI feedback.
         setNotifications(prev => prev.map(n => {
             const updated = notificationsToUpdate.find(u => u.id === n.id);
             return updated || n;
@@ -278,7 +261,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     };
 
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isUsersLoading || isCurrentUserLoading,
+        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isCurrentUserLoading || isAllUsersLoading,
         allTasks,
         users,
         currentUserData,
@@ -298,7 +281,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         setAllTasks,
         setUsers,
     }), [
-        isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading, isCurrentUserLoading,
+        isUserLoading, isTasksDataLoading, isNotifsLoading, isCurrentUserLoading, isAllUsersLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
         addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory, updateNotifications
@@ -318,3 +301,5 @@ export const useTaskData = () => {
     }
     return context;
 };
+
+    
