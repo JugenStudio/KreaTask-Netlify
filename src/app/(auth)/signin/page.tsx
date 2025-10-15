@@ -13,7 +13,8 @@ import {
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithPopup,
-  fetchSignInMethodsForEmail
+  fetchSignInMethodsForEmail,
+  signInWithRedirect
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
@@ -87,32 +88,37 @@ export default function SignInPage() {
     });
 
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-      
-      const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
+      // Logic to check if user exists should happen after redirect
+      // For now, we'll just sign in. A more complex flow is needed for strict separation
+      if (process.env.NODE_ENV === 'development') {
+        await signInWithRedirect(auth, provider);
+      } else {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        
+        const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
 
-      if (methods.length === 0) {
-        if (auth.currentUser) {
-            await auth.signOut();
+        if (methods.length === 0) {
+          if (auth.currentUser) {
+              await auth.signOut();
+          }
+          toast({
+              variant: "destructive",
+              title: "Akun Tidak Ditemukan",
+              description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
+          });
+          setIsGoogleLoading(false);
+          return;
         }
+        
         toast({
-            variant: "destructive",
-            title: "Akun Tidak Ditemukan",
-            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
+          title: t('signin.google_success_title'),
+          description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
         });
-        setIsGoogleLoading(false);
-        return;
+        router.push('/dashboard');
       }
-      
-      toast({
-        title: t('signin.google_success_title'),
-        description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
-      });
-      router.push('/dashboard');
 
     } catch (error: any) {
-      // Don't show toast for user-cancelled popups
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         console.log("Google sign-in cancelled by user.");
       } else {
