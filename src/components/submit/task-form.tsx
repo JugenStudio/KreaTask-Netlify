@@ -267,10 +267,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     setError(null);
 
     const assignableUserNames = assignableUsers.map(u => u.name);
-    const { taskData, error } = await getTaskFromAI(aiCommand, assignableUserNames);
-
-    if (error) {
-        const translatedError = t(error);
+    const { taskData, error: aiError } = await getTaskFromAI(aiCommand, assignableUserNames);
+    
+    if (aiError) {
+        const translatedError = t(aiError);
         setError(translatedError);
         toast({ variant: "destructive", title: t('submit.toast.ai_error_title'), description: translatedError });
     } else if (taskData) {
@@ -531,8 +531,6 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     )}
                 </FormItem>
 
-                </div>
-                
                 <FormItem>
                 <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
                 <FormControl>
@@ -579,8 +577,13 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                         )}
                     </Button>
                 </div>
+                </div>
             </form>
             </Form>
         </CardContent>
       </Card>
     </>
+  );
+}
+
+    
