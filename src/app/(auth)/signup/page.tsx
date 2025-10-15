@@ -14,8 +14,7 @@ import {
     updateProfile, 
     GoogleAuthProvider, 
     signInWithPopup,
-    fetchSignInMethodsForEmail,
-    signInWithRedirect
+    fetchSignInMethodsForEmail 
 } from 'firebase/auth';
 import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -126,61 +125,53 @@ export default function SignUpPage() {
     });
 
     try {
-        if (process.env.NODE_ENV === 'development') {
-            await signInWithRedirect(auth, provider);
-        } else {
-            const result = await signInWithPopup(auth, provider);
-            const user = result.user;
-            const userEmail = user.email;
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const userEmail = user.email;
 
-            if (!userEmail) {
-                throw new Error("Akun Google tidak memiliki email.");
-            }
-
-            const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-            if (methods.length > 0) {
-                if (auth.currentUser) {
-                    await auth.signOut();
-                }
-                toast({
-                    variant: "destructive",
-                    title: "Akun Sudah Terdaftar",
-                    description: "Email ini sudah terdaftar. Silakan gunakan halaman Masuk.",
-                });
-                setIsGoogleLoading(false);
-                return;
-            }
-
-            const newUser: User = {
-                id: user.uid,
-                name: user.displayName || 'Google User',
-                email: user.email || '',
-                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-                role: UserRole.UNASSIGNED,
-                jabatan: 'Unassigned',
-            };
-            await setDoc(doc(firestore, 'users', user.uid), newUser);
-
-            toast({
-                title: t('signup.google_success_title'),
-                description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
-            });
-            router.push('/dashboard');
+        if (!userEmail) {
+            throw new Error("Akun Google tidak memiliki email.");
         }
+
+        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
+        if (methods.length > 0) {
+            if (auth.currentUser) {
+                await auth.signOut();
+            }
+            toast({
+                variant: "destructive",
+                title: "Akun Sudah Terdaftar",
+                description: "Email ini sudah terdaftar. Silakan gunakan halaman Masuk.",
+            });
+            setIsGoogleLoading(false);
+            return;
+        }
+
+        const newUser: User = {
+            id: user.uid,
+            name: user.displayName || 'Google User',
+            email: user.email || '',
+            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+            role: UserRole.UNASSIGNED,
+            jabatan: 'Unassigned',
+        };
+        await setDoc(doc(firestore, 'users', user.uid), newUser);
+
+        toast({
+            title: t('signup.google_success_title'),
+            description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
+        });
+        router.push('/dashboard');
 
     } catch (error: any) {
         if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
           console.log("Google sign-up cancelled by user.");
         } else {
             console.error("Google sign-up error:", error);
-            let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
-            if (error.code === 'auth/popup-blocked') {
-              errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-            }
             toast({
                 variant: "destructive",
                 title: "Pendaftaran Google Gagal",
-                description: errorMessage,
+                description: "Terjadi kesalahan saat mendaftar dengan Google.",
             });
         }
     } finally {

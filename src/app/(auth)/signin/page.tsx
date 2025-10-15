@@ -13,8 +13,7 @@ import {
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
   signInWithPopup,
-  fetchSignInMethodsForEmail,
-  signInWithRedirect
+  fetchSignInMethodsForEmail 
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
@@ -88,49 +87,39 @@ export default function SignInPage() {
     });
 
     try {
-      // Logic to check if user exists should happen after redirect
-      // For now, we'll just sign in. A more complex flow is needed for strict separation
-      if (process.env.NODE_ENV === 'development') {
-        await signInWithRedirect(auth, provider);
-      } else {
-        const result = await signInWithPopup(auth, provider);
-        const user = result.user;
-        
-        const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+      
+      const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
 
-        if (methods.length === 0) {
-          if (auth.currentUser) {
-              await auth.signOut();
-          }
-          toast({
-              variant: "destructive",
-              title: "Akun Tidak Ditemukan",
-              description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
-          });
-          setIsGoogleLoading(false);
-          return;
+      if (methods.length === 0) {
+        if (auth.currentUser) {
+            await auth.signOut();
         }
-        
         toast({
-          title: t('signin.google_success_title'),
-          description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
+            variant: "destructive",
+            title: "Akun Tidak Ditemukan",
+            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
         });
-        router.push('/dashboard');
+        setIsGoogleLoading(false);
+        return;
       }
+      
+      toast({
+        title: t('signin.google_success_title'),
+        description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
+      });
+      router.push('/dashboard');
 
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
         console.log("Google sign-in cancelled by user.");
       } else {
           console.error("Google sign-in error:", error);
-          let errorMessage = "Terjadi kesalahan saat login dengan Google.";
-          if (error.code === 'auth/popup-blocked') {
-              errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-          }
           toast({
               variant: "destructive",
               title: "Login Google Gagal",
-              description: errorMessage,
+              description: "Terjadi kesalahan saat login dengan Google.",
           });
       }
     } finally {
