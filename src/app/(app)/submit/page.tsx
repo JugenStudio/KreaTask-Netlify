@@ -25,7 +25,7 @@ export default function SubmitPage() {
           {t('common.back_to_home')}
         </Link>
       </Button>
-      <div className="mb-6">
+      <div className="mb-6 text-center md:text-left">
         <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('submit.title')}</h1>
         <p className="text-muted-foreground text-sm md:text-base">{t('submit.description')}</p>
       </div>
