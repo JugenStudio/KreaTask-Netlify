@@ -3,7 +3,6 @@
 
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
-import { generateTaskFromPrompt } from "@/ai/flows/generate-tasks-flow";
 import { translateContent } from "@/ai/flows/translate-content-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
@@ -59,25 +58,6 @@ export async function getKreaBotResponse(
   }
 }
 
-const GenerateTaskSchema = z.object({
-  command: z.string(),
-  assignableUsers: z.array(z.string()),
-});
-
-export async function getTaskFromAI(command: string, assignableUsers: string[]) {
-  try {
-    const validatedData = GenerateTaskSchema.parse({ command, assignableUsers });
-    const result = await generateTaskFromPrompt(validatedData);
-    return { taskData: result, error: null };
-  } catch (error) {
-    console.error("Generate Task from Prompt action error:", error);
-    if (error instanceof z.ZodError) {
-      return { taskData: null, error: "submit.toast.ai_error_invalid" };
-    }
-    return { taskData: null, error: "submit.toast.ai_error_generic" };
-  }
-}
-
 // Define Zod schemas for validation
 const TranslateContentInputSchema = z.object({
   text: z.string().describe('The text to be translated.'),
@@ -103,3 +83,4 @@ export async function getTranslations(text: string): Promise<{ data: TranslateCo
     }
     return { data: null, error: "Sorry, I couldn't translate the content right now." };
   }
+}
