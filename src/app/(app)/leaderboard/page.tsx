@@ -63,8 +63,8 @@ export default function LeaderboardPage() {
           {t('common.back_to_home')}
         </Link>
       </Button>
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center gap-3 text-foreground">
+      <div className="text-center md:text-left">
+        <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3 text-foreground">
           <Trophy className="h-8 w-8 md:h-10 md:w-10 text-primary" />
           {t('leaderboard.title')}
         </h1>
