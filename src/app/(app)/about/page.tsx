@@ -60,7 +60,7 @@ export default function AboutPage() {
           </div>
 
           <dl className="divide-y divide-border/50">
-            <InfoRow label={t("about.version")} value="2.0.0 (Prototipe Skripsi)" />
+            <InfoRow label={t("about.version")} value="3.0.0" />
             <InfoRow label={t("about.developer")} value="Rahmadhan Naufal Athabarani" />
             <InfoRow label={t("about.nim")} value="521198" />
             <InfoRow
