@@ -158,10 +158,10 @@ export default function SignUpPage() {
                 <div className="p-8 space-y-6">
                     <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
-                            <Link href="/auth/signup">{t('signup.signup_button')}</Link>
+                            <Link href="/signup">{t('signup.signup_button')}</Link>
                         </Button>
                         <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-                            <Link href="/auth/signin">{t('signup.signin_button')}</Link>
+                            <Link href="/signin">{t('signup.signin_button')}</Link>
                         </Button>
                     </div>
 
@@ -275,4 +275,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
