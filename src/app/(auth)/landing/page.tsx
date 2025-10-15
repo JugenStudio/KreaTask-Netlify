@@ -33,15 +33,7 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="relative w-full h-screen flex items-center justify-center overflow-hidden">
-
-      <div 
-        className="absolute inset-0 w-full h-full bg-cover bg-center z-0" 
-        style={{ backgroundImage: "url('/sounds/bg-auth.png')" }}
-      >
-          <div className="absolute inset-0 bg-black/60"></div>
-      </div>
-
+    <div className="w-full h-screen flex items-center justify-center">
       <div className="relative z-10 flex flex-col items-center text-center p-4">
         <Image
           src="/sounds/logo2.png"
@@ -53,18 +45,18 @@ export default function LandingPage() {
         <BlurText 
             text={t('landing.welcome')}
             delay={100}
-            className="text-4xl md:text-5xl font-bold font-headline text-white drop-shadow-lg"
+            className="text-4xl md:text-5xl font-bold font-headline text-foreground"
             animateBy="words"
         />
 
-        <p className="mt-4 max-w-lg md:max-w-xl text-base md:text-lg text-neutral-200 drop-shadow-md">
+        <p className="mt-4 max-w-lg md:max-w-xl text-base md:text-lg text-muted-foreground">
           {t('landing.tagline')}
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-xs">
           <Button asChild className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95 rounded-full" size="lg">
             <Link href="/signin">{t('landing.login')}</Link>
           </Button>
-          <Button asChild variant="outline" className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95 rounded-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:text-white" size="lg">
+          <Button asChild variant="outline" className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95 rounded-full" size="lg">
             <Link href="/signup">{t('landing.register')}</Link>
           </Button>
         </div>

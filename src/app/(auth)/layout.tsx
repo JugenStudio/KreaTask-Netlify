@@ -10,10 +10,10 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   return (
     <FirebaseClientProvider>
       <LanguageProvider>
-        <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 relative overflow-hidden">
+        <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 relative">
           
           <div className="absolute top-4 left-4 z-20">
-            <Button variant="ghost" size="icon" asChild className="rounded-full bg-black/20 hover:bg-black/40 text-muted-foreground hover:text-foreground">
+            <Button variant="outline" size="icon" asChild className="rounded-full">
                 <Link href="/landing">
                     <ArrowLeft className="h-5 w-5" />
                     <span className="sr-only">Kembali ke Landing Page</span>

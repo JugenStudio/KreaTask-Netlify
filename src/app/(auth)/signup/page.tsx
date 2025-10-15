@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -159,10 +158,10 @@ export default function SignUpPage() {
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-        <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
+        <div className={cn("w-full rounded-2xl bg-card/80 backdrop-blur-lg shadow-2xl border")}>
              <form onSubmit={handleSignUp}>
                 <div className="p-8 space-y-6">
-                    <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
+                    <div className="flex items-center justify-center bg-muted rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
                             <Link href="/signup">{t('signup.signup_button')}</Link>
                         </Button>
@@ -181,7 +180,7 @@ export default function SignUpPage() {
                             <Input
                             type="text"
                             placeholder={t('signup.name_placeholder')}
-                            className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                            className="pl-10 h-12 bg-background/30 placeholder:text-muted-foreground"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -194,7 +193,7 @@ export default function SignUpPage() {
                             <Input
                             type="email"
                             placeholder={t('signup.email_placeholder')}
-                            className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                            className="pl-10 h-12 bg-background/30 placeholder:text-muted-foreground"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -207,7 +206,7 @@ export default function SignUpPage() {
                             <Input
                             type={showPassword ? "text" : "password"}
                             placeholder={t('signup.password_placeholder')}
-                            className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                            className="pl-10 pr-10 h-12 bg-background/30 placeholder:text-muted-foreground"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -223,7 +222,7 @@ export default function SignUpPage() {
                             <Input
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder={t('signup.confirm_password_placeholder')}
-                            className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
+                            className="pl-10 pr-10 h-12 bg-background/30 placeholder:text-muted-foreground"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
@@ -248,7 +247,7 @@ export default function SignUpPage() {
                     
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border/50" />
+                            <span className="w-full border-t" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-card px-2 text-muted-foreground">
@@ -260,7 +259,7 @@ export default function SignUpPage() {
                     <Button
                         type="button"
                         variant="outline"
-                        className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                        className="w-full h-12"
                         onClick={handleGoogleSignIn}
                         disabled={isLoading || isGoogleLoading}
                     >
