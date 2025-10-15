@@ -8,6 +8,7 @@ const EMPLOYEE_ROLES = [
   UserRole.DESAIN_GRAFIS,
   UserRole.MARKETING,
   UserRole.FINANCE,
+  UserRole.UNASSIGNED, // Added Unassigned to the employee roles
 ];
 
 const DIRECTOR_ROLES = [
@@ -16,9 +17,8 @@ const DIRECTOR_ROLES = [
 ];
 
 export const isEmployee = (role: UserRole): boolean => {
-  if (role === UserRole.UNASSIGNED) return false;
-  // A simple member is one who is not a director.
-  return !DIRECTOR_ROLES.includes(role);
+  // Now includes UNASSIGNED
+  return EMPLOYEE_ROLES.includes(role);
 };
 
 export const isDirector = (role: UserRole): boolean => {
