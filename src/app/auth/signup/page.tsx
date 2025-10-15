@@ -257,18 +257,13 @@ export default function SignUpPage() {
                         </div>
                     </div>
                     
-                    <p className="text-center text-xs text-muted-foreground !mt-8">
-                        {t('signup.terms')}
-                    </p>
-                </div>
-            </form>
-            <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} className="p-8 pt-0">
-                <Button
-                    type="submit"
-                    variant="outline"
-                    className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
-                    disabled={isLoading || isGoogleLoading}
-                >
+                    <Button
+                        type="button"
+                        variant="outline"
+                        className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                        onClick={handleGoogleSignIn}
+                        disabled={isLoading || isGoogleLoading}
+                    >
                         {isGoogleLoading ? (
                         <Loader2 className="mr-2 h-5 w-5 animate-spin" />
                     ) : (
@@ -276,6 +271,10 @@ export default function SignUpPage() {
                     )}
                     {t('signup.google_button')}
                 </Button>
+                    <p className="text-center text-xs text-muted-foreground !mt-8">
+                        {t('signup.terms')}
+                    </p>
+                </div>
             </form>
         </div>
     </div>
