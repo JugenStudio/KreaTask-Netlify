@@ -7,7 +7,7 @@ import { TaskTable } from "@/components/dashboard/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTaskData } from "@/hooks/use-task-data";
-import { Search, List, LayoutGrid, ArrowLeft } from "lucide-react";
+import { Search, List, LayoutGrid, ArrowLeft, ListTodo } from "lucide-react";
 import type { Task, TaskStatus, User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
@@ -113,7 +113,10 @@ export default function AllTasksPage() {
         </Button>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="w-full text-center md:text-left">
-            <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
+              <ListTodo className="h-6 w-6 md:h-8 md:w-8" />
+              {t('all_tasks.title')}
+            </h1>
             <p className="text-muted-foreground text-sm md:text-base">
               {t('all_tasks.description')}
             </p>

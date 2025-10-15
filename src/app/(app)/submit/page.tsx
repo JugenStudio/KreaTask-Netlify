@@ -8,7 +8,7 @@ import type { User } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, PenSquare } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
@@ -26,7 +26,10 @@ export default function SubmitPage() {
         </Link>
       </Button>
       <div className="mb-6 text-center md:text-left">
-        <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('submit.title')}</h1>
+        <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
+          <PenSquare className="h-6 w-6 md:h-8 md:w-8" />
+          {t('submit.title')}
+        </h1>
         <p className="text-muted-foreground text-sm md:text-base">{t('submit.description')}</p>
       </div>
       

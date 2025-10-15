@@ -11,7 +11,7 @@ import { UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReportTable } from "@/components/performance-report/report-table";
-import { History, CheckCircle, Edit, ThumbsUp, FileDown, Filter, Calendar as CalendarIcon, X, ArrowLeft } from "lucide-react";
+import { History, CheckCircle, Edit, ThumbsUp, FileDown, Filter, Calendar as CalendarIcon, X, ArrowLeft, FileText } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
@@ -237,7 +237,10 @@ export default function PerformanceReportPage() {
             </Link>
           </Button>
           <div className="text-center md:text-left">
-            <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
+            <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
+                <FileText className="h-6 w-6 md:h-8 md:w-8" />
+                {t('report.director_view.title')}
+            </h1>
             <p className="text-muted-foreground text-sm md:text-base">{t('report.director_view.description')}</p>
           </div>
 
