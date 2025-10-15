@@ -62,7 +62,8 @@
     "description": "Kelola informasi pribadi dan pengaturan akun Anda.",
     "photo": {
       "title": "Foto Profil",
-      "description": "Ini adalah avatar publik Anda."
+      "description": "Ini adalah avatar publik Anda.",
+      "change_button_sr": "Ubah Foto"
     },
     "details": {
       "title": "Detail Pribadi",
@@ -71,6 +72,28 @@
       "email": "Alamat Email",
       "role": "Peran",
       "save_button": "Simpan Perubahan"
+    },
+    "security": {
+      "title": "Akun & Keamanan",
+      "description": "Ubah password Anda secara berkala untuk menjaga keamanan akun.",
+      "current_password": "Password Saat Ini",
+      "new_password": "Password Baru",
+      "confirm_password": "Konfirmasi Password Baru",
+      "change_password_button": "Ubah Password"
+    },
+    "toast": {
+      "profile_updated_title": "Profil Diperbarui",
+      "profile_updated_desc": "Informasi profil Anda telah berhasil disimpan.",
+      "profile_error_title": "Gagal Memperbarui Profil",
+      "profile_error_desc": "Terjadi kesalahan yang tidak diketahui.",
+      "password_updated_title": "Password Berhasil Diubah",
+      "password_updated_desc": "Silakan gunakan password baru Anda saat login berikutnya.",
+      "password_error_title": "Gagal Mengubah Password",
+      "password_error_desc": "Pastikan password Anda saat ini benar.",
+      "avatar_updated_title": "Foto Profil Diperbarui",
+      "avatar_updated_desc": "Foto profil Anda telah berhasil diganti.",
+      "avatar_error_title": "Gagal Mengunggah Foto",
+      "avatar_error_desc": "Terjadi kesalahan saat mengunggah."
     }
   },
   "task": {

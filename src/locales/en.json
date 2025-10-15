@@ -62,7 +62,8 @@
     "description": "Manage your personal information and account settings.",
     "photo": {
       "title": "Profile Photo",
-      "description": "This is your public avatar."
+      "description": "This is your public avatar.",
+      "change_button_sr": "Change Photo"
     },
     "details": {
       "title": "Personal Details",
@@ -71,6 +72,28 @@
       "email": "Email Address",
       "role": "Role",
       "save_button": "Save Changes"
+    },
+    "security": {
+      "title": "Account & Security",
+      "description": "Change your password periodically to keep your account secure.",
+      "current_password": "Current Password",
+      "new_password": "New Password",
+      "confirm_password": "Confirm New Password",
+      "change_password_button": "Change Password"
+    },
+    "toast": {
+      "profile_updated_title": "Profile Updated",
+      "profile_updated_desc": "Your profile information has been successfully saved.",
+      "profile_error_title": "Failed to Update Profile",
+      "profile_error_desc": "An unknown error occurred.",
+      "password_updated_title": "Password Changed Successfully",
+      "password_updated_desc": "Please use your new password for the next login.",
+      "password_error_title": "Failed to Change Password",
+      "password_error_desc": "Please make sure your current password is correct.",
+      "avatar_updated_title": "Profile Photo Updated",
+      "avatar_updated_desc": "Your profile photo has been successfully changed.",
+      "avatar_error_title": "Failed to Upload Photo",
+      "avatar_error_desc": "An error occurred during upload."
     }
   },
   "task": {
