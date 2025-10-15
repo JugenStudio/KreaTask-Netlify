@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
+import { useLanguage } from "@/providers/language-provider";
 
 export default function LandingPage() {
   const router = useRouter();
+  const { t } = useLanguage();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -66,14 +68,14 @@ export default function LandingPage() {
           variants={itemVariants}
           className="text-4xl md:text-5xl font-bold font-headline text-foreground mb-4"
         >
-          Selamat Datang di KreaTask
+          {t('landing.welcome')}
         </motion.h1>
 
         <motion.p
           variants={itemVariants}
           className="text-md md:text-lg text-muted-foreground max-w-xl mb-12"
         >
-          Platform Kolaborasi untuk Mengubah Ide menjadi Karya Nyata.
+          {t('landing.tagline')}
         </motion.p>
 
         <motion.div
@@ -84,14 +86,14 @@ export default function LandingPage() {
             onClick={() => router.push('/auth/signin')}
             className="w-full h-12 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground rounded-full"
           >
-            Masuk
+            {t('landing.login')}
           </Button>
           <Button
             onClick={() => router.push('/auth/signup')}
             variant="outline"
             className="w-full h-12 text-lg font-semibold bg-transparent border-foreground/50 hover:bg-foreground/10 hover:text-foreground rounded-full"
           >
-            Daftar
+            {t('landing.register')}
           </Button>
         </motion.div>
       </motion.main>

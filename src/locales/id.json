@@ -489,5 +489,11 @@
     "study_program_value": "TEKNIK DESAIN PRODUK INDUSTRI - SEKOLAH TINGGI TEKNIK MULTIMEDIA INTERNASIONAL MALANG",
     "year": "Tahun",
     "copyright": "Hak Cipta: © 2025 KreaTask - Dikembangkan untuk kebutuhan penelitian dan tugas akhir."
+  },
+  "landing": {
+    "welcome": "Selamat Datang di KreaTask",
+    "tagline": "Platform Kolaborasi untuk Mengubah Ide menjadi Karya Nyata.",
+    "login": "Masuk",
+    "register": "Daftar"
   }
 }

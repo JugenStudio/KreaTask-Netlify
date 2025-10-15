@@ -483,5 +483,11 @@
     "study_program_value": "INDUSTRIAL PRODUCT DESIGN ENGINEERING - INTERNATIONAL MULTIMEDIA ENGINEERING COLLEGE MALANG",
     "year": "Year",
     "copyright": "Copyright: © 2025 KreaTask - Developed for research and final project purposes."
+  },
+  "landing": {
+    "welcome": "Welcome to KreaTask",
+    "tagline": "The Collaboration Platform to Turn Ideas into Real Creations.",
+    "login": "Sign In",
+    "register": "Sign Up"
   }
 }
