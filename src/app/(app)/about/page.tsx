@@ -4,7 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLanguage } from "@/providers/language-provider";
-import { ArrowLeft, Info, Cpu, Palette, Users } from "lucide-react";
+import { ArrowLeft, Info } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Separator } from "@/components/ui/separator";
