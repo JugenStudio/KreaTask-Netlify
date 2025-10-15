@@ -1,89 +1,91 @@
-# Blueprint Aplikasi: KreaTask
+# KreaTask: Checklist Fitur & Fungsionalitas
 
-Dokumen ini menguraikan arsitektur, fitur, dan desain aplikasi web KreaTask, sebuah platform manajemen tugas dinamis yang dirancang untuk tim kreatif.
+Dokumen ini merinci fitur-fitur yang telah diimplementasikan dan berfungsi dalam aplikasi KreaTask.
 
-## 1. Visi & Tujuan Aplikasi
+---
 
-KreaTask adalah aplikasi web *real-time* yang berfungsi sebagai pusat kolaborasi untuk mengelola tugas, melacak progres, dan menganalisis kinerja tim. Aplikasi ini dirancang dengan pendekatan modern, mengintegrasikan kecerdasan buatan (AI) untuk meningkatkan produktivitas, serta menyediakan antarmuka yang bersih dan intuitif yang dapat diakses dari perangkat apa pun.
+## 1. Arsitektur & Antarmuka Pengguna (UI)
 
-## 2. Arsitektur & Teknologi
+-   **[✅] Teknologi Inti:**
+    -   Framework: **Next.js 15** dengan App Router.
+    -   Bahasa: **TypeScript**.
+    -   Styling: **Tailwind CSS** & **ShadCN/UI**.
+    -   Animasi: **Framer Motion**.
+-   **[✅] Desain Responsif:**
+    -   **Desktop:** Tampilan dengan *sidebar* navigasi di sebelah kiri.
+    -   **Mobile:** Tampilan dioptimalkan dengan *bottom navigation bar*.
+-   **[✅] Tema (Appearance):**
+    -   Pengguna dapat memilih antara tema **Terang (Light)**, **Gelap (Dark)**, atau **Sistem** melalui halaman Pengaturan.
+    -   Pilihan tema tersimpan di *local storage* untuk konsistensi.
+-   **[✅] Dukungan Multi-Bahasa:**
+    -   Pengguna dapat mengganti bahasa antara **Indonesia** dan **Inggris** melalui halaman Pengaturan.
+    -   Pilihan bahasa tersimpan di *local storage*.
+-   **[✅] Efek Visual:**
+    -   Efek "Spotlight" interaktif pada komponen kartu saat kursor digerakkan.
+    -   Animasi "Blur & Slide Up" pada halaman awal (*landing page*) untuk memberikan kesan pertama yang dinamis.
 
-Aplikasi ini dibangun di atas tumpukan teknologi modern yang berpusat pada JavaScript/TypeScript.
+## 2. Autentikasi & Manajemen Pengguna
 
--   **Frontend Framework:** **Next.js 15** dengan **App Router**. Ini memungkinkan rendering sisi server (SSR) dan komponen sisi klien yang optimal.
--   **Bahasa Pemrograman:** **TypeScript**. Memberikan keamanan tipe (*type-safety*) dan skalabilitas pada kode.
--   **Styling:**
-    -   **Tailwind CSS:** Untuk utilitas CSS yang cepat dan konsisten.
-    -   **ShadCN/UI:** Sebagai pustaka komponen UI yang dapat disesuaikan, menyediakan elemen-elemen seperti `Card`, `Button`, `Dialog`, `Select`, dll.
-    -   **Skema Warna Dinamis:** Aplikasi mendukung tema **Terang (Light)** dan **Gelap (Dark)** yang dapat diganti oleh pengguna, dengan variabel warna CSS yang terpusat di `src/app/globals.css`.
--   **Backend & Database:** **Firebase**.
-    -   **Firestore:** Digunakan sebagai database NoSQL *real-time* untuk menyimpan semua data aplikasi (pengguna, tugas, notifikasi).
-    -   **Firebase Authentication:** Mengelola identitas pengguna.
--   **Integrasi AI:** **Genkit**. *Framework* dari Google untuk membangun fitur-fitur AI, seperti ringkasan, pembuatan saran, dan chatbot.
--   **Manajemen State:** Kombinasi dari **React Hooks** (`useState`, `useEffect`, `useContext`) dan *custom hooks* (seperti `useTaskData`) untuk mengelola state lokal dan global.
--   **Animasi:**
-    -   **Framer Motion:** Digunakan untuk transisi halaman yang mulus.
-    -   **WebGL (ogl):** Digunakan untuk efek latar belakang `Aurora` yang dinamis dan efisien.
+-   **[✅] Autentikasi Pengguna (Firebase Auth):**
+    -   **Pendaftaran:** Pengguna baru dapat mendaftar menggunakan Email/Password atau akun Google.
+    -   **Login:** Pengguna yang sudah ada dapat masuk menggunakan Email/Password atau akun Google.
+    -   Setelah *login*, pengguna secara otomatis diarahkan ke halaman Dasbor.
+-   **[✅] Manajemen Sesi:**
+    -   Aplikasi secara otomatis mendeteksi sesi *login* pengguna dan menjaga mereka tetap masuk.
+    -   Pengguna dapat keluar (*logout*) dari akun mereka melalui menu di *header*.
+-   **[✅] Manajemen Profil Pengguna (`/profile`):**
+    -   Pengguna dapat melihat detail profil mereka (nama, email, peran).
+    -   Pengguna dapat mengubah nama lengkap dan alamat email.
+    -   Pengguna dapat mengganti *password* setelah melakukan re-autentikasi.
+    -   Pengguna dapat mengunggah dan mengubah foto profil (terhubung dengan Firebase Storage).
+-   **[✅] Manajemen Pengguna (Hanya Direktur & Admin di `/settings`):**
+    -   Atasan dapat melihat daftar semua pengguna dalam format tabel.
+    -   Atasan dapat mengubah peran (*role*) pengguna lain (misalnya dari "Unassigned" menjadi "Jurnalis").
+    -   Atasan dapat menghapus pengguna dari sistem.
 
-## 3. Struktur Direktori & File Kunci
+## 3. Manajemen Tugas
 
-Struktur proyek mengikuti konvensi Next.js App Router.
+-   **[✅] Pembuatan Tugas (`/submit`):**
+    -   Pengguna dapat membuat tugas baru melalui formulir manual.
+    -   Formulir mencakup: Judul, Deskripsi, Kategori, Batas Waktu, dan Penerima Tugas.
+    -   Pengguna dapat menambahkan *checklist* (sub-tugas) dan mengunggah lampiran file.
+-   **[✅] Tampilan Tugas (`/tasks`):**
+    -   **Tampilan Papan Kanban:** Tugas ditampilkan dalam kolom status (`To-do`, `In Progress`, dll.). Pengguna dapat memindahkan tugas antar kolom dengan *drag-and-drop* untuk memperbarui statusnya secara *real-time*.
+    -   **Tampilan Daftar/Tabel:** Tugas juga dapat dilihat dalam format tabel yang ringkas, dioptimalkan untuk tampilan *mobile*.
+    -   Pengguna dapat memfilter tugas berdasarkan status dan pencarian judul.
+-   **[✅] Halaman Detail Tugas (`/tasks/[id]`):**
+    -   Menampilkan semua informasi lengkap sebuah tugas.
+    -   Pengguna dapat mengubah status tugas melalui menu *dropdown*.
+    -   **Checklist Interaktif:** Pengguna dapat mencentang sub-tugas yang sudah selesai, dan *progress bar* akan diperbarui secara otomatis.
+    -   **Manajemen Lampiran:** Pengguna dapat mengunduh, menambahkan catatan, dan menghapus lampiran file.
+    -   **Kolom Komentar:** Pengguna dapat berdiskusi, membalas (`@mention`), menyematkan (*pin*), mengedit, dan menghapus komentar.
 
--   `src/app/(app)/`: Direktori utama untuk halaman-halaman aplikasi yang memerlukan autentikasi dan *layout* utama (misalnya, Dasbor, Tugas).
--   `src/app/(auth)/`: Direktori untuk halaman autentikasi (Sign-In, Sign-Up) dengan *layout* terpisah.
--   `src/components/`: Berisi semua komponen React yang dapat digunakan kembali, diorganisir berdasarkan fitur (misalnya, `dashboard`, `tasks`, `ui`).
--   `src/hooks/`: Berisi *custom hooks* React, dengan `useTaskData.ts` sebagai *hook* utama untuk interaksi data dengan Firebase.
--   `src/lib/`: Berisi logika non-UI, definisi tipe (`types.ts`), data awal (`data.ts`), dan utilitas (`utils.ts`).
--   `src/ai/`: Semua logika terkait AI berada di sini, dengan `flows` yang mendefinisikan kemampuan spesifik dari Genkit.
--   `src/firebase/`: Berisi semua konfigurasi, *provider*, dan *hooks* untuk koneksi ke Firebase, mengikuti praktik terbaik untuk keamanan dan penanganan error.
+## 4. Dasbor, Peringkat & Laporan
 
-## 4. Fitur-Fitur Utama (Detail)
+-   **[✅] Dasbor Dinamis (`/dashboard`):**
+    -   Menampilkan ringkasan statistik kinerja yang relevan berdasarkan peran pengguna.
+    -   **Karyawan:** Melihat total tugas selesai, skor, peringkat, dan tugas terlambat milik pribadi.
+    -   **Direktur:** Melihat total tugas tim yang selesai, skor rata-rata, jumlah anggota tim, dan tugas terlambat tim.
+    -   Grafik "Progres Bulanan" menampilkan data tugas yang diselesaikan secara akurat, bukan data *dummy*.
+-   **[✅] Papan Peringkat (`/leaderboard`):**
+    -   Menampilkan peringkat semua **karyawan** (bukan direksi) berdasarkan total skor.
+    -   Menghitung skor hanya dari tugas yang telah divalidasi oleh atasan.
+-   **[✅] Laporan Kinerja (`/performance-report`):**
+    -   **Panel Validasi (Untuk Direktur):** Atasan dapat meninjau tugas yang telah diselesaikan oleh karyawan, mengubah nilainya jika perlu, dan memberikan persetujuan (validasi).
+    -   **Riwayat Tugas:** Menampilkan riwayat semua tugas yang telah selesai dengan kemampuan filter berdasarkan karyawan, status validasi, dan rentang tanggal.
+    -   Data laporan dapat diekspor ke dalam format file **CSV**.
 
-### A. Autentikasi & Manajemen Pengguna
--   **Simulasi Login Berbasis Peran:** Pengguna dapat masuk dengan memilih salah satu dari tiga peran: **Karyawan**, **Direktur Operasional**, atau **Direktur Utama**.
--   **Manajemen Pengguna (Admin-Only):** Direktur dapat mengubah peran pengguna atau menghapus pengguna dari sistem melalui halaman Pengaturan.
--   **Izin Berbasis Peran (*Role-Based Permissions*):**
-    -   **Karyawan:** Hanya dapat melihat dan mengelola tugas yang ditugaskan kepadanya.
-    -   **Direktur:** Dapat melihat tugas timnya dan memvalidasi skor.
-    -   **Direktur Utama:** Memiliki akses penuh ke semua tugas, pengguna, dan pengaturan.
+## 5. Fitur Berbasis AI (Genkit)
 
-### B. Manajemen Tugas
--   **Pembuatan Tugas:**
-    1.  **Generator AI:** Pengguna mendeskripsikan tujuan, dan AI akan memberikan beberapa saran judul dan deskripsi tugas yang bisa langsung digunakan.
-    2.  **Formulir Manual:** Pengguna dapat mengisi detail tugas secara manual, termasuk judul, deskripsi, kategori, batas waktu, lampiran file, dan *checklist* sub-tugas.
--   **Tampilan Tugas:**
-    -   **Papan Kanban (`/tasks`):** Tampilan visual di mana tugas dapat diseret (*drag-and-drop*) antar kolom status (`To-do`, `In Progress`, dll.) untuk memperbarui progresnya.
-    -   **Tampilan Tabel/Daftar (`/tasks`):** Tampilan yang lebih ringkas dan informatif, cocok untuk penyortiran dan pemfilteran cepat.
--   **Detail Tugas (`/tasks/[id]`):**
-    -   Menampilkan semua informasi tugas, termasuk deskripsi, penerima tugas, batas waktu, dan lampiran.
-    -   **Checklist Interaktif:** Sub-tugas dapat ditandai sebagai selesai, dengan *progress bar* yang otomatis diperbarui.
-    -   **Manajemen Lampiran:** Pengguna dapat mengunggah file baru, mengunduh file yang ada, menambahkan catatan pada file, dan menghapusnya.
-    -   **Kolom Komentar:** Ruang diskusi dengan fitur *pin*, *reply* (`@mention`), dan kemampuan untuk mengedit/menghapus komentar sendiri.
-    -   **Ringkasan AI:** Tombol untuk meringkas seluruh utas komentar secara otomatis.
-    -   **Riwayat Revisi:** Melacak semua perubahan yang dibuat pada tugas.
+-   **[✅] Generator Saran Tugas (`/submit`):**
+    -   AI dapat menganalisis tujuan umum yang dimasukkan pengguna dan memberikan beberapa saran judul dan deskripsi tugas yang relevan.
+-   **[✅] Ringkasan Komentar AI (`/tasks/[id]`):**
+    -   Di halaman detail tugas, AI dapat meringkas seluruh utas komentar untuk menyoroti poin-poin penting dan keputusan.
+-   **[✅] Penerjemah Konten Otomatis:**
+    -   Judul dan deskripsi tugas secara otomatis diterjemahkan ke dalam Bahasa Inggris dan Indonesia saat dibuat atau diubah untuk mendukung multibahasa.
+-   **[✅] KreaBot (Asisten Chatbot):**
+    -   Chatbot dapat diakses di seluruh aplikasi.
+    -   Mampu menjawab pertanyaan kontekstual terkait data aplikasi, seperti "Siapa karyawan terbaik bulan ini?" atau "Tugas apa saja yang akan jatuh tempo?".
+    -   Menyediakan jawaban berdasarkan data *real-time* dari tugas dan pengguna.
 
-### C. Dasbor & Pelaporan
--   **Dasbor Dinamis (`/dashboard`):** Menampilkan ringkasan statistik kinerja berdasarkan peran pengguna (tugas selesai, skor, peringkat).
--   **Papan Peringkat (`/leaderboard`):** Menampilkan peringkat semua pengguna berdasarkan total skor yang diperoleh dari menyelesaikan tugas.
--   **Laporan Kinerja (`/performance-report`):**
-    -   **Panel Validasi (Untuk Direktur):** Direktur dapat meninjau, mengubah nilai, dan menyetujui skor tugas yang telah diselesaikan oleh karyawan.
-    -   **Riwayat Tugas:** Menampilkan riwayat semua tugas yang telah selesai, dengan kemampuan memfilter berdasarkan karyawan, status validasi, dan rentang tanggal.
-    -   **Ekspor ke CSV:** Semua data laporan dapat diekspor menjadi file CSV.
-
-### D. Fitur AI (ditenagai oleh Genkit)
--   **KreaBot:** *Chatbot* asisten yang dapat menjawab pertanyaan terkait data di dalam aplikasi, seperti "Siapa karyawan terbaik bulan ini?" atau "Tugas apa saja yang akan jatuh tempo?".
--   **Generator Saran Tugas:** Menganalisis tujuan proyek dan memecahnya menjadi tugas-tugas konkret.
--   **Peringkas Komentar:** Meringkas diskusi panjang pada sebuah tugas untuk menyoroti poin-poin penting.
--   **Penerjemah Konten:** Secara otomatis menerjemahkan judul dan deskripsi tugas ke dalam Bahasa Inggris dan Indonesia untuk mendukung multibahasa.
-
-## 5. Desain UI/UX
-
--   **Estetika Modern & Gelap:** Desain utama menggunakan tema gelap dengan aksen hijau neon (`#16A34A`), menciptakan nuansa teknologi yang premium. Latar belakang `Aurora` yang dinamis memberikan sentuhan visual yang halus.
--   **Tipografi:**
-    -   **Poppins:** Digunakan untuk judul (`font-headline`) untuk memberikan kesan modern dan tegas.
-    -   **Montserrat:** Digunakan untuk teks isi (`font-body`) untuk keterbacaan yang optimal.
--   **Antarmuka Responsif:** Desain dioptimalkan untuk perangkat *desktop* dan *mobile*. Di perangkat *mobile*, navigasi utama beralih ke *bottom navigation bar* untuk akses yang mudah.
--   **Pengalaman Pengguna (UX):**
-    -   **Umpan Balik Instan:** Penggunaan *skeleton loaders* saat data dimuat dan notifikasi *toast* untuk setiap aksi (misalnya, tugas dibuat, status diperbarui) memberikan umpan balik yang jelas kepada pengguna.
-    -   **Navigasi Intuitif:** Struktur navigasi yang jelas melalui *sidebar* (desktop) dan *bottom nav* (mobile).
-    -   **Pusat Notifikasi:** Semua pemberitahuan (tugas baru, penyebutan, dll.) dikumpulkan di satu tempat yang mudah diakses.
+---
