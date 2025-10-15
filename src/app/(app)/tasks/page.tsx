@@ -112,7 +112,7 @@ export default function AllTasksPage() {
           </Link>
         </Button>
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <div>
+          <div className="w-full text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('all_tasks.title')}</h1>
             <p className="text-muted-foreground text-sm md:text-base">
               {t('all_tasks.description')}
