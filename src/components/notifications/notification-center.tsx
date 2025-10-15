@@ -12,13 +12,16 @@ import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { useFirestore } from "@/firebase";
+import { writeBatch, doc, deleteDoc } from "firebase/firestore";
 
 interface NotificationCenterProps {
     currentUser: User | null;
 }
 
 export function NotificationCenter({ currentUser }: NotificationCenterProps) {
-  const { notifications, setNotifications } = useTaskData();
+  const { notifications, setNotifications, updateNotifications } = useTaskData();
+  const firestore = useFirestore();
   const [isOpen, setIsOpen] = useState(false);
   const [isSilent, setIsSilent] = useState(false);
   const router = useRouter();
@@ -52,7 +55,6 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
       document.title = "KreaTask";
     }
     
-    // Cleanup function to reset title when component unmounts or dependencies change
     return () => {
       document.title = "KreaTask";
     };
@@ -71,26 +73,35 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
 
   const toggleSilent = () => setIsSilent(!isSilent);
 
-  const markAllAsRead = () => {
-    const updatedNotifications = notifications.map((n) => 
-        n.userId === currentUser?.id ? { ...n, read: true } : n
-    );
-    setNotifications(updatedNotifications);
+  const markAllAsRead = async () => {
+    const notificationsToUpdate = userNotifications
+        .filter(n => !n.read)
+        .map(n => ({ ...n, read: true }));
+
+    if (notificationsToUpdate.length > 0) {
+        await updateNotifications(notificationsToUpdate);
+    }
   };
   
-  const clearAllNotifications = () => {
-    const updatedNotifications = notifications.filter(
-      (n) => n.userId !== currentUser?.id
-    );
-    setNotifications(updatedNotifications);
+  const clearAllNotifications = async () => {
+    if (!firestore || !currentUser) return;
+
+    const batch = writeBatch(firestore);
+    userNotifications.forEach(notif => {
+      const notifRef = doc(firestore, 'notifications', notif.id);
+      batch.delete(notifRef);
+    });
+    
+    await batch.commit();
+
+    setNotifications(prev => prev.filter(n => n.userId !== currentUser.id));
     setIsOpen(false);
   };
 
-  const handleNotificationClick = (notif: Notification) => {
-    const updatedNotifications = notifications.map((n) => 
-        n.id === notif.id ? { ...n, read: true } : n
-    );
-    setNotifications(updatedNotifications);
+  const handleNotificationClick = async (notif: Notification) => {
+    if (!notif.read) {
+        await updateNotifications([{ ...notif, read: true }]);
+    }
     setIsOpen(false);
     if (notif.link) {
         router.push(notif.link);

@@ -37,6 +37,7 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
     tasks.forEach(task => {
       if (task.status === 'Completed' && task.approvedBy) {
         task.assignees.forEach(assignee => {
+          // Check if the assignee is a valid employee (not a director)
           if (assignee && userScores[assignee.id]) {
             userScores[assignee.id].score += task.value;
             userScores[assignee.id].tasksCompleted += 1;
@@ -66,6 +67,8 @@ export interface TaskDataContextType {
     currentUserData: User | null;
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
+    setNotifications: (notifications: Notification[]) => void, // Changed for direct manipulation
+    updateNotifications: (notificationsToUpdate: Notification[]) => Promise<void>;
     downloadHistory: DownloadItem[];
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addTask: (task: Partial<Task>) => Promise<void>;
@@ -85,46 +88,51 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    // Fetch ALL users. This is OK for smaller apps, but for larger apps,
-    // this should be restricted or paginated based on roles.
-    // The security rules MUST allow this `list` operation for the logged-in user's role.
     const usersCollectionRef = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
     const { data: usersDataFromDB, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
     const users = useMemo(() => usersDataFromDB || [], [usersDataFromDB]);
     
-    // Fetch tasks where the current user is an assignee
-    // This query is secure because it's filtered by the user's UID.
+    // Fetch all tasks for directors, or only assigned tasks for employees
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
-        return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
-    }, [firestore, user]);
+        const currentUserFromList = users.find(u => u.id === user.uid);
+        if (currentUserFromList && isEmployee(currentUserFromList.role)) {
+            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
+        }
+        // For directors, fetch all tasks
+        return collection(firestore, 'tasks');
+    }, [firestore, user, users]);
+
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
     const allTasks = useMemo(() => tasksData || [], [tasksData]);
     
-    // Fetch notifications ONLY for the current user. This is secure.
     const notificationsCollectionRef = useMemoFirebase(() => {
         if (!firestore || !user) return null;
         return query(collection(firestore, 'notifications'), where("userId", "==", user.uid));
     }, [firestore, user]);
-    const { data: notificationsData, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
-    const notifications = useMemo(() => notificationsData || [], [notificationsData]);
+    const { data: notificationsDataFromDB, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
 
-    // Fetch the specific document for the currently logged-in user. This is secure.
+    useEffect(() => {
+        if (notificationsDataFromDB) {
+            setNotifications(notificationsDataFromDB);
+        }
+    }, [notificationsDataFromDB]);
+    
+
     const { data: currentUserDoc, isLoading: isCurrentUserLoading } = useDoc<User>(
         useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
     );
     
-    // Construct the full User object for the current user.
     const currentUserData = useMemo<User | null>(() => {
         if (currentUserDoc) return currentUserDoc;
-        // Fallback while the doc is loading, using data from the auth object
         if (user) {
             return {
                 id: user.uid,
                 email: user.email || '',
                 name: user.displayName || 'KreaTask User',
                 avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-                role: UserRole.UNASSIGNED, // Default role
+                role: UserRole.UNASSIGNED,
                 jabatan: 'Unassigned',
             };
         }
@@ -201,6 +209,23 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         await setDoc(notifRef, newNotif);
     }, [firestore]);
     
+    const updateNotifications = useCallback(async (notificationsToUpdate: Notification[]) => {
+        if (!firestore) return;
+        const batch = writeBatch(firestore);
+
+        notificationsToUpdate.forEach(notif => {
+            const notifRef = doc(firestore, 'notifications', notif.id);
+            batch.update(notifRef, { read: notif.read });
+        });
+
+        await batch.commit();
+        // The real-time listener will automatically update the state, but we can update it locally for immediate UI feedback.
+        setNotifications(prev => prev.map(n => {
+            const updated = notificationsToUpdate.find(u => u.id === n.id);
+            return updated || n;
+        }));
+    }, [firestore]);
+
     const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
         id: Date.now(),
@@ -239,6 +264,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         currentUserData,
         leaderboardData,
         notifications,
+        setNotifications,
+        updateNotifications,
         downloadHistory,
         setDownloadHistory,
         addTask,
@@ -254,7 +281,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         isUserLoading, isTasksDataLoading, isNotifsLoading, isUsersLoading, isCurrentUserLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
-        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory
+        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory, updateNotifications
     ]);
 
     return (
