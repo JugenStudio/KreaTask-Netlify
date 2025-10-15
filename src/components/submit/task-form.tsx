@@ -261,7 +261,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   
   const canAssignTasks = !isEmployee(currentUser.role);
 
-  const handleSmartFill = async () => {
+  async function handleSmartFill() {
     if (!aiCommand.trim()) return;
     setIsGenerating(true);
     setError(null);
@@ -589,5 +589,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-
-    
