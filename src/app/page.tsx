@@ -32,6 +32,18 @@ export default function LandingPage() {
     },
   };
 
+  const buttonVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: {
+        duration: 0.6,
+        ease: "easeOut",
+      },
+    },
+  };
+
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-background overflow-hidden">
       <motion.main
@@ -65,7 +77,7 @@ export default function LandingPage() {
         </motion.p>
 
         <motion.div
-          variants={itemVariants}
+          variants={buttonVariants}
           className="flex flex-col sm:flex-row gap-4 w-full max-w-xs"
         >
           <Button
