@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signInWithRedirect } from 'firebase/auth';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -78,28 +78,35 @@ export default function SignInPage() {
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+        const handleUserSession = async (user: any) => {
+            const userDocRef = doc(firestore, 'users', user.uid);
+            const userDoc = await getDoc(userDocRef);
 
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+            if (!userDoc.exists()) {
+                const newUser: User = {
+                id: user.uid,
+                name: user.displayName || 'Google User',
+                email: user.email || '',
+                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+                role: UserRole.UNASSIGNED,
+                jabatan: 'Unassigned',
+                };
+                await setDoc(userDocRef, newUser);
+            }
+            toast({
+                title: t('signin.google_success_title'),
+                description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
+            });
+            router.push('/dashboard');
+        }
 
-      if (!userDoc.exists()) {
-        const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
-        };
-        await setDoc(userDocRef, newUser);
-      }
-      toast({
-        title: t('signin.google_success_title'),
-        description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
-      });
-      router.push('/dashboard');
+        if (process.env.NODE_ENV === "development") {
+            await signInWithRedirect(auth, provider);
+        } else {
+            const result = await signInWithPopup(auth, provider);
+            await handleUserSession(result.user);
+        }
+
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       let errorMessage = "Terjadi kesalahan saat login dengan Google.";
