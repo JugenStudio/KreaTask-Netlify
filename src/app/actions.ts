@@ -4,6 +4,7 @@
 import { summarizeTaskComments } from "@/ai/flows/summarize-task-comments";
 import { askKreaBot } from "@/ai/flows/kreatask-bot-flow";
 import { translateContent } from "@/ai/flows/translate-content-flow";
+import { getTaskSuggestion } from "@/ai/flows/generate-tasks-flow";
 import { z } from "zod";
 import type { Task, User } from "@/lib/types";
 
@@ -82,5 +83,23 @@ export async function getTranslations(text: string): Promise<{ data: TranslateCo
       return { data: null, error: "Invalid text provided for translation." };
     }
     return { data: null, error: "Sorry, I couldn't translate the content right now." };
+  }
+}
+
+// Re-added for AI Task Suggestion
+export async function getTaskFromAI(idea: string, users: User[]) {
+  if (!idea.trim()) {
+    return { suggestion: null, error: "Please provide an idea." };
+  }
+  try {
+    const result = await getTaskSuggestion({
+      idea,
+      users,
+    });
+    return { suggestion: result, error: null };
+  } catch (e: any) {
+    console.error("Error getting task from AI:", e);
+    // Return a generic error key to be translated on the client
+    return { suggestion: null, error: "submit.toast.ai_error_generic" };
   }
 }

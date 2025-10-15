@@ -38,7 +38,7 @@ import { useState, useMemo, useEffect } from "react";
 import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
-import { getTranslations } from "@/app/actions";
+import { getTranslations, getTaskFromAI } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { useRouter } from "next/navigation";
@@ -95,6 +95,11 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   const [error, setError] = useState<string | null>(null);
   const { t, locale } = useLanguage();
 
+  // State for AI suggestion
+  const [aiIdea, setAiIdea] = useState("");
+  const [isSuggesting, setIsSuggesting] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
   const [subtasks, setSubtasks] = useState<string[]>([]);
   const [currentSubtask, setCurrentSubtask] = useState("");
 
@@ -127,6 +132,39 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     }
     return [];
   }, [currentUser, users]);
+
+  async function handleSmartFill() {
+    if (!aiIdea) return;
+    setIsSuggesting(true);
+    setAiError(null);
+
+    const { suggestion, error: aiErrorKey } = await getTaskFromAI(aiIdea, users);
+
+    if (aiErrorKey) {
+      const translatedError = t(aiErrorKey);
+      setAiError(translatedError);
+      toast({
+        variant: "destructive",
+        title: t("submit.toast.ai_error_title", { defaultValue: "AI Assistant Error" }),
+        description: translatedError,
+      });
+    } else if (suggestion) {
+      form.setValue("title", suggestion.title);
+      form.setValue("description", suggestion.description);
+      form.setValue("category", suggestion.category as TaskCategory);
+      if (suggestion.dueDate) {
+        form.setValue("dueDate", parseISO(suggestion.dueDate));
+      }
+      if (suggestion.assigneeId && canAssignTasks) {
+        form.setValue("assignees", [suggestion.assigneeId]);
+      }
+      toast({
+        title: t('submit.toast.suggestion_applied_title'),
+        description: t('submit.toast.suggestion_applied_desc'),
+      });
+    }
+    setIsSuggesting(false);
+  }
 
   async function onSubmit(values: TaskFormValues) {
     setIsSubmitting(true);
@@ -271,237 +309,279 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <Card className="card-spotlight hover:border-primary/50 transition-colors">
-          <CardHeader>
-              <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
-          </CardHeader>
-          <CardContent>
-              <div className="space-y-6 md:space-y-8">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                  <FormField
-                  control={form.control}
-                  name="title"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>{t('submit.manual_form.task_title_label')}</FormLabel>
-                      <FormControl>
-                          <Input placeholder={t('submit.manual_form.task_title_placeholder')} {...field} disabled={isSubmitting} />
-                      </FormControl>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                  <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>{t('submit.manual_form.category_label')}</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value} disabled={isSubmitting}>
-                          <FormControl>
-                          <SelectTrigger>
-                              <SelectValue placeholder={t('submit.manual_form.category_placeholder')} />
-                          </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                          {Object.values(TaskCategory).map((category) => (
-                              <SelectItem key={category} value={category}>
-                              {t(`submit.manual_form.categories.${category.toLowerCase()}`)}
-                              </SelectItem>
-                          ))}
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-              </div>
-
-              <div className={cn("grid grid-cols-1 gap-6 md:gap-8", canAssignTasks && "md:grid-cols-2")}>
-                  <FormField
-                  control={form.control}
-                  name="dueDate"
-                  render={({ field }) => (
-                      <FormItem className="flex flex-col">
-                      <FormLabel>{t('submit.manual_form.due_date_label')}</FormLabel>
-                      <Popover>
-                          <PopoverTrigger asChild>
-                          <FormControl>
-                              <Button
-                              variant={"outline"}
-                              className={cn(
-                                  "w-full h-10 justify-start text-left font-normal",
-                                  !field.value && "text-muted-foreground"
-                              )}
-                              disabled={isSubmitting}
-                              >
-                              <CalendarIcon className="mr-2 h-4 w-4" />
-                              {field.value ? (
-                                  format(field.value, "PPP")
-                              ) : (
-                                  <span>{t('submit.manual_form.due_date_placeholder')}</span>
-                              )}
-                              </Button>
-                          </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                              mode="single"
-                              selected={field.value}
-                              onSelect={field.onChange}
-                              disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) }
-                              initialFocus
-                          />
-                          </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-                  {canAssignTasks && (
-                  <FormField
-                      control={form.control}
-                      name="assignees"
-                      render={({ field }) => (
-                      <FormItem>
-                          <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
-                          <Select onValueChange={(value) => field.onChange([value])} defaultValue={field.value?.[0]} disabled={isSubmitting}>
-                          <FormControl>
-                              <SelectTrigger>
-                              <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
-                              </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              {assignableUsers.map(user => (
-                              <SelectItem key={user.id} value={user.id}>
-                                  <div className="flex items-center gap-2">
-                                      <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
-                                      <span>{user.name} ({t(`roles.${user.role}` as any)})</span>
-                                  </div>
-                              </SelectItem>
-                              ))}
-                          </SelectContent>
-                          </Select>
-                          <FormMessage />
-                      </FormItem>
-                      )}
-                  />
-                  )}
-              </div>
-              
-              <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                  <FormItem>
-                      <FormLabel>{t('submit.manual_form.description_label')}</FormLabel>
-                      <FormControl>
-                      <Textarea
-                          placeholder={t('submit.manual_form.description_placeholder')}
-                          className="resize-none h-24"
-                          {...field}
-                          disabled={isSubmitting}
-                      />
-                      </FormControl>
-                      <FormMessage />
-                  </FormItem>
-                  )}
-              />
-               
-              <FormItem>
-                  <FormLabel>{t('submit.manual_form.checklist_label')}</FormLabel>
-                  <div className="flex gap-2">
-                      <FormControl>
-                          <Input 
-                              placeholder={t('submit.manual_form.checklist_placeholder')}
-                              value={currentSubtask}
-                              onChange={(e) => setCurrentSubtask(e.target.value)}
-                              onKeyDown={(e) => {
-                                  if (e.key === 'Enter') {
-                                      e.preventDefault();
-                                      handleAddSubtask();
-                                  }
-                              }}
-                              disabled={isSubmitting}
-                          />
-                      </FormControl>
-                      <Button type="button" onClick={handleAddSubtask} disabled={isSubmitting || !currentSubtask.trim()} className="transition-all active:scale-95">
-                          <Plus className="h-4 w-4 mr-2" /> {t('submit.manual_form.checklist_add_button')}
-                      </Button>
-                  </div>
-                   {subtasks.length > 0 && (
-                      <div className="space-y-2 pt-2">
-                          {subtasks.map((task, index) => (
-                              <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-secondary/50">
-                                  <span className="text-sm text-secondary-foreground">{task}</span>
-                                  <Button 
-                                      type="button" 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      onClick={() => handleRemoveSubtask(index)} 
-                                      className="h-6 w-6 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all active:scale-95"
-                                      disabled={isSubmitting}
-                                  >
-                                      <Trash2 className="h-4 w-4" />
-                                  </Button>
-                              </div>
-                          ))}
-                      </div>
-                  )}
-              </FormItem>
-
-              <FormItem>
-              <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
-              <FormControl>
-                  <div className="flex items-center justify-center w-full">
-                  <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary/50", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
-                      <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                          <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
-                          <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
-                          <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
-                      </div>
-                      <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} disabled={isSubmitting} />
-                  </label>
-                  </div>
-              </FormControl>
-              {files.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
-                  {files.map(file => (
-                      <Card key={file.name} className="relative group rounded-xl overflow-hidden card-spotlight hover:border-primary/50 transition-colors">
-                      <Image src={URL.createObjectURL(file)} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>
-                          <X className="h-4 w-4" />
-                          </Button>
-                      </div>
-                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
-                         <p className="text-xs text-white truncate">{file.name}</p>
-                      </div>
-                      </Card>
-                  ))}
-                  </div>
+    <>
+      <Card className="mb-6 card-spotlight hover:border-primary/50 transition-colors">
+        <CardHeader>
+          <CardTitle className="font-headline text-xl md:text-2xl flex items-center gap-2">
+            <WandSparkles className="h-6 w-6 text-primary" />
+            {t("submit.ai_generator.title")}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <Textarea
+              placeholder={t('submit.ai_generator.placeholder')}
+              value={aiIdea}
+              onChange={(e) => setAiIdea(e.target.value)}
+              className="resize-none h-20"
+              disabled={isSuggesting}
+            />
+            {aiError && (
+              <p className="text-sm text-destructive">{aiError}</p>
+            )}
+            <Button onClick={handleSmartFill} disabled={!aiIdea.trim() || isSuggesting} className="w-full transition-all active:scale-95">
+              {isSuggesting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("submit.ai_generator.loading_button")}
+                </>
+              ) : (
+                t("submit.ai_generator.button")
               )}
-              </FormItem>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-              <div className="flex justify-end gap-2">
-                  <Button type="button" variant="ghost" onClick={() => form.reset()} className="transition-all active:scale-95" disabled={isSubmitting}>{t('submit.manual_form.cancel_button')}</Button>
-                  <Button type="submit" className="transition-all active:scale-95" disabled={isSubmitting}>
-                      {isSubmitting ? (
-                          <>
-                              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                              {t('submit.manual_form.submit_button_loading', { defaultValue: 'Creating...' })}
-                          </>
-                      ) : (
-                         t('submit.manual_form.submit_button')
-                      )}
-                  </Button>
-              </div>
-              </div>
-          </CardContent>
-        </Card>
-      </form>
-    </Form>
+      <div className="relative flex items-center justify-center my-6">
+        <Separator className="w-full" />
+        <span className="absolute px-4 bg-background text-muted-foreground text-sm font-medium">
+          {t("submit.separator")}
+        </span>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card className="card-spotlight hover:border-primary/50 transition-colors">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-6 md:space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+                    <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('submit.manual_form.task_title_label')}</FormLabel>
+                        <FormControl>
+                            <Input placeholder={t('submit.manual_form.task_title_placeholder')} {...field} disabled={isSubmitting} />
+                        </FormControl>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>{t('submit.manual_form.category_label')}</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder={t('submit.manual_form.category_placeholder')} />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                            {Object.values(TaskCategory).map((category) => (
+                                <SelectItem key={category} value={category}>
+                                {t(`submit.manual_form.categories.${category.toLowerCase()}`)}
+                                </SelectItem>
+                            ))}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                </div>
+
+                <div className={cn("grid grid-cols-1 gap-6 md:gap-8", canAssignTasks && "md:grid-cols-2")}>
+                    <FormField
+                    control={form.control}
+                    name="dueDate"
+                    render={({ field }) => (
+                        <FormItem className="flex flex-col">
+                        <FormLabel>{t('submit.manual_form.due_date_label')}</FormLabel>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                            <FormControl>
+                                <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "w-full h-10 justify-start text-left font-normal",
+                                    !field.value && "text-muted-foreground"
+                                )}
+                                disabled={isSubmitting}
+                                >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {field.value ? (
+                                    format(field.value, "PPP")
+                                ) : (
+                                    <span>{t('submit.manual_form.due_date_placeholder')}</span>
+                                )}
+                                </Button>
+                            </FormControl>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0" align="start">
+                            <Calendar
+                                mode="single"
+                                selected={field.value}
+                                onSelect={field.onChange}
+                                disabled={(date) => date < new Date(new Date().setHours(0,0,0,0)) }
+                                initialFocus
+                            />
+                            </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                    {canAssignTasks && (
+                    <FormField
+                        control={form.control}
+                        name="assignees"
+                        render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>{t('submit.manual_form.assign_to_label')}</FormLabel>
+                            <Select onValueChange={(value) => field.onChange([value])} value={field.value?.[0]} disabled={isSubmitting}>
+                            <FormControl>
+                                <SelectTrigger>
+                                <SelectValue placeholder={t('submit.manual_form.assign_to_placeholder')} />
+                                </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {assignableUsers.map(user => (
+                                <SelectItem key={user.id} value={user.id}>
+                                    <div className="flex items-center gap-2">
+                                        <Image src={user.avatarUrl} alt={user.name} width={20} height={20} className="rounded-full" />
+                                        <span>{user.name} ({t(`roles.${user.role}` as any)})</span>
+                                    </div>
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                            <FormMessage />
+                        </FormItem>
+                        )}
+                    />
+                    )}
+                </div>
+                
+                <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>{t('submit.manual_form.description_label')}</FormLabel>
+                        <FormControl>
+                        <Textarea
+                            placeholder={t('submit.manual_form.description_placeholder')}
+                            className="resize-none h-24"
+                            {...field}
+                            disabled={isSubmitting}
+                        />
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                    )}
+                />
+                 
+                <FormItem>
+                    <FormLabel>{t('submit.manual_form.checklist_label')}</FormLabel>
+                    <div className="flex gap-2">
+                        <FormControl>
+                            <Input 
+                                placeholder={t('submit.manual_form.checklist_placeholder')}
+                                value={currentSubtask}
+                                onChange={(e) => setCurrentSubtask(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        e.preventDefault();
+                                        handleAddSubtask();
+                                    }
+                                }}
+                                disabled={isSubmitting}
+                            />
+                        </FormControl>
+                        <Button type="button" onClick={handleAddSubtask} disabled={isSubmitting || !currentSubtask.trim()} className="transition-all active:scale-95">
+                            <Plus className="h-4 w-4 mr-2" /> {t('submit.manual_form.checklist_add_button')}
+                        </Button>
+                    </div>
+                     {subtasks.length > 0 && (
+                        <div className="space-y-2 pt-2">
+                            {subtasks.map((task, index) => (
+                                <div key={index} className="flex items-center justify-between gap-2 p-2 rounded-md bg-secondary/50">
+                                    <span className="text-sm text-secondary-foreground">{task}</span>
+                                    <Button 
+                                        type="button" 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={() => handleRemoveSubtask(index)} 
+                                        className="h-6 w-6 text-muted-foreground hover:bg-destructive/20 hover:text-destructive transition-all active:scale-95"
+                                        disabled={isSubmitting}
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </FormItem>
+
+                <FormItem>
+                <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
+                <FormControl>
+                    <div className="flex items-center justify-center w-full">
+                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary/50", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
+                            <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
+                            <p className="text-xs text-muted-foreground">{t('submit.manual_form.attachments_desc')}</p>
+                        </div>
+                        <input id="dropzone-file" type="file" className="hidden" multiple onChange={handleFileChange} disabled={isSubmitting} />
+                    </label>
+                    </div>
+                </FormControl>
+                {files.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
+                    {files.map(file => (
+                        <Card key={file.name} className="relative group rounded-xl overflow-hidden card-spotlight hover:border-primary/50 transition-colors">
+                        <Image src={URL.createObjectURL(file)} alt={file.name} width={200} height={150} className="object-cover w-full h-full aspect-[4/3]" />
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <Button variant="destructive" size="icon" onClick={() => removeFile(file.name)} className="transition-all active:scale-95" disabled={isSubmitting}>
+                            <X className="h-4 w-4" />
+                            </Button>
+                        </div>
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-2">
+                           <p className="text-xs text-white truncate">{file.name}</p>
+                        </div>
+                        </Card>
+                    ))}
+                    </div>
+                )}
+                </FormItem>
+
+                <div className="flex justify-end gap-2">
+                    <Button type="button" variant="ghost" onClick={() => form.reset()} className="transition-all active:scale-95" disabled={isSubmitting}>{t('submit.manual_form.cancel_button')}</Button>
+                    <Button type="submit" className="transition-all active:scale-95" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                {t('submit.manual_form.submit_button_loading', { defaultValue: 'Creating...' })}
+                            </>
+                        ) : (
+                           t('submit.manual_form.submit_button')
+                        )}
+                    </Button>
+                </div>
+                </div>
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
+    </>
   );
 }

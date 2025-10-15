@@ -367,7 +367,9 @@
       "success_title": "Tugas Terkirim",
       "success_desc": "\"{{title}}\" telah berhasil dibuat.",
       "suggestion_applied_title": "Form Diisi oleh AI",
-      "suggestion_applied_desc": "Detail tugas telah diisi otomatis. Silakan periksa kembali."
+      "suggestion_applied_desc": "Detail tugas telah diisi otomatis. Silakan periksa kembali.",
+      "ai_error_title": "Galat Asisten AI",
+      "ai_error_generic": "Maaf, saya tidak dapat memahami perintah saat ini."
     }
   },
   "all_tasks": {

@@ -289,7 +289,7 @@
     "separator": "OR",
     "ai_generator": {
       "title": "AI Smart Assistant",
-      "placeholder": "e.g: Create social media report for October, high priority, deadline next Friday for Sasi",
+      "placeholder": "e.g., Create a social media report for October, high priority, deadline next Friday for Sasi",
       "button": "Create with AI",
       "loading_button": "Thinking..."
     },
@@ -326,7 +326,9 @@
       "success_title": "Task Submitted",
       "success_desc": "\"{{title}}\" has been created.",
       "suggestion_applied_title": "Form Filled by AI",
-      "suggestion_applied_desc": "Task details have been filled automatically. Please review."
+      "suggestion_applied_desc": "Task details have been filled automatically. Please review.",
+      "ai_error_title": "AI Assistant Error",
+      "ai_error_generic": "Sorry, I couldn't understand the command right now."
     }
   },
   "all_tasks": {
