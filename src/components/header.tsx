@@ -31,6 +31,8 @@ import { useCurrentUser } from "@/app/(app)/layout";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/firebase";
+import { signOut } from "firebase/auth";
 
 export function Header() {
   const { currentUser } = useCurrentUser();
@@ -38,6 +40,7 @@ export function Header() {
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
+  const auth = useAuth();
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,6 +48,15 @@ export function Header() {
       router.push(`/tasks?q=${encodeURIComponent(searchTerm.trim())}`);
     } else {
       router.push('/tasks');
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/'); // Redirect to landing page
+    } catch (error) {
+      console.error("Error signing out: ", error);
     }
   };
 
@@ -149,11 +161,9 @@ export function Header() {
             
             <DropdownMenuSeparator />
 
-            <DropdownMenuItem asChild>
-              <Link href="/signin">
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>{t("header.logout")}</span>
-              </Link>
+            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+              <LogOut className="mr-2 h-4 w-4" />
+              <span>{t("header.logout")}</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
