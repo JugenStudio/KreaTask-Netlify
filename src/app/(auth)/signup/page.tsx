@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
+import { useLanguage } from '@/providers/language-provider';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -32,6 +33,7 @@ export default function SignUpPage() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { t } = useLanguage();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -138,10 +140,16 @@ export default function SignUpPage() {
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Google sign-in error:", error);
+      let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
+      if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
+      }
       toast({
         variant: "destructive",
-        title: "Login Google Gagal",
-        description: error.message || "Terjadi kesalahan yang tidak diketahui.",
+        title: "Pendaftaran Google Gagal",
+        description: errorMessage,
       });
     } finally {
       setIsGoogleLoading(false);
@@ -156,15 +164,15 @@ export default function SignUpPage() {
                 <div className="p-8 space-y-6">
                     <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
-                            <Link href="/auth/signup">Sign up</Link>
+                            <Link href="/signup">{t('signup.signup_button')}</Link>
                         </Button>
                         <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
-                            <Link href="/auth/signin">Sign in</Link>
+                            <Link href="/signin">{t('signup.signin_button')}</Link>
                         </Button>
                     </div>
 
                     <div className="text-center space-y-2">
-                        <h1 className="text-2xl font-bold font-headline">Buat Akun Baru</h1>
+                        <h1 className="text-xl font-bold font-headline">{t('signup.title')}</h1>
                     </div>
 
                     <div className="space-y-4">
@@ -172,7 +180,7 @@ export default function SignUpPage() {
                             <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                             <Input
                             type="text"
-                            placeholder="Nama Lengkap"
+                            placeholder={t('signup.name_placeholder')}
                             className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
@@ -185,7 +193,7 @@ export default function SignUpPage() {
                             <Mail className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                             <Input
                             type="email"
-                            placeholder="Email"
+                            placeholder={t('signup.email_placeholder')}
                             className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -198,7 +206,7 @@ export default function SignUpPage() {
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                             <Input
                             type={showPassword ? "text" : "password"}
-                            placeholder="Password"
+                            placeholder={t('signup.password_placeholder')}
                             className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -214,7 +222,7 @@ export default function SignUpPage() {
                             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5" />
                             <Input
                             type={showConfirmPassword ? "text" : "password"}
-                            placeholder="Konfirmasi Password"
+                            placeholder={t('signup.confirm_password_placeholder')}
                             className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -234,7 +242,7 @@ export default function SignUpPage() {
                             className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
                             disabled={isLoading || isGoogleLoading}
                         >
-                            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : 'Buat Akun'}
+                            {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('signup.submit_button')}
                         </Button>
                     </div>
                     
@@ -244,11 +252,11 @@ export default function SignUpPage() {
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-card px-2 text-muted-foreground">
-                            ATAU
+                            {t('signup.separator')}
                             </span>
                         </div>
                     </div>
-
+                    
                     <Button
                         type="button"
                         variant="outline"
@@ -256,16 +264,15 @@ export default function SignUpPage() {
                         onClick={handleGoogleSignIn}
                         disabled={isLoading || isGoogleLoading}
                     >
-                         {isGoogleLoading ? (
-                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                        ) : (
-                            <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
-                        )}
-                        Login Menggunakan Google
-                    </Button>
-
+                        {isGoogleLoading ? (
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                        <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
+                    )}
+                    {t('signup.google_button')}
+                </Button>
                     <p className="text-center text-xs text-muted-foreground !mt-8">
-                        Dengan membuat akun, Anda menyetujui Syarat & Ketentuan kami.
+                        {t('signup.terms')}
                     </p>
                 </div>
             </form>
