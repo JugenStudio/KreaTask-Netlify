@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           
           <div className="absolute top-4 left-4 z-20">
             <Button variant="ghost" size="icon" asChild className="rounded-full bg-black/20 hover:bg-black/40 text-muted-foreground hover:text-foreground">
-                <Link href="/">
+                <Link href="/landing">
                     <ArrowLeft className="h-5 w-5" />
                     <span className="sr-only">Kembali ke Landing Page</span>
                 </Link>

@@ -3,7 +3,8 @@ import {googleAI} from '@genkit-ai/google-genai';
 
 export const ai = genkit({
   plugins: [googleAI({
-    apiKey: process.env.GEMINI_API_KEY
+    // API key is now loaded from process.env implicitly by the plugin
+    // on the server side, making it more secure.
   })],
   model: 'googleai/gemini-2.5-flash',
 });
