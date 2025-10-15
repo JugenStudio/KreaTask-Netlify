@@ -137,16 +137,16 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     if (!aiIdea) return;
     setIsSuggesting(true);
     setAiError(null);
-
+  
     const { suggestion, error: aiErrorKey } = await getTaskFromAI(aiIdea, users);
-
+  
     if (aiErrorKey) {
-      const translatedError = t(aiErrorKey);
+      const translatedError = t(aiErrorKey); // Translate the error key
       setAiError(translatedError);
       toast({
         variant: "destructive",
-        title: t("submit.toast.ai_error_title", { defaultValue: "AI Assistant Error" }),
-        description: translatedError,
+        title: t("submit.toast.ai_error_title"),
+        description: translatedError, // Use the translated error message
       });
     } else if (suggestion) {
       form.setValue("title", suggestion.title);
@@ -535,7 +535,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                 <FormLabel>{t('submit.manual_form.attachments_label')}</FormLabel>
                 <FormControl>
                     <div className="flex items-center justify-center w-full">
-                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary/50", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-muted")}>
+                    <label htmlFor="dropzone-file" className={cn("flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg bg-secondary/50", isSubmitting ? "cursor-not-allowed bg-muted" : "cursor-pointer hover:bg-secondary/80")}>
                         <div className="flex flex-col items-center justify-center pt-5 pb-6">
                             <Paperclip className="w-6 h-6 md:w-8 md:h-8 mb-3 text-muted-foreground" />
                             <p className="mb-2 text-xs md:text-sm text-muted-foreground"><span className="font-semibold">{t('submit.manual_form.attachments_cta')}</span> {t('submit.manual_form.attachments_dnd')}</p>
