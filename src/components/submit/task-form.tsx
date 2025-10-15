@@ -267,12 +267,16 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     setError(null);
 
     const assignableUserNames = assignableUsers.map(u => u.name);
-    const { taskData, error: aiError } = await getTaskFromAI(aiCommand, assignableUserNames);
+    const { taskData, error: aiErrorKey } = await getTaskFromAI(aiCommand, assignableUserNames);
     
-    if (aiError) {
-        const translatedError = t(aiError);
+    if (aiErrorKey) {
+        const translatedError = t(aiErrorKey as any);
         setError(translatedError);
-        toast({ variant: "destructive", title: t('submit.toast.ai_error_title'), description: translatedError });
+        toast({ 
+            variant: "destructive", 
+            title: t('submit.toast.ai_error_title' as any), 
+            description: translatedError 
+        });
     } else if (taskData) {
         // Apply the AI data to the form
         if (taskData.title) form.setValue("title", taskData.title);
@@ -350,13 +354,13 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         <span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-background px-2 text-sm text-muted-foreground">{t('submit.separator')}</span>
       </div>
 
-      <Card className="card-spotlight hover:border-primary/50 transition-colors">
-        <CardHeader>
-            <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-            <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 md:space-y-8">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <Card className="card-spotlight hover:border-primary/50 transition-colors">
+            <CardHeader>
+                <CardTitle className="font-headline text-xl md:text-2xl">{t('submit.manual_form.title')}</CardTitle>
+            </CardHeader>
+            <CardContent>
                 <div className="space-y-6 md:space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                     <FormField
@@ -578,12 +582,10 @@ export function TaskForm({ currentUser }: TaskFormProps) {
                     </Button>
                 </div>
                 </div>
-            </form>
-            </Form>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </form>
+      </Form>
     </>
   );
 }
-
-    
