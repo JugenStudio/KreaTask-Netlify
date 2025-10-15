@@ -151,7 +151,7 @@
     "ai_summary_title": "AI Summary"
   },
   "leaderboard": {
-    "title": "Employee Performance Leaderboard",
+    "title": "Performance Leaderboard",
     "description": "See how team members are performing this month.",
     "total_tasks_completed": "Total Tasks Completed",
     "average_score": "Average Score",
