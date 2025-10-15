@@ -110,12 +110,9 @@ export default function DashboardPage() {
       <div className="space-y-6 md:space-y-8">
         {/* Header Section */}
         <div className="text-center md:text-left">
-          <BlurText
-            text={welcomeMessage}
-            delay={100}
-            animateBy="words"
-            className="text-xl md:text-3xl font-bold font-headline text-primary"
-          />
+          <h1 className="text-xl md:text-3xl font-bold font-headline text-primary">
+            {welcomeMessage}
+          </h1>
           <p className="text-muted-foreground text-base md:text-lg">
             {t("dashboard.description")}
           </p>
