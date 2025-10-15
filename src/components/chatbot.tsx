@@ -84,13 +84,13 @@ export function Chatbot() {
     <>
       <Button
         className={cn(
-          "fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 text-white transition-all active:scale-95 bg-gradient-to-br from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90",
+          "fixed bottom-24 right-4 h-8 w-8 rounded-full shadow-lg z-50 text-white transition-all active:scale-95 bg-gradient-to-br from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90",
            "md:bottom-8 md:right-6"
         )}
         size="icon"
         onClick={() => setIsOpen(!isOpen)}
       >
-        <Bot className="h-6 w-6" />
+        <Bot className="h-4 w-4" />
       </Button>
 
       <div
