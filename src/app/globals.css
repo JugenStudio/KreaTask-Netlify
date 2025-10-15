@@ -15,16 +15,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 142 71% 45%; /* Green accent, slightly desaturated */
+    --primary: 165 80% 40%; /* New Teal/Cyan accent */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 71% 25%; /* Darker green for secondary elements */
+    --secondary: 165 80% 20%; /* Darker Teal/Cyan for secondary elements */
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 142 71% 30%;
+    --accent: 165 80% 25%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -32,7 +32,7 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 142 71% 45%;
+    --ring: 165 80% 40%;
 
     --radius: 1rem;
   }
@@ -48,16 +48,16 @@
     --popover: 220 14% 11%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 142 71% 45%;
+    --primary: 165 80% 40%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 142 71% 25%;
+    --secondary: 165 80% 20%;
     --secondary-foreground: 0 0% 100%;
 
     --muted: 220 14% 18%;
     --muted-foreground: 220 10% 60%;
 
-    --accent: 142 71% 30%;
+    --accent: 165 80% 25%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 63% 40%;
@@ -65,7 +65,7 @@
 
     --border: 220 14% 20%;
     --input: 220 14% 14%;
-    --ring: 142 71% 45%;
+    --ring: 165 80% 40%;
   }
 
   /* Material Design Light Theme */
@@ -79,7 +79,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
     
-    --primary: 142 76% 36%; /* Brighter, saturated green */
+    --primary: 165 75% 38%; /* Brighter, saturated Teal/Cyan */
     --primary-foreground: 0 0% 100%;
     
     --secondary: 220 13% 91%; 
@@ -96,7 +96,7 @@
 
     --border: 220 13% 89%;
     --input: 220 13% 91%;
-    --ring: 142 76% 36%;
+    --ring: 165 75% 38%;
   }
 }
 
