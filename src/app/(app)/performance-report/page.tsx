@@ -236,15 +236,9 @@ export default function PerformanceReportPage() {
               {t('common.back_to_home')}
             </Link>
           </Button>
-          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-center md:text-left">
-            <div>
-                <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
-                <p className="text-muted-foreground text-sm md:text-base">{t('report.director_view.description')}</p>
-            </div>
-            <Button onClick={handleExportCSV} size="sm" className="md:size-auto transition-all active:scale-95">
-              <FileDown className="h-4 w-4 mr-2" />
-              {t('report.export_csv')}
-            </Button>
+          <div className="text-center md:text-left">
+            <h1 className="text-2xl md:text-3xl font-bold font-headline">{t('report.director_view.title')}</h1>
+            <p className="text-muted-foreground text-sm md:text-base">{t('report.director_view.description')}</p>
           </div>
 
           {/* Validation Panel */}
