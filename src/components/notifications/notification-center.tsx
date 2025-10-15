@@ -33,16 +33,23 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
 
   const prevUnreadCountRef = useRef(unreadCount);
   const [isAnimating, setIsAnimating] = useState(false);
-
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    if (unreadCount > prevUnreadCountRef.current) {
+    // Pre-load the audio element on component mount
+    audioRef.current = new Audio('/sounds/notification.mp3');
+  }, []);
+
+  useEffect(() => {
+    if (unreadCount > prevUnreadCountRef.current && !isSilent) {
         setIsAnimating(true);
+        // Play sound for new notification
+        audioRef.current?.play().catch(error => console.error("Audio playback failed:", error));
         const timer = setTimeout(() => setIsAnimating(false), 1000); // Animation duration
         return () => clearTimeout(timer);
     }
     prevUnreadCountRef.current = unreadCount;
-  }, [unreadCount]);
+  }, [unreadCount, isSilent]);
 
   useEffect(() => {
     if (!isSilent) {

@@ -2,6 +2,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // === 🔐 Helper ===
     function isUserAuthenticated() {
       return request.auth != null;
     }
@@ -12,53 +13,82 @@ service cloud.firestore {
         : "roles_unassigned";
     }
 
+    // === 🧭 Role Check ===
+    function isSuperAdmin() {
+      return isUserAuthenticated() &&
+        getUserRole(request.auth.uid) == 'roles_super_admin';
+    }
+
     function isAdmin() {
-      return isUserAuthenticated() && getUserRole(request.auth.uid) == 'roles_admin';
+      return isUserAuthenticated() && (
+        getUserRole(request.auth.uid) == 'roles_admin' ||
+        getUserRole(request.auth.uid) == 'roles_super_admin'
+      );
     }
 
     function isTeamLeader() {
-      return isUserAuthenticated() && getUserRole(request.auth.uid) == 'roles_team_leader';
+      return isUserAuthenticated() && (
+        getUserRole(request.auth.uid) == 'roles_team_leader' ||
+        isAdmin()
+      );
     }
 
+    // 🔁 Di sini kita satukan roles_team_member & roles_unassigned
     function isTeamMember() {
-      return isUserAuthenticated() && getUserRole(request.auth.uid) == 'roles_team_member';
+      return isUserAuthenticated() && (
+        getUserRole(request.auth.uid) == 'roles_team_member' ||
+        getUserRole(request.auth.uid) == 'roles_unassigned' ||
+        isTeamLeader()
+      );
     }
 
     function isOwner(userId) {
       return isUserAuthenticated() && request.auth.uid == userId;
     }
 
-    // USERS COLLECTION
+    // === 👤 USERS ===
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if isUserAuthenticated();
+      allow list: if isAdmin();
       allow create, update: if isOwner(userId);
-      allow delete: if (isAdmin() || isTeamLeader()) && request.auth.uid != userId;
+      allow delete: if (isSuperAdmin() || isAdmin()) && request.auth.uid != userId;
     }
 
-    // TASKS COLLECTION
+    // === 📋 TASKS ===
     match /tasks/{taskId} {
 
-      // ✅ Admin bisa akses semua
+      // Super Admin full access
+      allow read, list, create, update, delete: if isSuperAdmin();
+
+      // Admin bisa semua juga
       allow read, list, create, update, delete: if isAdmin();
 
       // Team Leader
       allow read, list, create, update, delete: if isTeamLeader();
 
-      // Team Member: akses terbatas
+      // Team Member dan Unassigned punya hak akses sama
       allow read: if isTeamMember() && request.auth.uid in resource.data.assigneesIds;
       allow list: if isTeamMember();
       allow create: if isTeamMember() &&
-                      request.resource.data.assigneesIds.size() == 1 &&
-                      request.auth.uid in request.resource.data.assigneesIds;
+                    request.resource.data.assigneesIds.size() == 1 &&
+                    request.auth.uid in request.resource.data.assigneesIds;
       allow update: if isTeamMember() && request.auth.uid in resource.data.assigneesIds;
-      // Team Member tidak boleh delete
+      // Tidak boleh delete
     }
 
-    // NOTIFICATIONS COLLECTION
+    // === 🔔 NOTIFICATIONS ===
     match /notifications/{notificationId} {
       allow read, delete: if isOwner(resource.data.userId);
       allow create: if isOwner(request.resource.data.userId);
+    }
+
+    // === ⚙️ SETTINGS (opsional) ===
+    match /settings/{settingId} {
+      // Semua user termasuk Unassigned boleh baca (tema, bahasa)
+      allow read: if isUserAuthenticated();
+
+      // Super Admin & Admin bisa ubah sistem setting global
+      allow create, update, delete: if isSuperAdmin() || isAdmin();
     }
   }
 }
