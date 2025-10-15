@@ -1,6 +1,7 @@
 
 
 export enum UserRole {
+  ADMIN = "roles_super_admin",
   DIREKTUR_UTAMA = "roles_admin",
   DIREKTUR_OPERASIONAL = "roles_team_leader",
   JURNALIS = "roles_team_member",

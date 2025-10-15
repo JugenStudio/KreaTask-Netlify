@@ -25,3 +25,7 @@ export const isDirector = (role: UserRole): boolean => {
   if (role === UserRole.UNASSIGNED) return false;
   return DIRECTOR_ROLES.includes(role);
 };
+
+export const isSuperAdmin = (role: UserRole): boolean => {
+  return role === UserRole.ADMIN;
+}

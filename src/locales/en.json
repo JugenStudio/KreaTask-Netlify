@@ -13,6 +13,7 @@
     "back_to_home": "Back to Home"
   },
   "roles": {
+    "roles_super_admin": "Admin",
     "roles_admin": "Main Director",
     "roles_team_leader": "Operational Director",
     "roles_team_member": "Journalist",

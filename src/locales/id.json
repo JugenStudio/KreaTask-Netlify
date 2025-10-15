@@ -13,6 +13,7 @@
     "back_to_home": "Kembali ke Beranda"
   },
   "roles": {
+    "roles_super_admin": "Admin",
     "roles_admin": "Direktur Utama",
     "roles_team_leader": "Direktur Operasional",
     "roles_team_member": "Jurnalis",
