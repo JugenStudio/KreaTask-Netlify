@@ -114,7 +114,7 @@ export default function DashboardPage() {
             text={welcomeMessage}
             delay={100}
             animateBy="words"
-            className="text-3xl md:text-4xl font-bold font-headline text-primary"
+            className="text-2xl md:text-4xl font-bold font-headline text-primary"
           />
           <p className="text-muted-foreground text-base md:text-lg">
             {t("dashboard.description")}
