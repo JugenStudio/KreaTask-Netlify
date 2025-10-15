@@ -120,7 +120,6 @@ export default function SignUpPage() {
     if (!auth || !firestore) return;
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    // Force account selection every time
     provider.setCustomParameters({
         prompt: 'select_account'
     });
@@ -134,10 +133,8 @@ export default function SignUpPage() {
             throw new Error("Akun Google tidak memiliki email.");
         }
 
-        // Check if email already exists
         const methods = await fetchSignInMethodsForEmail(auth, userEmail);
         if (methods.length > 0) {
-            // Email already exists, so sign out the temporary user and show error
             if (auth.currentUser) {
                 await auth.signOut();
             }
@@ -150,7 +147,6 @@ export default function SignUpPage() {
             return;
         }
 
-        // Email does not exist, proceed with creating the new account
         const newUser: User = {
             id: user.uid,
             name: user.displayName || 'Google User',
@@ -168,20 +164,20 @@ export default function SignUpPage() {
         router.push('/dashboard');
 
     } catch (error: any) {
-      console.error("Google sign-up error:", error);
-      let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
-      if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Anda menutup jendela pendaftaran Google sebelum selesai.';
-      } else if (error.code !== 'auth/cancelled-popup-request') {
-          // Don't show a toast for a simple popup close
-          toast({
-            variant: "destructive",
-            title: "Pendaftaran Google Gagal",
-            description: errorMessage,
-          });
-      }
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+          console.log("Google sign-up cancelled by user.");
+        } else {
+            console.error("Google sign-up error:", error);
+            let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
+            if (error.code === 'auth/popup-blocked') {
+              errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
+            }
+            toast({
+                variant: "destructive",
+                title: "Pendaftaran Google Gagal",
+                description: errorMessage,
+            });
+        }
     } finally {
       setIsGoogleLoading(false);
     }

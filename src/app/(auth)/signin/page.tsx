@@ -82,7 +82,6 @@ export default function SignInPage() {
     if (!auth || !firestore) return;
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
-    // Force account selection every time
     provider.setCustomParameters({
       prompt: 'select_account'
     });
@@ -91,12 +90,9 @@ export default function SignInPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
       
-      // Check if the user's email is actually registered in Firebase Auth
       const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
 
       if (methods.length === 0) {
-        // This case is unlikely if signInWithPopup succeeds, but as a safeguard.
-        // It means the account doesn't exist.
         if (auth.currentUser) {
             await auth.signOut();
         }
@@ -116,18 +112,21 @@ export default function SignInPage() {
       router.push('/dashboard');
 
     } catch (error: any) {
-      console.error("Google sign-in error:", error);
-      let errorMessage = "Terjadi kesalahan saat login dengan Google.";
-       if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
+      // Don't show toast for user-cancelled popups
+      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+        console.log("Google sign-in cancelled by user.");
+      } else {
+          console.error("Google sign-in error:", error);
+          let errorMessage = "Terjadi kesalahan saat login dengan Google.";
+          if (error.code === 'auth/popup-blocked') {
+              errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
+          }
+          toast({
+              variant: "destructive",
+              title: "Login Google Gagal",
+              description: errorMessage,
+          });
       }
-      toast({
-        variant: "destructive",
-        title: "Login Google Gagal",
-        description: errorMessage,
-      });
     } finally {
       setIsGoogleLoading(false);
     }
