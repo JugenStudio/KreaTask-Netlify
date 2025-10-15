@@ -84,7 +84,7 @@ export function Chatbot() {
     <>
       <Button
         className={cn(
-          "fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 text-white transition-all active:scale-95 bg-gradient-to-br from-teal-400 to-green-400 hover:from-teal-500 hover:to-green-500",
+          "fixed bottom-24 right-4 h-14 w-14 rounded-full shadow-lg z-50 text-white transition-all active:scale-95 bg-gradient-to-br from-primary to-teal-500 hover:from-primary/90 hover:to-teal-500/90",
            "md:bottom-8 md:right-6"
         )}
         size="icon"
