@@ -1,91 +1,106 @@
-# KreaTask: Checklist Fitur & Fungsionalitas
+# Dokumentasi Peran & Hak Akses Aplikasi KreaTask
 
-Dokumen ini merinci fitur-fitur yang telah diimplementasikan dan berfungsi dalam aplikasi KreaTask.
+Dokumen ini merinci hak akses (permissions) untuk setiap peran pengguna di dalam aplikasi KreaTask. Setiap peran memiliki wewenang yang berbeda tergantung pada fitur atau halaman yang diakses.
 
 ---
 
-## 1. Arsitektur & Antarmuka Pengguna (UI)
+## Ringkasan Peran Pengguna
 
--   **[✅] Teknologi Inti:**
-    -   Framework: **Next.js 15** dengan App Router.
-    -   Bahasa: **TypeScript**.
-    -   Styling: **Tailwind CSS** & **ShadCN/UI**.
-    -   Animasi: **Framer Motion**.
--   **[✅] Desain Responsif:**
-    -   **Desktop:** Tampilan dengan *sidebar* navigasi di sebelah kiri.
-    -   **Mobile:** Tampilan dioptimalkan dengan *bottom navigation bar*.
--   **[✅] Tema (Appearance):**
-    -   Pengguna dapat memilih antara tema **Terang (Light)**, **Gelap (Dark)**, atau **Sistem** melalui halaman Pengaturan.
-    -   Pilihan tema tersimpan di *local storage* untuk konsistensi.
--   **[✅] Dukungan Multi-Bahasa:**
-    -   Pengguna dapat mengganti bahasa antara **Indonesia** dan **Inggris** melalui halaman Pengaturan.
-    -   Pilihan bahasa tersimpan di *local storage*.
--   **[✅] Efek Visual:**
-    -   Efek "Spotlight" interaktif pada komponen kartu saat kursor digerakkan.
-    -   Animasi "Blur & Slide Up" pada halaman awal (*landing page*) untuk memberikan kesan pertama yang dinamis.
+| Peran                  | Nama Internal             | Level Hirarki | Deskripsi Singkat                                                               |
+| ---------------------- | ------------------------- | :-----------: | ------------------------------------------------------------------------------- |
+| **Admin**              | `roles_super_admin`       |       L0      | **Pengelola Sistem Penuh**. Memiliki semua akses, termasuk mengelola Direktur Utama. |
+| **Direktur Utama**      | `roles_admin`             |       L1      | **Pimpinan Tertinggi**. Mengelola semua aspek operasional, tim, dan validasi. |
+| **Direktur Operasional** | `roles_team_leader`       |       L2      | **Manajer Tim**. Mengawasi tugas dan kinerja tim karyawan di bawahnya.          |
+| **Karyawan**           | `roles_team_member`       |       L3      | **Pelaksana Tugas**. Mengerjakan dan melaporkan tugas yang diberikan.           |
+| **Belum Ditugaskan**   | `Unassigned`              |       L3      | Peran awal dengan hak akses setara **Karyawan**. Menunggu penetapan peran formal. |
 
-## 2. Autentikasi & Manajemen Pengguna
+---
 
--   **[✅] Autentikasi Pengguna (Firebase Auth):**
-    -   **Pendaftaran:** Pengguna baru dapat mendaftar menggunakan Email/Password atau akun Google.
-    -   **Login:** Pengguna yang sudah ada dapat masuk menggunakan Email/Password atau akun Google.
-    -   Setelah *login*, pengguna secara otomatis diarahkan ke halaman Dasbor.
--   **[✅] Manajemen Sesi:**
-    -   Aplikasi secara otomatis mendeteksi sesi *login* pengguna dan menjaga mereka tetap masuk.
-    -   Pengguna dapat keluar (*logout*) dari akun mereka melalui menu di *header*.
--   **[✅] Manajemen Profil Pengguna (`/profile`):**
-    -   Pengguna dapat melihat detail profil mereka (nama, email, peran).
-    -   Pengguna dapat mengubah nama lengkap dan alamat email.
-    -   Pengguna dapat mengganti *password* setelah melakukan re-autentikasi.
-    -   Pengguna dapat mengunggah dan mengubah foto profil (terhubung dengan Firebase Storage).
--   **[✅] Manajemen Pengguna (Hanya Direktur & Admin di `/settings`):**
-    -   Atasan dapat melihat daftar semua pengguna dalam format tabel.
-    -   Atasan dapat mengubah peran (*role*) pengguna lain (misalnya dari "Unassigned" menjadi "Jurnalis").
-    -   Atasan dapat menghapus pengguna dari sistem.
+## Rincian Hak Akses per Halaman
 
-## 3. Manajemen Tugas
+### 1. Dasbor (`/dashboard`)
+-   **Admin & Direktur Utama:**
+    -   Melihat statistik agregat seluruh tim: Total tugas selesai, skor rata-rata tim, jumlah anggota tim, dan total tugas yang terlambat.
+    -   Melihat papan peringkat ringkas (Top 3 Performer).
+    -   Melihat kartu "Pegawai Terbaik" (Top Performer).
+-   **Direktur Operasional:**
+    -   Sama seperti Direktur Utama, melihat statistik dan peringkat seluruh tim.
+-   **Karyawan & Unassigned:**
+    -   Melihat statistik pribadi: Jumlah tugas yang diselesaikan, total skor pribadi, peringkat di leaderboard, dan jumlah tugas pribadi yang terlambat.
+    -   Melihat grafik progres bulanan pribadi.
+    -   Melihat kartu tugas prioritas milik sendiri.
 
--   **[✅] Pembuatan Tugas (`/submit`):**
-    -   Pengguna dapat membuat tugas baru melalui formulir manual.
-    -   Formulir mencakup: Judul, Deskripsi, Kategori, Batas Waktu, dan Penerima Tugas.
-    -   Pengguna dapat menambahkan *checklist* (sub-tugas) dan mengunggah lampiran file.
--   **[✅] Tampilan Tugas (`/tasks`):**
-    -   **Tampilan Papan Kanban:** Tugas ditampilkan dalam kolom status (`To-do`, `In Progress`, dll.). Pengguna dapat memindahkan tugas antar kolom dengan *drag-and-drop* untuk memperbarui statusnya secara *real-time*.
-    -   **Tampilan Daftar/Tabel:** Tugas juga dapat dilihat dalam format tabel yang ringkas, dioptimalkan untuk tampilan *mobile*.
-    -   Pengguna dapat memfilter tugas berdasarkan status dan pencarian judul.
--   **[✅] Halaman Detail Tugas (`/tasks/[id]`):**
-    -   Menampilkan semua informasi lengkap sebuah tugas.
-    -   Pengguna dapat mengubah status tugas melalui menu *dropdown*.
-    -   **Checklist Interaktif:** Pengguna dapat mencentang sub-tugas yang sudah selesai, dan *progress bar* akan diperbarui secara otomatis.
-    -   **Manajemen Lampiran:** Pengguna dapat mengunduh, menambahkan catatan, dan menghapus lampiran file.
-    -   **Kolom Komentar:** Pengguna dapat berdiskusi, membalas (`@mention`), menyematkan (*pin*), mengedit, dan menghapus komentar.
+### 2. Halaman Tugas (`/tasks`)
+-   **Admin & Direktur Utama:**
+    -   Melihat **semua tugas** dari semua pengguna di seluruh organisasi.
+    -   Dapat memfilter tugas berdasarkan status dan karyawan mana pun.
+    -   Dapat menggunakan tampilan Papan Kanban dan memindahkan tugas siapa pun.
+-   **Direktur Operasional:**
+    -   Melihat semua tugas yang ditugaskan kepada tim **Karyawan** (Jurnalis, Desainer, dll).
+    -   Tidak dapat melihat tugas milik Direktur Utama atau sesama Direktur.
+-   **Karyawan & Unassigned:**
+    -   Hanya dapat melihat tugas yang **ditugaskan kepada dirinya sendiri**.
 
-## 4. Dasbor, Peringkat & Laporan
+### 3. Halaman Unggah Tugas (`/submit`)
+-   **Admin, Direktur Utama & Direktur Operasional:**
+    -   Dapat membuat tugas baru.
+    -   Dapat menugaskan tugas tersebut kepada **pengguna mana pun** di bawah level mereka (Admin dan Dir. Utama bisa menugaskan ke siapa saja, Dir. Operasional hanya ke Karyawan).
+-   **Karyawan & Unassigned:**
+    -   Dapat membuat tugas baru, tetapi kolom "Assign To" (Tugaskan Kepada) secara otomatis diatur **hanya untuk dirinya sendiri** dan tidak dapat diubah.
 
--   **[✅] Dasbor Dinamis (`/dashboard`):**
-    -   Menampilkan ringkasan statistik kinerja yang relevan berdasarkan peran pengguna.
-    -   **Karyawan:** Melihat total tugas selesai, skor, peringkat, dan tugas terlambat milik pribadi.
-    -   **Direktur:** Melihat total tugas tim yang selesai, skor rata-rata, jumlah anggota tim, dan tugas terlambat tim.
-    -   Grafik "Progres Bulanan" menampilkan data tugas yang diselesaikan secara akurat, bukan data *dummy*.
--   **[✅] Papan Peringkat (`/leaderboard`):**
-    -   Menampilkan peringkat semua **karyawan** (bukan direksi) berdasarkan total skor.
-    -   Menghitung skor hanya dari tugas yang telah divalidasi oleh atasan.
--   **[✅] Laporan Kinerja (`/performance-report`):**
-    -   **Panel Validasi (Untuk Direktur):** Atasan dapat meninjau tugas yang telah diselesaikan oleh karyawan, mengubah nilainya jika perlu, dan memberikan persetujuan (validasi).
-    -   **Riwayat Tugas:** Menampilkan riwayat semua tugas yang telah selesai dengan kemampuan filter berdasarkan karyawan, status validasi, dan rentang tanggal.
-    -   Data laporan dapat diekspor ke dalam format file **CSV**.
+### 4. Papan Peringkat (`/leaderboard`)
+-   **Semua Peran:**
+    -   Semua pengguna dapat mengakses dan melihat halaman ini.
+-   **Konten yang Ditampilkan:**
+    -   Papan peringkat secara eksklusif menampilkan daftar **Karyawan** dan **Unassigned** yang diurutkan berdasarkan total skor mereka.
+    -   Peran **Admin** dan **Direktur** tidak akan pernah muncul di dalam daftar peringkat.
 
-## 5. Fitur Berbasis AI (Genkit)
+### 5. Laporan Kinerja (`/performance-report`)
+-   **Admin & Direktur Utama:**
+    -   Memiliki akses penuh ke **Panel Validasi**.
+    -   Dapat **menyetujui (approve)** tugas yang telah diselesaikan oleh karyawan.
+    -   Dapat **mengubah nilai (skor)** tugas sebelum divalidasi.
+    -   Melihat riwayat semua tugas yang telah selesai dari seluruh tim.
+    -   Dapat mengekspor data laporan ke CSV.
+-   **Direktur Operasional:**
+    -   Dapat melihat riwayat tugas yang telah selesai dari timnya.
+    -   **Tidak memiliki akses** ke Panel Validasi dan tidak bisa menyetujui atau mengubah nilai tugas.
+-   **Karyawan & Unassigned:**
+    -   Hanya melihat riwayat tugas yang telah diselesaikan **oleh dirinya sendiri**, beserta status validasinya (Menunggu atau Disetujui).
 
--   **[✅] Generator Saran Tugas (`/submit`):**
-    -   AI dapat menganalisis tujuan umum yang dimasukkan pengguna dan memberikan beberapa saran judul dan deskripsi tugas yang relevan.
--   **[✅] Ringkasan Komentar AI (`/tasks/[id]`):**
-    -   Di halaman detail tugas, AI dapat meringkas seluruh utas komentar untuk menyoroti poin-poin penting dan keputusan.
--   **[✅] Penerjemah Konten Otomatis:**
-    -   Judul dan deskripsi tugas secara otomatis diterjemahkan ke dalam Bahasa Inggris dan Indonesia saat dibuat atau diubah untuk mendukung multibahasa.
--   **[✅] KreaBot (Asisten Chatbot):**
-    -   Chatbot dapat diakses di seluruh aplikasi.
-    -   Mampu menjawab pertanyaan kontekstual terkait data aplikasi, seperti "Siapa karyawan terbaik bulan ini?" atau "Tugas apa saja yang akan jatuh tempo?".
-    -   Menyediakan jawaban berdasarkan data *real-time* dari tugas dan pengguna.
+### 6. Notifikasi
+-   **Semua Peran:**
+    -   Menerima notifikasi yang relevan dengan akun mereka (misalnya, saat ditugaskan tugas baru atau tugasnya diperbarui).
+    -   Direktur akan menerima notifikasi saat seorang karyawan mengirimkan tugas untuk ditinjau.
+    -   Dapat menandai notifikasi sebagai "telah dibaca" atau menghapusnya.
+
+### 7. Profil (`/profile`)
+-   **Semua Peran:**
+    -   Setiap pengguna dapat mengakses halaman profilnya sendiri.
+    -   Dapat mengubah nama, alamat email, password, dan foto profil.
+    -   Peran dan jabatan ditampilkan tetapi tidak dapat diubah dari halaman ini.
+
+### 8. Pengaturan (`/settings`)
+-   **Admin:**
+    -   Memiliki akses penuh ke **Manajemen Pengguna**.
+    -   Dapat mengubah peran **semua pengguna**, termasuk Direktur Utama.
+    -   Dapat menghapus pengguna mana pun dari sistem.
+-   **Direktur Utama:**
+    -   Memiliki akses ke Manajemen Pengguna.
+    -   Dapat mengubah peran semua pengguna **kecuali Admin**.
+    -   Dapat menghapus pengguna mana pun **kecuali Admin**.
+-   **Direktur Operasional:**
+    -   Memiliki akses ke Manajemen Pengguna.
+    -   Hanya dapat mengubah peran **Karyawan** dan **Unassigned**.
+    -   Tidak dapat mengubah peran sesama Direktur atau atasan.
+-   **Karyawan & Unassigned:**
+    -   **Tidak memiliki akses** ke menu Manajemen Pengguna.
+-   **Pengaturan Tampilan & Bahasa:**
+    -   Semua pengguna dapat mengubah tema (Terang/Gelap) dan bahasa (ID/EN) aplikasi.
+
+### 9. Halaman Lainnya
+-   **Tentang (`/about`):** Dapat diakses oleh semua pengguna.
+-   **Unduhan (`/downloads`):** Dapat diakses oleh semua pengguna untuk melihat riwayat unduhan file mereka.
+-   **Keluar (`/logout`):** Dapat diakses oleh semua pengguna yang sedang login.
 
 ---
