@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { createContext, useState, useContext, ReactNode, useCallback, useEffect } from 'react';
@@ -32,10 +31,16 @@ export const LanguageProvider = ({ children }: { children: ReactNode }) => {
     setLocaleState(newLocale);
     try {
       localStorage.setItem('kreatask_locale', newLocale);
+      document.documentElement.lang = newLocale; // Update the lang attribute
     } catch (error) {
       console.error("Could not save locale to localStorage", error);
     }
   };
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+  }, [locale]);
+
 
   const t = useCallback((key: string, replacements?: { [key: string]: string }) => {
     const keys = key.split('.');

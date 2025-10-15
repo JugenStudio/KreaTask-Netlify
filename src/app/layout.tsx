@@ -1,38 +1,13 @@
-
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import { LanguageProvider, useLanguage } from '@/providers/language-provider';
-import { useEffect } from 'react';
+import { LanguageProvider } from '@/providers/language-provider';
 
 export const metadata: Metadata = {
   title: 'KreaTask',
   description: 'Creative Task Management',
 };
-
-// This is a new Client Component to handle client-side logic like setting the 'lang' attribute.
-function AppBody({ children }: { children: React.ReactNode }) {
-  "use client";
-  
-  const { locale } = useLanguage();
-
-  useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
-  
-  return (
-      <body
-        className={cn(
-          'min-h-screen bg-background font-body antialiased',
-        )}
-      >
-        {children}
-        <Toaster />
-      </body>
-  );
-}
-
 
 export default function RootLayout({
   children,
@@ -50,9 +25,16 @@ export default function RootLayout({
             rel="stylesheet"
           />
       </head>
-      <LanguageProvider>
-        <AppBody>{children}</AppBody>
-      </LanguageProvider>
+      <body
+        className={cn(
+          'min-h-screen bg-background font-body antialiased',
+        )}
+      >
+        <LanguageProvider>
+          {children}
+          <Toaster />
+        </LanguageProvider>
+      </body>
     </html>
   );
 }
