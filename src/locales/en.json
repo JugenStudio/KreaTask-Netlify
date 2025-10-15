@@ -470,9 +470,11 @@
     "back_button": "Back to Settings",
     "version": "Version",
     "developer": "Developer",
-    "nim": "NIM",
+    "nim": "Student ID",
     "thesis_title": "Thesis Title",
+    "thesis_title_value": "DESIGN OF A MOBILE-BASED TASK MANAGEMENT APPLICATION AT \"PT KREASI NGALAM MEDIA\" USING THE DESIGN THINKING APPROACH",
     "study_program": "Study Program",
+    "study_program_value": "INDUSTRIAL PRODUCT DESIGN ENGINEERING - INTERNATIONAL MULTIMEDIA ENGINEERING COLLEGE MALANG",
     "year": "Year",
     "copyright": "Copyright: © 2025 KreaTask - Developed for research and final project purposes."
   }

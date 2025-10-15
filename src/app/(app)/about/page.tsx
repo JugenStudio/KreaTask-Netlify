@@ -65,11 +65,11 @@ export default function AboutPage() {
             <InfoRow label={t("about.nim")} value="521198" />
             <InfoRow
               label={t("about.thesis_title")}
-              value='PERANCANGAN APLIKASI TASK MANAGEMENT BERBASIS MOBILE DI "PT KREASI NGALAM MEDIA" DENGAN PENDEKATAN DESIGN THINKING'
+              value={t('about.thesis_title_value')}
             />
             <InfoRow
               label={t("about.study_program")}
-              value="TEKNIK DESAIN PRODUK INDUSTRI - SEKOLAH TINGGI TEKNIK MULTIMEDIA INTERNASIONAL MALANG"
+              value={t('about.study_program_value')}
             />
             <InfoRow label={t("about.year")} value="2025" />
           </dl>
