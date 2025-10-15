@@ -330,7 +330,7 @@
     "separator": "ATAU",
     "ai_generator": {
       "title": "Generator Tugas AI",
-      "placeholder": "mis: Buat konten Instagram untuk 1 minggu",
+      "placeholder": "Buat konten Instagram untuk 1 minggu",
       "button": "Buat Saran Tugas",
       "loading_button": "Membuat...",
       "suggestions_title": "Saran Tugas:"
@@ -338,7 +338,7 @@
     "manual_form": {
       "title": "Buat Tugas Manual",
       "task_title_label": "Judul Tugas",
-      "task_title_placeholder": "mis: Tulis artikel tentang tren AI 2024",
+      "task_title_placeholder": "Tulis artikel tentang tren AI 2024",
       "category_label": "Kategori",
       "category_placeholder": "Pilih kategori",
       "categories": {
