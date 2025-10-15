@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -43,12 +44,14 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateTaskFromPromptOutputSchema},
   prompt: `You are an AI assistant for the KreaTask app. Your job is to parse a user's natural language command and extract structured information to pre-fill a new task form.
 
+  Today's date is ${new Date().toISOString().split('T')[0]}. Use this as a reference for relative dates.
+
   Analyze the user's command and extract the following entities:
   1.  **title**: The main goal of the task.
   2.  **description**: Any additional details, instructions, or context.
-  3.  **category**: Identify the priority. Keywords like "prioritas tinggi", "sangat penting", "urgent" should map to "High" or "Critical". "biasa", "tidak urgent" should map to "Low" or "Medium".
-  4.  **dueDate**: Identify the deadline. You must understand relative dates like "today", "tomorrow", "next Friday", or specific dates. Convert it to 'YYYY-MM-DD' format. Today's date is ${new Date().toISOString().split('T')[0]}.
-  5.  **assigneeName**: Identify the person the task is for. The name MUST exactly match one of the names from the provided \`assignableUsers\` list. If no matching name is found, leave it empty.
+  3.  **category**: Identify the priority. Keywords like "prioritas tinggi", "sangat penting", "urgent" should map to "High" or "Critical". Keywords like "prioritas sedang", "biasa", "tidak urgent" should map to "Low" or "Medium".
+  4.  **dueDate**: Identify the deadline. You must understand relative dates like "today", "tomorrow", "next Friday", or specific dates. Convert it to 'YYYY-MM-DD' format.
+  5.  **assigneeName**: Identify the person the task is for. The name MUST exactly match one of the names from the provided \`assignableUsers\` list. If the command says "untuk saya" (for me), leave it empty as the app will handle it. If no matching name is found, leave it empty.
   6.  **subtasks**: If the command mentions multiple steps or a checklist, extract them as an array of strings.
 
   Here is the list of users you can assign tasks to:
