@@ -24,7 +24,7 @@ export const useSpotlightEffect = () => {
         htmlCard.style.setProperty('--glow-x', `${x}px`);
         htmlCard.style.setProperty('--glow-y', `${y}px`);
         htmlCard.style.setProperty('--glow-intensity', `${intensity * 0.10}`); // Adjust multiplier for brightness
-        htmlCard.style.setProperty('--glow-hue', `163`); // KreaTask Green
+        htmlCard.style.setProperty('--glow-hue', `213`); // KreaTask Blue
       });
     };
 
