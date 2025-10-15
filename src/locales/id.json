@@ -55,7 +55,13 @@
     "settings": "Pengaturan",
     "about": "Tentang",
     "downloads": "Unduhan",
-    "logout": "Keluar"
+    "logout": "Keluar",
+    "logout_dialog": {
+      "title": "Apakah Anda yakin ingin keluar?",
+      "description": "Anda akan dikembalikan ke halaman utama dan perlu masuk kembali untuk mengakses dasbor Anda.",
+      "cancel": "Tidak",
+      "confirm": "Iya, Keluar"
+    }
   },
   "profile": {
     "title": "Profil Saya",

@@ -185,14 +185,14 @@ export function Header() {
       <AlertDialog open={isLogoutAlertOpen} onOpenChange={setIsLogoutAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Apakah Anda yakin ingin keluar?</AlertDialogTitle>
+            <AlertDialogTitle>{t('header.logout_dialog.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Anda akan dikembalikan ke halaman utama dan perlu masuk kembali untuk mengakses dasbor Anda.
+              {t('header.logout_dialog.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Tidak</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>Iya, Keluar</AlertDialogAction>
+            <AlertDialogCancel>{t('header.logout_dialog.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>{t('header.logout_dialog.confirm')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

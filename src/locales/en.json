@@ -55,7 +55,13 @@
     "settings": "Settings",
     "about": "About",
     "downloads": "Downloads",
-    "logout": "Log out"
+    "logout": "Log out",
+    "logout_dialog": {
+      "title": "Are you sure you want to log out?",
+      "description": "You will be returned to the main page and will need to sign in again to access your dashboard.",
+      "cancel": "No",
+      "confirm": "Yes, Log Out"
+    }
   },
   "profile": {
     "title": "My Profile",
