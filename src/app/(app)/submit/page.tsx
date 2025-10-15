@@ -27,7 +27,7 @@ export default function SubmitPage() {
       </Button>
       <div className="mb-6 text-center md:text-left">
         <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
-          <PenSquare className="h-6 w-6 md:h-8 md:w-8" />
+          <PenSquare className="h-6 w-6 md:h-8 md:w-8 text-primary" />
           {t('submit.title')}
         </h1>
         <p className="text-muted-foreground text-sm md:text-base">{t('submit.description')}</p>

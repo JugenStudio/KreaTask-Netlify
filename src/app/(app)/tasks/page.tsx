@@ -114,7 +114,7 @@ export default function AllTasksPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="w-full text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
-              <ListTodo className="h-6 w-6 md:h-8 md:w-8" />
+              <ListTodo className="h-6 w-6 md:h-8 md:w-8 text-primary" />
               {t('all_tasks.title')}
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">

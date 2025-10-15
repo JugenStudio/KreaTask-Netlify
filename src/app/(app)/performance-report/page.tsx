@@ -205,7 +205,7 @@ export default function PerformanceReportPage() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-center md:text-left">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
-              <History className="h-6 w-6 md:h-8 md:w-8" />
+              <History className="h-6 w-6 md:h-8 md:w-8 text-primary" />
               {t('report.employee_view.title')}
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">
@@ -238,7 +238,7 @@ export default function PerformanceReportPage() {
           </Button>
           <div className="text-center md:text-left">
             <h1 className="text-2xl md:text-3xl font-bold font-headline flex items-center justify-center md:justify-start gap-3">
-                <FileText className="h-6 w-6 md:h-8 md:w-8" />
+                <FileText className="h-6 w-6 md:h-8 md:w-8 text-primary" />
                 {t('report.director_view.title')}
             </h1>
             <p className="text-muted-foreground text-sm md:text-base">{t('report.director_view.description')}</p>
