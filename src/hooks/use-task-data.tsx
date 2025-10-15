@@ -8,7 +8,7 @@ import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, ge
 import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { useUser } from '@/firebase/provider';
 import { UserRole } from '@/lib/types';
-import { isEmployee } from '@/lib/roles';
+import { isDirector, isEmployee } from '@/lib/roles';
 
 type DownloadItem = {
   id: number;
@@ -67,7 +67,7 @@ export interface TaskDataContextType {
     currentUserData: User | null;
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
-    setNotifications: (notifications: Notification[]) => void, // Changed for direct manipulation
+    setNotifications: (notifications: Notification[] | ((prev: Notification[]) => Notification[])) => void;
     updateNotifications: (notificationsToUpdate: Notification[]) => Promise<void>;
     downloadHistory: DownloadItem[];
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
@@ -88,20 +88,44 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    const usersCollectionRef = useMemoFirebase(() => firestore ? collection(firestore, 'users') : null, [firestore]);
-    const { data: usersDataFromDB, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
-    const users = useMemo(() => usersDataFromDB || [], [usersDataFromDB]);
-    
+    // Fetch user data needed based on role
+    const { data: currentUserDoc, isLoading: isCurrentUserLoading } = useDoc<User>(
+        useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
+    );
+
+    // Directors and Admins need all users for management tasks
+    const shouldFetchAllUsers = useMemo(() => {
+        if (!currentUserDoc) return false;
+        return isDirector(currentUserDoc.role) || currentUserDoc.role === UserRole.ADMIN;
+    }, [currentUserDoc]);
+
+    const usersCollectionRef = useMemoFirebase(() => {
+        if (firestore && shouldFetchAllUsers) {
+            return collection(firestore, 'users');
+        }
+        return null;
+    }, [firestore, shouldFetchAllUsers]);
+
+    const { data: allUsersFromDB, isLoading: isUsersLoading } = useCollection<User>(usersCollectionRef);
+
+    const users = useMemo(() => {
+        if (shouldFetchAllUsers) {
+            return allUsersFromDB || [];
+        }
+        return currentUserDoc ? [currentUserDoc] : [];
+    }, [shouldFetchAllUsers, allUsersFromDB, currentUserDoc]);
+
+
     // Fetch all tasks for directors, or only assigned tasks for employees
     const tasksCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        const currentUserFromList = users.find(u => u.id === user.uid);
-        if (currentUserFromList && isEmployee(currentUserFromList.role)) {
-            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', user.uid));
+        if (!firestore || !currentUserDoc) return null;
+        if (isEmployee(currentUserDoc.role)) {
+            // Employees see only tasks where their ID is in the 'assignees' array field.
+            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', currentUserDoc.id));
         }
-        // For directors, fetch all tasks
+        // Directors and Admins see all tasks.
         return collection(firestore, 'tasks');
-    }, [firestore, user, users]);
+    }, [firestore, currentUserDoc]);
 
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
     const allTasks = useMemo(() => tasksData || [], [tasksData]);
@@ -120,10 +144,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, [notificationsDataFromDB]);
     
 
-    const { data: currentUserDoc, isLoading: isCurrentUserLoading } = useDoc<User>(
-        useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user])
-    );
-    
     const currentUserData = useMemo<User | null>(() => {
         if (currentUserDoc) return currentUserDoc;
         if (user) {
