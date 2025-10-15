@@ -103,10 +103,16 @@ export default function SignInPage() {
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Google sign-in error:", error);
+      let errorMessage = "Terjadi kesalahan saat login dengan Google.";
+       if (error.code === 'auth/popup-blocked') {
+        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
+      } else if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
+      }
       toast({
         variant: "destructive",
         title: "Login Google Gagal",
-        description: error.message || "Terjadi kesalahan yang tidak diketahui.",
+        description: errorMessage,
       });
     } finally {
       setIsGoogleLoading(false);
@@ -182,22 +188,23 @@ export default function SignInPage() {
                         </span>
                     </div>
                 </div>
-
-                <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
-                    onClick={handleGoogleSignIn}
-                    disabled={isLoading || isGoogleLoading}
-                >
-                    {isGoogleLoading ? (
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                        <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
-                    )}
-                    {t('signin.google_button')}
-                </Button>
             </div>
+        </form>
+
+        <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} className="p-8 pt-0">
+            <Button
+                type="submit"
+                variant="outline"
+                className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                disabled={isLoading || isGoogleLoading}
+            >
+                {isGoogleLoading ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                    <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
+                )}
+                {t('signin.google_button')}
+            </Button>
         </form>
       </div>
     </div>
