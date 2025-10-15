@@ -289,7 +289,7 @@
     "separator": "OR",
     "ai_generator": {
       "title": "AI Task Generator",
-      "placeholder": "Create Instagram content for 1 week",
+      "placeholder": "What would you like to work on?",
       "button": "Generate Task Suggestions",
       "loading_button": "Generating...",
       "suggestions_title": "Suggested Tasks:"
@@ -297,7 +297,7 @@
     "manual_form": {
       "title": "Create Task Manually",
       "task_title_label": "Task Title",
-      "task_title_placeholder": "Write an article about 2024 AI trends",
+      "task_title_placeholder": "Add a New Task",
       "category_label": "Category",
       "category_placeholder": "Select a category",
       "categories": {
