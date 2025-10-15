@@ -61,10 +61,10 @@ export default function LandingPage() {
           {t('landing.tagline')}
         </p>
         <div className="mt-8 flex flex-col sm:flex-row gap-4 w-full max-w-xs">
-          <Button asChild className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95" size="lg">
+          <Button asChild className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95 rounded-full" size="lg">
             <Link href="/signin">{t('landing.login')}</Link>
           </Button>
-          <Button asChild variant="secondary" className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95" size="lg">
+          <Button asChild variant="outline" className="w-full sm:w-1/2 h-12 text-base transition-all active:scale-95 rounded-full bg-transparent border-white/50 text-white hover:bg-white/10 hover:text-white" size="lg">
             <Link href="/signup">{t('landing.register')}</Link>
           </Button>
         </div>
