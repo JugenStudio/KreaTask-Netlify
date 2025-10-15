@@ -9,8 +9,14 @@ import { Input } from '@/components/ui/input';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { 
+    createUserWithEmailAndPassword, 
+    updateProfile, 
+    GoogleAuthProvider, 
+    signInWithPopup,
+    fetchSignInMethodsForEmail
+} from 'firebase/auth';
+import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -110,46 +116,72 @@ export default function SignUpPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignUp = async () => {
     if (!auth || !firestore) return;
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
+    // Force account selection every time
+    provider.setCustomParameters({
+        prompt: 'select_account'
+    });
+
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        const userEmail = user.email;
 
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
+        if (!userEmail) {
+            throw new Error("Akun Google tidak memiliki email.");
+        }
 
-      if (!userDoc.exists()) {
+        // Check if email already exists
+        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
+        if (methods.length > 0) {
+            // Email already exists, so sign out the temporary user and show error
+            if (auth.currentUser) {
+                await auth.signOut();
+            }
+            toast({
+                variant: "destructive",
+                title: "Akun Sudah Terdaftar",
+                description: "Email ini sudah terdaftar. Silakan gunakan halaman Masuk.",
+            });
+            setIsGoogleLoading(false);
+            return;
+        }
+
+        // Email does not exist, proceed with creating the new account
         const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
+            id: user.uid,
+            name: user.displayName || 'Google User',
+            email: user.email || '',
+            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+            role: UserRole.UNASSIGNED,
+            jabatan: 'Unassigned',
         };
-        await setDoc(userDocRef, newUser);
-      }
-      toast({
-        title: t('signup.google_success_title'),
-        description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
-      });
-      router.push('/dashboard');
+        await setDoc(doc(firestore, 'users', user.uid), newUser);
+
+        toast({
+            title: t('signup.google_success_title'),
+            description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
+        });
+        router.push('/dashboard');
+
     } catch (error: any) {
-      console.error("Google sign-in error:", error);
+      console.error("Google sign-up error:", error);
       let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
       if (error.code === 'auth/popup-blocked') {
         errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
       } else if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
+        errorMessage = 'Anda menutup jendela pendaftaran Google sebelum selesai.';
+      } else if (error.code !== 'auth/cancelled-popup-request') {
+          // Don't show a toast for a simple popup close
+          toast({
+            variant: "destructive",
+            title: "Pendaftaran Google Gagal",
+            description: errorMessage,
+          });
       }
-      toast({
-        variant: "destructive",
-        title: "Pendaftaran Google Gagal",
-        description: errorMessage,
-      });
     } finally {
       setIsGoogleLoading(false);
     }
@@ -158,10 +190,10 @@ export default function SignUpPage() {
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-        <div className={cn("w-full rounded-2xl bg-card/80 backdrop-blur-lg shadow-2xl border")}>
+        <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
              <form onSubmit={handleSignUp}>
                 <div className="p-8 space-y-6">
-                    <div className="flex items-center justify-center bg-muted rounded-full p-1 max-w-fit mx-auto">
+                    <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
                             <Link href="/signup">{t('signup.signup_button')}</Link>
                         </Button>
@@ -180,7 +212,7 @@ export default function SignUpPage() {
                             <Input
                             type="text"
                             placeholder={t('signup.name_placeholder')}
-                            className="pl-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                            className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
@@ -193,7 +225,7 @@ export default function SignUpPage() {
                             <Input
                             type="email"
                             placeholder={t('signup.email_placeholder')}
-                            className="pl-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                            className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
@@ -206,7 +238,7 @@ export default function SignUpPage() {
                             <Input
                             type={showPassword ? "text" : "password"}
                             placeholder={t('signup.password_placeholder')}
-                            className="pl-10 pr-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                            className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
@@ -222,7 +254,7 @@ export default function SignUpPage() {
                             <Input
                             type={showConfirmPassword ? "text" : "password"}
                             placeholder={t('signup.confirm_password_placeholder')}
-                            className="pl-10 pr-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                            className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
@@ -247,7 +279,7 @@ export default function SignUpPage() {
                     
                     <div className="relative">
                         <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t" />
+                            <span className="w-full border-t border-border/50" />
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-card px-2 text-muted-foreground">
@@ -259,8 +291,8 @@ export default function SignUpPage() {
                     <Button
                         type="button"
                         variant="outline"
-                        className="w-full h-12"
-                        onClick={handleGoogleSignIn}
+                        className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                        onClick={handleGoogleSignUp}
                         disabled={isLoading || isGoogleLoading}
                     >
                         {isGoogleLoading ? (

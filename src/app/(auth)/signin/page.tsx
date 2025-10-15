@@ -9,7 +9,12 @@ import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  signInWithPopup,
+  fetchSignInMethodsForEmail
+} from 'firebase/auth';
 import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -77,29 +82,39 @@ export default function SignInPage() {
     if (!auth || !firestore) return;
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
+    // Force account selection every time
+    provider.setCustomParameters({
+      prompt: 'select_account'
+    });
+
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+      
+      // Check if the user's email is actually registered in Firebase Auth
+      const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
 
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
-        };
-        await setDoc(userDocRef, newUser);
+      if (methods.length === 0) {
+        // This case is unlikely if signInWithPopup succeeds, but as a safeguard.
+        // It means the account doesn't exist.
+        if (auth.currentUser) {
+            await auth.signOut();
+        }
+        toast({
+            variant: "destructive",
+            title: "Akun Tidak Ditemukan",
+            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
+        });
+        setIsGoogleLoading(false);
+        return;
       }
+      
       toast({
         title: t('signin.google_success_title'),
         description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
       });
       router.push('/dashboard');
+
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       let errorMessage = "Terjadi kesalahan saat login dengan Google.";
@@ -120,10 +135,10 @@ export default function SignInPage() {
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
-      <div className={cn("w-full rounded-2xl bg-card/80 backdrop-blur-lg shadow-2xl border")}>
+      <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
          <form onSubmit={handleSignIn}>
             <div className="p-8 space-y-6">
-                <div className="flex items-center justify-center bg-muted rounded-full p-1 max-w-fit mx-auto">
+                <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                     <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
                         <Link href="/signup">{t('signin.signup_button')}</Link>
                     </Button>
@@ -142,7 +157,7 @@ export default function SignInPage() {
                         <Input
                         type="email"
                         placeholder={t('signin.email_placeholder')}
-                        className="pl-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                        className="pl-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
@@ -155,7 +170,7 @@ export default function SignInPage() {
                         <Input
                         type={showPassword ? "text" : "password"}
                         placeholder={t('signin.password_placeholder')}
-                        className="pl-10 pr-10 h-12 bg-background/30 placeholder:text-muted-foreground"
+                        className="pl-10 pr-10 h-12 bg-background/30 border-white/10 placeholder:text-muted-foreground"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
@@ -179,7 +194,7 @@ export default function SignInPage() {
 
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t" />
+                        <span className="w-full border-t border-border/50" />
                     </div>
                     <div className="relative flex justify-center text-xs uppercase">
                         <span className="bg-card px-2 text-muted-foreground">
@@ -194,7 +209,7 @@ export default function SignInPage() {
             <Button
                 type="submit"
                 variant="outline"
-                className="w-full h-12"
+                className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
                 disabled={isLoading || isGoogleLoading}
             >
                 {isGoogleLoading ? (
