@@ -1,21 +1,22 @@
+
+"use client";
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { cn } from '@/lib/utils';
-import { LanguageProvider } from '@/providers/language-provider';
+import { LanguageProvider, useLanguage } from '@/providers/language-provider';
 
+// Metadata can still be exported from a client component layout
 export const metadata: Metadata = {
   title: 'KreaTask',
   description: 'Creative Task Management',
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+function AppBody({ children }: { children: React.ReactNode }) {
+  const { locale } = useLanguage();
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang={locale} suppressHydrationWarning>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -30,11 +31,21 @@ export default function RootLayout({
           'min-h-screen bg-background font-body antialiased',
         )}
       >
-        <LanguageProvider>
-          {children}
-          <Toaster />
-        </LanguageProvider>
+        {children}
+        <Toaster />
       </body>
     </html>
+  );
+}
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <LanguageProvider>
+      <AppBody>{children}</AppBody>
+    </LanguageProvider>
   );
 }
