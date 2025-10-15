@@ -220,11 +220,11 @@
     },
     "history_panel": {
       "title": "Riwayat Semua Tugas Selesai",
-      "description": "Berikut adalah daftar semua tugas yang telah diselesaikan oleh tim, termasuk yang sudah dan belum divalidasi.",
-      "empty_title": "Semua Sudah Beres!",
+      "description": "Lihat riwayat tugas yang telah selesai dari seluruh tim.",
+      "empty_title": "Tidak Ada Tugas Ditemukan",
       "empty_desc": "Tidak ada tugas selesai untuk ditampilkan saat ini.",
       "filter": {
-        "title": "Filter",
+        "title": "Saring Laporan",
         "employee_placeholder": "Filter berdasarkan karyawan...",
         "all_employees": "Semua Karyawan",
         "date_placeholder": "Filter berdasarkan tanggal...",

@@ -220,11 +220,11 @@
     },
     "history_panel": {
       "title": "All Completed Task History",
-      "description": "Here is a list of all tasks completed by the team, including those that have been validated and those that have not.",
-      "empty_title": "All Caught Up!",
+      "description": "View the history of tasks completed by the team.",
+      "empty_title": "No Tasks Found",
       "empty_desc": "No completed tasks to show right now.",
       "filter": {
-        "title": "Filters",
+        "title": "Filter Report",
         "employee_placeholder": "Filter by employee...",
         "all_employees": "All Employees",
         "date_placeholder": "Filter by date range...",

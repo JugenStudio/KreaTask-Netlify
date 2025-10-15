@@ -366,7 +366,6 @@ export default function PerformanceReportPage() {
               <Card className="card-spotlight hover:border-primary/50 transition-colors">
                   <CardHeader className="p-4 md:p-6 pb-2 md:pb-4 border-b">
                       <div className="flex flex-wrap items-center justify-center gap-2">
-                          <h4 className="text-base font-semibold flex-shrink-0">{t('report.history_panel.filter.title')}</h4>
                           <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
                               <SelectTrigger className="w-full sm:w-[180px] h-9">
                                   <SelectValue placeholder={t('report.history_panel.filter.employee_placeholder')} />
