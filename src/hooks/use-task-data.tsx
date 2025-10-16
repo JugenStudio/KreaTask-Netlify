@@ -1,14 +1,16 @@
 
-
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
-import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
-import { collection, doc, addDoc, updateDoc, deleteDoc, setDoc, where, query, getDocs, writeBatch } from 'firebase/firestore';
-import { useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
+import type { Task, User, LeaderboardEntry, Notification, Subtask, File as FileType } from '@/lib/types';
 import { useUser } from '@/firebase/provider';
 import { UserRole } from '@/lib/types';
-import { isDirector, isEmployee } from '@/lib/roles';
+import { isEmployee } from '@/lib/roles';
+import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import * as schema from '@/db/schema';
+import { eq, inArray, desc, and } from 'drizzle-orm';
+import { useToast } from './use-toast';
 
 type DownloadItem = {
   id: number;
@@ -21,6 +23,7 @@ type DownloadItem = {
   progress: number;
 };
 
+// This function can be expanded with more complex logic as needed
 const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
     if (!tasks || !users) return [];
     
@@ -58,6 +61,7 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
     }));
 };
 
+
 export interface TaskDataContextType {
     isLoading: boolean;
     allTasks: Task[];
@@ -78,80 +82,111 @@ export interface TaskDataContextType {
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
     setAllTasks: (tasks: Task[]) => void;
     setUsers: (users: User[]) => void;
+    refetchData: () => Promise<void>;
 }
 
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
 
+const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+const db = drizzle(sql, { schema });
+
 export function TaskDataProvider({ children }: { children: ReactNode }) {
-    const firestore = useFirestore();
-    const { user, isUserLoading } = useUser();
-    
-    const currentUserDocRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
-    const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
-    
-    const allUsersCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !currentUserData || isEmployee(currentUserData.role)) {
-            return null;
-        }
-        return collection(firestore, 'users');
-    }, [firestore, currentUserData]);
+    const { user: firebaseUser, isUserLoading: isAuthLoading } = useUser();
+    const { toast } = useToast();
 
-    const { data: allUsersFromDB, isLoading: isAllUsersLoading } = useCollection<User>(allUsersCollectionRef);
-    
-    const users = useMemo(() => {
-        const userMap = new Map<string, User>();
-        if (currentUserData) {
-            userMap.set(currentUserData.id, currentUserData);
-        }
-        if (allUsersFromDB) {
-            allUsersFromDB.forEach(user => userMap.set(user.id, user));
-        }
-        return Array.from(userMap.values());
-    }, [allUsersFromDB, currentUserData]);
-
-
-    const tasksCollectionRef = useMemoFirebase(() => {
-        if (!firestore || isUserLoading || isCurrentUserLoading) return null;
-        if (!currentUserData) return null;
-
-        if (isEmployee(currentUserData.role)) {
-            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', { id: currentUserData.id, name: currentUserData.name, avatarUrl: currentUserData.avatarUrl, role: currentUserData.role, jabatan: currentUserData.jabatan }));
-        }
-
-        return collection(firestore, 'tasks');
-    }, [firestore, isUserLoading, isCurrentUserLoading, currentUserData]);
-
-    const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
-    const allTasks = useMemo(() => tasksData || [], [tasksData]);
-    
-    const notificationsCollectionRef = useMemoFirebase(() => {
-        if (!firestore || !user) return null;
-        return query(collection(firestore, 'notifications'), where("userId", "==", user.uid));
-    }, [firestore, user]);
-    const { data: notificationsDataFromDB, isLoading: isNotifsLoading } = useCollection<Notification>(notificationsCollectionRef);
+    const [allTasks, setAllTasks] = useState<Task[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [currentUserData, setCurrentUserData] = useState<User | null>(null);
     const [notifications, setNotifications] = useState<Notification[]>([]);
-
-    useEffect(() => {
-        if (notificationsDataFromDB) {
-            setNotifications(notificationsDataFromDB);
-        }
-    }, [notificationsDataFromDB]);
-    
+    const [isLoading, setIsLoading] = useState(true);
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
+    // Function to fetch all data from NeonDB
+    const fetchData = useCallback(async () => {
+        if (!firebaseUser) {
+            setIsLoading(false);
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            // Fetch current user data
+            const currentUserResult = await db.query.users.findFirst({
+                where: eq(schema.users.id, firebaseUser.uid),
+            });
+            setCurrentUserData(currentUserResult || null);
+
+            if (!currentUserResult) {
+              setIsLoading(false);
+              return;
+            }
+
+            // Fetch all users if director/admin, otherwise just the current user
+            let usersResult: User[];
+            if (isEmployee(currentUserResult.role)) {
+                usersResult = [currentUserResult];
+            } else {
+                usersResult = await db.query.users.findMany();
+            }
+            setUsers(usersResult);
+
+            // Fetch tasks based on user role
+            let tasksResult: Task[] = [];
+            const allDbTasks = await db.query.tasks.findMany({
+              with: {
+                assignees: { with: { user: true } },
+                subtasks: true,
+                files: true,
+                comments: { with: { author: true } },
+                revisions: { with: { author: true } },
+              }
+            });
+
+            tasksResult = allDbTasks.map(t => ({
+              ...t,
+              assignees: t.assignees.map(a => a.user),
+            })) as Task[];
+
+            if (isEmployee(currentUserResult.role)) {
+              setAllTasks(tasksResult.filter(t => t.assignees.some(a => a.id === currentUserResult.id)));
+            } else {
+              setAllTasks(tasksResult);
+            }
+            
+            // Fetch notifications
+            const notificationsResult = await db.query.notifications.findMany({
+                where: eq(schema.notifications.userId, firebaseUser.uid),
+                orderBy: desc(schema.notifications.createdAt),
+            });
+            setNotifications(notificationsResult as Notification[]);
+
+        } catch (error) {
+            console.error("Failed to fetch data from NeonDB:", error);
+            toast({
+              variant: "destructive",
+              title: "Failed to load data",
+              description: "Could not connect to the database."
+            })
+        } finally {
+            setIsLoading(false);
+        }
+    }, [firebaseUser, toast]);
+
+    useEffect(() => {
+        if (!isAuthLoading) {
+            fetchData();
+        }
+    }, [isAuthLoading, firebaseUser, fetchData]);
+
+
     useEffect(() => {
         if (currentUserData?.id) {
           try {
             const savedDownloads = localStorage.getItem(`kreatask_downloads_${currentUserData.id}`);
-            if (savedDownloads) {
-                setDownloadHistory(JSON.parse(savedDownloads));
-            } else {
-                setDownloadHistory([]);
-            }
-          } catch (error) {
-              console.error("Failed to load downloads from localStorage:", error);
-          }
+            if (savedDownloads) setDownloadHistory(JSON.parse(savedDownloads));
+            else setDownloadHistory([]);
+          } catch (error) { console.error("Failed to load downloads:", error); }
         }
     }, [currentUserData?.id]);
 
@@ -163,72 +198,99 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
 
-    const addTask = useCallback(async (newTaskData: Partial<Task>) => {
-        if (!firestore || !user) return;
-        const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? users.find(u => u.id === a) : a).filter(Boolean);
-        const docWithAssigneeUids = { ...newTaskData, assignees };
-        await addDoc(collection(firestore, 'tasks'), docWithAssigneeUids);
-    }, [firestore, user, users]);
+    const addTask = useCallback(async (taskData: Partial<Task>) => {
+      const { assignees, subtasks: subtaskItems, files: fileItems, ...restOfTask } = taskData;
+      
+      await db.transaction(async (tx) => {
+        const [newTask] = await tx.insert(schema.tasks).values(restOfTask as any).returning();
+        
+        if (assignees && assignees.length > 0) {
+          await tx.insert(schema.tasksToUsers).values(assignees.map(user => ({
+            taskId: newTask.id,
+            userId: user.id,
+          })));
+        }
+        if (subtaskItems && subtaskItems.length > 0) {
+          await tx.insert(schema.subtasks).values(subtaskItems.map(st => ({...st, taskId: newTask.id})));
+        }
+        if (fileItems && fileItems.length > 0) {
+          await tx.insert(schema.files).values(fileItems.map(f => ({...f, taskId: newTask.id})));
+        }
+      });
+      await fetchData(); // Refetch data after adding
+    }, [fetchData]);
 
     const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
-        if (!firestore || !user) return;
-        const taskRef = doc(firestore, 'tasks', taskId);
-        const updatePayload: Partial<Task> = { ...updates };
-         if (updates.assignees) {
-            updatePayload.assignees = updates.assignees.map(a => {
-                if (typeof a === 'string') {
-                    const foundUser = users.find(u=>u.id === a);
-                    return foundUser ? { id: foundUser.id, name: foundUser.name, avatarUrl: foundUser.avatarUrl, role: foundUser.role, jabatan: foundUser.jabatan } : null;
-                }
-                return a;
-            }).filter(Boolean) as User[];
+      const { assignees, subtasks: subtaskItems, files: fileItems, revisions, ...restOfUpdates } = updates;
+      
+      await db.transaction(async (tx) => {
+        if (Object.keys(restOfUpdates).length > 0) {
+            await tx.update(schema.tasks).set(restOfUpdates as any).where(eq(schema.tasks.id, taskId));
         }
-        await updateDoc(taskRef, updatePayload as any);
-    }, [firestore, user, users]);
+
+        if (assignees) {
+            await tx.delete(schema.tasksToUsers).where(eq(schema.tasksToUsers.taskId, taskId));
+            if (assignees.length > 0) {
+                await tx.insert(schema.tasksToUsers).values(assignees.map(user => ({
+                    taskId: taskId,
+                    userId: user.id,
+                })));
+            }
+        }
+        
+        if (revisions) {
+            const newRevision = revisions[revisions.length - 1];
+            if (newRevision) {
+                await tx.insert(schema.revisions).values({
+                    id: newRevision.id,
+                    timestamp: new Date(newRevision.timestamp),
+                    change: newRevision.change,
+                    authorId: newRevision.author.id,
+                    taskId: taskId,
+                });
+            }
+        }
+        
+        if (subtaskItems) {
+           await tx.delete(schema.subtasks).where(eq(schema.subtasks.taskId, taskId));
+           if(subtaskItems.length > 0) {
+               await tx.insert(schema.subtasks).values(subtaskItems.map(st => ({...st, taskId})));
+           }
+        }
+      });
+      await fetchData();
+    }, [fetchData]);
 
     const deleteTask = useCallback(async (taskId: string) => {
-        if (!firestore || !user) return;
-        await deleteDoc(doc(firestore, 'tasks', taskId));
-    }, [firestore, user]);
+        await db.delete(schema.tasks).where(eq(schema.tasks.id, taskId));
+        await fetchData();
+    }, [fetchData]);
     
     const updateUserInFirestore = useCallback(async (userId: string, data: Partial<User>) => {
-        if (!firestore) return;
-        const userRef = doc(firestore, 'users', userId);
-        await updateDoc(userRef, data);
-    }, [firestore]);
+        await db.update(schema.users).set(data).where(eq(schema.users.id, userId));
+        await fetchData();
+    }, [fetchData]);
 
     const deleteUser = useCallback(async (userId: string) => {
-        if (!firestore) return;
-        await deleteDoc(doc(firestore, 'users', userId));
-    }, [firestore]);
+        await db.delete(schema.users).where(eq(schema.users.id, userId));
+        await fetchData();
+    }, [fetchData]);
 
-    const addNotification = useCallback(async (newNotificationData: Partial<Notification>) => {
-        if (!firestore) return;
-        const newNotif = {
-            id: `notif-${Date.now()}`,
-            read: false,
-            createdAt: new Date().toISOString(),
-            ...newNotificationData
-        };
-        const notifRef = doc(collection(firestore, 'notifications'), newNotif.id);
-        await setDoc(notifRef, newNotif);
-    }, [firestore]);
+    const addNotification = useCallback(async (notificationData: Partial<Notification>) => {
+        await db.insert(schema.notifications).values(notificationData as any);
+        await fetchData();
+    }, [fetchData]);
     
     const updateNotifications = useCallback(async (notificationsToUpdate: Notification[]) => {
-        if (!firestore) return;
-        const batch = writeBatch(firestore);
-
-        notificationsToUpdate.forEach(notif => {
-            const notifRef = doc(firestore, 'notifications', notif.id);
-            batch.update(notifRef, { read: notif.read });
-        });
-
-        await batch.commit();
-        setNotifications(prev => prev.map(n => {
-            const updated = notificationsToUpdate.find(u => u.id === n.id);
-            return updated || n;
-        }));
-    }, [firestore]);
+      await db.transaction(async (tx) => {
+        for (const notif of notificationsToUpdate) {
+            await tx.update(schema.notifications)
+              .set({ read: notif.read })
+              .where(eq(schema.notifications.id, notif.id));
+        }
+      });
+      await fetchData();
+    }, [fetchData]);
 
     const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
@@ -253,16 +315,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
       });
     }, []);
     
-    const setAllTasks = (newTasks: Task[]) => {
-      console.warn("setAllTasks is a no-op with a real-time Firestore backend.");
-    };
-
-    const setUsers = (newUsers: User[]) => {
-      console.warn("setUsers is a no-op with a real-time Firestore backend.");
-    };
-
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isUserLoading || isTasksDataLoading || isNotifsLoading || isCurrentUserLoading || isAllUsersLoading,
+        isLoading: isLoading || isAuthLoading,
         allTasks,
         users,
         currentUserData,
@@ -279,13 +333,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         updateUserInFirestore,
         deleteUser,
         addToDownloadHistory,
-        setAllTasks,
-        setUsers,
+        setAllTasks: setAllTasks, 
+        setUsers: setUsers,
+        refetchData: fetchData,
     }), [
-        isUserLoading, isTasksDataLoading, isNotifsLoading, isCurrentUserLoading, isAllUsersLoading,
+        isLoading, isAuthLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
         downloadHistory, addTask, updateTask, deleteTask, 
-        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory, updateNotifications
+        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory, updateNotifications, fetchData
     ]);
 
     return (
@@ -302,3 +357,5 @@ export const useTaskData = () => {
     }
     return context;
 };
+
+    
