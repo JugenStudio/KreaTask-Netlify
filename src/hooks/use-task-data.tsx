@@ -66,7 +66,9 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
 export interface TaskDataContextType {
     isLoading: boolean;
     allTasks: Task[];
+    setAllTasks: React.Dispatch<React.SetStateAction<Task[]>>;
     users: User[];
+    setUsers: React.Dispatch<React.SetStateAction<User[]>>;
     currentUserData: User | null;
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
@@ -74,8 +76,6 @@ export interface TaskDataContextType {
     downloadHistory: DownloadItem[];
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
-    setAllTasks: (tasks: Task[]) => void;
-    setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
     refetchData: () => Promise<void>;
 }
 
@@ -217,7 +217,9 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const value: TaskDataContextType = useMemo(() => ({
         isLoading: isLoading || isAuthLoading,
         allTasks,
+        setAllTasks,
         users,
+        setUsers,
         currentUserData,
         leaderboardData,
         notifications,
@@ -225,8 +227,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         downloadHistory,
         setDownloadHistory,
         addToDownloadHistory,
-        setAllTasks: setAllTasks, 
-        setUsers: setUsers,
         refetchData: fetchData,
     }), [
         isLoading, isAuthLoading,
