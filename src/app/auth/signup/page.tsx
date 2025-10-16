@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -42,7 +41,7 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     const validation = signupSchema.safeParse({ name, email, password, confirmPassword });
 
     if (!validation.success) {
@@ -58,9 +57,16 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
-      // Placeholder for API call
-      console.log("Signing up with:", name, email);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+       const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Pendaftaran Gagal');
+      }
 
       toast({
         title: "Pendaftaran Berhasil",
@@ -68,10 +74,11 @@ export default function SignUpPage() {
       });
 
       router.push('/dashboard');
+      router.refresh();
 
-    } catch (firebaseError: any) {
-      let errorMessage = "Gagal mendaftar. Silakan coba lagi.";
-      if (firebaseError.code === 'auth/email-already-in-use') {
+    } catch (err: any) {
+      let errorMessage = err.message || 'Gagal mendaftar. Silakan coba lagi.';
+      if (err.message.includes('unique constraint')) {
         errorMessage = 'Email ini sudah digunakan oleh akun lain.';
       }
       setErrors({ form: errorMessage });
@@ -87,15 +94,14 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    await signIn('google', { callbackUrl: '/dashboard' });
+    await signIn('google', { callbackUrl: '/dashboard', prompt: 'select_account' });
   };
 
-
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+    <div className="w-full max-w-sm mx-auto flex flex-col items-center pt-8">
         <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
-             <form onSubmit={handleSignUp}>
-                <div className="p-8 space-y-6">
+             <div className="p-8 space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-6">
                     <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
                             <Link href="/signup">{t('signup.signup_button')}</Link>
@@ -179,18 +185,20 @@ export default function SignUpPage() {
                             {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('signup.submit_button')}
                         </Button>
                     </div>
-                    
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border/50" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">
-                            {t('signup.separator')}
-                            </span>
-                        </div>
+                </form>
+                
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/50" />
                     </div>
-                    
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                        {t('signup.separator')}
+                        </span>
+                    </div>
+                </div>
+                
+                <div className="px-8 pb-8">
                     <Button
                         type="button"
                         variant="outline"
@@ -205,11 +213,11 @@ export default function SignUpPage() {
                     )}
                     {t('signup.google_button')}
                 </Button>
-                    <p className="text-center text-xs text-muted-foreground !mt-8">
-                        {t('signup.terms')}
-                    </p>
+                      <p className="text-center text-xs text-muted-foreground mt-8">
+                          {t('signup.terms')}
+                      </p>
                 </div>
-            </form>
+            </div>
         </div>
     </div>
   );
