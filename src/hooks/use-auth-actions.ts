@@ -5,12 +5,12 @@ import { useCallback } from 'react';
 import { useCurrentUser } from '@/app/(app)/layout';
 import { useTaskData } from './use-task-data';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { firebaseConfig } from '@/firebase/config';
 
 // Initialize firebase for storage operations
 // We keep this isolated as we only need it for file uploads, not auth/db.
-const app = initializeApp(firebaseConfig);
+const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 // This hook now uses custom API endpoints instead of Firebase Auth SDK directly for most actions.
 // Password changes still need Firebase SDK on the client, or a custom backend flow (e.g., email link).
@@ -53,9 +53,15 @@ export function useAuthActions() {
   }, [currentUser, updateUserProfile]);
 
 
+  const updateUserEmail = useCallback(async (newEmail: string) => {
+    // This is a placeholder. In a real app, this should be a secure API endpoint
+    // that sends a verification email to the new address before changing.
+    throw new Error("Changing email requires a secure backend implementation which is not yet built.");
+  }, []);
+
   return {
     updateUserProfile,
-    updateUserEmail: () => Promise.reject("Not implemented"), // Email update needs secure backend flow
+    updateUserEmail,
     changeUserPassword,
     uploadProfilePicture,
   };
