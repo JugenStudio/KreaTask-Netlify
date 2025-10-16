@@ -12,16 +12,20 @@ import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { useFirestore } from "@/firebase";
-import { writeBatch, doc, deleteDoc } from "firebase/firestore";
+import { neon } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-http";
+import * as schema from "@/db/schema";
+import { eq, and, inArray } from "drizzle-orm";
+
 
 interface NotificationCenterProps {
     currentUser: User | null;
 }
 
+const db = drizzle(neon(process.env.NEXT_PUBLIC_DATABASE_URL!), { schema });
+
 export function NotificationCenter({ currentUser }: NotificationCenterProps) {
-  const { notifications, setNotifications, updateNotifications } = useTaskData();
-  const firestore = useFirestore();
+  const { notifications, setNotifications, updateNotifications, refetchData } = useTaskData();
   const [isOpen, setIsOpen] = useState(false);
   const [isSilent, setIsSilent] = useState(false);
   const router = useRouter();
@@ -81,27 +85,26 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   const toggleSilent = () => setIsSilent(!isSilent);
 
   const markAllAsRead = async () => {
-    const notificationsToUpdate = userNotifications
-        .filter(n => !n.read)
-        .map(n => ({ ...n, read: true }));
-
-    if (notificationsToUpdate.length > 0) {
-        await updateNotifications(notificationsToUpdate);
+    const unreadNotifications = userNotifications.filter(n => !n.read);
+    if (unreadNotifications.length > 0) {
+        await updateNotifications(unreadNotifications.map(n => ({...n, read: true})));
     }
   };
   
   const clearAllNotifications = async () => {
-    if (!firestore || !currentUser) return;
-
-    const batch = writeBatch(firestore);
-    userNotifications.forEach(notif => {
-      const notifRef = doc(firestore, 'notifications', notif.id);
-      batch.delete(notifRef);
-    });
+    if (!currentUser) return;
     
-    await batch.commit();
+    const notificationIds = userNotifications.map(n => n.id);
+    if(notificationIds.length === 0) return;
 
-    setNotifications(prev => prev.filter(n => n.userId !== currentUser.id));
+    await db.delete(schema.notifications).where(
+      and(
+        eq(schema.notifications.userId, currentUser.id),
+        inArray(schema.notifications.id, notificationIds)
+      )
+    );
+    
+    await refetchData();
     setIsOpen(false);
   };
 

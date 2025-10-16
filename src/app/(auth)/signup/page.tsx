@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -77,7 +78,6 @@ export default function SignUpPage() {
         photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
       });
 
-      // Ensure user doc exists in Postgres
       await ensureUserDoc(firebaseUser);
 
       toast({
@@ -116,7 +116,6 @@ export default function SignUpPage() {
       .then(async (result) => {
         const user = result.user;
         
-        // Ensure user doc exists in Postgres
         await ensureUserDoc(user);
 
         toast({

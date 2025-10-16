@@ -24,7 +24,7 @@ import { EditTaskModal } from "@/components/tasks/edit-task-modal";
 
 export default function AllTasksPage() {
   const { currentUser } = useCurrentUser();
-  const { allTasks, users, isLoading, setAllTasks } = useTaskData();
+  const { allTasks, users, isLoading } = useTaskData();
   const searchParams = useSearchParams();
   const { t, locale } = useLanguage();
   const query = searchParams.get('q') || '';
@@ -185,7 +185,7 @@ export default function AllTasksPage() {
         {viewMode === 'list' ? (
           <TaskTable tasks={filteredTasks} currentUser={currentUser} onEdit={handleEditTask} />
         ) : (
-          <KanbanBoard tasks={filteredTasks} setTasks={setAllTasks} allTasks={allTasks} />
+          <KanbanBoard tasks={filteredTasks} />
         )}
       </div>
       {taskToEdit && (

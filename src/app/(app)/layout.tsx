@@ -12,7 +12,7 @@ import type { User } from "@/lib/types";
 import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data.tsx";
+import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
 import { FirebaseClientProvider } from "@/firebase/client-provider";
 
@@ -29,12 +29,6 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   
   const currentUser = currentUserData;
 
-
-  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
-      return <>{children}</>
-  }
-  
-  // The main loading state now only depends on the user loading process
   const isLoading = isTaskDataLoading;
 
   if (isLoading) {
@@ -86,7 +80,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  if (pathname.startsWith('/signin') || pathname.startsWith('/signup') || pathname.startsWith('/landing')) {
+  // We still need FirebaseClientProvider for Auth, but not for pages that don't need auth
+  if (pathname.startsWith('/landing')) {
     return (
         <FirebaseClientProvider>
             <LanguageProvider>{children}</LanguageProvider>

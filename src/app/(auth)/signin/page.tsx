@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -11,8 +12,7 @@ import { useAuth } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
-  signInWithPopup,
-  fetchSignInMethodsForEmail 
+  signInWithPopup
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -87,7 +87,6 @@ export default function SignInPage() {
       .then(async (result) => {
         const user = result.user;
         
-        // Ensure user doc exists in Postgres
         await ensureUserDoc(user);
         
         toast({
