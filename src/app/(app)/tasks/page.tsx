@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { TaskTable } from "@/components/dashboard/task-table";
+import { TaskTable } from "@/components/tasks/task-table";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTaskData } from "@/hooks/use-task-data";
@@ -86,8 +86,8 @@ export default function AllTasksPage() {
         task.assignees.some(assignee => supervisedRoles.includes(assignee.role))
       );
     }
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
-      // Level 3: Direktur Utama melihat semua tugas
+    if (currentUser.role === UserRole.DIREKTUR_UTAMA || currentUser.role === UserRole.ADMIN) {
+      // Level 3: Direktur Utama & Admin melihat semua tugas
       return allTasks;
     }
     // Fallback jika peran tidak terdefinisi

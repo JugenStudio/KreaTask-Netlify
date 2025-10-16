@@ -14,7 +14,6 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
   const showBackButton = pathname !== '/landing';
 
   return (
-    <FirebaseClientProvider>
       <LanguageProvider>
         <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 relative">
           
@@ -34,6 +33,5 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </div>
         </div>
       </LanguageProvider>
-    </FirebaseClientProvider>
   );
 }

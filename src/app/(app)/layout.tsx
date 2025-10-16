@@ -86,8 +86,12 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
-    return <LanguageProvider>{children}</LanguageProvider>;
+  if (pathname.startsWith('/signin') || pathname.startsWith('/signup') || pathname.startsWith('/landing')) {
+    return (
+        <FirebaseClientProvider>
+            <LanguageProvider>{children}</LanguageProvider>
+        </FirebaseClientProvider>
+    );
   }
   
   return (
