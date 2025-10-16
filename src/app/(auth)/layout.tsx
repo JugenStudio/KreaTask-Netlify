@@ -1,4 +1,3 @@
-
 'use client';
 
 import { ReactNode } from 'react';
@@ -27,9 +26,9 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <div className="relative z-10 w-full flex-grow flex items-center justify-center">
+        <main className="relative z-10 w-full flex-grow flex items-center justify-center">
             {children}
-        </div>
+        </main>
       </div>
     </LanguageProvider>
   );
