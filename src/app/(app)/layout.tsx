@@ -7,7 +7,7 @@ import { LanguageProvider } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import { useEffect, useState, createContext, useContext, ReactNode, useMemo } from "react";
 import type { User, UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BottomNav } from "@/components/bottom-nav";
