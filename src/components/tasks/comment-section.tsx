@@ -85,7 +85,7 @@ export function CommentSection({ taskId, comments, currentUser }: CommentSection
     };
     
     const updatedComments = [...localComments, comment];
-    await updateTaskAction(taskId, { comments: updatedComments });
+    await updateTaskAction(taskId, { comments: updatedComments }, currentUser.id);
     
     setNewComment("");
     setIsPosting(false);
@@ -93,7 +93,7 @@ export function CommentSection({ taskId, comments, currentUser }: CommentSection
   
   const handleDeleteComment = async (commentId: string) => {
     const updatedComments = localComments.filter(c => c.id !== commentId);
-    await updateTaskAction(taskId, { comments: updatedComments });
+    await updateTaskAction(taskId, { comments: updatedComments }, currentUser.id);
   };
   
   const handleEditComment = (comment: CommentType) => {
@@ -112,7 +112,7 @@ export function CommentSection({ taskId, comments, currentUser }: CommentSection
       c.id === editingComment.id ? { ...c, content: finalContent, timestamp: new Date().toISOString() } : c
     );
     
-    await updateTaskAction(taskId, { comments: updatedComments });
+    await updateTaskAction(taskId, { comments: updatedComments }, currentUser.id);
 
     setEditingComment(null);
     setEditingText("");
@@ -123,7 +123,7 @@ export function CommentSection({ taskId, comments, currentUser }: CommentSection
     const updatedComments = localComments.map(c => 
         c.id === commentId ? { ...c, isPinned: !c.isPinned } : c
     );
-    await updateTaskAction(taskId, { comments: updatedComments });
+    await updateTaskAction(taskId, { comments: updatedComments }, currentUser.id);
   };
   
   const handleReply = (authorName: string) => {
@@ -281,4 +281,3 @@ export function CommentSection({ taskId, comments, currentUser }: CommentSection
     </div>
   );
 }
-    

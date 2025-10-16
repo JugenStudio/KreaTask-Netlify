@@ -50,6 +50,7 @@ import { useCurrentUser } from "@/app/(app)/layout";
 import Image from 'next/image';
 import { Checkbox } from "../ui/checkbox";
 import { isEmployee } from "@/lib/roles";
+import { useToast } from "@/hooks/use-toast";
 
 const subtaskSchema = z.object({
   id: z.string(),
@@ -95,6 +96,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
   const { currentUser } = useCurrentUser();
   const { users } = useTaskData();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const assignableUsers = useMemo(() => users, [users]);
   
@@ -172,7 +174,7 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         valueCategory: valueCategory,
       };
 
-      await updateTaskAction(task.id, updates);
+      await updateTaskAction(task.id, updates, currentUser.id);
       
       if (assignedUser) {
         await createNotificationAction({
@@ -186,9 +188,18 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         });
       }
 
+      toast({
+        title: "Task Updated",
+        description: `Task "${values.title}" has been successfully updated.`,
+      });
       onOpenChange(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to update task", error);
+      toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
     } finally {
         setIsSubmitting(false);
     }
@@ -339,4 +350,3 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     </Dialog>
   );
 }
-    

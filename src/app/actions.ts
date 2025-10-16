@@ -12,7 +12,7 @@ import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
 import { eq, inArray, and, desc, lt, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
-import { isDirector, isEmployee } from '@/lib/roles';
+import { isDirector, isEmployee, isSuperAdmin } from "@/lib/roles";
 import { subMonths } from 'date-fns';
 
 import '@/env'; // This is safe to import here as this file is server-only.
@@ -145,6 +145,9 @@ export async function getInitialDashboardData(userId: string) {
         users = await db.query.users.findMany() as User[];
     }
 
+    // Determine if the user has management capabilities on the server
+    const canManageUsers = isDirector(currentUser.role) || isSuperAdmin(currentUser.role);
+
     // Fetch tasks based on user role. We fetch all and filter in memory for simplicity,
     // but this could be optimized with more complex queries if performance becomes an issue.
     const allDbTasks = await db.query.tasks.findMany({
@@ -174,6 +177,7 @@ export async function getInitialDashboardData(userId: string) {
         users,
         allTasks: tasks,
         notifications: notifications as Notification[],
+        canManageUsers, // Return the server-calculated flag
     };
 }
 
@@ -213,8 +217,22 @@ export async function createNewTask(taskData: Omit<Task, 'id' | 'createdAt' | 'r
     return { id: newTaskId, title: taskData.title };
 }
 
-export async function updateTaskAction(taskId: string, updates: Partial<Task>) {
+export async function updateTaskAction(taskId: string, updates: Partial<Task>, userId: string) {
     const db = getDb();
+    
+    // Authorization Check
+    const user = await db.query.users.findFirst({ where: eq(schema.users.id, userId) });
+    const task = await db.query.tasks.findFirst({ where: eq(schema.tasks.id, taskId), with: { assignees: true } });
+
+    if (!user || !task) throw new Error("User or Task not found.");
+
+    const isOwner = task.assignees.some(a => a.userId === userId);
+    const canUpdate = isDirector(user.role) || isSuperAdmin(user.role) || isOwner;
+
+    if (!canUpdate) {
+        throw new Error("Unauthorized: You do not have permission to update this task.");
+    }
+    
     const { assignees, subtasks: subtaskItems, files: fileItems, comments: commentItems, revisions, ...restOfUpdates } = updates;
 
     await db.transaction(async (tx) => {

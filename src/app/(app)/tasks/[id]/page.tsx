@@ -55,12 +55,20 @@ export default function TaskDetailPage() {
   const { t } = useLanguage();
 
   const handleStatusChange = async (newStatus: TaskStatus) => {
-    if (!task) return;
-    await updateTaskAction(task.id, { status: newStatus });
-    toast({
-      title: t('task.status_change_toast.title'),
-      description: t('task.status_change_toast.description', { title: task.title[t.locale], status: t(`all_tasks.status.${newStatus.toLowerCase().replace(' ', '_')}`) }),
-    });
+    if (!task || !currentUser) return;
+    try {
+      await updateTaskAction(task.id, { status: newStatus }, currentUser.id);
+      toast({
+        title: t('task.status_change_toast.title'),
+        description: t('task.status_change_toast.description', { title: task.title[t.locale], status: t(`all_tasks.status.${newStatus.toLowerCase().replace(' ', '_')}`) }),
+      });
+    } catch (error: any) {
+       toast({
+        variant: "destructive",
+        title: "Update Failed",
+        description: error.message,
+      });
+    }
   }
 
   if (isLoading || !currentUser) {
@@ -148,4 +156,3 @@ export default function TaskDetailPage() {
     </>
   );
 }
-    

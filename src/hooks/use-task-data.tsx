@@ -73,6 +73,7 @@ export interface TaskDataContextType {
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
     refetchData: () => Promise<void>;
+    canManageUsers: boolean; // Add the server-side calculated flag
 }
 
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
@@ -86,6 +87,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const [currentUserData, setCurrentUserData] = useState<User | null>(null);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [canManageUsers, setCanManageUsers] = useState(false); // State for the flag
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
@@ -98,11 +100,13 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
         setIsLoading(true);
         try {
-            const { currentUser, users, allTasks, notifications } = await getInitialDashboardData(authUser.id);
+            // Fetch the flag from the server action along with other data
+            const { currentUser, users, allTasks, notifications, canManageUsers: serverCanManageUsers } = await getInitialDashboardData(authUser.id);
             setCurrentUserData(currentUser);
             setUsers(users);
             setAllTasks(allTasks);
             setNotifications(notifications);
+            setCanManageUsers(serverCanManageUsers); // Set the state from server data
         } catch (error) {
             console.error("Failed to fetch data:", error);
             toast({
@@ -180,10 +184,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         setDownloadHistory,
         addToDownloadHistory,
         refetchData: fetchData,
+        canManageUsers, // Provide the flag through context
     }), [
         isLoading, isAuthLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
-        downloadHistory, addToDownloadHistory, fetchData
+        downloadHistory, addToDownloadHistory, fetchData, canManageUsers
     ]);
 
     return (
@@ -200,5 +205,3 @@ export const useTaskData = () => {
     }
     return context;
 };
-
-    

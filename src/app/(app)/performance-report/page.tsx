@@ -46,7 +46,8 @@ export default function PerformanceReportPage() {
 
 
   const handleApprove = (taskId: string) => {
-    updateTaskAction(taskId, { approvedBy: "Direktur Utama" });
+    if (!currentUser) return;
+    updateTaskAction(taskId, { approvedBy: "Direktur Utama" }, currentUser.id);
     toast({
       title: t('report.toast.approved.title'),
       description: t('report.toast.approved.description'),
@@ -54,8 +55,9 @@ export default function PerformanceReportPage() {
   };
 
   const handleBulkApprove = () => {
+    if (!currentUser) return;
     selectedForApproval.forEach(taskId => {
-        updateTaskAction(taskId, { approvedBy: "Direktur Utama" });
+        updateTaskAction(taskId, { approvedBy: "Direktur Utama" }, currentUser.id);
     });
     toast({
       title: t('report.validation_panel.tasks_approved_toast', { count: selectedForApproval.size.toString() }),
@@ -70,7 +72,8 @@ export default function PerformanceReportPage() {
   };
 
   const handleUpdateAndApprove = (taskId: string, newValue: number) => {
-    updateTaskAction(taskId, { value: newValue, approvedBy: "Direktur Utama" });
+    if (!currentUser) return;
+    updateTaskAction(taskId, { value: newValue, approvedBy: "Direktur Utama" }, currentUser.id);
     toast({
       title: t('report.toast.updated.title'),
       description: t('report.toast.updated.description', { value: newValue.toString() }),
@@ -448,4 +451,3 @@ export default function PerformanceReportPage() {
     </>
   )
 }
-    

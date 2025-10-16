@@ -10,7 +10,6 @@ import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/providers/language-provider";
 import { useCurrentUser } from "@/app/(app)/layout";
-import { isEmployee } from "@/lib/roles";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Languages, Laptop, Moon, Sun, ArrowLeft, Info, ChevronRight } from "lucide-react";
@@ -29,7 +28,7 @@ type Theme = "light" | "dark" | "system";
 
 export default function SettingsPage() {
   const { currentUser } = useCurrentUser();
-  const { users, isLoading, setUsers } = useTaskData();
+  const { users, isLoading, setUsers, canManageUsers } = useTaskData();
   const { t, locale, setLocale } = useLanguage();
   const [theme, setTheme] = useState<Theme>("system");
 
@@ -82,7 +81,6 @@ export default function SettingsPage() {
     );
   }
   
-  const canManageUsers = !isEmployee(currentUser.role);
 
   return (
     <div className="space-y-6 md:space-y-8 max-w-4xl mx-auto">

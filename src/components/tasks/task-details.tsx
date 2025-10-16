@@ -122,21 +122,22 @@ export function TaskDetails({ task }: TaskDetailsProps) {
   };
 
 
-  const handleSubtaskChange = (subtaskId: string, checked: boolean) => {
+  const handleSubtaskChange = async (subtaskId: string, checked: boolean) => {
+    if(!currentUser) return;
     const updatedSubtasks = task.subtasks?.map(st => 
         st.id === subtaskId ? { ...st, isCompleted: checked } : st
     );
-    updateTaskAction(task.id, { subtasks: updatedSubtasks });
+    await updateTaskAction(task.id, { subtasks: updatedSubtasks }, currentUser.id);
   };
   
   const handleDeleteFileClick = (file: FileType) => {
     setFileToDelete(file);
   };
   
-  const confirmDeleteFile = () => {
-    if (!fileToDelete) return;
+  const confirmDeleteFile = async () => {
+    if (!fileToDelete || !currentUser) return;
     const updatedFiles = task.files?.filter(file => file.id !== fileToDelete.id);
-    updateTaskAction(task.id, { files: updatedFiles });
+    await updateTaskAction(task.id, { files: updatedFiles }, currentUser.id);
 
     toast({
       title: t('task.attachments.delete_toast.success_title'),
@@ -163,7 +164,7 @@ export function TaskDetails({ task }: TaskDetailsProps) {
 
     const fileObjects = await Promise.all(fileObjectsPromises);
     const updatedFiles = [...(task.files || []), ...fileObjects];
-    await updateTaskAction(task.id, { files: updatedFiles });
+    await updateTaskAction(task.id, { files: updatedFiles }, currentUser.id);
     
     await createNotificationAction({
       userId: currentUser.id,
@@ -202,15 +203,17 @@ export function TaskDetails({ task }: TaskDetailsProps) {
     setEditingNote(file.note || '');
   };
 
-  const handleSaveNote = (fileId: string) => {
+  const handleSaveNote = async (fileId: string) => {
+    if(!currentUser) return;
     const updatedFiles = task.files?.map(f => f.id === fileId ? { ...f, note: editingNote } : f);
-    updateTaskAction(task.id, { files: updatedFiles });
+    await updateTaskAction(task.id, { files: updatedFiles }, currentUser.id);
     setEditingFileId(null);
     setEditingNote('');
   };
 
   const handleSubmitForReview = async () => {
-    await updateTaskAction(task.id, { status: "In Review" });
+    if (!currentUser) return;
+    await updateTaskAction(task.id, { status: "In Review" }, currentUser.id);
 
     toast({
         title: t('task.submit.toast.success_title'),

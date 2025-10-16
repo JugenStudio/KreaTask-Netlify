@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { DragDropContext, Droppable, Draggable, type DropResult, type DroppableProps } from 'react-beautiful-dnd';
-import type { Task, TaskStatus } from "@/lib/types";
+import type { Task, TaskStatus, User } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,6 +14,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTaskData } from "@/hooks/use-task-data";
 import { updateTaskAction } from "@/app/actions";
+import { useCurrentUser } from "@/app/(app)/layout";
 
 /**
  * StrictModeDroppable is a workaround for the `react-beautiful-dnd` library not being fully compatible
@@ -148,6 +149,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
 export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     const { t } = useLanguage();
     const { setAllTasks } = useTaskData();
+    const { currentUser } = useCurrentUser();
 
     const tasksByStatus = statusColumns.reduce((acc, status) => {
         acc[status] = tasks.filter(task => task.status === status)
@@ -158,7 +160,7 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     const onDragEnd = (result: DropResult) => {
         const { source, destination, draggableId } = result;
 
-        if (!destination) {
+        if (!destination || !currentUser) {
             return;
         }
 
@@ -176,7 +178,7 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
         );
 
         // Call server action to persist the change
-        updateTaskAction(draggableId, { status: newStatus });
+        updateTaskAction(draggableId, { status: newStatus }, currentUser.id);
     };
 
     if (tasks.length === 0) {
@@ -205,4 +207,3 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     </DragDropContext>
   );
 }
-    
