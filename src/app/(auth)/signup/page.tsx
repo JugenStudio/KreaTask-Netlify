@@ -15,9 +15,7 @@ import {
     signInWithPopup,
     fetchSignInMethodsForEmail 
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';

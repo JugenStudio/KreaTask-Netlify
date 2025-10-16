@@ -1,5 +1,5 @@
 
-import { doc, getDoc, setDoc, Firestore, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, setDoc, Firestore } from "firebase/firestore";
 import type { User as FirebaseUser } from "firebase/auth";
 import type { User } from "./types";
 import { UserRole } from "./types";
