@@ -31,8 +31,8 @@ import Link from "next/link";
 import { updateTaskAction } from "@/app/actions";
 
 export default function PerformanceReportPage() {
-  const { currentUser } = useCurrentUser();
-  const { allTasks, users, isLoading } = useTaskData();
+  const { currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const { allTasks, users, isLoading: isTaskDataLoading } = useTaskData();
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -185,7 +185,7 @@ export default function PerformanceReportPage() {
     setDateRange(undefined);
   }
 
-  if (!currentUser || isLoading) {
+  if (isUserLoading || isTaskDataLoading) {
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
@@ -195,6 +195,8 @@ export default function PerformanceReportPage() {
         </div>
     );
   }
+  
+  if (!currentUser) return null; // Should be handled by layout, but as a safeguard.
 
   // Employee View: Show personal task history
   if (isEmployee(currentUser.role)) {

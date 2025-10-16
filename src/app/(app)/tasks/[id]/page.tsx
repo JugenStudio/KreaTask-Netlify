@@ -45,7 +45,7 @@ export default function TaskDetailPage() {
   const router = useRouter();
   const id = params.id as string;
   const { allTasks, isLoading } = useTaskData();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading: isUserLoading } = useCurrentUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
 
@@ -71,7 +71,7 @@ export default function TaskDetailPage() {
     }
   }
 
-  if (isLoading || !currentUser) {
+  if (isLoading || isUserLoading) {
     return (
       <div className="space-y-6">
         <Skeleton className="h-9 w-36" />
@@ -133,11 +133,11 @@ export default function TaskDetailPage() {
                 <TabsTrigger value="revisions">{t('task.tabs.history')}</TabsTrigger>
             </TabsList>
             <TabsContent value="comments" className="mt-4">
-                <CommentSection 
+                {currentUser && <CommentSection 
                     taskId={task.id}
                     comments={task.comments} 
                     currentUser={currentUser}
-                />
+                />}
             </TabsContent>
             <TabsContent value="revisions" className="mt-4">
                 <RevisionHistory revisions={task.revisions} />

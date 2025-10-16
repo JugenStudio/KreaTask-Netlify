@@ -65,10 +65,9 @@ export interface TaskDataContextType {
     setAllTasks: React.Dispatch<React.SetStateAction<Task[]>>;
     users: User[];
     setUsers: React.Dispatch<React.SetStateAction<User[]>>;
-    currentUserData: User | null;
-    leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     setNotifications: (notifications: Notification[] | ((prev: Notification[]) => Notification[])) => void;
+    leaderboardData: LeaderboardEntry[];
     downloadHistory: DownloadItem[];
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
@@ -84,7 +83,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const [allTasks, setAllTasks] = useState<Task[]>([]);
     const [users, setUsers] = useState<User[]>([]);
-    const [currentUserData, setCurrentUserData] = useState<User | null>(null);
     const [notifications, setNotifications] = useState<Notification[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [canManageUsers, setCanManageUsers] = useState(false); // State for the flag
@@ -101,8 +99,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         setIsLoading(true);
         try {
             // Fetch the flag from the server action along with other data
-            const { currentUser, users, allTasks, notifications, canManageUsers: serverCanManageUsers } = await getInitialDashboardData(authUser.id);
-            setCurrentUserData(currentUser);
+            const { users, allTasks, notifications, canManageUsers: serverCanManageUsers } = await getInitialDashboardData(authUser.id);
             setUsers(users);
             setAllTasks(allTasks);
             setNotifications(notifications);
@@ -119,6 +116,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         }
     }, [authUser, toast]);
 
+    // This useEffect now only runs ONCE when the provider mounts and the user is available.
+    // It no longer refetches on every page navigation.
     useEffect(() => {
         if (!isAuthLoading && authUser) {
             fetchData();
@@ -130,20 +129,20 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
 
     useEffect(() => {
-        if (currentUserData?.id) {
+        if (authUser?.id) {
           try {
-            const savedDownloads = localStorage.getItem(`kreatask_downloads_${currentUserData.id}`);
+            const savedDownloads = localStorage.getItem(`kreatask_downloads_${authUser.id}`);
             if (savedDownloads) setDownloadHistory(JSON.parse(savedDownloads));
             else setDownloadHistory([]);
           } catch (error) { console.error("Failed to load downloads:", error); }
         }
-    }, [currentUserData?.id]);
+    }, [authUser?.id]);
 
     useEffect(() => {
-      if (currentUserData?.id) {
-        localStorage.setItem(`kreatask_downloads_${currentUserData.id}`, JSON.stringify(downloadHistory));
+      if (authUser?.id) {
+        localStorage.setItem(`kreatask_downloads_${authUser.id}`, JSON.stringify(downloadHistory));
       }
-    }, [downloadHistory, currentUserData?.id]);
+    }, [downloadHistory, authUser?.id]);
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
 
@@ -171,23 +170,22 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, []);
     
     const value: TaskDataContextType = useMemo(() => ({
-        isLoading: isLoading || isAuthLoading,
+        isLoading: isLoading,
         allTasks,
         setAllTasks,
         users,
         setUsers,
-        currentUserData,
-        leaderboardData,
         notifications,
         setNotifications,
+        leaderboardData,
         downloadHistory,
         setDownloadHistory,
         addToDownloadHistory,
         refetchData: fetchData,
         canManageUsers, // Provide the flag through context
     }), [
-        isLoading, isAuthLoading,
-        allTasks, users, currentUserData, leaderboardData, notifications, 
+        isLoading,
+        allTasks, users, leaderboardData, notifications, 
         downloadHistory, addToDownloadHistory, fetchData, canManageUsers
     ]);
 

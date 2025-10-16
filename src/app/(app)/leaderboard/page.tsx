@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 
 export default function LeaderboardPage() {
   const { t } = useLanguage();
-  const { currentUser } = useCurrentUser();
-  const { allTasks, leaderboardData, isLoading } = useTaskData();
+  const { currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const { allTasks, leaderboardData, isLoading: isTaskDataLoading } = useTaskData();
 
   const totalTasks = leaderboardData.reduce(
     (sum, user) => sum + user.tasksCompleted,
@@ -32,7 +32,7 @@ export default function LeaderboardPage() {
         )
       : 0;
   
-  if (!currentUser || isLoading) {
+  if (isUserLoading || isTaskDataLoading) {
     return (
       <div className="space-y-6 md:space-y-8">
         <Skeleton className="h-10 md:h-12 w-1/2" />

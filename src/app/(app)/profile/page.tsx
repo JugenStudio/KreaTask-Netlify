@@ -36,7 +36,7 @@ type PasswordFormValues = z.infer<typeof passwordFormSchema>;
 
 
 export default function ProfilePage() {
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading } = useCurrentUser();
   const { t } = useLanguage();
   const { toast } = useToast();
   const { updateUserProfile, changeUserPassword } = useAuthActions();
@@ -100,7 +100,7 @@ export default function ProfilePage() {
     }
   };
   
-  if (!currentUser) {
+  if (isLoading || !currentUser) {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
             <div>
@@ -259,4 +259,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-    

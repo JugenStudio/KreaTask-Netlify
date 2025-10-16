@@ -27,8 +27,8 @@ import Link from "next/link";
 type Theme = "light" | "dark" | "system";
 
 export default function SettingsPage() {
-  const { currentUser } = useCurrentUser();
-  const { users, isLoading, setUsers, canManageUsers } = useTaskData();
+  const { currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const { users, isLoading: isTaskDataLoading, setUsers, canManageUsers } = useTaskData();
   const { t, locale, setLocale } = useLanguage();
   const [theme, setTheme] = useState<Theme>("system");
 
@@ -64,7 +64,7 @@ export default function SettingsPage() {
   };
 
 
-  if (!currentUser || isLoading) {
+  if (isUserLoading || isTaskDataLoading) {
     return (
         <div className="space-y-6">
             <Skeleton className="h-10 md:h-12 w-1/3" />
@@ -147,7 +147,7 @@ export default function SettingsPage() {
       </Card>
 
 
-      {canManageUsers && (
+      {canManageUsers && currentUser && (
         <Card>
             <CardHeader>
             <CardTitle className="font-headline text-xl md:text-2xl">{t("settings.user_management.title")}</CardTitle>

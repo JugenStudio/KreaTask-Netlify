@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils";
 
 export default function SubmitPage() {
   const { t } = useLanguage();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading } = useCurrentUser();
 
 
   return (
@@ -33,7 +33,7 @@ export default function SubmitPage() {
         <p className="text-muted-foreground text-sm md:text-base">{t('submit.description')}</p>
       </div>
       
-      {!currentUser ? (
+      {isLoading || !currentUser ? (
           <Card className="card-spotlight hover:border-primary/50 transition-colors">
             <CardContent className="p-4 md:p-6">
                 <div className="space-y-6 md:space-y-8">

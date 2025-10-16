@@ -23,8 +23,8 @@ import { EditTaskModal } from "@/components/tasks/edit-task-modal";
 
 
 export default function AllTasksPage() {
-  const { currentUser } = useCurrentUser();
-  const { allTasks, users, isLoading } = useTaskData();
+  const { currentUser, isLoading: isUserLoading } = useCurrentUser();
+  const { allTasks, users, isLoading: isTaskDataLoading } = useTaskData();
   const searchParams = useSearchParams();
   const { t, locale } = useLanguage();
   const query = searchParams.get('q') || '';
@@ -55,7 +55,7 @@ export default function AllTasksPage() {
     }
   }, [isMobile]);
 
-  if (!currentUser || isLoading) {
+  if (isUserLoading || isTaskDataLoading) {
     return (
         <div className="space-y-6">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -70,9 +70,11 @@ export default function AllTasksPage() {
     );
   }
 
-  const isUserEmployee = isEmployee(currentUser.role);
+  const isUserEmployee = currentUser ? isEmployee(currentUser.role) : true;
   
   const visibleTasks: Task[] = (() => {
+    if (!currentUser) return [];
+
     if (isEmployee(currentUser.role)) {
       // Level 1: Karyawan hanya melihat tugasnya sendiri
       return allTasks.filter(task => 
@@ -182,9 +184,10 @@ export default function AllTasksPage() {
             </div>
         </div>
 
-        {viewMode === 'list' ? (
+        {viewMode === 'list' && currentUser && (
           <TaskTable tasks={filteredTasks} currentUser={currentUser} onEdit={handleEditTask} />
-        ) : (
+        )}
+        {viewMode === 'board' && (
           <KanbanBoard tasks={filteredTasks} />
         )}
       </div>

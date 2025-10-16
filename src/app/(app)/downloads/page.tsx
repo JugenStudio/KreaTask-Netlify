@@ -70,7 +70,7 @@ export default function DownloadsPage() {
   const { t, locale } = useLanguage();
   const { toast } = useToast();
   const { downloadHistory, setDownloadHistory, addToDownloadHistory } = useTaskData();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading } = useCurrentUser();
   const [searchTerm, setSearchTerm] = useState("");
   const [itemToDelete, setItemToDelete] = useState<DownloadItem | null>(null);
 
@@ -138,7 +138,7 @@ export default function DownloadsPage() {
   };
 
 
-  if (!currentUser || !downloadHistory) {
+  if (isLoading || !currentUser || !downloadHistory) {
     return (
         <div className="space-y-6 md:space-y-8">
              <div>

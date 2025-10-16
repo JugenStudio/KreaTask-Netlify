@@ -130,7 +130,7 @@ export default function DashboardPage() {
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
               <StatsCard title={t('dashboard.total_tasks_completed')} value={totalTasksCompletedTeam} icon={CheckCircle} href="/performance-report" color="green" />
               <StatsCard title={t('dashboard.average_score')} value={avgScoreTeam} icon={Star} href="/leaderboard" color="yellow" />
-              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon={TrendingUp} href="/settings" color="purple" />
+              <StatsCard title={t('dashboard.total_team_members')} value={totalTeamMembers} icon="/settings" color="purple" />
               <StatsCard title={t('dashboard.tasks_overdue')} value={overdueTasksTeam} icon={Clock} href="/tasks" color="blue" />
           </div>
         )}
@@ -224,5 +224,3 @@ export default function DashboardPage() {
     </>
   );
 }
-
-    
