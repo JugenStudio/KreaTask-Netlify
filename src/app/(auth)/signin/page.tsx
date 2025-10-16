@@ -90,20 +90,22 @@ export default function SignInPage() {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-      
-      const methods = await fetchSignInMethodsForEmail(auth, user.email || '');
 
-      if (methods.length === 0) {
-        if (auth.currentUser) {
-            await auth.signOut();
-        }
-        toast({
-            variant: "destructive",
-            title: "Akun Tidak Ditemukan",
-            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
-        });
-        setIsGoogleLoading(false);
-        return;
+      // Check if user document exists in Firestore
+      const userDocRef = doc(firestore, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
+      
+      if (!userDoc.exists()) {
+        // If user doc doesn't exist, create it. This happens on first-time sign-in.
+        const newUser: User = {
+          id: user.uid,
+          name: user.displayName || 'Google User',
+          email: user.email || '',
+          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+          role: UserRole.UNASSIGNED,
+          jabatan: 'Unassigned',
+        };
+        await setDoc(userDocRef, newUser);
       }
       
       toast({
@@ -225,5 +227,3 @@ export default function SignInPage() {
     </div>
   );
 }
-
-    

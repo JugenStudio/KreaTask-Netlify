@@ -17,7 +17,7 @@ import {
     signInWithPopup,
     fetchSignInMethodsForEmail 
 } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
@@ -134,34 +134,33 @@ export default function SignUpPage() {
             throw new Error("Akun Google tidak memiliki email.");
         }
 
-        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-        if (methods.length > 0) {
-            if (auth.currentUser) {
-                await auth.signOut();
-            }
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists()) {
+            // User already exists, so just sign them in.
             toast({
-                variant: "destructive",
-                title: "Akun Sudah Terdaftar",
-                description: "Email ini sudah terdaftar. Silakan gunakan halaman Masuk.",
+                title: t('signin.google_success_title'),
+                description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
             });
-            setIsGoogleLoading(false);
-            return;
+        } else {
+            // User does not exist, create a new document.
+            const newUser: User = {
+                id: user.uid,
+                name: user.displayName || 'Google User',
+                email: user.email || '',
+                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
+                role: UserRole.UNASSIGNED,
+                jabatan: 'Unassigned',
+            };
+            await setDoc(userDocRef, newUser);
+
+            toast({
+                title: t('signup.google_success_title'),
+                description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
+            });
         }
-
-        const newUser: User = {
-            id: user.uid,
-            name: user.displayName || 'Google User',
-            email: user.email || '',
-            avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-            role: UserRole.UNASSIGNED,
-            jabatan: 'Unassigned',
-        };
-        await setDoc(doc(firestore, 'users', user.uid), newUser);
-
-        toast({
-            title: t('signup.google_success_title'),
-            description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
-        });
+        
         router.push('/dashboard');
 
     } catch (error: any) {
@@ -310,5 +309,3 @@ export default function SignUpPage() {
     </div>
   );
 }
-
-    
