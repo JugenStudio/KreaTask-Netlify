@@ -5,7 +5,7 @@ service cloud.firestore {
     /*
     ============================================================
     🔐 FIRESTORE SECURITY RULES — KREATASK
-    Versi: v3.1 (sinkron dengan seed.js & seedRoles.js)
+    Versi: v3.2 (sinkron dengan seed.js & seedRoles.js)
     ============================================================
     📌 Role Hierarchy:
       - roles_super_admin → level tertinggi (akses penuh)
@@ -70,7 +70,8 @@ service cloud.firestore {
     ============================================================
     */
     match /users/{userId} {
-      allow get, update: if isOwner(userId);
+      allow get: if isOwner(userId) || isAdmin();
+      allow update: if isOwner(userId);
       allow create: if isUserAuthenticated();
       allow list: if isAdmin();
       allow delete: if (isAdmin() || isSuperAdmin()) && request.auth.uid != userId;

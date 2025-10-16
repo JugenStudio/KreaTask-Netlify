@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -74,23 +73,19 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
-      // 1. Cek apakah email sudah digunakan
       const methods = await fetchSignInMethodsForEmail(auth, email);
       if (methods.length > 0) {
         throw { code: 'auth/email-already-in-use' };
       }
 
-      // 2. Buat pengguna di Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
-      // 3. Update profil Firebase Auth
       await updateProfile(firebaseUser, {
         displayName: name,
         photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
       });
 
-      // 4. Buat dokumen pengguna di Firestore menggunakan helper
       await ensureUserDoc(firestore, firebaseUser);
 
       toast({
@@ -116,36 +111,36 @@ export default function SignUpPage() {
     }
   };
 
-  const handleGoogleSignUp = async () => {
+  const handleGoogleSignUp = () => {
     if (!auth || !firestore) return;
+    
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
         prompt: 'select_account'
     });
 
-    try {
-        const result = await signInWithPopup(auth, provider);
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
         const user = result.user;
         const userEmail = user.email;
 
         if (!userEmail) {
-            throw new Error("Akun Google tidak memiliki email.");
+          throw new Error("Akun Google tidak memiliki email.");
         }
 
-        // Cek apakah email sudah terdaftar dengan metode lain (misal: email/password)
         const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-        if (methods.length > 0 && methods.indexOf('google.com') === -1) {
-            toast({
-                variant: "destructive",
-                title: "Akun Sudah Terdaftar",
-                description: "Email ini sudah terdaftar dengan metode lain. Silakan masuk menggunakan password.",
-            });
-            setIsGoogleLoading(false);
-            return;
+        if (methods.length > 0) {
+          toast({
+            variant: "destructive",
+            title: "Akun Sudah Terdaftar",
+            description: "Email ini sudah terdaftar. Silakan masuk menggunakan tombol Masuk.",
+          });
+          setIsGoogleLoading(false);
+          await auth.signOut();
+          return;
         }
 
-        // Memastikan dokumen pengguna ada atau dibuat
         await ensureUserDoc(firestore, user);
 
         toast({
@@ -155,7 +150,8 @@ export default function SignUpPage() {
         
         router.push('/dashboard');
 
-    } catch (error: any) {
+      })
+      .catch((error: any) => {
         if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
           console.log("Proses daftar Google dibatalkan oleh pengguna.");
         } else if (error.code === 'auth/popup-blocked') {
@@ -172,9 +168,10 @@ export default function SignUpPage() {
                 description: error.message || "Terjadi kesalahan saat mendaftar dengan Google.",
             });
         }
-    } finally {
-      setIsGoogleLoading(false);
-    }
+      })
+      .finally(() => {
+        setIsGoogleLoading(false);
+      });
   };
 
 

@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -76,47 +75,68 @@ export default function SignInPage() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     if (!auth || !firestore) return;
+    
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({
       prompt: 'select_account'
     });
 
-    try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
+    signInWithPopup(auth, provider)
+      .then(async (result) => {
+        const user = result.user;
+        const userEmail = user.email;
 
-      // Memastikan dokumen pengguna ada di Firestore
-      await ensureUserDoc(firestore, user);
-      
-      toast({
-        title: t('signin.google_success_title'),
-        description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
-      });
-      router.push('/dashboard');
+        if (!userEmail) {
+          throw new Error("Akun Google tidak memiliki email.");
+        }
 
-    } catch (error: any) {
-      if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        console.log("Proses login Google dibatalkan oleh pengguna.");
-      } else if (error.code === 'auth/popup-blocked') {
-        toast({
-          variant: "destructive",
-          title: "Popup Diblokir",
-          description: "Browser Anda memblokir popup login. Harap izinkan popup untuk situs ini dan coba lagi.",
-        });
-      } else {
-          console.error("Google sign-in error:", error);
+        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
+        if (methods.length === 0) {
           toast({
-              variant: "destructive",
-              title: "Login Google Gagal",
-              description: "Terjadi kesalahan saat login dengan Google.",
+            variant: "destructive",
+            title: "Akun Tidak Terdaftar",
+            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
           });
-      }
-    } finally {
-      setIsGoogleLoading(false);
-    }
+          setIsGoogleLoading(false);
+          // Optional: Sign out the user if they were partially logged in
+          await auth.signOut();
+          return;
+        }
+
+        // Ensure user doc exists, although it should for a sign-in
+        await ensureUserDoc(firestore, user);
+        
+        toast({
+          title: t('signin.google_success_title'),
+          description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
+        });
+        router.push('/dashboard');
+
+      })
+      .catch((error: any) => {
+        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
+          console.log("Proses login Google dibatalkan oleh pengguna.");
+        } else if (error.code === 'auth/popup-blocked') {
+          toast({
+            variant: "destructive",
+            title: "Popup Diblokir",
+            description: "Browser Anda memblokir popup login. Harap izinkan popup untuk situs ini dan coba lagi.",
+          });
+        } else {
+            console.error("Google sign-in error:", error);
+            toast({
+                variant: "destructive",
+                title: "Login Google Gagal",
+                description: "Terjadi kesalahan saat login dengan Google.",
+            });
+        }
+      })
+      .finally(() => {
+        setIsGoogleLoading(false);
+      });
   };
 
   return (
