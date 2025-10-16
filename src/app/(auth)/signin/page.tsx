@@ -72,8 +72,8 @@ export default function SignInPage() {
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
       <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
-         <form onSubmit={handleSignIn}>
-            <div className="p-8 space-y-6">
+         <div className="p-8 space-y-6">
+            <form onSubmit={handleSignIn} className="space-y-6">
                 <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                     <Button variant="ghost" asChild className="rounded-full px-6 text-muted-foreground">
                         <Link href="/signup">{t('signin.signup_button')}</Link>
@@ -127,21 +127,19 @@ export default function SignInPage() {
                         {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('signin.submit_button')}
                     </Button>
                 </div>
+            </form>
 
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-border/50" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                        {t('signin.separator')}
-                        </span>
-                    </div>
+            <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-border/50" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                    <span className="bg-card px-2 text-muted-foreground">
+                    {t('signin.separator')}
+                    </span>
                 </div>
             </div>
-        </form>
 
-        <div className="p-8 pt-0">
             <Button
                 type="button"
                 variant="outline"

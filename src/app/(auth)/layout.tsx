@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen w-full flex items-center justify-center bg-background p-4 relative">
+      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background p-4 relative">
         
         {showBackButton && (
           <div className="absolute top-4 left-4 z-20">
@@ -27,7 +27,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
           </div>
         )}
 
-        <div className="relative z-10 w-full">
+        <div className="relative z-10 w-full flex-grow flex items-center justify-center">
             {children}
         </div>
       </div>

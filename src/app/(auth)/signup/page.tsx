@@ -101,8 +101,8 @@ export default function SignUpPage() {
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
         <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
-             <form onSubmit={handleSignUp}>
-                <div className="p-8 space-y-6">
+             <div className="p-8 space-y-6">
+                <form onSubmit={handleSignUp} className="space-y-6">
                     <div className="flex items-center justify-center bg-secondary/80 rounded-full p-1 max-w-fit mx-auto">
                          <Button variant="secondary" asChild className="rounded-full px-6 bg-primary text-primary-foreground shadow-md">
                             <Link href="/signup">{t('signup.signup_button')}</Link>
@@ -186,14 +186,8 @@ export default function SignUpPage() {
                             {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('signup.submit_button')}
                         </Button>
                     </div>
-                    
-                    <p className="text-center text-xs text-muted-foreground !mt-8">
-                        {t('signup.terms')}
-                    </p>
-                </div>
-            </form>
-
-            <div className="p-8 pt-0 space-y-4">
+                </form>
+                
                 <div className="relative">
                     <div className="absolute inset-0 flex items-center">
                         <span className="w-full border-t border-border/50" />
@@ -219,6 +213,10 @@ export default function SignUpPage() {
                 )}
                 {t('signup.google_button')}
               </Button>
+
+              <p className="text-center text-xs text-muted-foreground !mt-8">
+                  {t('signup.terms')}
+              </p>
             </div>
         </div>
     </div>
