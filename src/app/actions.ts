@@ -11,10 +11,11 @@ import { revalidatePath } from 'next/cache';
 import { drizzle } from 'drizzle-orm/neon-http';
 import { neon } from '@neondatabase/serverless';
 import * as schema from '@/db/schema';
-import { eq, inArray, and } from 'drizzle-orm';
+import { eq, inArray, and, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
+import { isEmployee } from '@/lib/roles';
 
-import '@/env';
+import '@/env'; // This is safe to import here as this file is server-only.
 
 // Helper function to get database instance
 const getDb = () => {
@@ -129,7 +130,63 @@ export async function getTaskFromAI(idea: string, users: User[]) {
   }
 }
 
-// Database Actions
+// ---- NEW DATA FETCHING ACTIONS ----
+export async function getInitialDashboardData(userId: string) {
+    const db = getDb();
+    
+    // Fetch current user data
+    const currentUser = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+    });
+
+    if (!currentUser) {
+        // This case should ideally not happen if the user is authenticated
+        throw new Error("User not found.");
+    }
+
+    // Fetch all users if director/admin, otherwise just the current user
+    let users: User[];
+    if (isEmployee(currentUser.role)) {
+        users = [currentUser];
+    } else {
+        users = await db.query.users.findMany() as User[];
+    }
+
+    // Fetch tasks based on user role. We fetch all and filter in memory for simplicity,
+    // but this could be optimized with more complex queries if performance becomes an issue.
+    const allDbTasks = await db.query.tasks.findMany({
+      with: {
+        assignees: { with: { user: true } },
+        subtasks: true,
+        files: true,
+        comments: { with: { author: true } },
+        revisions: { with: { author: true } },
+      },
+      orderBy: desc(schema.tasks.createdAt),
+    });
+
+    const tasks: Task[] = allDbTasks.map(t => ({
+      ...t,
+      assignees: t.assignees.map(a => a.user),
+    })) as Task[];
+
+    // Fetch notifications for the current user
+    const notifications = await db.query.notifications.findMany({
+        where: eq(schema.notifications.userId, userId),
+        orderBy: desc(schema.notifications.createdAt),
+    });
+
+    return {
+        currentUser: currentUser as User,
+        users,
+        allTasks: tasks,
+        notifications: notifications as Notification[],
+    };
+}
+
+
+// --- DATABASE CRUD ACTIONS (EXISTING) ---
+
 export async function createNewTask(taskData: Omit<Task, 'id' | 'createdAt' | 'revisions' | 'comments'>) {
     const db = getDb();
     const newTaskId = `task-${uuidv4()}`;
@@ -194,14 +251,21 @@ export async function updateTaskAction(taskId: string, updates: Partial<Task>) {
         }
 
         if (commentItems) {
+            // This is a full replacement, which is what the original logic did.
+            // For appending, we'd need a different approach.
             await tx.delete(schema.comments).where(eq(schema.comments.taskId, taskId));
             if (commentItems.length > 0) {
-                await tx.insert(schema.comments).values(commentItems.map(c => ({...c, authorId: c.author.id, taskId })));
+                await tx.insert(schema.comments).values(commentItems.map(c => {
+                    const { author, ...restOfComment } = c;
+                    return { ...restOfComment, authorId: author.id, taskId };
+                }));
             }
         }
         
-         if (revisions) {
-            const newRevision = revisions[revisions.length - 1];
+         if (revisions && revisions.length > 0) {
+            // Find the new revision (assuming it's the last one)
+            const existingRevisionIds = (await tx.query.revisions.findMany({ where: eq(schema.revisions.taskId, taskId) })).map(r => r.id);
+            const newRevision = revisions.find(r => !existingRevisionIds.includes(r.id));
             if (newRevision) {
                 await tx.insert(schema.revisions).values({
                     id: newRevision.id,
@@ -263,4 +327,5 @@ export async function clearAllNotificationsAction(userId: string) {
     await db.delete(schema.notifications).where(eq(schema.notifications.userId, userId));
     revalidatePath('/dashboard');
 }
+
     

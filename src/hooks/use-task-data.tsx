@@ -6,12 +6,8 @@ import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { useCurrentUser } from '@/app/(app)/layout';
 import { UserRole } from '@/lib/types';
 import { isEmployee } from '@/lib/roles';
-import { neon } from '@neondatabase/serverless';
-import { drizzle } from 'drizzle-orm/neon-http';
-import * as schema from '@/db/schema';
-import { eq, inArray, desc, and } from 'drizzle-orm';
 import { useToast } from './use-toast';
-import '@/env'; // Import environment variables
+import { getInitialDashboardData } from '@/app/actions';
 
 type DownloadItem = {
   id: number;
@@ -93,7 +89,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const [downloadHistory, setDownloadHistory] = useState<DownloadItem[]>([]);
     
-    // Function to fetch all data from NeonDB
+    // Function to fetch all data using a Server Action
     const fetchData = useCallback(async () => {
         if (!authUser) {
             setIsLoading(false);
@@ -102,64 +98,17 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
         setIsLoading(true);
         try {
-            const db = drizzle(neon(process.env.DATABASE_URL!), { schema });
-            
-            // Fetch current user data
-            const currentUserResult = await db.query.users.findFirst({
-                where: eq(schema.users.id, authUser.id),
-            });
-            setCurrentUserData(currentUserResult || null);
-
-            if (!currentUserResult) {
-              setIsLoading(false);
-              return;
-            }
-
-            // Fetch all users if director/admin, otherwise just the current user
-            let usersResult: User[];
-            if (isEmployee(currentUserResult.role)) {
-                usersResult = [currentUserResult];
-            } else {
-                usersResult = await db.query.users.findMany();
-            }
-            setUsers(usersResult);
-
-            // Fetch tasks based on user role
-            let tasksResult: Task[] = [];
-            const allDbTasks = await db.query.tasks.findMany({
-              with: {
-                assignees: { with: { user: true } },
-                subtasks: true,
-                files: true,
-                comments: { with: { author: true } },
-                revisions: { with: { author: true } },
-              }
-            });
-
-            tasksResult = allDbTasks.map(t => ({
-              ...t,
-              assignees: t.assignees.map(a => a.user),
-            })) as Task[];
-
-            if (isEmployee(currentUserResult.role)) {
-              setAllTasks(tasksResult.filter(t => t.assignees.some(a => a.id === currentUserResult.id)));
-            } else {
-              setAllTasks(tasksResult);
-            }
-            
-            // Fetch notifications
-            const notificationsResult = await db.query.notifications.findMany({
-                where: eq(schema.notifications.userId, authUser.id),
-                orderBy: desc(schema.notifications.createdAt),
-            });
-            setNotifications(notificationsResult as Notification[]);
-
+            const { currentUser, users, allTasks, notifications } = await getInitialDashboardData(authUser.id);
+            setCurrentUserData(currentUser);
+            setUsers(users);
+            setAllTasks(allTasks);
+            setNotifications(notifications);
         } catch (error) {
-            console.error("Failed to fetch data from NeonDB:", error);
+            console.error("Failed to fetch data:", error);
             toast({
               variant: "destructive",
               title: "Failed to load data",
-              description: "Could not connect to the database."
+              description: "Could not retrieve data from the server. Please try again later."
             })
         } finally {
             setIsLoading(false);
@@ -167,8 +116,11 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }, [authUser, toast]);
 
     useEffect(() => {
-        if (!isAuthLoading) {
+        if (!isAuthLoading && authUser) {
             fetchData();
+        } else if (!isAuthLoading && !authUser) {
+            // If user is not authenticated, stop loading.
+            setIsLoading(false);
         }
     }, [isAuthLoading, authUser, fetchData]);
 
@@ -248,4 +200,5 @@ export const useTaskData = () => {
     }
     return context;
 };
+
     
