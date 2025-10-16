@@ -10,9 +10,10 @@ import type { Task, User, Notification, LocalizedString, Subtask, File as FileTy
 import { revalidatePath } from 'next/cache';
 import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
-import { eq, inArray, and, desc } from 'drizzle-orm';
+import { eq, inArray, and, desc, lt, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { isEmployee } from '@/lib/roles';
+import { subMonths } from 'date-fns';
 
 import '@/env'; // This is safe to import here as this file is server-only.
 
@@ -318,4 +319,42 @@ export async function clearAllNotificationsAction(userId: string) {
     const db = getDb();
     await db.delete(schema.notifications).where(eq(schema.notifications.userId, userId));
     revalidatePath('/dashboard');
+}
+
+
+/**
+ * Server action to clean up old data from the database.
+ * This is a destructive operation and should be triggered manually by an admin.
+ * - Deletes notifications older than 3 months that have been read.
+ * - Deletes tasks older than 3 months that have been 'Completed'.
+ */
+export async function cleanupOldData() {
+  const db = getDb();
+  const threeMonthsAgo = subMonths(new Date(), 3);
+
+  try {
+    const deletedNotificationsResult = await db.delete(schema.notifications)
+      .where(and(
+        eq(schema.notifications.read, true),
+        lt(schema.notifications.createdAt, threeMonthsAgo)
+      ))
+      .returning({ id: schema.notifications.id });
+
+    const deletedTasksResult = await db.delete(schema.tasks)
+      .where(and(
+        eq(schema.tasks.status, 'Completed'),
+        lt(schema.tasks.updatedAt, threeMonthsAgo)
+      ))
+      .returning({ id: schema.tasks.id });
+
+    const message = `Cleanup complete. Deleted ${deletedNotificationsResult.length} notifications and ${deletedTasksResult.length} tasks.`;
+    console.log(message);
+
+    revalidatePath('/'); // Revalidate all paths to reflect the changes
+
+    return { success: true, message };
+  } catch (error) {
+    console.error("Data cleanup failed:", error);
+    return { success: false, message: "An error occurred during data cleanup." };
+  }
 }
