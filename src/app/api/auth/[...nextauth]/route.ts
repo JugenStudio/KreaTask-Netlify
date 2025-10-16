@@ -3,18 +3,16 @@
 import NextAuth from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import CredentialsProvider from 'next-auth/providers/credentials';
-import type { NextAuthOptions } from 'next-auth';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import type { NextAuthOptions, User as NextAuthUser } from 'next-auth';
+import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import type { UserRole } from '@/lib/types';
-import type { User } from 'next-auth';
 
-// Pastikan file ini hanya mengimpor variabel lingkungan, bukan kode lain
 import '@/env';
+import { createNotificationAction } from '@/app/actions';
 
 // Extends NextAuth's User type to include our custom fields
 declare module 'next-auth' {
@@ -22,7 +20,7 @@ declare module 'next-auth' {
     user: {
       id: string;
       role: UserRole;
-    } & User;
+    } & NextAuthUser;
   }
 }
 declare module 'next-auth/jwt' {
@@ -31,6 +29,9 @@ declare module 'next-auth/jwt' {
     role: UserRole;
   }
 }
+
+// Initialize DB connection once at the module level
+const db = getDb();
 
 export const authOptions: NextAuthOptions = {
   session: {
@@ -46,8 +47,6 @@ export const authOptions: NextAuthOptions = {
         },
       },
     }),
-
-    // ADDED FOR MANUAL LOGIN
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
@@ -59,15 +58,12 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Email and password required');
         }
 
-        const sql = neon(process.env.DATABASE_URL!);
-        const db = drizzle(sql, { schema });
-
         const user = await db.query.users.findFirst({
           where: eq(schema.users.email, credentials.email.toLowerCase()),
         });
 
         if (!user || !user.hashedPassword) {
-          throw new Error('Invalid credentials');
+          return null; // User not found or signed up via OAuth
         }
 
         const passwordMatch = await bcrypt.compare(
@@ -76,7 +72,7 @@ export const authOptions: NextAuthOptions = {
         );
 
         if (!passwordMatch) {
-          throw new Error('Invalid credentials');
+          return null; // Invalid password
         }
         
         const { hashedPassword, ...userWithoutPassword } = user;
@@ -89,49 +85,49 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    // 1. signIn callback: For DB sync and validation
-    async signIn({ user, account, profile }) {
-      if (account?.provider === 'google' && profile?.email) {
-        try {
-          const sql = neon(process.env.DATABASE_URL!);
-          const db = drizzle(sql, { schema });
+    async signIn({ user, account, profile, isNewUser }) {
+      const email = user.email;
+      if (!email) return false; // Must have email
+      
+      let dbUser = await db.query.users.findFirst({
+        where: eq(schema.users.email, email),
+      });
 
-          const existingUser = await db.query.users.findFirst({
-            where: eq(schema.users.email, profile.email),
+      if (account?.provider === 'google') {
+        if (!dbUser) {
+          const userId = uuidv4();
+          await db.insert(schema.users).values({
+            id: userId,
+            name: user.name ?? 'New User',
+            email: email,
+            avatarUrl: user.image,
+            hashedPassword: null,
+            role: 'Unassigned',
+            jabatan: 'Unassigned',
+            createdAt: new Date(),
+            updatedAt: new Date(),
           });
-
-          if (!existingUser) {
-            const userId = uuidv4();
-            await db.insert(schema.users).values({
-              id: userId,
-              name: user.name ?? 'New User',
-              email: profile.email,
-              avatarUrl: user.image,
-              hashedPassword: null,
-              role: 'Unassigned',
-              jabatan: 'Unassigned',
-              createdAt: new Date(),
-              updatedAt: new Date(),
-            });
-          }
-          return true; // Allow sign-in
-        } catch (error) {
-          console.error('Error during Google sign-in DB sync:', error);
-          return false; // Prevent sign-in on DB error
+          dbUser = await db.query.users.findFirst({ where: eq(schema.users.id, userId )});
         }
       }
-      if (account?.provider === 'credentials') {
-        return true; // Credentials already authorized
+
+      if (dbUser) {
+        // Create a welcome notification
+        await createNotificationAction({
+            userId: dbUser.id,
+            message: `Selamat datang kembali di KreaTask, ${dbUser.name.split(' ')[0]}!`,
+            type: 'SYSTEM_UPDATE',
+            read: true, // Mark as read initially to not clutter
+            link: '/dashboard',
+            createdAt: new Date().toISOString(),
+        });
       }
-      return false; // Block other providers
+      
+      return true; // Allow sign-in
     },
 
-    // 2. jwt callback: Add custom data to JWT
     async jwt({ token, user, trigger, session }) {
-       // If user object exists (on initial sign-in), fetch full user data
       if (user) {
-         const sql = neon(process.env.DATABASE_URL!);
-         const db = drizzle(sql, { schema });
          const dbUser = await db.query.users.findFirst({
             where: eq(schema.users.email, user.email!),
          });
@@ -145,7 +141,6 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
 
-    // 3. session callback: Make token data available to client
     async session({ session, token }) {
       if (token && session.user) {
         session.user.id = token.id;
@@ -156,7 +151,6 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
 
-    // 4. redirect callback
     async redirect({ url, baseUrl }) {
       return `${baseUrl}/dashboard`;
     },

@@ -1,21 +1,18 @@
 
 import '@/env'; // Import environment variables
 import { NextRequest, NextResponse } from 'next/server';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
-import * as schema from '@/db/schema';
 import * as bcrypt from 'bcrypt';
 import { UserRole } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
+import { getDb } from '@/db/client';
+import * as schema from '@/db/schema';
 
 export const dynamic = 'force-dynamic';
 
 const SALT_ROUNDS = 10;
+const db = getDb();
 
 export async function POST(req: NextRequest) {
-  const sql = neon(process.env.DATABASE_URL!);
-  const db = drizzle(sql, { schema });
-
   try {
     const { name, email, password } = await req.json();
 
@@ -38,9 +35,6 @@ export async function POST(req: NextRequest) {
       updatedAt: new Date(),
     });
 
-    // Unlike before, we don't create an iron-session here.
-    // We just create the user, and then the frontend will call
-    // NextAuth's 'signIn' function to log the user in.
     return NextResponse.json({ message: 'User created successfully' }, { status: 201 });
 
   } catch (error: any) {

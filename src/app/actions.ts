@@ -8,21 +8,13 @@ import { getTaskSuggestion } from '@/ai/flows/generate-tasks-flow';
 import { z } from 'zod';
 import type { Task, User, Notification, LocalizedString, Subtask, File as FileType } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
-import { drizzle } from 'drizzle-orm/neon-http';
-import { neon } from '@neondatabase/serverless';
+import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
 import { eq, inArray, and, desc } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import { isEmployee } from '@/lib/roles';
 
 import '@/env'; // This is safe to import here as this file is server-only.
-
-// Helper function to get database instance
-const getDb = () => {
-    const sql = neon(process.env.DATABASE_URL!);
-    return drizzle(sql, { schema });
-};
-
 
 const SummarizeSchema = z.object({
   commentThread: z.string(),
