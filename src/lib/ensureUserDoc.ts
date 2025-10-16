@@ -1,27 +1,38 @@
 
-import { doc, getDoc, setDoc, Firestore } from "firebase/firestore";
+import { drizzle } from 'drizzle-orm/neon-http';
+import { neon } from '@neondatabase/serverless';
+import { users } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import type { User as FirebaseUser } from "firebase/auth";
 import type { User } from "./types";
 import { UserRole } from "./types";
 
+// This function is self-contained and handles its own DB connection.
+// It's designed to be used in server-side actions or API routes,
+// but for this client-side use case, we ensure it has the env var.
+const getDbClient = () => {
+  const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
+  return drizzle(sql);
+}
+
 /**
- * Memastikan dokumen user sudah ada di koleksi "users".
- * Jika belum ada, otomatis membuat dengan data default.
- * @param firestore Instance dari Firestore.
- * @param user Objek pengguna dari Firebase Auth.
- * @param defaultRole Peran default untuk pengguna baru.
- * @returns Promise yang resolve ke DocumentReference dari dokumen pengguna.
+ * Ensures a user document exists in the Postgres "users" table.
+ * If it doesn't exist, it creates one with default data.
+ * @param user The user object from Firebase Auth.
+ * @returns Promise that resolves when the operation is complete.
  */
 export async function ensureUserDoc(
-  firestore: Firestore,
   user: FirebaseUser,
   defaultRole: UserRole = UserRole.UNASSIGNED
 ) {
-  const userRef = doc(firestore, "users", user.uid);
-  const snap = await getDoc(userRef);
+  const db = getDbClient();
+  
+  // Check if user exists
+  const existingUsers = await db.select().from(users).where(eq(users.id, user.uid));
 
-  if (!snap.exists()) {
-    const newUser: User = {
+  if (existingUsers.length === 0) {
+    // User does not exist, so create them
+    const newUser: Omit<User, 'jabatan'> & {jabatan: string, createdAt: Date, updatedAt: Date} = {
       id: user.uid,
       name: user.displayName || "User Baru",
       email: user.email || "",
@@ -29,26 +40,13 @@ export async function ensureUserDoc(
         user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
       role: defaultRole,
       jabatan: "Unassigned",
+      createdAt: new Date(),
+      updatedAt: new Date()
     };
 
-    await setDoc(userRef, newUser);
-
-    // Opsi: Tunggu hingga dokumen benar-benar dapat dibaca untuk menghindari race condition
-    // Pada praktiknya, setDoc yang di-await biasanya sudah cukup, tetapi ini adalah pengaman tambahan.
-    let ready = false;
-    for (let i = 0; i < 5; i++) {
-      const check = await getDoc(userRef);
-      if (check.exists()) {
-        ready = true;
-        break;
-      }
-      await new Promise((r) => setTimeout(r, 200)); // Sedikit penundaan antar percobaan
-    }
-
-    if (!ready) {
-        console.warn("Peringatan: Dokumen pengguna belum terbaca setelah dibuat, tetapi proses login tetap dilanjutkan.");
-    }
+    await db.insert(users).values(newUser);
+    console.log("✅ New user created in Postgres:", newUser.email);
+  } else {
+    console.log("🔄 User already exists in Postgres, skipping creation.");
   }
-
-  return userRef;
 }

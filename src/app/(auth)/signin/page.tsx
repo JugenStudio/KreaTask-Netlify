@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { 
   signInWithEmailAndPassword, 
   GoogleAuthProvider, 
@@ -22,7 +22,6 @@ import { ensureUserDoc } from '@/lib/ensureUserDoc';
 export default function SignInPage() {
   const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -76,7 +75,7 @@ export default function SignInPage() {
   };
 
   const handleGoogleSignIn = () => {
-    if (!auth || !firestore) return;
+    if (!auth) return;
     
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
@@ -87,27 +86,9 @@ export default function SignInPage() {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
-        const userEmail = user.email;
-
-        if (!userEmail) {
-          throw new Error("Akun Google tidak memiliki email.");
-        }
-
-        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-        if (methods.length === 0) {
-          toast({
-            variant: "destructive",
-            title: "Akun Tidak Terdaftar",
-            description: "Akun Google ini belum terdaftar. Silakan daftar terlebih dahulu.",
-          });
-          setIsGoogleLoading(false);
-          // Optional: Sign out the user if they were partially logged in
-          await auth.signOut();
-          return;
-        }
-
-        // Ensure user doc exists, although it should for a sign-in
-        await ensureUserDoc(firestore, user);
+        
+        // Ensure user doc exists in Postgres
+        await ensureUserDoc(user);
         
         toast({
           title: t('signin.google_success_title'),

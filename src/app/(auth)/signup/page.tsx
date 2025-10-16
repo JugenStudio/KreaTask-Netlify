@@ -7,13 +7,12 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
+import { useAuth } from '@/firebase';
 import { 
     createUserWithEmailAndPassword, 
     updateProfile, 
     GoogleAuthProvider, 
-    signInWithPopup,
-    fetchSignInMethodsForEmail 
+    signInWithPopup
 } from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -34,7 +33,6 @@ const signupSchema = z.object({
 export default function SignUpPage() {
   const router = useRouter();
   const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -51,8 +49,8 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth || !firestore) {
-      setErrors({ form: "Layanan autentikasi atau database tidak tersedia." });
+    if (!auth) {
+      setErrors({ form: "Layanan autentikasi tidak tersedia." });
       return;
     }
 
@@ -71,11 +69,6 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
-      const methods = await fetchSignInMethodsForEmail(auth, email);
-      if (methods.length > 0) {
-        throw { code: 'auth/email-already-in-use' };
-      }
-
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
@@ -84,7 +77,8 @@ export default function SignUpPage() {
         photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
       });
 
-      await ensureUserDoc(firestore, firebaseUser);
+      // Ensure user doc exists in Postgres
+      await ensureUserDoc(firebaseUser);
 
       toast({
         title: "Pendaftaran Berhasil",
@@ -110,7 +104,7 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignUp = () => {
-    if (!auth || !firestore) return;
+    if (!auth) return;
     
     setIsGoogleLoading(true);
     const provider = new GoogleAuthProvider();
@@ -121,25 +115,9 @@ export default function SignUpPage() {
     signInWithPopup(auth, provider)
       .then(async (result) => {
         const user = result.user;
-        const userEmail = user.email;
-
-        if (!userEmail) {
-          throw new Error("Akun Google tidak memiliki email.");
-        }
-
-        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
-        if (methods.length > 0) {
-          toast({
-            variant: "destructive",
-            title: "Akun Sudah Terdaftar",
-            description: "Email ini sudah terdaftar. Silakan masuk menggunakan tombol Masuk.",
-          });
-          setIsGoogleLoading(false);
-          await auth.signOut();
-          return;
-        }
-
-        await ensureUserDoc(firestore, user);
+        
+        // Ensure user doc exists in Postgres
+        await ensureUserDoc(user);
 
         toast({
             title: t('signup.google_success_title'),
