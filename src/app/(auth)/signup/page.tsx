@@ -71,15 +71,26 @@ export default function SignUpPage() {
 
       toast({
         title: "Pendaftaran Berhasil",
-        description: "Akun Anda telah dibuat. Selamat datang di KreaTask!",
+        description: "Akun Anda telah dibuat. Melakukan login otomatis...",
       });
 
-      router.push('/dashboard');
-      router.refresh();
+      // After successful registration, sign the user in
+      const signInResult = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (signInResult?.ok) {
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        throw new Error('Gagal login setelah pendaftaran.');
+      }
 
     } catch (err: any) {
       let errorMessage = err.message || 'Gagal mendaftar. Silakan coba lagi.';
-      if (err.message.includes('unique constraint')) {
+      if (err.message.includes('unique constraint') || err.message.includes('Email already in use')) {
         errorMessage = 'Email ini sudah digunakan oleh akun lain.';
       }
       setErrors({ form: errorMessage });
@@ -99,7 +110,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+    <div className="w-full max-w-sm mx-auto flex flex-col items-center pt-8">
         <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
              <div className="p-8 space-y-6">
                 <form onSubmit={handleSignUp} className="space-y-6">
@@ -207,16 +218,16 @@ export default function SignUpPage() {
                     disabled={isLoading || isGoogleLoading}
                 >
                     {isGoogleLoading ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                ) : (
-                    <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
-                )}
-                {t('signup.google_button')}
-              </Button>
+                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                    ) : (
+                        <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
+                    )}
+                    {t('signup.google_button')}
+                </Button>
 
-              <p className="text-center text-xs text-muted-foreground !mt-8">
-                  {t('signup.terms')}
-              </p>
+                <p className="text-center text-xs text-muted-foreground !mt-8">
+                    {t('signup.terms')}
+                </p>
             </div>
         </div>
     </div>

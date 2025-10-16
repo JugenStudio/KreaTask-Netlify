@@ -8,42 +8,54 @@ import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
-import type { User } from "@/lib/types";
+import type { User, UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BottomNav } from "@/components/bottom-nav";
 import { TaskDataProvider } from "@/hooks/use-task-data";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
-import useSWR from 'swr';
-import { SessionData } from "@/lib/session";
+import { useSession } from "next-auth/react";
+import type { Session } from 'next-auth';
 
 // 1. Create the context for the user
-const UserContext = createContext<{ currentUser: User | null; isLoading: boolean; mutateUser: any; }>({
+interface AppUser extends User {
+  role: UserRole;
+}
+
+const UserContext = createContext<{ currentUser: AppUser | null; isLoading: boolean;}>({
   currentUser: null,
   isLoading: true,
-  mutateUser: () => {},
 });
-
-// Fetcher function for SWR
-const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   const router = useRouter();
-  const pathname = usePathname();
   useSpotlightEffect();
-
-  // Use SWR to fetch and manage session state
-  const { data: session, error, isLoading, mutate } = useSWR<SessionData>('/api/auth/session', fetcher);
-
-  const currentUser = session?.user || null;
-
+  
+  const { data: session, status } = useSession();
+  const isLoading = status === 'loading';
+  const isAuthenticated = status === 'authenticated';
+  
   useEffect(() => {
-    // If not loading and there's no user, or there's an error, redirect to landing
-    if (!isLoading && (!session || !session.isLoggedIn || error)) {
+    // If not loading and not authenticated, redirect to landing
+    if (!isLoading && !isAuthenticated) {
       router.replace('/landing');
     }
-  }, [session, isLoading, error, router]);
+  }, [isLoading, isAuthenticated, router]);
+  
+  // Cast the session user to our AppUser type
+  const currentUser: AppUser | null = useMemo(() => {
+    if (session?.user) {
+        return {
+            id: session.user.id,
+            name: session.user.name || '',
+            email: session.user.email || '',
+            avatarUrl: session.user.image || '',
+            role: session.user.role || 'Unassigned',
+        } as AppUser;
+    }
+    return null;
+  }, [session]);
 
 
   if (isLoading || !currentUser) {
@@ -76,7 +88,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-      <UserContext.Provider value={{ currentUser, isLoading, mutateUser: mutate }}>
+      <UserContext.Provider value={{ currentUser, isLoading }}>
         <div className={cn("min-h-screen w-full bg-background")}>
           <div className="flex min-h-screen w-full">
             {!isMobile && currentUser && <AppSidebar user={currentUser} />}
@@ -96,18 +108,8 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   
-  // No providers needed for the landing page
-  if (pathname.startsWith('/landing')) {
+  if (pathname.startsWith('/landing') || pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
     return <LanguageProvider>{children}</LanguageProvider>;
-  }
-  
-  // Auth pages have their own simple layout
-  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
-     return (
-      <LanguageProvider>
-        {children}
-      </LanguageProvider>
-    );
   }
   
   // Main app layout with all data providers

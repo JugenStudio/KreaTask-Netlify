@@ -8,26 +8,23 @@ import Image from 'next/image';
 import BlurText from '@/components/ui/blur-text';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
-import type { SessionData } from '@/lib/session';
-
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+import { useSession } from 'next-auth/react';
 
 export default function LandingPage() {
   const { t } = useLanguage();
   const router = useRouter();
-  const { data: session, isLoading } = useSWR<SessionData>('/api/auth/session', fetcher);
-
+  const { data: session, status } = useSession();
+  const isLoading = status === 'loading';
 
   useEffect(() => {
     // If user is loaded and logged in, redirect to dashboard
-    if (!isLoading && session?.isLoggedIn) {
+    if (!isLoading && status === 'authenticated') {
       router.replace('/dashboard');
     }
-  }, [session, isLoading, router]);
+  }, [status, isLoading, router]);
 
   // While loading or if logged in, show a blank page to prevent flash of content
-  if (isLoading || session?.isLoggedIn) {
+  if (isLoading || status === 'authenticated') {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background">
             {/* Loading or redirecting... */}

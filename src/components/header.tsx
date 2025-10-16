@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import {
   Search,
@@ -41,10 +41,11 @@ import { useCurrentUser } from "@/app/(app)/layout";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { signOut } from "next-auth/react";
 
 export function Header() {
-  const { currentUser, mutateUser } = useCurrentUser();
-  const { locale, t, setLocale } = useLanguage();
+  const { currentUser } = useCurrentUser();
+  const { t } = useLanguage();
   const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const isMobile = useIsMobile();
@@ -60,9 +61,8 @@ export function Header() {
   };
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
-    await mutateUser(null); // Optimistically update the local state to null
-    router.push('/landing'); // Redirect to landing page
+    await signOut({ redirect: false });
+    router.replace('/landing');
   };
 
   if (!currentUser) {

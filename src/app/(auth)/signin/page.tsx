@@ -27,40 +27,33 @@ export default function SignInPage() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     setIsLoading(true);
     setError(null);
 
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-      });
-      
-      const data = await res.json();
+    const result = await signIn('credentials', {
+      redirect: false,
+      email: email.toLowerCase(),
+      password,
+    });
 
-      if (!res.ok) {
-        throw new Error(data.message || 'Login failed');
-      }
+    setIsLoading(false);
 
-      toast({
-        title: "Login Berhasil",
-        description: "Selamat datang kembali!",
-      });
-      router.push('/dashboard');
-      router.refresh();
-      
-    } catch (err: any) {
-      const errorMessage = err.message || 'Email atau password yang Anda masukkan salah.';
+    if (result?.error) {
+      const errorMessage = 'Email atau password yang Anda masukkan salah.';
       setError(errorMessage);
       toast({
-        variant: "destructive",
-        title: "Login Gagal",
+        variant: 'destructive',
+        title: 'Login Gagal',
         description: errorMessage,
       });
-    } finally {
-      setIsLoading(false);
+    } else if (result?.ok) {
+      toast({
+        title: 'Login Berhasil',
+        description: 'Selamat datang kembali!',
+      });
+      // Redirect is handled by NextAuth callback
+      router.push('/dashboard');
+      router.refresh();
     }
   };
 
@@ -70,7 +63,7 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="w-full max-w-sm mx-auto flex flex-col items-center">
+    <div className="w-full max-w-sm mx-auto flex flex-col items-center pt-8">
       <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
          <div className="p-8 space-y-6">
             <form onSubmit={handleSignIn} className="space-y-6">

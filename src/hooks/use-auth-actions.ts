@@ -2,17 +2,21 @@
 "use client";
 
 import { useCallback } from 'react';
-import { useCurrentUser } from '@/app/(app)/layout';
+import { useSession } from 'next-auth/react';
 import { updateUserAction } from '@/app/actions';
 
-// This hook now uses custom API endpoints instead of Firebase Auth SDK directly for most actions.
 export function useAuthActions() {
-  const { mutateUser } = useCurrentUser();
+  const { data: session, update } = useSession();
 
   const updateUserProfile = useCallback(async (userId: string, data: { name?: string; }) => {
+    // 1. Update the database via Server Action
     await updateUserAction(userId, data);
-    await mutateUser(); // Re-fetch session data to reflect changes
-  }, [mutateUser]);
+    
+    // 2. Trigger a session update in NextAuth
+    // This will re-fetch the session and JWT, running the `session` and `jwt` callbacks again.
+    await update({ ...session, user: { ...session?.user, ...data }});
+
+  }, [session, update]);
   
   const changeUserPassword = useCallback(async (currentPassword: string, newPassword: string) => {
     // This is a placeholder. A real implementation would require an API endpoint
