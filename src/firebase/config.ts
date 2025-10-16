@@ -1,8 +1,8 @@
 export const firebaseConfig = {
-  "projectId": "kreatask-backup-33231328-278ec",
-  "appId": "1:68685350667:web:e5087a6cd8c5c64f84040e",
-  "apiKey": "AIzaSyCMKT9KdniTYI5rmVSXjEtzHDL-5vDFi3c",
-  "authDomain": "kreatask-backup-33231328-278ec.firebaseapp.com",
+  "projectId": "kreatask-netlify-1153443-753f2",
+  "appId": "1:322255997203:web:fb63b3cddd4017b36672e6",
+  "apiKey": "AIzaSyDzMNiTctqYIFgCwgJRzjEjpupzPVLel1w",
+  "authDomain": "kreatask-netlify-1153443-753f2.firebaseapp.com",
   "measurementId": "",
-  "messagingSenderId": "68685350667"
+  "messagingSenderId": "322255997203"
 };
