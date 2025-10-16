@@ -13,20 +13,24 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background p-4 relative">
+      <div className="min-h-screen w-full flex flex-col bg-background p-4">
         
-        {showBackButton && (
-          <div className="absolute top-4 left-4 z-20">
-            <Button variant="outline" size="icon" asChild className="rounded-full">
-                <Link href="/landing">
-                    <ArrowLeft className="h-5 w-5" />
-                    <span className="sr-only">Kembali ke Landing Page</span>
-                </Link>
-            </Button>
-          </div>
-        )}
+        {/* Area Header untuk Tombol Back */}
+        <header className="w-full h-16 flex items-center">
+          {showBackButton && (
+            <div className="z-20">
+              <Button variant="outline" size="icon" asChild className="rounded-full">
+                  <Link href="/landing">
+                      <ArrowLeft className="h-5 w-5" />
+                      <span className="sr-only">Kembali ke Landing Page</span>
+                  </Link>
+              </Button>
+            </div>
+          )}
+        </header>
 
-        <main className="relative z-10 w-full flex-grow flex items-center justify-center">
+        {/* Area Konten Utama */}
+        <main className="w-full flex-grow flex items-center justify-center -mt-16">
             {children}
         </main>
       </div>
