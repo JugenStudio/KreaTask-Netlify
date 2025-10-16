@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
+import Image from 'next/image';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),

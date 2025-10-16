@@ -9,7 +9,7 @@ import BlurText from '@/components/ui/blur-text';
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
-import { SessionData } from '@/lib/session';
+import type { SessionData } from '@/lib/session';
 
 const fetcher = (url: string) => fetch(url).then(res => res.json());
 

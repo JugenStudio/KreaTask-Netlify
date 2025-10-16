@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/providers/language-provider';
+import Image from 'next/image';
 
 export default function SignInPage() {
   const router = useRouter();
