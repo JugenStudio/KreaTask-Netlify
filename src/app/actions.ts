@@ -12,7 +12,7 @@ import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
 import { eq, inArray, and, desc, lt, sql } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
-import { isEmployee } from '@/lib/roles';
+import { isDirector, isEmployee } from '@/lib/roles';
 import { subMonths } from 'date-fns';
 
 import '@/env'; // This is safe to import here as this file is server-only.
@@ -278,9 +278,33 @@ export async function updateTaskAction(taskId: string, updates: Partial<Task>) {
 }
 
 
-export async function deleteTaskAction(taskId: string) {
+export async function deleteTaskAction(taskId: string, userId: string) {
     const db = getDb();
+    
+    // Security Check: Fetch the task and the user's role first
+    const user = await db.query.users.findFirst({
+        where: eq(schema.users.id, userId),
+    });
+
+    const task = await db.query.tasks.findFirst({
+        where: eq(schema.tasks.id, taskId),
+        with: { assignees: true },
+    });
+
+    if (!user || !task) {
+        throw new Error("User or Task not found.");
+    }
+    
+    const isOwner = task.assignees.some(a => a.userId === userId);
+    const canDelete = isDirector(user.role) || isOwner;
+
+    if (!canDelete) {
+        throw new Error("Unauthorized: You do not have permission to delete this task.");
+    }
+
+    // If authorized, proceed with deletion
     await db.delete(schema.tasks).where(eq(schema.tasks.id, taskId));
+
     revalidatePath('/tasks');
     revalidatePath('/dashboard');
 }

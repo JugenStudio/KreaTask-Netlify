@@ -62,25 +62,27 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
 
   const handleDelete = async () => {
     if (taskToDelete) {
-      await deleteTaskAction(taskToDelete.id);
-      toast({
-        title: t('all_tasks.toast.delete_success_title', {defaultValue: "Task Deleted"}),
-        description: t('all_tasks.toast.delete_success_desc', { title: taskToDelete.title[locale] }),
-      });
-      setTaskToDelete(null);
+      try {
+        await deleteTaskAction(taskToDelete.id, currentUser.id);
+        toast({
+          title: t('all_tasks.toast.delete_success_title', {defaultValue: "Task Deleted"}),
+          description: t('all_tasks.toast.delete_success_desc', { title: taskToDelete.title[locale] }),
+        });
+      } catch (error: any) {
+        toast({
+          variant: "destructive",
+          title: "Deletion Failed",
+          description: error.message,
+        });
+      } finally {
+        setTaskToDelete(null);
+      }
     }
   };
 
   const canDeleteTask = (task: Task): boolean => {
-    // Level 2 (Directors) and 3 (Super Admins) can delete any task.
-    if (isDirector(currentUser.role)) {
-      return true;
-    }
-    // Level 1 (Employees) can only delete tasks that are in 'To-do' or 'In Progress' status.
-    if (isEmployee(currentUser.role)) {
-      return task.status === 'To-do' || task.status === 'In Progress';
-    }
-    return false;
+    // UI logic is simplified, the final check is on the server.
+    return isDirector(currentUser.role) || task.assignees.some(a => a.id === currentUser.id);
   };
   
   const canEditTask = (task: Task): boolean => {
@@ -253,4 +255,3 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
     </>
   );
 }
-    

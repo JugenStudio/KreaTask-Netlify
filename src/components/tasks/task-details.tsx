@@ -98,23 +98,27 @@ export function TaskDetails({ task }: TaskDetailsProps) {
 
   const canDeleteTask = (task: Task, user: User | null): boolean => {
     if (!user) return false;
-    if (isDirector(user.role)) {
-      return true;
-    }
-    if (isEmployee(user.role)) {
-      return task.status === 'To-do' || task.status === 'In Progress';
-    }
-    return false;
+    // UI logic is simplified, the final check is on the server.
+    return isDirector(user.role) || task.assignees.some(a => a.id === user.id);
   };
 
   const handleDeleteTask = async () => {
-    await deleteTaskAction(task.id);
-    toast({
-      title: t('all_tasks.toast.delete_success_title'),
-      description: t('all_tasks.toast.delete_success_desc', { title: task.title[locale] }),
-      variant: 'destructive',
-    });
-    router.push('/tasks');
+    if (!currentUser) return;
+    try {
+      await deleteTaskAction(task.id, currentUser.id);
+      toast({
+        title: t('all_tasks.toast.delete_success_title'),
+        description: t('all_tasks.toast.delete_success_desc', { title: task.title[locale] }),
+        variant: 'destructive',
+      });
+      router.push('/tasks');
+    } catch (error: any) {
+        toast({
+            variant: "destructive",
+            title: "Deletion Failed",
+            description: error.message,
+        });
+    }
   };
 
 
@@ -510,4 +514,3 @@ export function TaskDetails({ task }: TaskDetailsProps) {
     </>
   );
 }
-    
