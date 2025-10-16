@@ -4,13 +4,14 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/providers/language-provider';
-import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -21,6 +22,7 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = async (e: React.FormEvent) => {
@@ -47,7 +49,7 @@ export default function SignInPage() {
         description: "Selamat datang kembali!",
       });
       router.push('/dashboard');
-      router.refresh(); // Important to re-fetch server data and update session
+      router.refresh();
       
     } catch (err: any) {
       const errorMessage = err.message || 'Email atau password yang Anda masukkan salah.';
@@ -60,6 +62,11 @@ export default function SignInPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    await signIn('google', { callbackUrl: '/dashboard' });
   };
 
   return (
@@ -90,7 +97,7 @@ export default function SignInPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                         />
                     </div>
 
@@ -103,7 +110,7 @@ export default function SignInPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                         />
                         <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -115,13 +122,41 @@ export default function SignInPage() {
                     <Button
                         type="submit"
                         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
-                        disabled={isLoading}
+                        disabled={isLoading || isGoogleLoading}
                     >
                         {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('signin.submit_button')}
                     </Button>
                 </div>
+
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/50" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                        {t('signin.separator')}
+                        </span>
+                    </div>
+                </div>
             </div>
         </form>
+
+        <div className="p-8 pt-0">
+            <Button
+                type="button"
+                variant="outline"
+                className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                onClick={handleGoogleSignIn}
+                disabled={isLoading || isGoogleLoading}
+            >
+                {isGoogleLoading ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                    <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
+                )}
+                {t('signin.google_button')}
+            </Button>
+        </div>
       </div>
     </div>
   );

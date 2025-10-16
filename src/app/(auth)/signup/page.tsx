@@ -4,6 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
@@ -11,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
-import Image from 'next/image';
+import { signIn } from 'next-auth/react';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -36,6 +37,7 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSignUp = async (e: React.FormEvent) => {
@@ -91,6 +93,11 @@ export default function SignUpPage() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    setIsGoogleLoading(true);
+    await signIn('google', { callbackUrl: '/dashboard' });
+  };
+
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
         <div className={cn("w-full rounded-2xl bg-card/60 backdrop-blur-lg shadow-2xl border border-white/10 overflow-hidden")}>
@@ -119,7 +126,7 @@ export default function SignUpPage() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                             />
                             {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
                         </div>
@@ -132,7 +139,7 @@ export default function SignUpPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                             />
                             {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                         </div>
@@ -145,7 +152,7 @@ export default function SignUpPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                             />
                             <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -161,7 +168,7 @@ export default function SignUpPage() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                             />
                             <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -174,7 +181,7 @@ export default function SignUpPage() {
                         <Button
                             type="submit"
                             className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
-                            disabled={isLoading}
+                            disabled={isLoading || isGoogleLoading}
                         >
                             {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('signup.submit_button')}
                         </Button>
@@ -185,6 +192,34 @@ export default function SignUpPage() {
                     </p>
                 </div>
             </form>
+
+            <div className="p-8 pt-0 space-y-4">
+                <div className="relative">
+                    <div className="absolute inset-0 flex items-center">
+                        <span className="w-full border-t border-border/50" />
+                    </div>
+                    <div className="relative flex justify-center text-xs uppercase">
+                        <span className="bg-card px-2 text-muted-foreground">
+                        {t('signup.separator')}
+                        </span>
+                    </div>
+                </div>
+                
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
+                    onClick={handleGoogleSignIn}
+                    disabled={isLoading || isGoogleLoading}
+                >
+                    {isGoogleLoading ? (
+                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                ) : (
+                    <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
+                )}
+                {t('signup.google_button')}
+              </Button>
+            </div>
         </div>
     </div>
   );
