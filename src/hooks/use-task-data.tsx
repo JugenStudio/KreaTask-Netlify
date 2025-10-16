@@ -24,7 +24,6 @@ type DownloadItem = {
 const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] => {
     if (!tasks || !users) return [];
     
-    // Filter to include only team members (employees)
     const teamMembers = users.filter(user => isEmployee(user.role));
     if (teamMembers.length === 0) return [];
 
@@ -37,7 +36,6 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
     tasks.forEach(task => {
       if (task.status === 'Completed' && task.approvedBy) {
         task.assignees.forEach(assignee => {
-          // Check if the assignee is a valid employee (not a director)
           if (assignee && userScores[assignee.id]) {
             userScores[assignee.id].score += task.value;
             userScores[assignee.id].tasksCompleted += 1;
@@ -88,13 +86,12 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const firestore = useFirestore();
     const { user, isUserLoading } = useUser();
     
-    // Fetch current user's data first
     const currentUserDocRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
     const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
     
     const allUsersCollectionRef = useMemoFirebase(() => {
         if (!firestore || !currentUserData || isEmployee(currentUserData.role)) {
-            return null; // Don't fetch all users if not a director/admin
+            return null;
         }
         return collection(firestore, 'users');
     }, [firestore, currentUserData]);
@@ -115,19 +112,14 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || isUserLoading || isCurrentUserLoading) return null;
-        
-        // If there's no user data after loading, there's nothing to query.
         if (!currentUserData) return null;
 
         if (isEmployee(currentUserData.role)) {
-            // Employees can only see tasks where they are an assignee.
-            // Note: This requires a composite index in Firestore on 'assignees'.
             return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', { id: currentUserData.id, name: currentUserData.name, avatarUrl: currentUserData.avatarUrl, role: currentUserData.role, jabatan: currentUserData.jabatan }));
         }
 
-        // Directors and Admins can see all tasks.
         return collection(firestore, 'tasks');
-    }, [firestore, user, currentUserData, isUserLoading, isCurrentUserLoading]);
+    }, [firestore, isUserLoading, isCurrentUserLoading, currentUserData]);
 
     const { data: tasksData, isLoading: isTasksDataLoading } = useCollection<Task>(tasksCollectionRef);
     const allTasks = useMemo(() => tasksData || [], [tasksData]);
