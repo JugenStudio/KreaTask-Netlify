@@ -3,17 +3,16 @@
 
 import { useCallback } from 'react';
 import { useCurrentUser } from '@/app/(app)/layout';
-import { useTaskData } from './use-task-data';
+import { updateUserAction } from '@/app/actions';
 
 // This hook now uses custom API endpoints instead of Firebase Auth SDK directly for most actions.
 export function useAuthActions() {
-  const { updateUserInFirestore } = useTaskData();
   const { mutateUser } = useCurrentUser();
 
   const updateUserProfile = useCallback(async (userId: string, data: { name?: string; }) => {
-    await updateUserInFirestore(userId, data);
+    await updateUserAction(userId, data);
     await mutateUser(); // Re-fetch session data to reflect changes
-  }, [updateUserInFirestore, mutateUser]);
+  }, [mutateUser]);
   
   const changeUserPassword = useCallback(async (currentPassword: string, newPassword: string) => {
     // This is a placeholder. A real implementation would require an API endpoint
@@ -34,5 +33,3 @@ export function useAuthActions() {
     changeUserPassword,
   };
 }
-
-    
