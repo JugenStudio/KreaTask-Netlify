@@ -11,6 +11,9 @@ import * as bcrypt from 'bcrypt';
 import { UserRole } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
+// Memaksa Next.js untuk selalu menjalankan rute ini secara dinamis
+export const dynamic = 'force-dynamic';
+
 const SALT_ROUNDS = 10;
 
 export async function POST(req: NextRequest) {

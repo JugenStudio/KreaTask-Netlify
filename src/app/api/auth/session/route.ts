@@ -5,6 +5,9 @@ import { sessionOptions, SessionData } from '@/lib/session';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
+// Memaksa Next.js untuk selalu menjalankan rute ini secara dinamis
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const cookieStore = cookies();
   const session = await getIronSession<SessionData>(cookieStore, sessionOptions);

@@ -10,6 +10,9 @@ import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 
+// Memaksa Next.js untuk selalu menjalankan rute ini secara dinamis
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   // Initialize DB connection inside the handler
   const sql = neon(process.env.DATABASE_URL!);
