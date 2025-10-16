@@ -44,7 +44,8 @@ export async function POST(req: NextRequest) {
 
     const { hashedPassword: _, ...user } = insertedUser;
 
-    const session = await getIronSession<SessionData>(cookies(), sessionOptions);
+    const cookieStore = cookies();
+    const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
     session.user = user;
     session.isLoggedIn = true;
     await session.save();
