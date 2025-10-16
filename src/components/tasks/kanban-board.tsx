@@ -13,6 +13,7 @@ import { Plus } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { useTaskData } from "@/hooks/use-task-data";
+import { updateTaskAction } from "@/app/actions";
 
 /**
  * StrictModeDroppable is a workaround for the `react-beautiful-dnd` library not being fully compatible
@@ -146,7 +147,7 @@ function KanbanColumn({ status, tasks }: { status: TaskStatus; tasks: Task[] }) 
 
 export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     const { t } = useLanguage();
-    const { updateTask } = useTaskData();
+    const { setAllTasks } = useTaskData();
 
     const tasksByStatus = statusColumns.reduce((acc, status) => {
         acc[status] = tasks.filter(task => task.status === status)
@@ -155,14 +156,27 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     }, {} as Record<TaskStatus, Task[]>);
 
     const onDragEnd = (result: DropResult) => {
-        const { destination, draggableId } = result;
+        const { source, destination, draggableId } = result;
 
         if (!destination) {
             return;
         }
 
+        if (source.droppableId === destination.droppableId && source.index === destination.index) {
+            return;
+        }
+
         const newStatus = destination.droppableId as TaskStatus;
-        updateTask(draggableId, { status: newStatus });
+
+        // Optimistic UI update
+        setAllTasks(prevTasks =>
+            prevTasks.map(task =>
+                task.id === draggableId ? { ...task, status: newStatus } : task
+            )
+        );
+
+        // Call server action to persist the change
+        updateTaskAction(draggableId, { status: newStatus });
     };
 
     if (tasks.length === 0) {
@@ -191,3 +205,4 @@ export function KanbanBoard({ tasks }: { tasks: Task[] }) {
     </DragDropContext>
   );
 }
+    

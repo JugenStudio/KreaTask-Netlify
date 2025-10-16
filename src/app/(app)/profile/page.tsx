@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/providers/language-provider";
-import { Camera, KeyRound, ShieldCheck } from "lucide-react";
+import { KeyRound } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
 import { useForm, type SubmitHandler } from "react-hook-form";
@@ -16,7 +16,7 @@ import * as z from "zod";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useToast } from "@/hooks/use-toast";
 import { useAuthActions } from "@/hooks/use-auth-actions";
-import { useRef, useState } from "react";
+import { useState } from "react";
 
 const profileFormSchema = z.object({
   name: z.string().min(1, "Nama lengkap diperlukan."),
@@ -39,9 +39,7 @@ export default function ProfilePage() {
   const { currentUser } = useCurrentUser();
   const { t } = useLanguage();
   const { toast } = useToast();
-  const { updateUserProfile, updateUserEmail, changeUserPassword, uploadProfilePicture } = useAuthActions();
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isUploading, setIsUploading] = useState(false);
+  const { updateUserProfile, changeUserPassword } = useAuthActions();
 
   const profileForm = useForm<ProfileFormValues>({
     resolver: zodResolver(profileFormSchema),
@@ -64,16 +62,12 @@ export default function ProfilePage() {
     if (!currentUser) return;
 
     try {
-      // Update name in Firestore
+      // Update name in database
       if (data.name !== currentUser.name) {
         await updateUserProfile(currentUser.id, { name: data.name });
       }
 
-      // Update email in Auth and Firestore
-      if (data.email !== currentUser.email) {
-        await updateUserEmail(data.email);
-        await updateUserProfile(currentUser.id, { email: data.email });
-      }
+      // Note: Email changes are disabled for now as they require a secure verification flow.
 
       toast({
         title: t('profile.toast.profile_updated_title'),
@@ -90,6 +84,7 @@ export default function ProfilePage() {
 
   const handlePasswordSubmit: SubmitHandler<PasswordFormValues> = async (data) => {
     try {
+      // This will now throw a clear error from our custom hook
       await changeUserPassword(data.currentPassword, data.newPassword);
       toast({
         title: t('profile.toast.password_updated_title'),
@@ -105,34 +100,6 @@ export default function ProfilePage() {
     }
   };
   
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !currentUser) return;
-    
-    setIsUploading(true);
-
-    try {
-        await uploadProfilePicture(file);
-        toast({
-            title: t('profile.toast.avatar_updated_title'),
-            description: t('profile.toast.avatar_updated_desc'),
-        });
-    } catch (error: any) {
-        toast({
-            variant: "destructive",
-            title: t('profile.toast.avatar_error_title'),
-            description: error.message || t('profile.toast.avatar_error_desc'),
-        });
-    } finally {
-        setIsUploading(false);
-    }
-  };
-
-
   if (!currentUser) {
     return (
         <div className="space-y-6 max-w-4xl mx-auto">
@@ -182,21 +149,10 @@ export default function ProfilePage() {
         </CardHeader>
         <CardContent className="flex items-center gap-4 md:gap-6">
            <div className="relative">
-             <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              className="hidden"
-              accept="image/png, image/jpeg"
-            />
             <Avatar className="h-20 w-20 md:h-24 md:w-24">
               <AvatarImage src={currentUser.avatarUrl} alt={currentUser.name} />
               <AvatarFallback>{currentUser.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="icon" className="absolute bottom-0 right-0 rounded-full h-7 w-7 md:h-8 md:w-8 transition-all active:scale-95" onClick={handleAvatarClick} disabled={isUploading}>
-              <Camera className="h-3 w-3 md:h-4 md:w-4" />
-              <span className="sr-only">{t('profile.photo.change_button_sr')}</span>
-            </Button>
           </div>
           <div>
             <p className="font-medium text-base md:text-lg">{currentUser.name}</p>
@@ -300,7 +256,8 @@ export default function ProfilePage() {
             </Card>
         </form>
        </Form>
-
     </div>
   );
 }
+
+    

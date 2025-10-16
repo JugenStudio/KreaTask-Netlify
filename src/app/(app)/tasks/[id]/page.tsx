@@ -29,6 +29,7 @@ import {
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { EditTaskModal } from "@/components/tasks/edit-task-modal";
+import { updateTaskAction } from "@/app/actions";
 
 const statusColors: Record<TaskStatus, string> = {
   "To-do": "bg-gray-500",
@@ -43,7 +44,7 @@ export default function TaskDetailPage() {
   const params = useParams();
   const router = useRouter();
   const id = params.id as string;
-  const { allTasks, users, isLoading, updateTask, addNotification, deleteTask } = useTaskData();
+  const { allTasks, isLoading } = useTaskData();
   const { currentUser } = useCurrentUser();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { toast } = useToast();
@@ -53,15 +54,9 @@ export default function TaskDetailPage() {
   
   const { t } = useLanguage();
 
-  const handleUpdateComments = useCallback((updatedComments: CommentType[]) => {
-    if (task) {
-        updateTask(task.id, { comments: updatedComments });
-    }
-  }, [task, updateTask]);
-
-  const handleStatusChange = (newStatus: TaskStatus) => {
+  const handleStatusChange = async (newStatus: TaskStatus) => {
     if (!task) return;
-    updateTask(task.id, { status: newStatus });
+    await updateTaskAction(task.id, { status: newStatus });
     toast({
       title: t('task.status_change_toast.title'),
       description: t('task.status_change_toast.description', { title: task.title[t.locale], status: t(`all_tasks.status.${newStatus.toLowerCase().replace(' ', '_')}`) }),
@@ -121,12 +116,7 @@ export default function TaskDetailPage() {
 
         <div className="grid md:grid-cols-3 gap-6 md:gap-8">
         <div className="md:col-span-2">
-            <TaskDetails 
-              task={task} 
-              onUpdateTask={updateTask} 
-              onAddNotification={addNotification}
-              onDeleteTask={deleteTask}
-            />
+            <TaskDetails task={task} />
         </div>
         <div className="md:col-span-1">
             <Tabs defaultValue="comments" className="w-full">
@@ -138,8 +128,7 @@ export default function TaskDetailPage() {
                 <CommentSection 
                     taskId={task.id}
                     comments={task.comments} 
-                    currentUser={currentUser} 
-                    onUpdateComments={handleUpdateComments}
+                    currentUser={currentUser}
                 />
             </TabsContent>
             <TabsContent value="revisions" className="mt-4">
@@ -159,5 +148,4 @@ export default function TaskDetailPage() {
     </>
   );
 }
-
     

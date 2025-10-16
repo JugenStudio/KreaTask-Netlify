@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import Image from "next/image";
@@ -57,6 +56,7 @@ import {
 import { useTaskData } from "@/hooks/use-task-data";
 import { useRouter } from "next/navigation";
 import { Input } from "../ui/input";
+import { updateTaskAction, createNotificationAction, deleteTaskAction } from "@/app/actions";
 
 
 const fileTypeIcons = {
@@ -72,9 +72,6 @@ interface FileWithPreview extends File {
 
 interface TaskDetailsProps {
     task: Task;
-    onUpdateTask: (taskId: string, updates: Partial<Task>) => void;
-    onAddNotification: (notification: Notification) => void;
-    onDeleteTask: (taskId: string) => void;
 }
 
 // Helper to convert File to Data URI
@@ -87,7 +84,7 @@ const fileToDataUri = (file: File): Promise<string> => {
     });
 };
 
-export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTask }: TaskDetailsProps) {
+export function TaskDetails({ task }: TaskDetailsProps) {
   const { locale, t } = useLanguage();
   const { toast } = useToast();
   const { addToDownloadHistory } = useTaskData();
@@ -101,19 +98,17 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
 
   const canDeleteTask = (task: Task, user: User | null): boolean => {
     if (!user) return false;
-    // Level 2 (Directors) and 3 (Super Admins) can delete any task.
     if (isDirector(user.role)) {
       return true;
     }
-    // Level 1 (Employees) can only delete tasks that are in 'To-do' or 'In Progress' status.
     if (isEmployee(user.role)) {
       return task.status === 'To-do' || task.status === 'In Progress';
     }
     return false;
   };
 
-  const handleDeleteTask = () => {
-    onDeleteTask(task.id);
+  const handleDeleteTask = async () => {
+    await deleteTaskAction(task.id);
     toast({
       title: t('all_tasks.toast.delete_success_title'),
       description: t('all_tasks.toast.delete_success_desc', { title: task.title[locale] }),
@@ -127,7 +122,7 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
     const updatedSubtasks = task.subtasks?.map(st => 
         st.id === subtaskId ? { ...st, isCompleted: checked } : st
     );
-    onUpdateTask(task.id, { subtasks: updatedSubtasks });
+    updateTaskAction(task.id, { subtasks: updatedSubtasks });
   };
   
   const handleDeleteFileClick = (file: FileType) => {
@@ -136,10 +131,8 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
   
   const confirmDeleteFile = () => {
     if (!fileToDelete) return;
-
     const updatedFiles = task.files?.filter(file => file.id !== fileToDelete.id);
-    
-    onUpdateTask(task.id, { files: updatedFiles });
+    updateTaskAction(task.id, { files: updatedFiles });
 
     toast({
       title: t('task.attachments.delete_toast.success_title'),
@@ -166,10 +159,9 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
 
     const fileObjects = await Promise.all(fileObjectsPromises);
     const updatedFiles = [...(task.files || []), ...fileObjects];
-    onUpdateTask(task.id, { files: updatedFiles });
+    await updateTaskAction(task.id, { files: updatedFiles });
     
-    onAddNotification({
-      id: `notif-upload-${Date.now()}`,
+    await createNotificationAction({
       userId: currentUser.id,
       message: `${newFiles.length} file(s) have been attached to task "${task.title[locale]}".`,
       type: 'SYSTEM_UPDATE',
@@ -208,22 +200,21 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
 
   const handleSaveNote = (fileId: string) => {
     const updatedFiles = task.files?.map(f => f.id === fileId ? { ...f, note: editingNote } : f);
-    onUpdateTask(task.id, { files: updatedFiles });
+    updateTaskAction(task.id, { files: updatedFiles });
     setEditingFileId(null);
     setEditingNote('');
   };
 
-  const handleSubmitForReview = () => {
-    onUpdateTask(task.id, { status: "In Review" });
+  const handleSubmitForReview = async () => {
+    await updateTaskAction(task.id, { status: "In Review" });
 
     toast({
         title: t('task.submit.toast.success_title'),
         description: t('task.submit.toast.success_desc', { title: task.title[locale] }),
     });
     
-    onAddNotification({
-      id: `notif-review-${Date.now()}`,
-      userId: 'user-1',
+    await createNotificationAction({
+      userId: 'user-1', // Assuming Direktur Utama has a fixed ID or get it from users list
       message: `${currentUser?.name} has submitted task "${task.title[locale]}" for review.`,
       type: 'VALIDATION_REQUEST',
       read: false,
@@ -519,3 +510,4 @@ export function TaskDetails({ task, onUpdateTask, onAddNotification, onDeleteTas
     </>
   );
 }
+    

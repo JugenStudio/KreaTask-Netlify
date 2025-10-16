@@ -38,21 +38,27 @@ import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
 import { useTaskData } from "@/hooks/use-task-data";
 import { Skeleton } from "../ui/skeleton";
+import { updateUserAction, deleteUserAction } from "@/app/actions";
 
 const roles: UserRole[] = Object.values(UserRole);
 
 interface UserTableProps {
   currentUser: User;
+  initialUsers: User[];
+  setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
 }
 
-export function UserTable({ currentUser }: UserTableProps) {
+export function UserTable({ currentUser, initialUsers, setUsers }: UserTableProps) {
   const { toast } = useToast();
   const { t } = useLanguage();
-  const { users, isLoading, updateUserInFirestore, deleteUser } = useTaskData();
+  const { users, isLoading } = useTaskData();
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
 
   const handleRoleChange = async (userId: string, newRole: UserRole) => {
-    await updateUserInFirestore(userId, { role: newRole });
+    // Optimistic UI update
+    setUsers(prevUsers => prevUsers.map(u => u.id === userId ? { ...u, role: newRole } : u));
+    
+    await updateUserAction(userId, { role: newRole });
 
     const user = users?.find((u) => u.id === userId);
     toast({
@@ -71,7 +77,10 @@ export function UserTable({ currentUser }: UserTableProps) {
   const confirmDelete = async () => {
     if (!userToDelete) return;
     
-    await deleteUser(userToDelete.id);
+    // Optimistic UI update
+    setUsers(prevUsers => prevUsers.filter(u => u.id !== userToDelete.id));
+
+    await deleteUserAction(userToDelete.id);
 
     toast({
       title: t("settings.user_management.toast.user_deleted_title"),
@@ -240,3 +249,4 @@ export function UserTable({ currentUser }: UserTableProps) {
     </>
   );
 }
+    

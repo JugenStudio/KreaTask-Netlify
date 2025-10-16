@@ -10,10 +10,11 @@ import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import * as bcrypt from 'bcrypt';
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
-
 export async function POST(req: NextRequest) {
+  // Initialize DB connection inside the handler
+  const sql = neon(process.env.DATABASE_URL!);
+  const db = drizzle(sql, { schema });
+
   try {
     const { email, password } = await req.json();
 

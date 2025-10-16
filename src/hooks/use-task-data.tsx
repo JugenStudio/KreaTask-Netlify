@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
-import type { Task, User, LeaderboardEntry, Notification, Subtask, File as FileType } from '@/lib/types';
+import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
 import { useCurrentUser } from '@/app/(app)/layout';
 import { UserRole } from '@/lib/types';
 import { isEmployee } from '@/lib/roles';
@@ -11,6 +11,7 @@ import { drizzle } from 'drizzle-orm/neon-http';
 import * as schema from '@/db/schema';
 import { eq, inArray, desc, and } from 'drizzle-orm';
 import { useToast } from './use-toast';
+import '@/env'; // Import environment variables
 
 type DownloadItem = {
   id: number;
@@ -70,25 +71,15 @@ export interface TaskDataContextType {
     leaderboardData: LeaderboardEntry[];
     notifications: Notification[];
     setNotifications: (notifications: Notification[] | ((prev: Notification[]) => Notification[])) => void;
-    updateNotifications: (notificationsToUpdate: Notification[]) => Promise<void>;
     downloadHistory: DownloadItem[];
     setDownloadHistory: (history: DownloadItem[] | ((prevState: DownloadItem[]) => DownloadItem[])) => void;
-    addTask: (task: Partial<Task>) => Promise<void>;
-    updateTask: (taskId: string, updates: Partial<Task>) => Promise<void>;
-    deleteTask: (taskId: string) => Promise<void>;
-    addNotification: (notification: Partial<Notification>) => Promise<void>;
-    updateUserInFirestore: (userId: string, data: Partial<User>) => Promise<void>;
-    deleteUser: (userId: string) => Promise<void>;
     addToDownloadHistory: (file: { name: string; size: string, url: string }, taskName: string, isRedownload?: boolean) => void;
     setAllTasks: (tasks: Task[]) => void;
-    setUsers: (users: User[]) => void;
+    setUsers: (users: User[] | ((prevUsers: User[]) => User[])) => void;
     refetchData: () => Promise<void>;
 }
 
 export const TaskDataContext = createContext<TaskDataContextType | undefined>(undefined);
-
-const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
-const db = drizzle(sql, { schema });
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
     const { currentUser: authUser, isLoading: isAuthLoading } = useCurrentUser();
@@ -111,6 +102,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
         setIsLoading(true);
         try {
+            const db = drizzle(neon(process.env.DATABASE_URL!), { schema });
+            
             // Fetch current user data
             const currentUserResult = await db.query.users.findFirst({
                 where: eq(schema.users.id, authUser.id),
@@ -198,100 +191,6 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const leaderboardData = useMemo(() => calculateLeaderboard(allTasks, users), [allTasks, users]);
 
-    const addTask = useCallback(async (taskData: Partial<Task>) => {
-      const { assignees, subtasks: subtaskItems, files: fileItems, ...restOfTask } = taskData;
-      
-      await db.transaction(async (tx) => {
-        const [newTask] = await tx.insert(schema.tasks).values(restOfTask as any).returning();
-        
-        if (assignees && assignees.length > 0) {
-          await tx.insert(schema.tasksToUsers).values(assignees.map(user => ({
-            taskId: newTask.id,
-            userId: user.id,
-          })));
-        }
-        if (subtaskItems && subtaskItems.length > 0) {
-          await tx.insert(schema.subtasks).values(subtaskItems.map(st => ({...st, taskId: newTask.id})));
-        }
-        if (fileItems && fileItems.length > 0) {
-          await tx.insert(schema.files).values(fileItems.map(f => ({...f, taskId: newTask.id})));
-        }
-      });
-      await fetchData(); // Refetch data after adding
-    }, [fetchData]);
-
-    const updateTask = useCallback(async (taskId: string, updates: Partial<Task>) => {
-      const { assignees, subtasks: subtaskItems, files: fileItems, revisions, ...restOfUpdates } = updates;
-      
-      await db.transaction(async (tx) => {
-        if (Object.keys(restOfUpdates).length > 0) {
-            await tx.update(schema.tasks).set(restOfUpdates as any).where(eq(schema.tasks.id, taskId));
-        }
-
-        if (assignees) {
-            await tx.delete(schema.tasksToUsers).where(eq(schema.tasksToUsers.taskId, taskId));
-            if (assignees.length > 0) {
-                await tx.insert(schema.tasksToUsers).values(assignees.map(user => ({
-                    taskId: taskId,
-                    userId: user.id,
-                })));
-            }
-        }
-        
-        if (revisions) {
-            const newRevision = revisions[revisions.length - 1];
-            if (newRevision) {
-                await tx.insert(schema.revisions).values({
-                    id: newRevision.id,
-                    timestamp: new Date(newRevision.timestamp),
-                    change: newRevision.change,
-                    authorId: newRevision.author.id,
-                    taskId: taskId,
-                });
-            }
-        }
-        
-        if (subtaskItems) {
-           await tx.delete(schema.subtasks).where(eq(schema.subtasks.taskId, taskId));
-           if(subtaskItems.length > 0) {
-               await tx.insert(schema.subtasks).values(subtaskItems.map(st => ({...st, taskId})));
-           }
-        }
-      });
-      await fetchData();
-    }, [fetchData]);
-
-    const deleteTask = useCallback(async (taskId: string) => {
-        await db.delete(schema.tasks).where(eq(schema.tasks.id, taskId));
-        await fetchData();
-    }, [fetchData]);
-    
-    const updateUserInFirestore = useCallback(async (userId: string, data: Partial<User>) => {
-        await db.update(schema.users).set(data).where(eq(schema.users.id, userId));
-        await fetchData();
-    }, [fetchData]);
-
-    const deleteUser = useCallback(async (userId: string) => {
-        await db.delete(schema.users).where(eq(schema.users.id, userId));
-        await fetchData();
-    }, [fetchData]);
-
-    const addNotification = useCallback(async (notificationData: Partial<Notification>) => {
-        await db.insert(schema.notifications).values(notificationData as any);
-        await fetchData();
-    }, [fetchData]);
-    
-    const updateNotifications = useCallback(async (notificationsToUpdate: Notification[]) => {
-      await db.transaction(async (tx) => {
-        for (const notif of notificationsToUpdate) {
-            await tx.update(schema.notifications)
-              .set({ read: notif.read })
-              .where(eq(schema.notifications.id, notif.id));
-        }
-      });
-      await fetchData();
-    }, [fetchData]);
-
     const addToDownloadHistory = useCallback((file: { name: string; size: string, url: string }, taskName: string, isRedownload = false) => {
       const newDownloadItem: DownloadItem = {
         id: Date.now(),
@@ -323,15 +222,8 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         leaderboardData,
         notifications,
         setNotifications,
-        updateNotifications,
         downloadHistory,
         setDownloadHistory,
-        addTask,
-        updateTask,
-        deleteTask,
-        addNotification,
-        updateUserInFirestore,
-        deleteUser,
         addToDownloadHistory,
         setAllTasks: setAllTasks, 
         setUsers: setUsers,
@@ -339,8 +231,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     }), [
         isLoading, isAuthLoading,
         allTasks, users, currentUserData, leaderboardData, notifications, 
-        downloadHistory, addTask, updateTask, deleteTask, 
-        addNotification, updateUserInFirestore, deleteUser, addToDownloadHistory, updateNotifications, fetchData
+        downloadHistory, addToDownloadHistory, fetchData
     ]);
 
     return (
@@ -357,3 +248,4 @@ export const useTaskData = () => {
     }
     return context;
 };
+    

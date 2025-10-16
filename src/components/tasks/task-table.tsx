@@ -36,9 +36,9 @@ import type { Task, TaskStatus, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/providers/language-provider";
 import { Card, CardContent } from "../ui/card";
-import { useTaskData } from "@/hooks/use-task-data";
 import { useToast } from "@/hooks/use-toast";
 import { isDirector, isEmployee } from "@/lib/roles";
+import { deleteTaskAction } from "@/app/actions";
 
 
 const statusColors: Record<TaskStatus, string> = {
@@ -57,13 +57,12 @@ interface TaskTableProps {
 
 export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
   const { locale, t } = useLanguage();
-  const { deleteTask } = useTaskData();
   const { toast } = useToast();
   const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (taskToDelete) {
-      deleteTask(taskToDelete.id);
+      await deleteTaskAction(taskToDelete.id);
       toast({
         title: t('all_tasks.toast.delete_success_title', {defaultValue: "Task Deleted"}),
         description: t('all_tasks.toast.delete_success_desc', { title: taskToDelete.title[locale] }),
@@ -254,3 +253,4 @@ export function TaskTable({ tasks, currentUser, onEdit }: TaskTableProps) {
     </>
   );
 }
+    

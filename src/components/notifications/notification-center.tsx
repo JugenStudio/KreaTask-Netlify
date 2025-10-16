@@ -12,20 +12,15 @@ import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
 import type { Notification, User } from "@/lib/types";
 import { cn } from "@/lib/utils";
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
-import * as schema from "@/db/schema";
-import { eq, and, inArray } from "drizzle-orm";
+import { updateNotificationsAction, clearAllNotificationsAction } from "@/app/actions";
 
 
 interface NotificationCenterProps {
     currentUser: User | null;
 }
 
-const db = drizzle(neon(process.env.NEXT_PUBLIC_DATABASE_URL!), { schema });
-
 export function NotificationCenter({ currentUser }: NotificationCenterProps) {
-  const { notifications, setNotifications, updateNotifications, refetchData } = useTaskData();
+  const { notifications, setNotifications, refetchData } = useTaskData();
   const [isOpen, setIsOpen] = useState(false);
   const [isSilent, setIsSilent] = useState(false);
   const router = useRouter();
@@ -87,30 +82,23 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
   const markAllAsRead = async () => {
     const unreadNotifications = userNotifications.filter(n => !n.read);
     if (unreadNotifications.length > 0) {
-        await updateNotifications(unreadNotifications.map(n => ({...n, read: true})));
+        await updateNotificationsAction(unreadNotifications.map(n => ({...n, read: true})));
     }
   };
   
-  const clearAllNotifications = async () => {
-    if (!currentUser) return;
+  const handleClearAll = async () => {
+    if (!currentUser || userNotifications.length === 0) return;
     
-    const notificationIds = userNotifications.map(n => n.id);
-    if(notificationIds.length === 0) return;
-
-    await db.delete(schema.notifications).where(
-      and(
-        eq(schema.notifications.userId, currentUser.id),
-        inArray(schema.notifications.id, notificationIds)
-      )
-    );
+    await clearAllNotificationsAction(currentUser.id);
     
-    await refetchData();
+    // Optimistically update UI
+    setNotifications(prev => prev.filter(n => n.userId !== currentUser.id));
     setIsOpen(false);
   };
 
   const handleNotificationClick = async (notif: Notification) => {
     if (!notif.read) {
-        await updateNotifications([{ ...notif, read: true }]);
+        await updateNotificationsAction([{ ...notif, read: true }]);
     }
     setIsOpen(false);
     if (notif.link) {
@@ -153,7 +141,7 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
                   variant="ghost"
                   size="icon"
                   className="h-8 w-8 text-destructive hover:text-destructive"
-                  onClick={clearAllNotifications}
+                  onClick={handleClearAll}
                   disabled={userNotifications.length === 0}
                 >
                   <Trash2 className="h-4 w-4" />
@@ -191,3 +179,4 @@ export function NotificationCenter({ currentUser }: NotificationCenterProps) {
     </div>
   );
 }
+    

@@ -38,7 +38,7 @@ import { useState, useMemo, useEffect } from "react";
 import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
-import { getTranslations, getTaskFromAI } from "@/app/actions";
+import { getTranslations, getTaskFromAI, createNewTask, createNotificationAction } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { useRouter } from "next/navigation";
@@ -89,7 +89,7 @@ const getScoringFromCategory = (category: TaskCategory): { value: number; valueC
 export function TaskForm({ currentUser }: TaskFormProps) {
   const { toast } = useToast();
   const router = useRouter();
-  const { users, addTask, addNotification } = useTaskData();
+  const { users } = useTaskData();
   const [files, setFiles] = useState<File[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -169,7 +169,6 @@ export function TaskForm({ currentUser }: TaskFormProps) {
   async function onSubmit(values: TaskFormValues) {
     setIsSubmitting(true);
     setError(null);
-    const newTaskId = `task-${Date.now()}`;
     const assignedUser = users.find(u => u.id === values.assignees[0]);
 
     try {
@@ -194,8 +193,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         const titleTranslations = titleResult.data || { en: values.title, id: values.title };
         const descriptionTranslations = descriptionResult.data || { en: values.description || "", id: values.description || "" };
         
-        const newSubtasks: Subtask[] = subtasks.map((subtaskTitle, index) => ({
-          id: `subtask-${newTaskId}-${index}`,
+        const newSubtasks: Omit<Subtask, 'id'>[] = subtasks.map(subtaskTitle => ({
           title: subtaskTitle,
           isCompleted: false,
         }));
@@ -203,43 +201,35 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         const newFilesPromises = files.map(async (file, index) => {
             const dataUri = await fileToDataUri(file);
             return {
-                id: `file-${newTaskId}-${index}`,
                 name: file.name,
                 size: `${(file.size / 1024).toFixed(1)} KB`,
                 url: dataUri,
                 type: file.type.startsWith('image') ? 'image' : 'document',
-            } as FileType;
+            } as Omit<FileType, 'id'>;
         });
 
         const newFiles = await Promise.all(newFilesPromises);
 
         const { value, valueCategory } = getScoringFromCategory(values.category);
 
-        const newTask = {
-          id: newTaskId,
+        const {id: newTaskId, title: newTitle } = await createNewTask({
           title: titleTranslations,
           description: descriptionTranslations,
           status: 'To-do' as const,
           assignees: assignedUser ? [assignedUser] : [],
-          dueDate: format(values.dueDate, 'yyyy-MM-dd'),
-          createdAt: new Date().toISOString(),
+          dueDate: values.dueDate.toISOString(),
           category: values.category,
           value: value,
           valueCategory: valueCategory,
           evaluator: 'AI' as const,
           approvedBy: null,
-          revisions: [],
-          comments: [],
           files: newFiles,
           subtasks: newSubtasks,
-        };
+        });
         
-        addTask(newTask);
-
-        addNotification({
-          id: `notif-${Date.now()}`,
+        await createNotificationAction({
           userId: currentUser.id,
-          message: `You created a new task: "${newTask.title[locale]}"`,
+          message: `You created a new task: "${newTitle[locale]}"`,
           type: 'TASK_ASSIGN',
           read: false,
           link: `/tasks/${newTaskId}`,
@@ -248,10 +238,9 @@ export function TaskForm({ currentUser }: TaskFormProps) {
         });
         
         if (assignedUser && assignedUser.id !== currentUser.id) {
-           addNotification({
-            id: `notif-${Date.now() + 1}`,
+           await createNotificationAction({
             userId: assignedUser.id,
-            message: `${currentUser.name} assigned you a new task: "${newTask.title[locale]}"`,
+            message: `${currentUser.name} assigned you a new task: "${newTitle[locale]}"`,
             type: 'TASK_ASSIGN',
             read: false,
             link: `/tasks/${newTaskId}`,
@@ -262,7 +251,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
 
         toast({
           title: t('submit.toast.success_title'),
-          description: t('submit.toast.success_desc', { title: newTask.title[locale] }),
+          description: t('submit.toast.success_desc', { title: newTitle[locale] }),
         });
 
         form.reset();
@@ -585,3 +574,4 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
+    

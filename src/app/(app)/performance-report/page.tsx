@@ -28,10 +28,11 @@ import { format, addDays } from "date-fns";
 import type { DateRange } from "react-day-picker";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Link from "next/link";
+import { updateTaskAction } from "@/app/actions";
 
 export default function PerformanceReportPage() {
   const { currentUser } = useCurrentUser();
-  const { allTasks, users, isLoading, updateTask } = useTaskData();
+  const { allTasks, users, isLoading } = useTaskData();
   const { toast } = useToast();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
@@ -45,7 +46,7 @@ export default function PerformanceReportPage() {
 
 
   const handleApprove = (taskId: string) => {
-    updateTask(taskId, { approvedBy: "Direktur Utama" });
+    updateTaskAction(taskId, { approvedBy: "Direktur Utama" });
     toast({
       title: t('report.toast.approved.title'),
       description: t('report.toast.approved.description'),
@@ -54,7 +55,7 @@ export default function PerformanceReportPage() {
 
   const handleBulkApprove = () => {
     selectedForApproval.forEach(taskId => {
-        updateTask(taskId, { approvedBy: "Direktur Utama" });
+        updateTaskAction(taskId, { approvedBy: "Direktur Utama" });
     });
     toast({
       title: t('report.validation_panel.tasks_approved_toast', { count: selectedForApproval.size.toString() }),
@@ -69,7 +70,7 @@ export default function PerformanceReportPage() {
   };
 
   const handleUpdateAndApprove = (taskId: string, newValue: number) => {
-    updateTask(taskId, { value: newValue, approvedBy: "Direktur Utama" });
+    updateTaskAction(taskId, { value: newValue, approvedBy: "Direktur Utama" });
     toast({
       title: t('report.toast.updated.title'),
       description: t('report.toast.updated.description', { value: newValue.toString() }),
@@ -447,3 +448,4 @@ export default function PerformanceReportPage() {
     </>
   )
 }
+    

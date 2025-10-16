@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Bot, Loader2, MoreVertical, Edit, Trash2, Pin, PinOff, MessageSquareReply } from "lucide-react";
 import type { Comment as CommentType, User } from "@/lib/types";
-import { getSummary } from "@/app/actions";
+import { getSummary, updateTaskAction } from "@/app/actions";
 import { Separator } from "../ui/separator";
 import { useLanguage } from "@/providers/language-provider";
 import { getTranslations } from "@/app/actions";
@@ -25,7 +25,6 @@ interface CommentSectionProps {
   taskId: string;
   comments: CommentType[];
   currentUser: User;
-  onUpdateComments: (comments: CommentType[]) => void;
 }
 
 const initialState = {
@@ -53,7 +52,7 @@ function SummarizeButton() {
   );
 }
 
-export function CommentSection({ taskId, comments, currentUser, onUpdateComments }: CommentSectionProps) {
+export function CommentSection({ taskId, comments, currentUser }: CommentSectionProps) {
   const [localComments, setLocalComments] = useState<CommentType[]>(comments);
   const [newComment, setNewComment] = useState("");
   const [isPosting, setIsPosting] = useState(false);
@@ -86,17 +85,15 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     };
     
     const updatedComments = [...localComments, comment];
-    onUpdateComments(updatedComments);
-    setLocalComments(updatedComments);
+    await updateTaskAction(taskId, { comments: updatedComments });
     
     setNewComment("");
     setIsPosting(false);
   };
   
-  const handleDeleteComment = (commentId: string) => {
+  const handleDeleteComment = async (commentId: string) => {
     const updatedComments = localComments.filter(c => c.id !== commentId);
-    onUpdateComments(updatedComments);
-    setLocalComments(updatedComments);
+    await updateTaskAction(taskId, { comments: updatedComments });
   };
   
   const handleEditComment = (comment: CommentType) => {
@@ -115,20 +112,18 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
       c.id === editingComment.id ? { ...c, content: finalContent, timestamp: new Date().toISOString() } : c
     );
     
-    onUpdateComments(updatedComments);
-    setLocalComments(updatedComments);
+    await updateTaskAction(taskId, { comments: updatedComments });
 
     setEditingComment(null);
     setEditingText("");
     setIsPosting(false);
   };
 
-  const handleTogglePin = (commentId: string) => {
+  const handleTogglePin = async (commentId: string) => {
     const updatedComments = localComments.map(c => 
         c.id === commentId ? { ...c, isPinned: !c.isPinned } : c
     );
-    onUpdateComments(updatedComments);
-    setLocalComments(updatedComments);
+    await updateTaskAction(taskId, { comments: updatedComments });
   };
   
   const handleReply = (authorName: string) => {
@@ -286,3 +281,4 @@ export function CommentSection({ taskId, comments, currentUser, onUpdateComments
     </div>
   );
 }
+    

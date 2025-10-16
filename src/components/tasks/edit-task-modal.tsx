@@ -45,7 +45,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { TaskCategory, type Task, type User, type Subtask, type LocalizedString, type ValueCategory } from "@/lib/types";
 import { useLanguage } from "@/providers/language-provider";
 import { useEffect, useMemo, useState } from "react";
-import { getTranslations } from "@/app/actions";
+import { getTranslations, updateTaskAction, createNotificationAction } from "@/app/actions";
 import { useCurrentUser } from "@/app/(app)/layout";
 import Image from 'next/image';
 import { Checkbox } from "../ui/checkbox";
@@ -93,7 +93,7 @@ const getScoringFromCategory = (category: TaskCategory): { value: number; valueC
 export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps) {
   const { t, locale } = useLanguage();
   const { currentUser } = useCurrentUser();
-  const { users, updateTask, addNotification } = useTaskData();
+  const { users } = useTaskData();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const assignableUsers = useMemo(() => users, [users]);
@@ -172,11 +172,10 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
         valueCategory: valueCategory,
       };
 
-      updateTask(task.id, updates);
+      await updateTaskAction(task.id, updates);
       
       if (assignedUser) {
-        addNotification({
-          id: `notif-edit-${Date.now()}`,
+        await createNotificationAction({
           userId: assignedUser.id,
           message: `Task "${updates.title?.[locale]}" has been updated by ${currentUser.name}.`,
           type: 'SYSTEM_UPDATE',
@@ -340,3 +339,4 @@ export function EditTaskModal({ isOpen, onOpenChange, task }: EditTaskModalProps
     </Dialog>
   );
 }
+    

@@ -11,11 +11,13 @@ import * as bcrypt from 'bcrypt';
 import { UserRole } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 
-const sql = neon(process.env.DATABASE_URL!);
-const db = drizzle(sql, { schema });
 const SALT_ROUNDS = 10;
 
 export async function POST(req: NextRequest) {
+  // Initialize DB connection inside the handler
+  const sql = neon(process.env.DATABASE_URL!);
+  const db = drizzle(sql, { schema });
+
   try {
     const { name, email, password } = await req.json();
 

@@ -4,57 +4,26 @@
 import { useCallback } from 'react';
 import { useCurrentUser } from '@/app/(app)/layout';
 import { useTaskData } from './use-task-data';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { firebaseConfig } from '@/firebase/config';
-
-// Initialize firebase for storage operations
-// We keep this isolated as we only need it for file uploads, not auth/db.
-const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 // This hook now uses custom API endpoints instead of Firebase Auth SDK directly for most actions.
-// Password changes still need Firebase SDK on the client, or a custom backend flow (e.g., email link).
 export function useAuthActions() {
   const { updateUserInFirestore } = useTaskData();
-  const { currentUser, mutateUser } = useCurrentUser();
+  const { mutateUser } = useCurrentUser();
 
-  const updateUserProfile = useCallback(async (userId: string, data: { name?: string; email?: string; avatarUrl?: string }) => {
-    // We don't update the email via this function anymore.
-    // That should be a separate, more secure process.
+  const updateUserProfile = useCallback(async (userId: string, data: { name?: string; }) => {
     await updateUserInFirestore(userId, data);
-    await mutateUser(); // Re-fetch session data
-
+    await mutateUser(); // Re-fetch session data to reflect changes
   }, [updateUserInFirestore, mutateUser]);
   
-
   const changeUserPassword = useCallback(async (currentPassword: string, newPassword: string) => {
-    // This is a placeholder. A real implementation would require an API endpoint.
+    // This is a placeholder. A real implementation would require an API endpoint
+    // to securely verify the current password and update the hash in the database.
     // For now, we'll throw an error indicating it's not implemented.
-    throw new Error("Password change functionality needs a custom backend implementation.");
-
+    throw new Error("Password change functionality needs a custom backend implementation and is not available yet.");
   }, []);
 
-  const uploadProfilePicture = useCallback(async (file: File) => {
-    if (!currentUser) throw new Error("Pengguna tidak terautentikasi.");
-
-    const storage = getStorage(app);
-    const storageRef = ref(storage, `avatars/${currentUser.id}/${file.name}`);
-
-    // Upload file
-    const snapshot = await uploadBytes(storageRef, file);
-    
-    // Get download URL
-    const downloadURL = await getDownloadURL(snapshot.ref);
-
-    // Update user profile in the database
-    await updateUserProfile(currentUser.id, { avatarUrl: downloadURL });
-
-    return downloadURL;
-  }, [currentUser, updateUserProfile]);
-
-
   const updateUserEmail = useCallback(async (newEmail: string) => {
-    // This is a placeholder. In a real app, this should be a secure API endpoint
+    // In a real app, this should be a secure API endpoint
     // that sends a verification email to the new address before changing.
     throw new Error("Changing email requires a secure backend implementation which is not yet built.");
   }, []);
@@ -63,6 +32,7 @@ export function useAuthActions() {
     updateUserProfile,
     updateUserEmail,
     changeUserPassword,
-    uploadProfilePicture,
   };
 }
+
+    
