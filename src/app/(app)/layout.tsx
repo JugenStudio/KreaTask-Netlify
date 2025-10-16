@@ -6,32 +6,47 @@ import { Header } from "@/components/header";
 import { LanguageProvider } from "@/providers/language-provider";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
 import type { User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { BottomNav } from "@/components/bottom-nav";
-import { TaskDataProvider, useTaskData } from "@/hooks/use-task-data";
+import { TaskDataProvider } from "@/hooks/use-task-data";
 import { useSpotlightEffect } from "@/hooks/use-spotlight";
-import { FirebaseClientProvider } from "@/firebase/client-provider";
+import useSWR from 'swr';
+import { SessionData } from "@/lib/session";
 
-// 1. Create the context
-const UserContext = createContext<{ currentUser: User | null }>({
+// 1. Create the context for the user
+const UserContext = createContext<{ currentUser: User | null; isLoading: boolean; mutateUser: any; }>({
   currentUser: null,
+  isLoading: true,
+  mutateUser: () => {},
 });
 
+// Fetcher function for SWR
+const fetcher = (url: string) => fetch(url).then(res => res.json());
+
+
 function AppLayoutContent({ children }: { children: React.ReactNode }) {
-  const { currentUserData, isLoading: isTaskDataLoading } = useTaskData();
   const isMobile = useIsMobile();
+  const router = useRouter();
   const pathname = usePathname();
   useSpotlightEffect();
-  
-  const currentUser = currentUserData;
 
-  const isLoading = isTaskDataLoading;
+  // Use SWR to fetch and manage session state
+  const { data: session, error, isLoading, mutate } = useSWR<SessionData>('/api/auth/session', fetcher);
 
-  if (isLoading) {
+  const currentUser = session?.user || null;
+
+  useEffect(() => {
+    // If not loading and there's no user, or there's an error, redirect to landing
+    if (!isLoading && (!session || !session.isLoggedIn || error)) {
+      router.replace('/landing');
+    }
+  }, [session, isLoading, error, router]);
+
+
+  if (isLoading || !currentUser) {
     return (
         <div className="flex min-h-screen w-full bg-background">
            {!isMobile && (
@@ -61,7 +76,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
   }
 
   return (
-      <UserContext.Provider value={{ currentUser }}>
+      <UserContext.Provider value={{ currentUser, isLoading, mutateUser: mutate }}>
         <div className={cn("min-h-screen w-full bg-background")}>
           <div className="flex min-h-screen w-full">
             {!isMobile && currentUser && <AppSidebar user={currentUser} />}
@@ -80,23 +95,28 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  // We still need FirebaseClientProvider for Auth, but not for pages that don't need auth
+  
+  // No providers needed for the landing page
   if (pathname.startsWith('/landing')) {
-    return (
-        <FirebaseClientProvider>
-            <LanguageProvider>{children}</LanguageProvider>
-        </FirebaseClientProvider>
+    return <LanguageProvider>{children}</LanguageProvider>;
+  }
+  
+  // Auth pages have their own simple layout
+  if (pathname.startsWith('/signin') || pathname.startsWith('/signup')) {
+     return (
+      <LanguageProvider>
+        {children}
+      </LanguageProvider>
     );
   }
   
+  // Main app layout with all data providers
   return (
-    <FirebaseClientProvider>
-      <LanguageProvider>
-        <TaskDataProvider>
-          <AppLayoutContent>{children}</AppLayoutContent>
-        </TaskDataProvider>
-      </LanguageProvider>
-    </FirebaseClientProvider>
+    <LanguageProvider>
+      <TaskDataProvider>
+        <AppLayoutContent>{children}</AppLayoutContent>
+      </TaskDataProvider>
+    </LanguageProvider>
   );
 }
 

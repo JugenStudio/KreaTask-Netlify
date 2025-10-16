@@ -1,29 +1,33 @@
+
 'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/providers/language-provider';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 import BlurText from '@/components/ui/blur-text';
 import { useEffect } from 'react';
-import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
+import useSWR from 'swr';
+import { SessionData } from '@/lib/session';
+
+const fetcher = (url: string) => fetch(url).then(res => res.json());
 
 export default function LandingPage() {
   const { t } = useLanguage();
-  const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const { data: session, isLoading } = useSWR<SessionData>('/api/auth/session', fetcher);
+
 
   useEffect(() => {
-    // If user is loaded and exists, redirect to dashboard
-    if (!isUserLoading && user) {
+    // If user is loaded and logged in, redirect to dashboard
+    if (!isLoading && session?.isLoggedIn) {
       router.replace('/dashboard');
     }
-  }, [user, isUserLoading, router]);
+  }, [session, isLoading, router]);
 
-  // While loading, we can show a blank page or a spinner
-  if (isUserLoading || user) {
+  // While loading or if logged in, show a blank page to prevent flash of content
+  if (isLoading || session?.isLoggedIn) {
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background">
             {/* Loading or redirecting... */}

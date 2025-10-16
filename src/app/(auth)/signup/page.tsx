@@ -4,22 +4,13 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '@/firebase';
-import { 
-    createUserWithEmailAndPassword, 
-    updateProfile, 
-    GoogleAuthProvider, 
-    signInWithPopup
-} from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
-import { ensureUserDoc } from '@/lib/ensureUserDoc';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -33,7 +24,6 @@ const signupSchema = z.object({
 
 export default function SignUpPage() {
   const router = useRouter();
-  const auth = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -45,16 +35,11 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) {
-      setErrors({ form: "Layanan autentikasi tidak tersedia." });
-      return;
-    }
-
+    
     const validation = signupSchema.safeParse({ name, email, password, confirmPassword });
 
     if (!validation.success) {
@@ -70,15 +55,16 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-
-      await updateProfile(firebaseUser, {
-        displayName: name,
-        photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
+       const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
       });
 
-      await ensureUserDoc(firebaseUser);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || 'Pendaftaran Gagal');
+      }
 
       toast({
         title: "Pendaftaran Berhasil",
@@ -86,10 +72,11 @@ export default function SignUpPage() {
       });
 
       router.push('/dashboard');
+      router.refresh();
 
-    } catch (firebaseError: any) {
-      let errorMessage = "Gagal mendaftar. Silakan coba lagi.";
-      if (firebaseError.code === 'auth/email-already-in-use') {
+    } catch (err: any) {
+      let errorMessage = err.message || 'Gagal mendaftar. Silakan coba lagi.';
+      if (err.message.includes('unique constraint')) {
         errorMessage = 'Email ini sudah digunakan oleh akun lain.';
       }
       setErrors({ form: errorMessage });
@@ -102,53 +89,6 @@ export default function SignUpPage() {
       setIsLoading(false);
     }
   };
-
-  const handleGoogleSignUp = () => {
-    if (!auth) return;
-    
-    setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-        prompt: 'select_account'
-    });
-
-    signInWithPopup(auth, provider)
-      .then(async (result) => {
-        const user = result.user;
-        
-        await ensureUserDoc(user);
-
-        toast({
-            title: t('signup.google_success_title'),
-            description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
-        });
-        
-        router.push('/dashboard');
-
-      })
-      .catch((error: any) => {
-        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-          console.log("Proses daftar Google dibatalkan oleh pengguna.");
-        } else if (error.code === 'auth/popup-blocked') {
-          toast({
-            variant: "destructive",
-            title: "Popup Diblokir",
-            description: "Browser Anda memblokir popup login. Harap izinkan popup untuk situs ini dan coba lagi.",
-          });
-        } else {
-            console.error("Google sign-up error:", error);
-            toast({
-                variant: "destructive",
-                title: "Pendaftaran Google Gagal",
-                description: error.message || "Terjadi kesalahan saat mendaftar dengan Google.",
-            });
-        }
-      })
-      .finally(() => {
-        setIsGoogleLoading(false);
-      });
-  };
-
 
   return (
     <div className="w-full max-w-sm mx-auto flex flex-col items-center">
@@ -178,7 +118,7 @@ export default function SignUpPage() {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             required
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                             />
                             {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
                         </div>
@@ -191,7 +131,7 @@ export default function SignUpPage() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                             />
                             {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
                         </div>
@@ -204,7 +144,7 @@ export default function SignUpPage() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                             />
                             <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
                                 {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -220,7 +160,7 @@ export default function SignUpPage() {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                             />
                             <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowConfirmPassword(!showConfirmPassword)}>
                                 {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -233,37 +173,12 @@ export default function SignUpPage() {
                         <Button
                             type="submit"
                             className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
-                            disabled={isLoading || isGoogleLoading}
+                            disabled={isLoading}
                         >
                             {isLoading ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : t('signup.submit_button')}
                         </Button>
                     </div>
                     
-                    <div className="relative">
-                        <div className="absolute inset-0 flex items-center">
-                            <span className="w-full border-t border-border/50" />
-                        </div>
-                        <div className="relative flex justify-center text-xs uppercase">
-                            <span className="bg-card px-2 text-muted-foreground">
-                            {t('signup.separator')}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <Button
-                        type="button"
-                        variant="outline"
-                        className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
-                        onClick={handleGoogleSignUp}
-                        disabled={isLoading || isGoogleLoading}
-                    >
-                        {isGoogleLoading ? (
-                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    ) : (
-                        <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
-                    )}
-                    {t('signup.google_button')}
-                </Button>
                     <p className="text-center text-xs text-muted-foreground !mt-8">
                         {t('signup.terms')}
                     </p>

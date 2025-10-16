@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -9,11 +8,7 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, User as UserIcon, Loader2, Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
-import { createUserWithEmailAndPassword, updateProfile, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
-import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
@@ -30,8 +25,6 @@ const signupSchema = z.object({
 
 export default function SignUpPage() {
   const router = useRouter();
-  const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -48,10 +41,6 @@ export default function SignUpPage() {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth || !firestore) {
-      setErrors({ form: "Layanan autentikasi atau database tidak tersedia." });
-      return;
-    }
 
     const validation = signupSchema.safeParse({ name, email, password, confirmPassword });
 
@@ -68,25 +57,9 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-      const firebaseUser = userCredential.user;
-
-      await updateProfile(firebaseUser, {
-        displayName: name,
-        photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
-      });
-
-      const newUser: User = {
-        id: firebaseUser.uid,
-        name: name,
-        email: email,
-        avatarUrl: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
-        role: UserRole.UNASSIGNED,
-        jabatan: 'Unassigned',
-      };
-      
-      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-      await setDoc(userDocRef, newUser);
+      // Placeholder for API call
+      console.log("Signing up with:", name, email);
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
       toast({
         title: "Pendaftaran Berhasil",
@@ -112,47 +85,30 @@ export default function SignUpPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!auth || !firestore) return;
     setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
-        };
-        await setDoc(userDocRef, newUser);
-      }
-      toast({
-        title: "Login Google Berhasil",
-        description: `Selamat datang, ${user.displayName}!`,
-      });
-      router.push('/dashboard');
+        console.log("Signing up with Google");
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        toast({
+            title: "Login Google Berhasil",
+            description: `Selamat datang!`,
+        });
+        router.push('/dashboard');
     } catch (error: any) {
-      console.error("Google sign-in error:", error);
-      let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
-      if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
-      }
-      toast({
-        variant: "destructive",
-        title: "Pendaftaran Google Gagal",
-        description: errorMessage,
-      });
+        console.error("Google sign-in error:", error);
+        let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
+        if (error.code === 'auth/popup-blocked') {
+            errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
+        } else if (error.code === 'auth/popup-closed-by-user') {
+            errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
+        }
+        toast({
+            variant: "destructive",
+            title: "Pendaftaran Google Gagal",
+            description: errorMessage,
+        });
     } finally {
-      setIsGoogleLoading(false);
+        setIsGoogleLoading(false);
     }
   };
 

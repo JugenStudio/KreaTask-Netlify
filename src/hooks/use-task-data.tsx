@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
 import type { Task, User, LeaderboardEntry, Notification, Subtask, File as FileType } from '@/lib/types';
-import { useUser } from '@/firebase/provider';
+import { useCurrentUser } from '@/app/(app)/layout';
 import { UserRole } from '@/lib/types';
 import { isEmployee } from '@/lib/roles';
 import { neon } from '@neondatabase/serverless';
@@ -91,7 +91,7 @@ const sql = neon(process.env.NEXT_PUBLIC_DATABASE_URL!);
 const db = drizzle(sql, { schema });
 
 export function TaskDataProvider({ children }: { children: ReactNode }) {
-    const { user: firebaseUser, isUserLoading: isAuthLoading } = useUser();
+    const { currentUser: authUser, isLoading: isAuthLoading } = useCurrentUser();
     const { toast } = useToast();
 
     const [allTasks, setAllTasks] = useState<Task[]>([]);
@@ -104,7 +104,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     
     // Function to fetch all data from NeonDB
     const fetchData = useCallback(async () => {
-        if (!firebaseUser) {
+        if (!authUser) {
             setIsLoading(false);
             return;
         }
@@ -113,7 +113,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         try {
             // Fetch current user data
             const currentUserResult = await db.query.users.findFirst({
-                where: eq(schema.users.id, firebaseUser.uid),
+                where: eq(schema.users.id, authUser.id),
             });
             setCurrentUserData(currentUserResult || null);
 
@@ -156,7 +156,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
             
             // Fetch notifications
             const notificationsResult = await db.query.notifications.findMany({
-                where: eq(schema.notifications.userId, firebaseUser.uid),
+                where: eq(schema.notifications.userId, authUser.id),
                 orderBy: desc(schema.notifications.createdAt),
             });
             setNotifications(notificationsResult as Notification[]);
@@ -171,13 +171,13 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         } finally {
             setIsLoading(false);
         }
-    }, [firebaseUser, toast]);
+    }, [authUser, toast]);
 
     useEffect(() => {
         if (!isAuthLoading) {
             fetchData();
         }
-    }, [isAuthLoading, firebaseUser, fetchData]);
+    }, [isAuthLoading, authUser, fetchData]);
 
 
     useEffect(() => {
@@ -357,5 +357,3 @@ export const useTaskData = () => {
     }
     return context;
 };
-
-    

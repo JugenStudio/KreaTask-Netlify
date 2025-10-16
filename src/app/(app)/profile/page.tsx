@@ -232,7 +232,7 @@ export default function ProfilePage() {
                         render={({ field }) => (
                             <FormItem>
                                 <FormLabel>{t('profile.details.email')}</FormLabel>
-                                <FormControl><Input type="email" {...field} /></FormControl>
+                                <FormControl><Input type="email" {...field} disabled /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}

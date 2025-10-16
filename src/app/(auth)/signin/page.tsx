@@ -4,24 +4,15 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth } from '@/firebase';
-import { 
-  signInWithEmailAndPassword, 
-  GoogleAuthProvider, 
-  signInWithPopup
-} from 'firebase/auth';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/providers/language-provider';
-import { ensureUserDoc } from '@/lib/ensureUserDoc';
 
 export default function SignInPage() {
   const router = useRouter();
-  const auth = useAuth();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -29,40 +20,36 @@ export default function SignInPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) {
-      setError("Layanan autentikasi tidak tersedia.");
-      return;
-    }
     
     setIsLoading(true);
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Login failed');
+      }
+
       toast({
         title: "Login Berhasil",
         description: "Selamat datang kembali!",
       });
       router.push('/dashboard');
-    } catch (firebaseError: any) {
-      let errorMessage = "Terjadi kesalahan saat login. Silakan coba lagi.";
-      switch (firebaseError.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          errorMessage = 'Email atau password yang Anda masukkan salah.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'Format email tidak valid.';
-          break;
-        default:
-          console.error("Firebase sign-in error:", firebaseError);
-      }
+      router.refresh(); // Important to re-fetch server data and update session
+      
+    } catch (err: any) {
+      const errorMessage = err.message || 'Email atau password yang Anda masukkan salah.';
       setError(errorMessage);
       toast({
         variant: "destructive",
@@ -72,51 +59,6 @@ export default function SignInPage() {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleGoogleSignIn = () => {
-    if (!auth) return;
-    
-    setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({
-      prompt: 'select_account'
-    });
-
-    signInWithPopup(auth, provider)
-      .then(async (result) => {
-        const user = result.user;
-        
-        await ensureUserDoc(user);
-        
-        toast({
-          title: t('signin.google_success_title'),
-          description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
-        });
-        router.push('/dashboard');
-
-      })
-      .catch((error: any) => {
-        if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-          console.log("Proses login Google dibatalkan oleh pengguna.");
-        } else if (error.code === 'auth/popup-blocked') {
-          toast({
-            variant: "destructive",
-            title: "Popup Diblokir",
-            description: "Browser Anda memblokir popup login. Harap izinkan popup untuk situs ini dan coba lagi.",
-          });
-        } else {
-            console.error("Google sign-in error:", error);
-            toast({
-                variant: "destructive",
-                title: "Login Google Gagal",
-                description: "Terjadi kesalahan saat login dengan Google.",
-            });
-        }
-      })
-      .finally(() => {
-        setIsGoogleLoading(false);
-      });
   };
 
   return (
@@ -147,7 +89,7 @@ export default function SignInPage() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required
-                        disabled={isLoading || isGoogleLoading}
+                        disabled={isLoading}
                         />
                     </div>
 
@@ -160,7 +102,7 @@ export default function SignInPage() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         required
-                        disabled={isLoading || isGoogleLoading}
+                        disabled={isLoading}
                         />
                         <Button type="button" variant="ghost" size="icon" className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 text-muted-foreground hover:text-foreground" onClick={() => setShowPassword(!showPassword)}>
                            {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
@@ -172,39 +114,12 @@ export default function SignInPage() {
                     <Button
                         type="submit"
                         className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-lg text-base"
-                        disabled={isLoading || isGoogleLoading}
+                        disabled={isLoading}
                     >
                         {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : t('signin.submit_button')}
                     </Button>
                 </div>
-
-                <div className="relative">
-                    <div className="absolute inset-0 flex items-center">
-                        <span className="w-full border-t border-border/50" />
-                    </div>
-                    <div className="relative flex justify-center text-xs uppercase">
-                        <span className="bg-card px-2 text-muted-foreground">
-                        {t('signin.separator')}
-                        </span>
-                    </div>
-                </div>
             </div>
-        </form>
-
-        <form onSubmit={(e) => { e.preventDefault(); handleGoogleSignIn(); }} className="p-8 pt-0">
-            <Button
-                type="submit"
-                variant="outline"
-                className="w-full h-12 bg-background/50 border-white/20 hover:bg-background/80"
-                disabled={isLoading || isGoogleLoading}
-            >
-                {isGoogleLoading ? (
-                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                ) : (
-                    <Image src="/google.svg" width={24} height={24} alt="Google logo" className="mr-2" />
-                )}
-                {t('signin.google_button')}
-            </Button>
         </form>
       </div>
     </div>

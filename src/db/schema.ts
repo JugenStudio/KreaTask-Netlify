@@ -1,4 +1,3 @@
-
 import {
   pgTable,
   text,
@@ -7,6 +6,7 @@ import {
   integer,
   boolean,
   json,
+  primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import type { LocalizedString, UserRole, TaskCategory, TaskStatus, ValueCategory, Evaluator } from '@/lib/types';
@@ -15,6 +15,7 @@ export const users = pgTable('users', {
   id: text('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
+  hashedPassword: text('hashed_password'),
   avatarUrl: text('avatar_url'),
   role: text('role').$type<UserRole>().notNull().default('Unassigned'),
   jabatan: varchar('jabatan', { length: 255 }),
@@ -40,7 +41,9 @@ export const tasks = pgTable('tasks', {
 export const tasksToUsers = pgTable('tasks_to_users', {
     taskId: text('task_id').notNull().references(() => tasks.id, { onDelete: 'cascade' }),
     userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-});
+}, (t) => ({
+    pk: primaryKey({ columns: [t.taskId, t.userId] }),
+}));
 
 export const subtasks = pgTable('subtasks', {
   id: text('id').primaryKey(),
@@ -91,12 +94,7 @@ export const notifications = pgTable('notifications', {
 // RELATIONS
 
 export const usersRelations = relations(users, ({ many }) => ({
-  assignedTasks: relations(tasksToUsers, ({ one }) => ({
-    task: one(tasks, {
-        fields: [tasksToUsers.taskId],
-        references: [tasks.id],
-    }),
-  })),
+  assignedTasks: many(tasksToUsers),
   comments: many(comments),
   revisions: many(revisions),
   notifications: many(notifications),

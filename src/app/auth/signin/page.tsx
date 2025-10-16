@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -9,19 +8,12 @@ import Image from 'next/image';
 import { Input } from '@/components/ui/input';
 import { Mail, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { useAuth, useFirestore } from '@/firebase';
-import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { User } from '@/lib/types';
-import { UserRole } from '@/lib/types';
 import { useLanguage } from '@/providers/language-provider';
 
 export default function SignInPage() {
   const router = useRouter();
-  const auth = useAuth();
-  const firestore = useFirestore();
   const { toast } = useToast();
   const { t } = useLanguage();
 
@@ -34,16 +26,17 @@ export default function SignInPage() {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!auth) {
-      setError("Layanan autentikasi tidak tersedia.");
-      return;
-    }
     
     setIsLoading(true);
     setError(null);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      // Logic will be replaced with API call
+      console.log("Signing in with:", email);
+      
+      // Placeholder for API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       toast({
         title: "Login Berhasil",
         description: "Selamat datang kembali!",
@@ -51,18 +44,6 @@ export default function SignInPage() {
       router.push('/dashboard');
     } catch (firebaseError: any) {
       let errorMessage = "Terjadi kesalahan saat login. Silakan coba lagi.";
-      switch (firebaseError.code) {
-        case 'auth/user-not-found':
-        case 'auth/wrong-password':
-        case 'auth/invalid-credential':
-          errorMessage = 'Email atau password yang Anda masukkan salah.';
-          break;
-        case 'auth/invalid-email':
-          errorMessage = 'Format email tidak valid.';
-          break;
-        default:
-          console.error("Firebase sign-in error:", firebaseError);
-      }
       setError(errorMessage);
       toast({
         variant: "destructive",
@@ -75,40 +56,18 @@ export default function SignInPage() {
   };
 
   const handleGoogleSignIn = async () => {
-    if (!auth || !firestore) return;
     setIsGoogleLoading(true);
-    const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (!userDoc.exists()) {
-        const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
-        };
-        await setDoc(userDocRef, newUser);
-      }
+      console.log("Signing in with Google");
+      await new Promise(resolve => setTimeout(resolve, 1000));
       toast({
         title: "Login Google Berhasil",
-        description: `Selamat datang, ${user.displayName}!`,
+        description: `Selamat datang!`,
       });
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Google sign-in error:", error);
       let errorMessage = "Terjadi kesalahan saat login dengan Google.";
-       if (error.code === 'auth/popup-blocked') {
-        errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-      } else if (error.code === 'auth/popup-closed-by-user') {
-        errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
-      }
       toast({
         variant: "destructive",
         title: "Login Google Gagal",
