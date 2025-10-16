@@ -319,5 +319,3 @@ export async function clearAllNotificationsAction(userId: string) {
     await db.delete(schema.notifications).where(eq(schema.notifications.userId, userId));
     revalidatePath('/dashboard');
 }
-
-    

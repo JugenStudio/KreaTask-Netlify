@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
     console.error('Registration error:', error);
-    if (error.message?.includes('unique constraint')) {
+    if (error.message?.includes('unique constraint') || error.message.includes('Email already in use')) {
        return NextResponse.json({ message: 'Email already in use' }, { status: 409 });
     }
     return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });
