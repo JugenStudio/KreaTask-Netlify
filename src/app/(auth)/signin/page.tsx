@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -16,12 +15,10 @@ import {
   signInWithPopup,
   fetchSignInMethodsForEmail 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import type { User } from '@/lib/types';
-import { UserRole } from '@/lib/types';
 import { useLanguage } from '@/providers/language-provider';
+import { ensureUserDoc } from '@/lib/ensureUserDoc';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -91,22 +88,8 @@ export default function SignInPage() {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      // Check if user document exists in Firestore
-      const userDocRef = doc(firestore, 'users', user.uid);
-      const userDoc = await getDoc(userDocRef);
-      
-      if (!userDoc.exists()) {
-        // If user doc doesn't exist, create it. This happens on first-time sign-in.
-        const newUser: User = {
-          id: user.uid,
-          name: user.displayName || 'Google User',
-          email: user.email || '',
-          avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-          role: UserRole.UNASSIGNED,
-          jabatan: 'Unassigned',
-        };
-        await setDoc(userDocRef, newUser);
-      }
+      // Memastikan dokumen pengguna ada di Firestore
+      await ensureUserDoc(firestore, user);
       
       toast({
         title: t('signin.google_success_title'),
@@ -116,7 +99,7 @@ export default function SignInPage() {
 
     } catch (error: any) {
       if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-        console.log("Google sign-in cancelled by user.");
+        console.log("Proses login Google dibatalkan oleh pengguna.");
       } else if (error.code === 'auth/popup-blocked') {
         toast({
           variant: "destructive",

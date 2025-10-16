@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import Link from 'next/link';
@@ -17,12 +16,13 @@ import {
     signInWithPopup,
     fetchSignInMethodsForEmail 
 } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { UserRole, type User } from '@/lib/types';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
+import { ensureUserDoc } from '@/lib/ensureUserDoc';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -74,25 +74,24 @@ export default function SignUpPage() {
     setErrors({});
 
     try {
+      // 1. Cek apakah email sudah digunakan
+      const methods = await fetchSignInMethodsForEmail(auth, email);
+      if (methods.length > 0) {
+        throw { code: 'auth/email-already-in-use' };
+      }
+
+      // 2. Buat pengguna di Firebase Auth
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const firebaseUser = userCredential.user;
 
+      // 3. Update profil Firebase Auth
       await updateProfile(firebaseUser, {
         displayName: name,
         photoURL: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
       });
 
-      const newUser: User = {
-        id: firebaseUser.uid,
-        name: name,
-        email: email,
-        avatarUrl: `https://picsum.photos/seed/${firebaseUser.uid}/100/100`,
-        role: UserRole.UNASSIGNED,
-        jabatan: 'Unassigned',
-      };
-      
-      const userDocRef = doc(firestore, 'users', firebaseUser.uid);
-      await setDoc(userDocRef, newUser);
+      // 4. Buat dokumen pengguna di Firestore menggunakan helper
+      await ensureUserDoc(firestore, firebaseUser);
 
       toast({
         title: "Pendaftaran Berhasil",
@@ -134,38 +133,31 @@ export default function SignUpPage() {
             throw new Error("Akun Google tidak memiliki email.");
         }
 
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
-
-        if (userDoc.exists()) {
-            // User already exists, so just sign them in.
+        // Cek apakah email sudah terdaftar dengan metode lain (misal: email/password)
+        const methods = await fetchSignInMethodsForEmail(auth, userEmail);
+        if (methods.length > 0 && methods.indexOf('google.com') === -1) {
             toast({
-                title: t('signin.google_success_title'),
-                description: t('signin.google_success_desc', { name: user.displayName || 'User' }),
+                variant: "destructive",
+                title: "Akun Sudah Terdaftar",
+                description: "Email ini sudah terdaftar dengan metode lain. Silakan masuk menggunakan password.",
             });
-        } else {
-            // User does not exist, create a new document.
-            const newUser: User = {
-                id: user.uid,
-                name: user.displayName || 'Google User',
-                email: user.email || '',
-                avatarUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/100/100`,
-                role: UserRole.UNASSIGNED,
-                jabatan: 'Unassigned',
-            };
-            await setDoc(userDocRef, newUser);
-
-            toast({
-                title: t('signup.google_success_title'),
-                description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
-            });
+            setIsGoogleLoading(false);
+            return;
         }
+
+        // Memastikan dokumen pengguna ada atau dibuat
+        await ensureUserDoc(firestore, user);
+
+        toast({
+            title: t('signup.google_success_title'),
+            description: t('signup.google_success_desc', { name: user.displayName || 'User' }),
+        });
         
         router.push('/dashboard');
 
     } catch (error: any) {
         if (error.code === 'auth/popup-closed-by-user' || error.code === 'auth/cancelled-popup-request') {
-          console.log("Google sign-up cancelled by user.");
+          console.log("Proses daftar Google dibatalkan oleh pengguna.");
         } else if (error.code === 'auth/popup-blocked') {
           toast({
             variant: "destructive",
@@ -177,7 +169,7 @@ export default function SignUpPage() {
             toast({
                 variant: "destructive",
                 title: "Pendaftaran Google Gagal",
-                description: "Terjadi kesalahan saat mendaftar dengan Google.",
+                description: error.message || "Terjadi kesalahan saat mendaftar dengan Google.",
             });
         }
     } finally {
