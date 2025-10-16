@@ -6,6 +6,7 @@ config({ path: '.env' });
 
 const envSchema = z.object({
   DATABASE_URL: z.string(),
+  GEMINI_API_KEY: z.string(),
   GOOGLE_CLIENT_ID: z.string(),
   GOOGLE_CLIENT_SECRET: z.string(),
   NEXTAUTH_SECRET: z.string(),
