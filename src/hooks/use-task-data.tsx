@@ -92,37 +92,38 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
     const currentUserDocRef = useMemoFirebase(() => (firestore && user) ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
     const { data: currentUserData, isLoading: isCurrentUserLoading } = useDoc<User>(currentUserDocRef);
     
-    // Conditionally fetch all users only if the current user has the permission
-    const shouldFetchAllUsers = useMemo(() => {
-        if (!currentUserData) return false;
-        return isDirector(currentUserData.role) || currentUserData.role === UserRole.ADMIN;
-    }, [currentUserData]);
-    
     const usersCollectionRef = useMemoFirebase(() => {
-        if (firestore && shouldFetchAllUsers) {
+        if (!firestore) return null;
+        // Fetch all users if current user is director/admin, otherwise this query will be null
+        // and allUsersFromDB will be null
+        if (currentUserData && (isDirector(currentUserData.role) || currentUserData.role === UserRole.ADMIN)) {
             return collection(firestore, 'users');
         }
         return null;
-    }, [firestore, shouldFetchAllUsers]);
-
+    }, [firestore, currentUserData]);
+    
     const { data: allUsersFromDB, isLoading: isAllUsersLoading } = useCollection<User>(usersCollectionRef);
-
-    // The final `users` array depends on whether all users were fetched or just the current user
+    
     const users = useMemo(() => {
-        if (shouldFetchAllUsers && allUsersFromDB) {
+        if (allUsersFromDB) {
             return allUsersFromDB;
         }
         if (currentUserData) {
             return [currentUserData];
         }
         return [];
-    }, [shouldFetchAllUsers, allUsersFromDB, currentUserData]);
+    }, [allUsersFromDB, currentUserData]);
+
 
     const tasksCollectionRef = useMemoFirebase(() => {
         if (!firestore || !currentUserData) return null;
+        
+        // Employees can only see tasks assigned to them
         if (isEmployee(currentUserData.role)) {
-            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', currentUserData.id));
+            return query(collection(firestore, 'tasks'), where('assignees', 'array-contains', { id: currentUserData.id, name: currentUserData.name, avatarUrl: currentUserData.avatarUrl, role: currentUserData.role }));
         }
+
+        // Directors and Admins can see all tasks
         return collection(firestore, 'tasks');
     }, [firestore, currentUserData]);
 
@@ -170,7 +171,7 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
 
     const addTask = useCallback(async (newTaskData: Partial<Task>) => {
         if (!firestore || !user) return;
-        const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? a : a.id);
+        const assignees = (newTaskData.assignees || []).map(a => typeof a === 'string' ? a.id : a);
         const docWithAssigneeUids = { ...newTaskData, assignees };
         await addDoc(collection(firestore, 'tasks'), docWithAssigneeUids);
     }, [firestore, user]);
@@ -180,10 +181,10 @@ export function TaskDataProvider({ children }: { children: ReactNode }) {
         const taskRef = doc(firestore, 'tasks', taskId);
         const updatePayload: Partial<Task> = { ...updates };
         if (updates.assignees) {
-            updatePayload.assignees = updates.assignees.map(a => typeof a === 'string' ? a : a.id);
+            updatePayload.assignees = updates.assignees.map(a => typeof a === 'string' ? { id: a, name: users.find(u=>u.id === a)?.name, avatarUrl: users.find(u=>u.id === a)?.avatarUrl, role: users.find(u=>u.id === a)?.role} : a) as User[];
         }
         await updateDoc(taskRef, updatePayload as any);
-    }, [firestore, user]);
+    }, [firestore, user, users]);
 
     const deleteTask = useCallback(async (taskId: string) => {
         if (!firestore || !user) return;
