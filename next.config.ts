@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  experimental: {
+    allowedDevOrigins: [
+      'https://3000-firebase-kreatask-netlify-1760610089432.cluster-nzwlpk54dvagsxetkvxzbvslyi.cloudworkstations.dev'
+    ]
+  },
   images: {
     remotePatterns: [
       {
