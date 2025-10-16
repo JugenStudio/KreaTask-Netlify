@@ -12,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { z } from 'zod';
 import { useLanguage } from '@/providers/language-provider';
+import { signIn } from 'next-auth/react';
 
 const signupSchema = z.object({
     name: z.string().min(1, "Nama lengkap diperlukan"),
@@ -86,30 +87,7 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try {
-        console.log("Signing up with Google");
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        toast({
-            title: "Login Google Berhasil",
-            description: `Selamat datang!`,
-        });
-        router.push('/dashboard');
-    } catch (error: any) {
-        console.error("Google sign-in error:", error);
-        let errorMessage = "Terjadi kesalahan saat mendaftar dengan Google.";
-        if (error.code === 'auth/popup-blocked') {
-            errorMessage = 'Popup login Google diblokir oleh browser. Harap izinkan popup untuk situs ini.';
-        } else if (error.code === 'auth/popup-closed-by-user') {
-            errorMessage = 'Anda menutup jendela login Google sebelum selesai.';
-        }
-        toast({
-            variant: "destructive",
-            title: "Pendaftaran Google Gagal",
-            description: errorMessage,
-        });
-    } finally {
-        setIsGoogleLoading(false);
-    }
+    await signIn('google', { callbackUrl: '/dashboard' });
   };
 
 

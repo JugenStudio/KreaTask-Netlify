@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/providers/language-provider';
+import { signIn } from 'next-auth/react';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -57,25 +58,8 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
-    try {
-      console.log("Signing in with Google");
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      toast({
-        title: "Login Google Berhasil",
-        description: `Selamat datang!`,
-      });
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error("Google sign-in error:", error);
-      let errorMessage = "Terjadi kesalahan saat login dengan Google.";
-      toast({
-        variant: "destructive",
-        title: "Login Google Gagal",
-        description: errorMessage,
-      });
-    } finally {
-      setIsGoogleLoading(false);
-    }
+    // This will redirect the user to the Google sign-in page
+    await signIn('google', { callbackUrl: '/dashboard' });
   };
 
   return (
