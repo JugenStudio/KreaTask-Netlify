@@ -22,12 +22,16 @@ declare module 'next-auth' {
       id: string;
       role: UserRole;
     } & NextAuthUser;
+    accessToken?: string;
+    expires_at?: string | null;
   }
 }
 declare module 'next-auth/jwt' {
   interface JWT {
     id: string;
     role: UserRole;
+    accessToken?: string;
+    expires_at?: string | null;
   }
 }
 
@@ -127,32 +131,51 @@ export const authOptions: NextAuthOptions = {
       return true; // Allow sign-in
     },
 
-    async jwt({ token, user, trigger, session }) {
-      if (user) {
-         const dbUser = await db.query.users.findFirst({
-            where: eq(schema.users.email, user.email!),
-         });
-         if (dbUser) {
-            token.id = dbUser.id;
-            token.role = dbUser.role;
-            token.name = dbUser.name;
-            token.picture = dbUser.avatarUrl;
-         }
+    async jwt({ token, user, account, trigger, session }) {
+       // Initial sign in
+      if (account && user) {
+        token.accessToken = account.access_token;
+        // Convert expires_at (number) to ISO string
+        token.expires_at = account.expires_at
+          ? new Date(account.expires_at * 1000).toISOString()
+          : null;
+        
+        const dbUser = await db.query.users.findFirst({
+          where: eq(schema.users.email, user.email!),
+        });
+        if (dbUser) {
+          token.id = dbUser.id;
+          token.role = dbUser.role;
+          token.name = dbUser.name;
+          token.picture = dbUser.avatarUrl;
+        }
       }
+      
+       // Update session call
+      if (trigger === "update" && session) {
+        token = {...token, ...session};
+      }
+      
       return token;
     },
 
     async session({ session, token }) {
-      if (token && session.user) {
+      if (token) {
         session.user.id = token.id;
         session.user.role = token.role;
         session.user.name = token.name;
         session.user.image = token.picture;
+        session.accessToken = token.accessToken;
+        session.expires_at = token.expires_at;
       }
       return session;
     },
 
     async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      if (new URL(url).origin === baseUrl) return url;
       return `${baseUrl}/dashboard`;
     },
   },
