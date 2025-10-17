@@ -1,6 +1,5 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { UserRole } from "../types";
 
 /**
  * A server-side utility to get the current authenticated user's session data.
@@ -13,12 +12,9 @@ export async function getSessionUser() {
     return null;
   }
 
-  // Ensure the role from the session matches the UserRole enum.
-  const userRole = session.user.role in UserRole ? session.user.role : UserRole.UNASSIGNED;
-
   return {
     id: session.user.id,
-    roleId: userRole, // Use the validated role
+    role: session.user.role, // role is now a string from the JWT
     email: session.user.email,
     name: session.user.name,
   };
