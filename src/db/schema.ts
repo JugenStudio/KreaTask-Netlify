@@ -8,9 +8,14 @@ import {
   boolean,
   json,
   primaryKey,
+  pgEnum
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import type { LocalizedString, TaskCategory, TaskStatus, ValueCategory, Evaluator, UserRole } from '@/lib/types';
+import type { LocalizedString, TaskCategory, ValueCategory, Evaluator } from '@/lib/types';
+
+// Enums for database type safety
+export const userRoleEnum = pgEnum('user_role', ['roles_super_admin', 'roles_admin', 'roles_team_leader', 'roles_team_member', 'roles_unassigned']);
+export const taskStatusEnum = pgEnum('task_status', ['To-do', 'In Progress', 'In Review', 'Completed', 'Blocked']);
 
 // --- NEW TABLES FOR RBAC ---
 
@@ -38,8 +43,8 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   hashedPassword: text('hashed_password'),
   avatarUrl: text('avatar_url'),
-  // Role ID now references the new 'roles' table
-  roleId: text('role_id').references(() => roles.id).notNull().default('roles_unassigned'),
+  // Role ID now references the new 'roles' table and uses the enum
+  roleId: userRoleEnum('role_id').notNull().default('roles_unassigned'),
   jabatan: varchar('jabatan', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -49,7 +54,7 @@ export const tasks = pgTable('tasks', {
   id: text('id').primaryKey(),
   title: json('title').$type<LocalizedString>().notNull(),
   description: json('description').$type<LocalizedString>(),
-  status: text('status').$type<TaskStatus>().notNull().default('To-do'),
+  status: taskStatusEnum('status').notNull().default('To-do'),
   dueDate: timestamp('due_date').notNull(),
   category: text('category').$type<TaskCategory>().notNull().default('Medium'),
   value: integer('value').notNull().default(0),
@@ -89,7 +94,7 @@ export const comments = pgTable('comments', {
   content: json('content').$type<LocalizedString>().notNull(),
   timestamp: timestamp('timestamp').defaultNow().notNull(),
   isPinned: boolean('is_pinned').default(false),
-  authorId: text('author_id').references(() => users.id),
+  authorId: text('author_id').references(() => users.id, { onDelete: 'cascade' }),
   taskId: text('task_id').references(() => tasks.id, { onDelete: 'cascade' }),
 });
 
@@ -97,7 +102,7 @@ export const revisions = pgTable('revisions', {
   id: text('id').primaryKey(),
   timestamp: timestamp('timestamp').defaultNow().notNull(),
   change: json('change').$type<LocalizedString>().notNull(),
-  authorId: text('author_id').references(() => users.id),
+  authorId: text('author_id').references(() => users.id, { onDelete: 'cascade' }),
   taskId: text('task_id').references(() => tasks.id, { onDelete: 'cascade' }),
 });
 
@@ -109,7 +114,7 @@ export const notifications = pgTable('notifications', {
   link: text('link'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   userId: text('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
-  taskId: text('task_id').references(() => tasks.id),
+  taskId: text('task_id').references(() => tasks.id, { onDelete: 'cascade' }),
 });
 
 
@@ -205,3 +210,5 @@ export const notificationsRelations = relations(notifications, ({ one }) => ({
         references: [tasks.id],
     }),
 }));
+
+    

@@ -3,7 +3,6 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { hasPermission } from "@/lib/auth/permissions";
 
-// Define which actions are required for which API paths.
 const PROTECTED_API_ROUTES = [
   { path: "/api/users", action: "manage_users" },
   { path: "/api/settings", action: "manage_settings" },
@@ -64,3 +63,5 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|sounds/.*|google.svg).*)",
   ],
 };
+
+    

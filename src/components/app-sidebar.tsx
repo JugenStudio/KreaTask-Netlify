@@ -113,10 +113,12 @@ export function AppSidebar({ user }: { user: User }) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('header.logout_dialog.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleLogout}>{t('header.logout_dialog.confirm')}</AlertDialogAction>
+            <AlertDialogAction onClick={handleLogout} className="bg-destructive hover:bg-destructive/90">{t('header.logout_dialog.confirm')}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
     </>
   );
 }
+
+    
