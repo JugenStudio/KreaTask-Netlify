@@ -274,7 +274,7 @@ export function TaskDetails({ task }: TaskDetailsProps) {
   const progressPercentage = totalSubtasks > 0 ? (completedSubtasks / totalSubtasks) * 100 : 0;
 
   const isAssignedToCurrentUser = currentUser && task.assignees.some(a => a.id === currentUser.id);
-  const canSubmit = isEmployee(currentUser?.role || '') && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
+  const canSubmit = currentUser && isEmployee(currentUser.role) && isAssignedToCurrentUser && (task.status === 'In Progress' || task.status === 'To-do');
 
   return (
     <>

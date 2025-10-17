@@ -1,7 +1,6 @@
 import '@/env'; // Import environment variables
 import { NextRequest, NextResponse } from 'next/server';
 import * as bcrypt from 'bcrypt';
-import { UserRole } from '@/lib/types';
 import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '@/db/client';
 import * as schema from '@/db/schema';
@@ -28,7 +27,7 @@ export async function POST(req: NextRequest) {
       email: email.toLowerCase(),
       hashedPassword,
       avatarUrl: `https://picsum.photos/seed/${userId}/100/100`,
-      roleId: UserRole.UNASSIGNED, // Assign new users to UNASSIGNED role
+      roleId: "roles_unassigned", // Assign new users to UNASSIGNED role
       jabatan: 'Unassigned',
       createdAt: new Date(),
       updatedAt: new Date(),

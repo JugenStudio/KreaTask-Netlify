@@ -1,15 +1,14 @@
 
-import { UserRole } from "./types";
+import type { UserRole } from "./types";
 
-// These roles are now based on the new enum values from your seed script
-const EMPLOYEE_ROLES = [
-  UserRole.TEAM_MEMBER, // covers Jurnalis, Desain, etc.
-  UserRole.UNASSIGNED, 
+const EMPLOYEE_ROLES: UserRole[] = [
+  "roles_team_member",
+  "roles_unassigned",
 ];
 
-const DIRECTOR_ROLES = [
-  UserRole.ADMIN, // Direktur Utama
-  UserRole.TEAM_LEADER, // Direktur Operasional
+const DIRECTOR_ROLES: UserRole[] = [
+  "roles_admin",
+  "roles_team_leader",
 ];
 
 export const isEmployee = (role: UserRole): boolean => {
@@ -17,10 +16,10 @@ export const isEmployee = (role: UserRole): boolean => {
 };
 
 export const isDirector = (role: UserRole): boolean => {
-  if (role === UserRole.UNASSIGNED) return false;
+  if (role === "roles_unassigned") return false;
   return DIRECTOR_ROLES.includes(role);
 };
 
 export const isSuperAdmin = (role: UserRole): boolean => {
-  return role === UserRole.SUPER_ADMIN;
+  return role === "roles_super_admin";
 }

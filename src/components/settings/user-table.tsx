@@ -29,8 +29,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import type { User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
+import type { User, UserRole } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import { isEmployee, isDirector, isSuperAdmin } from "@/lib/roles";
 import { Trash2 } from "lucide-react";
@@ -40,7 +39,14 @@ import { useTaskData } from "@/hooks/use-task-data";
 import { Skeleton } from "../ui/skeleton";
 import { updateUserAction, deleteUserAction } from "@/app/actions";
 
-const roles: UserRole[] = Object.values(UserRole);
+const roles: UserRole[] = [
+  "roles_super_admin",
+  "roles_admin",
+  "roles_team_leader",
+  "roles_team_member",
+  "roles_unassigned",
+];
+
 
 interface UserTableProps {
   currentUser: User;
@@ -92,13 +98,14 @@ export function UserTable({ currentUser, initialUsers, setUsers }: UserTableProp
   const canEditRole = (targetUser: User): boolean => {
     if (currentUser.id === targetUser.id) return false; // Cannot edit self
     if (isSuperAdmin(currentUser.role)) return true; // Super Admin can edit anyone
-    // Direktur Utama can edit anyone except Super Admin
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
-        return targetUser.role !== UserRole.ADMIN;
+    
+    // Admin (Direktur Utama) can edit anyone except Super Admin
+    if (currentUser.role === "roles_admin") {
+        return targetUser.role !== "roles_super_admin";
     }
     // Directors can edit employees or unassigned users
     if (isDirector(currentUser.role)) {
-      return isEmployee(targetUser.role) || targetUser.role === UserRole.UNASSIGNED;
+      return isEmployee(targetUser.role) || targetUser.role === "roles_unassigned";
     }
     return false;
   };
@@ -106,12 +113,12 @@ export function UserTable({ currentUser, initialUsers, setUsers }: UserTableProp
   const canDeleteUser = (targetUser: User): boolean => {
      if (currentUser.id === targetUser.id) return false;
      if (isSuperAdmin(currentUser.role)) return true; // Super admin can delete anyone
-     if (currentUser.role === UserRole.DIREKTUR_UTAMA) {
-        return targetUser.role !== UserRole.ADMIN; // Direktur Utama can delete anyone except super admin
+     if (currentUser.role === "roles_admin") {
+        return targetUser.role !== "roles_super_admin"; // Admin can delete anyone except super admin
      }
      if (isDirector(currentUser.role)) {
        // Directors can only delete employees or unassigned users
-       return isEmployee(targetUser.role) || targetUser.role === UserRole.UNASSIGNED;
+       return isEmployee(targetUser.role) || targetUser.role === "roles_unassigned";
      }
      return false;
   }
@@ -249,4 +256,3 @@ export function UserTable({ currentUser, initialUsers, setUsers }: UserTableProp
     </>
   );
 }
-    

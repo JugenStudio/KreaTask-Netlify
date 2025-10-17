@@ -35,7 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import Image from "next/image";
 import { Card, CardHeader, CardTitle, CardContent } from "../ui/card";
 import { useState, useMemo, useEffect } from "react";
-import { TaskCategory, UserRole, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory } from "@/lib/types";
+import { TaskCategory, type User, type LocalizedString, type Subtask, type File as FileType, type ValueCategory, type UserRole } from "@/lib/types";
 import { Calendar } from "@/components/ui/calendar";
 import { isDirector, isEmployee } from "@/lib/roles";
 import { getTranslations, getTaskFromAI, createNewTask, createNotificationAction } from "@/app/actions";
@@ -124,7 +124,7 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     if (isEmployee(currentUser.role)) {
       return [currentUser];
     }
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA || currentUser.role === UserRole.ADMIN) {
+    if (currentUser.role === "roles_admin" || currentUser.role === "roles_super_admin") {
       return users;
     }
     if (isDirector(currentUser.role)) {
@@ -574,4 +574,3 @@ export function TaskForm({ currentUser }: TaskFormProps) {
     </>
   );
 }
-    

@@ -1,7 +1,7 @@
+
 import { NextResponse, type NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 import { hasPermission } from "@/lib/auth/permissions";
-import { UserRole } from "./lib/types";
 
 // Define which actions are required for which API paths.
 const PROTECTED_API_ROUTES = [
@@ -35,7 +35,7 @@ export async function middleware(req: NextRequest) {
   );
 
   if (matchedApiRoute) {
-    const userRole = (token.role || UserRole.UNASSIGNED) as UserRole;
+    const userRole = (token.role || "roles_unassigned") as string;
     const allowed = await hasPermission(userRole, matchedApiRoute.action);
 
     if (!allowed) {

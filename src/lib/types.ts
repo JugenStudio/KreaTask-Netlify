@@ -1,16 +1,5 @@
-export enum UserRole {
-  SUPER_ADMIN = "roles_super_admin",
-  ADMIN = "roles_admin",
-  TEAM_LEADER = "roles_team_leader",
-  TEAM_MEMBER = "roles_team_member",
-  UNASSIGNED = "roles_unassigned",
-  // Legacy roles for data consistency if needed, but new system uses above
-  JURNALIS = "roles_team_member", // mapping to new base role
-  SOCIAL_MEDIA_OFFICER = "roles_team_member",
-  DESAIN_GRAFIS = "roles_team_member",
-  MARKETING = "roles_team_member",
-  FINANCE = "roles_team_member",
-}
+
+export type UserRole = string; // Now a string type
 
 export enum TaskCategory {
   Low = 'Low',
@@ -31,7 +20,7 @@ export interface User {
   name: string;
   email: string;
   avatarUrl: string;
-  roleId: UserRole; // Changed from 'role' to 'roleId'
+  role: UserRole; 
   jabatan?: string;
 }
 
@@ -97,7 +86,7 @@ export interface LeaderboardEntry {
     score: number;
     tasksCompleted: number;
     avatarUrl: string;
-    roleId: UserRole;
+    role: UserRole;
     jabatan?: string;
 }
 
@@ -106,7 +95,7 @@ export interface DetailedReportEntry {
     taskId: string;
     employeeName: string;
     taskTitle: LocalizedString;
-    roleId: UserRole;
+    role: UserRole;
     priority: string;
     deadline: string;
     completedOn: string;

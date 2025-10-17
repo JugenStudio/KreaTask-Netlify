@@ -8,8 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useTaskData } from "@/hooks/use-task-data";
 import { Search, List, LayoutGrid, ArrowLeft, ListTodo } from "lucide-react";
-import type { Task, TaskStatus, User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
+import type { Task, TaskStatus, User, UserRole } from "@/lib/types";
 import { isEmployee } from "@/lib/roles";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/providers/language-provider";
@@ -76,24 +75,13 @@ export default function AllTasksPage() {
     if (!currentUser) return [];
 
     if (isEmployee(currentUser.role)) {
-      // Level 1: Karyawan hanya melihat tugasnya sendiri
+      // Karyawan only sees their own tasks
       return allTasks.filter(task => 
         task.assignees.some(assignee => assignee.id === currentUser.id)
       );
     }
-    if (currentUser.role === UserRole.DIREKTUR_OPERASIONAL) {
-      // Level 2: Direktur Operasional melihat tugas timnya
-      const supervisedRoles = [UserRole.JURNALIS, UserRole.SOCIAL_MEDIA_OFFICER, UserRole.DESAIN_GRAFIS];
-      return allTasks.filter(task => 
-        task.assignees.some(assignee => supervisedRoles.includes(assignee.role))
-      );
-    }
-    if (currentUser.role === UserRole.DIREKTUR_UTAMA || currentUser.role === UserRole.ADMIN) {
-      // Level 3: Direktur Utama & Admin melihat semua tugas
-      return allTasks;
-    }
-    // Fallback jika peran tidak terdefinisi
-    return [];
+    // Directors and Admins see all tasks
+    return allTasks;
   })();
 
   const filteredTasks = visibleTasks.filter(task => {

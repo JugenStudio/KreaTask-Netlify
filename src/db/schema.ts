@@ -1,3 +1,4 @@
+
 import {
   pgTable,
   text,
@@ -9,7 +10,7 @@ import {
   primaryKey,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import type { LocalizedString, UserRole, TaskCategory, TaskStatus, ValueCategory, Evaluator } from '@/lib/types';
+import type { LocalizedString, TaskCategory, TaskStatus, ValueCategory, Evaluator, UserRole } from '@/lib/types';
 
 // --- NEW TABLES FOR RBAC ---
 

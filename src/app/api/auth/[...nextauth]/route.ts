@@ -9,7 +9,7 @@ import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import { UserRole } from '@/lib/types';
+import type { UserRole } from '@/lib/types';
 
 import '@/env';
 import { createNotificationAction } from '@/app/actions';
@@ -107,7 +107,7 @@ export const authOptions: NextAuthOptions = {
             avatarUrl: user.image,
             hashedPassword: null,
             // Automatically assign the 'Unassigned' role to new users
-            roleId: UserRole.UNASSIGNED,
+            roleId: "roles_unassigned",
             jabatan: 'Unassigned',
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -139,7 +139,7 @@ export const authOptions: NextAuthOptions = {
 
         if (dbUser) {
           token.id = dbUser.id;
-          token.role = dbUser.roleId;
+          token.role = dbUser.roleId as UserRole;
           token.name = dbUser.name;
           token.picture = dbUser.avatarUrl;
         }

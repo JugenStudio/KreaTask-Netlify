@@ -1,8 +1,5 @@
-
-import { config } from 'dotenv';
 import { z } from 'zod';
-
-config({ path: '.env' });
+// We don't import dotenv/config here anymore. It's imported at the entry points.
 
 const envSchema = z.object({
   DATABASE_URL: z.string(),
@@ -13,4 +10,7 @@ const envSchema = z.object({
   NEXTAUTH_URL: z.string().optional(),
 });
 
+// This will throw a build-time error if the environment variables are not set.
+// The values are loaded by Vercel/Netlify/Docker/etc. in production.
+// In local dev, they are loaded by the `dotenv/config` import in `dev` scripts or API routes.
 export const env = envSchema.parse(process.env);

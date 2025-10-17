@@ -6,12 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { users } from "@/lib/data";
 import { useLanguage } from "@/providers/language-provider";
 import { Camera } from "lucide-react";
-import { useEffect, useState } from "react";
-import type { User } from "@/lib/types";
-import { UserRole } from "@/lib/types";
+import type { User, UserRole } from "@/lib/types";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCurrentUser } from "@/app/(app)/layout";
 

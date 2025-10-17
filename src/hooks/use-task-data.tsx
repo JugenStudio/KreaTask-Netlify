@@ -2,9 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, createContext, useContext, ReactNode, useMemo } from 'react';
-import type { Task, User, LeaderboardEntry, Notification } from '@/lib/types';
+import type { Task, User, LeaderboardEntry, Notification, UserRole } from '@/lib/types';
 import { useCurrentUser } from '@/app/(app)/layout';
-import { UserRole } from '@/lib/types';
 import { isEmployee } from '@/lib/roles';
 import { useToast } from './use-toast';
 import { getInitialDashboardData } from '@/app/actions';
@@ -27,7 +26,7 @@ const calculateLeaderboard = (tasks: Task[], users: User[]): LeaderboardEntry[] 
     const teamMembers = users.filter(user => isEmployee(user.role));
     if (teamMembers.length === 0) return [];
 
-    const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: any; jabatan?: string; } } = {};
+    const userScores: { [key: string]: { name: string; score: number; tasksCompleted: number; avatarUrl: string; role: UserRole; jabatan?: string; } } = {};
 
     teamMembers.forEach(user => {
       userScores[user.id] = { name: user.name, score: 0, tasksCompleted: 0, avatarUrl: user.avatarUrl, role: user.role, jabatan: user.jabatan };

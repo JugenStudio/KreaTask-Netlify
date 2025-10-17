@@ -51,7 +51,7 @@ function AppLayoutContent({ children }: { children: React.ReactNode }) {
             name: session.user.name || '',
             email: session.user.email || '',
             avatarUrl: session.user.image || '',
-            role: session.user.role || 'Unassigned',
+            role: session.user.role || 'roles_unassigned',
         } as AppUser;
     }
     return null;
