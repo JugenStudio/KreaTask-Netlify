@@ -11,13 +11,34 @@ import {
 import { relations } from 'drizzle-orm';
 import type { LocalizedString, UserRole, TaskCategory, TaskStatus, ValueCategory, Evaluator } from '@/lib/types';
 
+// --- NEW TABLES FOR RBAC ---
+
+export const roles = pgTable("roles", {
+  id: text("id").primaryKey(), // e.g., 'roles_admin'
+  name: text("name").notNull(), // e.g., 'Admin'
+  description: text("description"),
+  level: integer("level").notNull(), // Hierarchy level
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const permissions = pgTable("permissions", {
+  id: text('id').primaryKey().$defaultFn(() => `perm_${crypto.randomUUID()}`),
+  roleId: text("role_id").references(() => roles.id, { onDelete: 'cascade' }).notNull(),
+  action: text("action").notNull(), // e.g., 'manage_tasks'
+  allowed: boolean("allowed").notNull(),
+});
+
+
+// --- EXISTING TABLES ---
+
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
   name: varchar('name', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }).notNull().unique(),
   hashedPassword: text('hashed_password'),
   avatarUrl: text('avatar_url'),
-  role: text('role').$type<UserRole>().notNull().default('Unassigned'),
+  // Role ID now references the new 'roles' table
+  roleId: text('role_id').references(() => roles.id).notNull().default('roles_unassigned'),
   jabatan: varchar('jabatan', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -93,7 +114,25 @@ export const notifications = pgTable('notifications', {
 
 // RELATIONS
 
-export const usersRelations = relations(users, ({ many }) => ({
+// --- NEW RELATIONS ---
+export const rolesRelations = relations(roles, ({ many }) => ({
+  permissions: many(permissions),
+  users: many(users),
+}));
+
+export const permissionsRelations = relations(permissions, ({ one }) => ({
+  role: one(roles, {
+    fields: [permissions.roleId],
+    references: [roles.id],
+  }),
+}));
+
+// --- UPDATED & EXISTING RELATIONS ---
+export const usersRelations = relations(users, ({ many, one }) => ({
+  role: one(roles, {
+    fields: [users.roleId],
+    references: [roles.id],
+  }),
   assignedTasks: many(tasksToUsers),
   comments: many(comments),
   revisions: many(revisions),

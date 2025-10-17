@@ -1,15 +1,15 @@
-
-
 export enum UserRole {
-  ADMIN = "roles_super_admin",
-  DIREKTUR_UTAMA = "roles_admin",
-  DIREKTUR_OPERASIONAL = "roles_team_leader",
-  JURNALIS = "roles_team_member",
-  SOCIAL_MEDIA_OFFICER = "Social Media Officer", // Keeping as is if not in seed script
-  DESAIN_GRAFIS = "Desain Grafis",             // Keeping as is if not in seed script
-  MARKETING = "Marketing",                       // Keeping as is if not in seed script
-  FINANCE = "Finance",                           // Keeping as is if not in seed script
-  UNASSIGNED = "Unassigned",                     // Keeping as is if not in seed script
+  SUPER_ADMIN = "roles_super_admin",
+  ADMIN = "roles_admin",
+  TEAM_LEADER = "roles_team_leader",
+  TEAM_MEMBER = "roles_team_member",
+  UNASSIGNED = "roles_unassigned",
+  // Legacy roles for data consistency if needed, but new system uses above
+  JURNALIS = "roles_team_member", // mapping to new base role
+  SOCIAL_MEDIA_OFFICER = "roles_team_member",
+  DESAIN_GRAFIS = "roles_team_member",
+  MARKETING = "roles_team_member",
+  FINANCE = "roles_team_member",
 }
 
 export enum TaskCategory {
@@ -31,8 +31,8 @@ export interface User {
   name: string;
   email: string;
   avatarUrl: string;
-  role: UserRole;
-  jabatan?: string; // Add optional jabatan field
+  roleId: UserRole; // Changed from 'role' to 'roleId'
+  jabatan?: string;
 }
 
 export interface File {
@@ -97,7 +97,7 @@ export interface LeaderboardEntry {
     score: number;
     tasksCompleted: number;
     avatarUrl: string;
-    role: UserRole;
+    roleId: UserRole;
     jabatan?: string;
 }
 
@@ -106,7 +106,7 @@ export interface DetailedReportEntry {
     taskId: string;
     employeeName: string;
     taskTitle: LocalizedString;
-    role: UserRole;
+    roleId: UserRole;
     priority: string;
     deadline: string;
     completedOn: string;

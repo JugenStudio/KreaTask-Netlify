@@ -1,4 +1,3 @@
-
 // src/app/api/auth/[...nextauth]/route.ts
 
 import NextAuth from 'next-auth';
@@ -10,7 +9,7 @@ import * as schema from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import type { UserRole } from '@/lib/types';
+import { UserRole } from '@/lib/types';
 
 import '@/env';
 import { createNotificationAction } from '@/app/actions';
@@ -81,7 +80,7 @@ export const authOptions: NextAuthOptions = {
         }
         
         const { hashedPassword, ...userWithoutPassword } = user;
-        return userWithoutPassword;
+        return userWithoutPassword as any;
       },
     }),
   ],
@@ -90,7 +89,7 @@ export const authOptions: NextAuthOptions = {
   },
   secret: process.env.NEXTAUTH_SECRET,
   callbacks: {
-    async signIn({ user, account, profile, isNewUser }) {
+    async signIn({ user, account, profile }) {
       const email = user.email;
       if (!email) return false; // Must have email
       
@@ -107,7 +106,8 @@ export const authOptions: NextAuthOptions = {
             email: email,
             avatarUrl: user.image,
             hashedPassword: null,
-            role: 'Unassigned',
+            // Automatically assign the 'Unassigned' role to new users
+            roleId: UserRole.UNASSIGNED,
             jabatan: 'Unassigned',
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -132,26 +132,25 @@ export const authOptions: NextAuthOptions = {
     },
 
     async jwt({ token, user, account, trigger, session }) {
-       // Initial sign in
       if (account && user) {
-        token.accessToken = account.access_token;
-        // Convert expires_at (number) to ISO string
-        token.expires_at = account.expires_at
-          ? new Date(account.expires_at * 1000).toISOString()
-          : null;
-        
         const dbUser = await db.query.users.findFirst({
           where: eq(schema.users.email, user.email!),
         });
+
         if (dbUser) {
           token.id = dbUser.id;
-          token.role = dbUser.role;
+          token.role = dbUser.roleId;
           token.name = dbUser.name;
           token.picture = dbUser.avatarUrl;
         }
+
+        token.accessToken = account.access_token;
+        // Ensure expires_at is converted to a string to prevent serialization issues
+        token.expires_at = account.expires_at
+          ? new Date(account.expires_at * 1000).toISOString()
+          : null;
       }
       
-       // Update session call
       if (trigger === "update" && session) {
         token = {...token, ...session};
       }
@@ -166,7 +165,17 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.image = token.picture;
         session.accessToken = token.accessToken;
-        session.expires_at = token.expires_at;
+        
+        // Final check to ensure expires_at is a string
+        if (token.expires_at && typeof token.expires_at !== "string") {
+          try {
+            session.expires_at = new Date(token.expires_at as any).toISOString();
+          } catch {
+            session.expires_at = null;
+          }
+        } else {
+          session.expires_at = token.expires_at;
+        }
       }
       return session;
     },
